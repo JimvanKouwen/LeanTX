@@ -38,18 +38,7 @@ extern const uint8_t font_3x5[];
 extern const uint8_t font_5x7_B[];
 extern const uint8_t font_22x38_num[];
 
-#if !defined(ALL_LANGS) || defined(BOOT)
-
 extern const uint8_t font_4x6[];
 extern const uint8_t font_5x7[];
 extern const uint8_t font_8x10[];
 extern const uint8_t font_10x14[];
-
-#else
-
-extern const uint8_t* font_4x6;
-extern const uint8_t* font_5x7;
-extern const uint8_t* font_8x10;
-extern const uint8_t* font_10x14;
-
-#endif

@@ -33,10 +33,6 @@ on:
       - 'fw.json'
       - 'web/scripts/gen-radios-json.js'
       - 'web/public/radios.json'
-      # simulator string list
-      - 'radio/src/translations/simstr.m4'
-      - 'radio/src/translations/string_list.h'
-      - 'radio/src/translations/sim_string_list.h'
   pull_request:
     paths: *trigger-paths
   workflow_dispatch:
@@ -64,7 +60,6 @@ jobs:
       fonts: ${{ steps.filter.outputs.fonts }}
       yaml: ${{ steps.filter.outputs.yaml }}
       radios: ${{ steps.filter.outputs.radios }}
-      simstr: ${{ steps.filter.outputs.simstr }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
@@ -127,12 +122,6 @@ jobs:
               - 'radio/src/boards/hw_defs/**'
               - 'web/scripts/gen-radios-json.js'
               - 'web/public/radios.json'
-            simstr:
-              - '.github/workflows/codegen_drift.yml'
-              - '.github/actions/codegen_drift/action.yml'
-              - 'radio/src/translations/simstr.m4'
-              - 'radio/src/translations/string_list.h'
-              - 'radio/src/translations/sim_string_list.h'
 
   cfn-sort:
     name: Custom function sort order
@@ -223,24 +212,3 @@ jobs:
           recipe: gen-radios
           paths: web/public/radios.json
           label: Web simulator radio list
-
-  simstr:
-    name: Simulator string list
-    needs: changes
-    if: needs.changes.outputs.simstr == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
-      volumes:
-        - ${{ github.workspace }}:/src
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v7
-
-      - name: Check for drift
-        uses: ./.github/actions/codegen_drift
-        with:
-          recipe: gen-simstr
-          paths: radio/src/translations/sim_string_list.h
-          label: Simulator string list

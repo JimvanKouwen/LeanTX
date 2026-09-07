@@ -185,6 +185,7 @@
 #define TR_VDISPLAYTRIMS            SA3(TR_VDISPLAYTRIMS)
 #define TR_ADCFILTERVALUES          SA3(TR_ADCFILTERVALUES)
 #define TR_VMLTPX                   SA3(TR_VMLTPX)
+#define TR_CYC_VSRCRAW              "[C1]","[C2]","[C3]"
 #define TR_VPREC                    SA3(TR_VPREC)
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES          TR_BLUETOOTH_MODES_1, TR_BLUETOOTH_MODES_4

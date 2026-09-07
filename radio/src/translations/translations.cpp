@@ -62,18 +62,6 @@
 #include "translations/i18n/en.h"
 #endif
 
-uint8_t getLanguageId(const char* lang)
-{
-  for (uint8_t i = 0; languagePacks[i] != nullptr; i++) {
-    if (!strncmp(lang, languagePacks[i]->id, 2)) {
-      return i;
-    }
-  }
-  return LANG_EN;
-}
-
-#if !defined(ALL_LANGS) || defined(BOOT)
-
 // Static string
 #define STR(x) const char STR_##x[] = TR_##x;
 // Static string array
@@ -83,28 +71,3 @@ uint8_t getLanguageId(const char* lang)
 
 #undef STR
 #undef STRARRAY
-
-#else
-
-bool isTextLangAvail(int lang)
-{
-  // Only English is shipped for now; re-add exclusions here as translations are restored.
-  return true;
-}
-
-// Only English is shipped for now; re-add language codes here as translations are restored.
-const LangStrings* const langStrings[] = {
-  &enLangStrings,
-};
-
-// Static string
-#define STR(x) const char* STR_##x##_FN() { return STR_##x; }
-// Static string array
-#define STRARRAY(x) const char* const* STR_##x##_FN() { return STR_##x; }
-
-#include "string_list.h"
-
-#undef STR
-#undef STRARRAY
-
-#endif

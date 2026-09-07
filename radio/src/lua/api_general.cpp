@@ -1774,16 +1774,8 @@ static int luaGetGeneralSettings(lua_State * L)
   lua_pushtablenumber(L, "battMin", (90+g_eeGeneral.vBatMin) * 0.1f);
   lua_pushtablenumber(L, "battMax", (120+g_eeGeneral.vBatMax) * 0.1f);
   lua_pushtableinteger(L, "imperial", g_eeGeneral.imperial);
-#if defined(ALL_LANGS)
-  char l[3];
-  l[0] = toupper(g_eeGeneral.uiLanguage[0]);
-  l[1] = toupper(g_eeGeneral.uiLanguage[1]);
-  l[2] = 0;
-  lua_pushtablestring(L, "language", l);
-#else
   lua_pushtablestring(L, "language", TRANSLATIONS);
-#endif
-  lua_pushtablestring(L, "voice", currentLanguagePack->id);
+  lua_pushtablestring(L, "voice", TRANSLATIONS);
   lua_pushtableinteger(L, "gtimer", g_eeGeneral.globalTimer);
   return 1;
 }

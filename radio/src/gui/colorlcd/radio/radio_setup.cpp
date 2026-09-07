@@ -19,8 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#define LANGUAGE_PACKS_DEFINITION
-
 #include "radio_setup.h"
 
 #include "choice.h"
@@ -749,271 +747,178 @@ const static SetupLineDef manageModelsSetupLines[] = {
 };
 
 const static SetupLineDef setupLines[] = {
-  {
-    // Have only one log per day
-    STR_DEF(STR_ONE_LOG_PER_DAY),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.oneLogPerDay));
-    }
-  },
-  {
-    // Splash screen
-    STR_DEF(STR_SPLASHSCREEN),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(
-          parent, {x, y, 0, 0}, STR_SPLASHSCREEN_DELAYS, 0, 7,
-          [=]() -> int32_t { return 3 - g_eeGeneral.splashMode; },
-          [=](int32_t newValue) {
-            g_eeGeneral.splashMode = 3 - newValue;
-            SET_DIRTY();
-          });
-    }
-  },
-  {
-    // Play startup sound
-    STR_DEF(STR_PLAY_HELLO),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
-    }
-  },
+    {// Have only one log per day
+     STR_DEF(STR_ONE_LOG_PER_DAY),
+     [](Window* parent, coord_t x, coord_t y) {
+       new ToggleSwitch(parent, {x, y, 0, 0},
+                        GET_SET_DEFAULT(g_eeGeneral.oneLogPerDay));
+     }},
+    {// Splash screen
+     STR_DEF(STR_SPLASHSCREEN),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(
+           parent, {x, y, 0, 0}, STR_SPLASHSCREEN_DELAYS, 0, 7,
+           [=]() -> int32_t { return 3 - g_eeGeneral.splashMode; },
+           [=](int32_t newValue) {
+             g_eeGeneral.splashMode = 3 - newValue;
+             SET_DIRTY();
+           });
+     }},
+    {// Play startup sound
+     STR_DEF(STR_PLAY_HELLO),
+     [](Window* parent, coord_t x, coord_t y) {
+       new ToggleSwitch(parent, {x, y, 0, 0},
+                        GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
+     }},
 #if defined(PWR_BUTTON_PRESS) && !defined(PWR_BUTTON_MANAGED)
-  {
-    // Pwr Off Delay
-    STR_DEF(STR_PWR_OFF_DELAY),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(
-          parent, {x, y, 0, 0}, STR_PWR_OFF_DELAYS, 0, 4,
-          [=]() -> int32_t { return pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed); },
-          [=](int32_t newValue) {
-            g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(newValue);
-            SET_DIRTY();
-          });
-    }
-  },
+    {// Pwr Off Delay
+     STR_DEF(STR_PWR_OFF_DELAY),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(
+           parent, {x, y, 0, 0}, STR_PWR_OFF_DELAYS, 0, 4,
+           [=]() -> int32_t {
+             return pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed);
+           },
+           [=](int32_t newValue) {
+             g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(newValue);
+             SET_DIRTY();
+           });
+     }},
 #endif
 #if defined(PWR_BUTTON_PRESS)
-  // Pwr Off If Inactive
-  {
-    STR_DEF(STR_PWR_AUTO_OFF),
+    // Pwr Off If Inactive
+    {STR_DEF(STR_PWR_AUTO_OFF),
      [](Window* parent, coord_t x, coord_t y) {
        auto edit = new NumberEdit(parent,{x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0,
            255, GET_SET_DEFAULT(g_eeGeneral.pwrOffIfInactive));
        edit->setSuffix(" min");
-     }
-  },
+     }},
 #endif
 #if defined(HAPTIC)
-  {
-    // Power on/off haptic alarm
-      STR_DEF(STR_PWR_ON_OFF_HAPTIC),
-      [](Window* parent, coord_t x, coord_t y) {
-        new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.disablePwrOnOffHaptic));
-      }
-  },
+    {// Power on/off haptic alarm
+     STR_DEF(STR_PWR_ON_OFF_HAPTIC),
+     [](Window* parent, coord_t x, coord_t y) {
+       new ToggleSwitch(parent, {x, y, 0, 0},
+                        GET_SET_INVERTED(g_eeGeneral.disablePwrOnOffHaptic));
+     }},
 #endif
 #if defined(PXX2)
-  {
-    // Owner ID
-    STR_DEF(STR_OWNER_ID),
-    [](Window* parent, coord_t x, coord_t y) {
-      new RadioTextEdit(parent, {x, y, 0, 0}, g_eeGeneral.ownerRegistrationID,
-                        PXX2_LEN_REGISTRATION_ID);
-    }
-  },
+    {// Owner ID
+     STR_DEF(STR_OWNER_ID),
+     [](Window* parent, coord_t x, coord_t y) {
+       new RadioTextEdit(parent, {x, y, 0, 0}, g_eeGeneral.ownerRegistrationID,
+                         PXX2_LEN_REGISTRATION_ID);
+     }},
 #endif
-  {
-    // Country code
-    STR_DEF(STR_COUNTRY_CODE),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_COUNTRY_CODES, 0, 2,
-                GET_SET_DEFAULT(g_eeGeneral.countryCode));
-    }
-  },
-  {
-    // Audio language
-    STR_DEF(STR_VOICE_LANGUAGE),
-    [](Window* parent, coord_t x, coord_t y) {
-      auto choice =
-          new Choice(parent, {x, y, 0, 0}, 0, DIM(languagePacks) - 2,
-                    GET_VALUE(currentLanguagePackIdx), [](uint8_t newValue) {
-                      currentLanguagePackIdx = newValue;
-                      currentLanguagePack = languagePacks[currentLanguagePackIdx];
-                      strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
-                      SET_DIRTY();
-                    });
-#if !defined(ALL_LANGS)
-      choice->setTextHandler(
-          [](uint8_t value) { return languagePacks[value]->name; });
-#else
-      choice->setTextHandler(
-          [](uint8_t value) {
-            // TODO: language name should always be in the language of the name, not
-            //       the current UI language. Needs translation characters to be
-            //       always available for all language names in the base font.
-            //       temp solution - prepend language id to name.
-            std::string s(languagePacks[value]->id);
-            s += " - ";
-            s += languagePacks[value]->name();
-            return s;
-          });
-#endif
-    }
-  },
-#if defined(ALL_LANGS)
-  {
-    // UI language
-    STR_DEF(STR_TEXT_LANGUAGE),
-    [](Window* parent, coord_t x, coord_t y) {
-      auto choice =
-          new Choice(parent, {x, y, 0, 0}, 0, DIM(languagePacks) - 2,
-                    GET_VALUE(getLanguageId(g_eeGeneral.uiLanguage)),
-                    [](uint8_t newValue) {
-                      strncpy(g_eeGeneral.uiLanguage, languagePacks[newValue]->id, 2);
-                      currentLangStrings = langStrings[newValue];
-                      extern void setLanguageFont(int idx);
-                      setLanguageFont(newValue);
-                      PageGroup* pg = Window::pageGroup();
-                      coord_t y = pg->getScrollY();
-                      pg->onCancel();
-                      QuickMenu::openPage(QM_RADIO_SETUP);
-                      pg = Window::pageGroup();
-                      pg->setScrollY(y);
-                      // Force QM rebuild for language change
-                      QuickMenu::shutdownQuickMenu();
-                      SET_DIRTY();
-                    });
-      choice->setAvailableHandler([=](int n) { return isTextLangAvail(n); });
-      choice->setTextHandler(
-          [](uint8_t value) {
-            // TODO: language name should always be in the language of the name, not
-            //       the current UI language. Needs translation characters to be
-            //       always available for all language names in the base font.
-            //       temp solution - prepend language id to name.
-            std::string s(languagePacks[value]->id);
-            s += " - ";
-            s += languagePacks[value]->name();
-            return s;
-          });
-    }
-  },
-#endif
-  {
-    // Imperial units
-    STR_DEF(STR_UNITS_SYSTEM),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_VUNITSSYSTEM, 0, 1,
-                GET_SET_DEFAULT(g_eeGeneral.imperial));
-    }
-  },
-  {
-    // PPM units
-    STR_DEF(STR_UNITS_PPM),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_US,
-                GET_SET_DEFAULT(g_eeGeneral.ppmunit));
-    }
-  },
-  {
-    // Switches delay
-    STR_DEF(STR_SWITCHES_DELAY),
-    [](Window* parent, coord_t x, coord_t y) {
-      auto edit =
-          new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 100,
-                        GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
-      edit->setDisplayHandler([](int32_t value) {
-        return formatNumberAsString(value * 10, 0, 0, nullptr, STR_MS);
-      });
-    }
-  },
-  {
-    // USB mode
-    STR_DEF(STR_USBMODE),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
-                GET_SET_DEFAULT(g_eeGeneral.USBMode));
-    }
-  },
+    {// Country code
+     STR_DEF(STR_COUNTRY_CODE),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(parent, {x, y, 0, 0}, STR_COUNTRY_CODES, 0, 2,
+                  GET_SET_DEFAULT(g_eeGeneral.countryCode));
+     }},
+    {// Imperial units
+     STR_DEF(STR_UNITS_SYSTEM),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(parent, {x, y, 0, 0}, STR_VUNITSSYSTEM, 0, 1,
+                  GET_SET_DEFAULT(g_eeGeneral.imperial));
+     }},
+    {// PPM units
+     STR_DEF(STR_UNITS_PPM),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(parent, {x, y, 0, 0}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_US,
+                  GET_SET_DEFAULT(g_eeGeneral.ppmunit));
+     }},
+    {// Switches delay
+     STR_DEF(STR_SWITCHES_DELAY),
+     [](Window* parent, coord_t x, coord_t y) {
+       auto edit = new NumberEdit(
+           parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 100,
+           GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
+       edit->setDisplayHandler([](int32_t value) {
+         return formatNumberAsString(value * 10, 0, 0, nullptr, STR_MS);
+       });
+     }},
+    {// USB mode
+     STR_DEF(STR_USBMODE),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(parent, {x, y, 0, 0}, STR_USBMODES, USB_UNSELECTED_MODE,
+                  USB_MAX_MODE, GET_SET_DEFAULT(g_eeGeneral.USBMode));
+     }},
 #if defined(USB_CHARGE_CONTROL)
-  {
-    // Charge while radio on
-    STR_DEF(STR_USB_CHARGE),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0},
-                       GET_INVERTED(g_eeGeneral.usbChargeDisabled),
-                       [](uint8_t newValue) {
-                         g_eeGeneral.usbChargeDisabled = !newValue;
-                         SET_DIRTY();
-                         // take effect now, not only on the next plug
-                         if (usbPlugged())
-                           usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
-                       });
-    }
-  },
+    {// Charge while radio on
+     STR_DEF(STR_USB_CHARGE),
+     [](Window* parent, coord_t x, coord_t y) {
+       new ToggleSwitch(
+           parent, {x, y, 0, 0}, GET_INVERTED(g_eeGeneral.usbChargeDisabled),
+           [](uint8_t newValue) {
+             g_eeGeneral.usbChargeDisabled = !newValue;
+             SET_DIRTY();
+             // take effect now, not only on the next plug
+             if (usbPlugged())
+               usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+           });
+     }},
 #endif
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-  {
-    STR_DEF(STR_ROTARY_ENC_MODE),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
-                ROTARY_ENCODER_MODE_INVERT_BOTH,
-                GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
-    }
-  },
+    {STR_DEF(STR_ROTARY_ENC_MODE),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(parent, {x, y, 0, 0}, STR_ROTARY_ENC_OPT,
+                  ROTARY_ENCODER_MODE_NORMAL, ROTARY_ENCODER_MODE_INVERT_BOTH,
+                  GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
+     }},
 #endif
 #if defined(USE_HATS_AS_KEYS)
-  {
-    STR_DEF(STR_HATSMODE),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, RadioSetupPage::HATS_MODE_W, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
-                HATSMODE_SWITCHABLE, GET_SET_DEFAULT(g_eeGeneral.hatsMode));
-      new TextButton(parent, {x + RadioSetupPage::HATS_MODE_W + PAD_MEDIUM, y, 0, 0}, "?", [=]() {
-        new MessageDialog(STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
-                          LEFT);
-        return 0;
-      });
-    }
-  },
+    {STR_DEF(STR_HATSMODE),
+     [](Window* parent, coord_t x, coord_t y) {
+       new Choice(parent, {x, y, RadioSetupPage::HATS_MODE_W, 0}, STR_HATSOPT,
+                  HATSMODE_TRIMS_ONLY, HATSMODE_SWITCHABLE,
+                  GET_SET_DEFAULT(g_eeGeneral.hatsMode));
+       new TextButton(parent,
+                      {x + RadioSetupPage::HATS_MODE_W + PAD_MEDIUM, y, 0, 0},
+                      "?", [=]() {
+                        new MessageDialog(STR_HATSMODE_KEYS,
+                                          STR_HATSMODE_KEYS_HELP, "", LEFT);
+                        return 0;
+                      });
+     }},
 #endif
-  {
-    // RX channel order
-    STR_DEF(STR_DEF_CHAN_ORD),
-    [](Window* parent, coord_t x, coord_t y) {
-      uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
-      auto max_order = inputMappingGetMaxChannelOrder() - 1;
-      auto choice = new Choice(parent, {x, y, 0, 0}, 0, max_order,
-                          GET_SET_DEFAULT(g_eeGeneral.templateSetup));
+    {// RX channel order
+     STR_DEF(STR_DEF_CHAN_ORD),
+     [](Window* parent, coord_t x, coord_t y) {
+       uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
+       auto max_order = inputMappingGetMaxChannelOrder() - 1;
+       auto choice = new Choice(parent, {x, y, 0, 0}, 0, max_order,
+                                GET_SET_DEFAULT(g_eeGeneral.templateSetup));
 
-      choice->setTextHandler([=](uint8_t value) {
-        std::string s;
-        for (uint8_t i = 0; i < mains; i++) {
-          s += getAnalogShortLabel(inputMappingChannelOrder(value, i));
-        }
-        return s;
-      });
-    }
-  },
-  {
-    // Stick mode
-    STR_DEF(STR_MODE),
-    [](Window* parent, coord_t x, coord_t y) {
-      auto choice = new Choice(parent, {x, y, 0, 0}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
-                          [=](uint8_t newValue) {
-                            mixerTaskStop();
-                            g_eeGeneral.stickMode = newValue;
-                            SET_DIRTY();
-                            checkThrottleStick();
-                            mixerTaskStart();
-                          });
-      choice->setTextHandler([](uint8_t value) {
-        auto stick0 = inputMappingConvertMode(value, 0);
-        auto stick1 = inputMappingConvertMode(value, 1);
-        return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
-              std::string(getMainControlLabel(stick0)) + "+" +
-              std::string(getMainControlLabel(stick1));
-      });
-    }
-  },
-  {nullptr, nullptr},
+       choice->setTextHandler([=](uint8_t value) {
+         std::string s;
+         for (uint8_t i = 0; i < mains; i++) {
+           s += getAnalogShortLabel(inputMappingChannelOrder(value, i));
+         }
+         return s;
+       });
+     }},
+    {// Stick mode
+     STR_DEF(STR_MODE),
+     [](Window* parent, coord_t x, coord_t y) {
+       auto choice = new Choice(parent, {x, y, 0, 0}, 0, 3,
+                                GET_DEFAULT(g_eeGeneral.stickMode),
+                                [=](uint8_t newValue) {
+                                  mixerTaskStop();
+                                  g_eeGeneral.stickMode = newValue;
+                                  SET_DIRTY();
+                                  checkThrottleStick();
+                                  mixerTaskStart();
+                                });
+       choice->setTextHandler([](uint8_t value) {
+         auto stick0 = inputMappingConvertMode(value, 0);
+         auto stick1 = inputMappingConvertMode(value, 1);
+         return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
+                std::string(getMainControlLabel(stick0)) + "+" +
+                std::string(getMainControlLabel(stick1));
+       });
+     }},
+    {nullptr, nullptr},
 };
 
 RadioSetupPage::RadioSetupPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}

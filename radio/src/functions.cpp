@@ -121,7 +121,8 @@ void playCustomFunctionFile(const CustomFunctionData * sd, uint8_t id)
 {
   if (sd->play.name[0] != '\0') {
     char filename[sizeof(SOUNDS_PATH) + LEN_FUNCTION_NAME + sizeof(SOUNDS_EXT)] = SOUNDS_PATH "/";
-    strncpy(filename + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+    // sound files are stored under a lowercase language folder, e.g. SOUNDS/en
+    memcpy(filename + SOUNDS_PATH_LNG_OFS, "en", 2);
     strncpy(filename + sizeof(SOUNDS_PATH), sd->play.name, LEN_FUNCTION_NAME);
     filename[sizeof(SOUNDS_PATH) + LEN_FUNCTION_NAME] = '\0';
     strcat(filename + sizeof(SOUNDS_PATH), SOUNDS_EXT);

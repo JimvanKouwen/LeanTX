@@ -50,8 +50,6 @@
                     L'р', L'p', L'Т', L'T', L'Х', L'X', L'х', L'x', L'у', L'y'
 #define SE_LUT      L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö'
 
-#if !defined(ALL_LANGS) || defined(BOOT)
-
 #if defined(TRANSLATIONS_FR)
 static const uint16_t _utf8_lut[] = { FR_LUT };
 #define UTF8_SUBS_LUT
@@ -86,85 +84,17 @@ static const uint16_t _utf8_lut[] = { SE_LUT};
   #define NO_UTF8_LUT
 #endif
 
-#else
-
-static const uint16_t fr_utf8_lut[] = { FR_LUT, 0 };
-static const uint16_t fr_utf8_substitution_lut[] = { FR_SUB_LUT, 0 };
-static const uint16_t da_utf8_lut[] = { DA_LUT, 0 };
-static const uint16_t de_utf8_lut[] = { DE_LUT, 0 };
-static const uint16_t cz_utf8_lut[] = { CZ_LUT, 0 };
-static const uint16_t cz_utf8_substitution_lut[] = { CZ_SUB_LUT, 0 };
-static const uint16_t es_utf8_lut[] = { ES_LUT, 0 };
-static const uint16_t pt_utf8_lut[] = { PT_LUT, 0 };
-static const uint16_t fi_utf8_lut[] = { FI_LUT, 0 };
-static const uint16_t it_utf8_lut[] = { IT_LUT, 0 };
-static const uint16_t pl_utf8_lut[] = { PL_LUT, 0 };
-static const uint16_t ru_utf8_lut[] = { RU_LUT, 0 };
-static const uint16_t ua_utf8_lut[] = { UA_LUT, 0 };
-static const uint16_t ua_utf8_substitution_lut[] = { UA_SUB_LUT, 0 };
-static const uint16_t se_utf8_lut[] = { SE_LUT, 0 };
-
-struct LangUtf {
-  const uint16_t* lut;
-  const uint16_t* substitution_lut;
-};
-
-static const LangUtf langUtf[] = {
-  { nullptr, nullptr },
-  { cz_utf8_lut, cz_utf8_substitution_lut },
-  { da_utf8_lut, nullptr },
-  { de_utf8_lut, nullptr },
-  { nullptr, nullptr },
-  { es_utf8_lut, nullptr },
-  { fi_utf8_lut, nullptr },
-  { fr_utf8_lut, fr_utf8_substitution_lut },
-  { nullptr, nullptr },
-  { nullptr, nullptr },
-  { it_utf8_lut, nullptr },
-  { nullptr, nullptr },
-  { nullptr, nullptr },
-  { nullptr, nullptr },
-  { pl_utf8_lut, nullptr },
-  { pt_utf8_lut, nullptr },
-  { ru_utf8_lut, nullptr },
-  { se_utf8_lut, nullptr },
-  { nullptr, nullptr },
-  { nullptr, nullptr },
-  { ua_utf8_lut, ua_utf8_substitution_lut },
-};
-
-static const uint16_t* _utf8_lut = nullptr;
-static const uint16_t* _utf8_substitution_lut = nullptr;
-
-void setLanguageUTF(int n)
-{
-  _utf8_lut = langUtf[n].lut;
-  _utf8_substitution_lut = langUtf[n].substitution_lut;
-}
-#define UTF8_SUBS_LUT
-
-#endif
-
 #if !defined(NO_UTF8_LUT)
-#if !defined(ALL_LANGS) || defined(BOOT)
 #define MAX_TRANSLATED_CHARS    107
-static_assert(sizeof(_utf8_lut) / sizeof(_utf8_lut[0]) <= MAX_TRANSLATED_CHARS, "Number of translated chars exceeds the limit");
-#endif
+static_assert(sizeof(_utf8_lut) / sizeof(_utf8_lut[0]) <= MAX_TRANSLATED_CHARS,
+              "Number of translated chars exceeds the limit");
 
 static unsigned char lookup_utf8_mapping(wchar_t w)
 {
-#if !defined(ALL_LANGS) || defined(BOOT)
   for (int i=0; i < DIM(_utf8_lut); i++) {
     if (w == _utf8_lut[i])
       return FONT_LANG_START + (uint8_t)i;
   }
-#else
-  if (_utf8_lut == nullptr) return w;
-  for (int i=0; _utf8_lut[i]; i++) {
-    if (w == _utf8_lut[i])
-      return FONT_LANG_START + (uint8_t)i;
-  }
-#endif
   return 0x20; // return 'space' for unknown chars
 }
 #endif
@@ -172,18 +102,10 @@ static unsigned char lookup_utf8_mapping(wchar_t w)
 #if defined(UTF8_SUBS_LUT)
 static uint16_t lookup_utf8_substitution(wchar_t w)
 {
-#if !defined(ALL_LANGS) || defined(BOOT)
   for (int i=0; i < DIM(_utf8_substitution_lut); i+=2) {
     if (w == _utf8_substitution_lut[i])
       return _utf8_substitution_lut[i+1];
   }
-#else
-  if (!_utf8_substitution_lut) return w;
-  for (int i=0; _utf8_substitution_lut[i]; i+=2) {
-    if (w == _utf8_substitution_lut[i])
-      return _utf8_substitution_lut[i+1];
-  }
-#endif
   return w;
 }
 #endif

@@ -232,16 +232,7 @@ void storageReadAll()
   }
 #endif
 
-  if (g_eeGeneral.uiLanguage[0] == 0)
-    generalDefaultUILanguage();
-  currentLanguagePackIdx = getLanguageId(g_eeGeneral.ttsLanguage);
-  currentLanguagePack = languagePacks[currentLanguagePackIdx];
-#if defined(ALL_LANGS)
-  uint8_t uiLangIdx = getLanguageId(g_eeGeneral.uiLanguage);
-  currentLangStrings = langStrings[uiLangIdx];
-  extern void setLanguageFont(int n);
-  setLanguageFont(uiLangIdx);
-#endif
+  if (g_eeGeneral.uiLanguage[0] == 0) generalDefaultUILanguage();
 
 #if defined(STORAGE_MODELSLIST)
   // and reload the list

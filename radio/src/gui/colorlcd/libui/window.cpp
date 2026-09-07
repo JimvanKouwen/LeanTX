@@ -718,11 +718,8 @@ coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSiz
   Window* w;
 
   for (int i = 0; setupLines[i].title || setupLines[i].createEdit; i += 1) {
-#if !defined(ALL_LANGS)
-    w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
-#else
-    w = new SetupLine(parent, y, col2, padding, setupLines[i].title ? setupLines[i].title() : nullptr, setupLines[i].createEdit);
-#endif
+    w = new SetupLine(parent, y, col2, padding, setupLines[i].title,
+                      setupLines[i].createEdit);
     y += w->height() + padding;
   }
 

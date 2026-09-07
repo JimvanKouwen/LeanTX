@@ -371,14 +371,6 @@ static EdgeTxStyles* mainStyles = nullptr;
 static EdgeTxStyles* previewStyles = nullptr;
 EdgeTxStyles* styles = nullptr;
 
-#if defined(ALL_LANGS)
-void setAllFonts()
-{
-  if (mainStyles) mainStyles->setFonts();
-  if (previewStyles) previewStyles->setFonts();
-}
-#endif
-
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/

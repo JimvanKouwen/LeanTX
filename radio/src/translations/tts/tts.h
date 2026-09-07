@@ -21,71 +21,26 @@
 
 #pragma once
 
-#if defined(ALL_LANGS)
-#include <functional>
-#endif
-
 #include "audio.h"
 
-#if !defined(ALL_LANGS)
-struct LanguagePack {
-  const char* id;
-  const char* name;
-  void (*playNumber)(getvalue_t number, uint8_t unit, uint8_t flags, uint8_t id, int8_t fragmentVolume);
-  void (*playDuration)(int seconds, uint8_t flags, uint8_t id, int8_t fragmentVolume);
-};
-#else
-struct LanguagePack {
-  const char* id;
-  const char* (*name)();
-  void (*playNumber)(getvalue_t number, uint8_t unit, uint8_t flags, uint8_t id, int8_t fragmentVolume);
-  void (*playDuration)(int seconds, uint8_t flags, uint8_t id, int8_t fragmentVolume);
-};
-#endif
+#define PLAY_FUNCTION(x, ...) \
+  void x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)
 
-extern const LanguagePack * currentLanguagePack;
-extern uint8_t currentLanguagePackIdx;
-extern uint8_t getLanguageId(const char* lang);
+#define I18N_PLAY_FUNCTION(lng, x, ...)   \
+  void lng##_##x(__VA_ARGS__, uint8_t id, \
+                 int8_t fragmentVolume = USE_SETTINGS_VOLUME)
 
-// Only English is shipped for now; re-add language codes here as translations are restored.
-enum RadioLanguage {
-  LANG_EN,
-  LANG_COUNT
-};
-
-extern const LanguagePack enLanguagePack;
-extern const LanguagePack * const languagePacks[];
-
-#if defined(LANGUAGE_PACKS_DEFINITION)
-const LanguagePack * const languagePacks[] = {
-  &enLanguagePack,
-  NULL
-};
-#endif
-
-#if !defined(ALL_LANGS)
-#define LANGUAGE_PACK_DECLARE(lng, name) \
-  const LanguagePack lng##LanguagePack = {#lng, name, lng##_playNumber, lng##_playDuration}
-#else
-#define LANGUAGE_PACK_DECLARE(lng, name) \
-  const char* lng##_nameFunc() { return name; }; \
-  const LanguagePack lng##LanguagePack = {#lng, lng##_nameFunc, lng##_playNumber, \
-                                          lng##_playDuration}
-#endif
-
-#define LANGUAGE_PACK_DECLARE_DEFAULT(lng, name)                \
-  LANGUAGE_PACK_DECLARE(lng, name);                             \
-  const LanguagePack* currentLanguagePack = &lng##LanguagePack; \
-  uint8_t currentLanguagePackIdx
-
-#define PLAY_FUNCTION(x, ...)    void x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)
+// Only English is shipped for now; declare the compiled-in voice functions
+// directly here as translations are restored.
+void en_playNumber(getvalue_t number, uint8_t unit, uint8_t flags, uint8_t id,
+                   int8_t fragmentVolume);
+void en_playDuration(int seconds, uint8_t flags, uint8_t id,
+                     int8_t fragmentVolume);
 
 inline PLAY_FUNCTION(playNumber, getvalue_t number, uint8_t unit, uint8_t flags) {
-  currentLanguagePack->playNumber(number, unit, flags, id, fragmentVolume);
+  en_playNumber(number, unit, flags, id, fragmentVolume);
 }
 
 inline PLAY_FUNCTION(playDuration, int seconds, uint8_t flags) {
-   currentLanguagePack->playDuration(seconds, flags, id, fragmentVolume);
+  en_playDuration(seconds, flags, id, fragmentVolume);
 }
-
-#define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)

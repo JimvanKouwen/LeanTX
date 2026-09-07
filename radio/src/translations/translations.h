@@ -26,8 +26,6 @@
 #include "translations/untranslated.h"
 #include "translations/tts/tts.h"
 
-#if !defined(ALL_LANGS) || defined(BOOT)
-
 // Static string
 #define STR(x) extern const char STR_##x[];
 // Static string array
@@ -37,42 +35,3 @@
 
 #undef STR
 #undef STRARRAY
-
-#else
-
-bool isTextLangAvail(int lang);
-
-// Static string
-#define STR(x) const char* STR_##x;
-// Static string array
-#define STRARRAY(x) const char* const* STR_##x;
-
-struct LangStrings {
-#include "string_list.h"
-};
-
-#undef STR
-#undef STRARRAY
-
-// Only English is shipped for now; re-add extern declarations here as translations are restored.
-extern const LangStrings enLangStrings;
-
-extern const LangStrings* const langStrings[];
-extern const LangStrings* currentLangStrings;
-
-#include "sim_string_list.h"
-
-#undef STR
-#undef STRARRAY
-
-// Static string
-#define STR(x) extern const char* STR_##x##_FN();
-// Static string array
-#define STRARRAY(x) extern const char* const* STR_##x##_FN();
-
-#include "string_list.h"
-
-#undef STR
-#undef STRARRAY
-
-#endif

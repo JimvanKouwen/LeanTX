@@ -55,7 +55,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
     }
     else {
       strcpy(directory, SOUNDS_PATH);
-      strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+      memcpy(directory + SOUNDS_PATH_LNG_OFS, "en", 2);
     }
     if (!sdListFiles(directory, func==FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), nullptr)) {
       POPUP_WARNING(func==FUNC_PLAY_SCRIPT ? STR_NO_SCRIPTS_ON_SD : STR_NO_SOUNDS_ON_SD);
@@ -343,7 +343,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               }
               else {
                 strcpy(directory, SOUNDS_PATH);
-                strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+                memcpy(directory + SOUNDS_PATH_LNG_OFS, "en", 2);
               }
               if (sdListFiles(directory, func==FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), cfn->play.name)) {
                 POPUP_MENU_START(onCustomFunctionsFileSelectionMenu);

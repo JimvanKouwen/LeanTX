@@ -45,15 +45,9 @@ gen-yaml FLAVOR='':
 gen-radios:
     node web/scripts/gen-radios-json.js
 
-# Needs: m4.
-[doc('Regenerate the simulator string list (radio/src/translations/sim_string_list.h)')]
+[doc('Regenerate the YAML parsers, LVGL fonts, cfn sort order and radio list')]
 [group('codegen')]
-gen-simstr:
-    m4 radio/src/translations/simstr.m4 radio/src/translations/string_list.h > radio/src/translations/sim_string_list.h
-
-[doc('Regenerate the YAML parsers, LVGL fonts, cfn sort order, radio list and simulator string list')]
-[group('codegen')]
-codegen: gen-fonts cfn-sort gen-yaml gen-radios gen-simstr
+codegen: gen-fonts cfn-sort gen-yaml gen-radios
 
 # Needs: python3 only.
 [doc('Check every referenced RADIO_* macro can be defined')]
@@ -96,14 +90,9 @@ docker-gen-yaml FLAVOR='':
 docker-gen-radios:
     {{ _docker }} node web/scripts/gen-radios-json.js
 
-[doc('Regenerate the simulator string list in the dev container')]
-[group('codegen (docker)')]
-docker-gen-simstr:
-    {{ _docker }} m4 radio/src/translations/simstr.m4 radio/src/translations/string_list.h > radio/src/translations/sim_string_list.h
-
 [doc('Regenerate everything in the dev container')]
 [group('codegen (docker)')]
-docker-codegen: docker-gen-fonts docker-cfn-sort docker-gen-yaml docker-gen-radios docker-gen-simstr
+docker-codegen: docker-gen-fonts docker-cfn-sort docker-gen-yaml docker-gen-radios
 
 [doc('Run the checks in the dev container')]
 [group('checks (docker)')]

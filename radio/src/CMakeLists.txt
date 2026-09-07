@@ -61,12 +61,6 @@ endif()
 option(AUDIO "Enable audio" ON)
 option(EXFAT "Enable exFAT filesystem support in FatFs" OFF)
 
-if(NATIVE_BUILD)
-  option(ALL_LANGUAGES "Enable runtime language selection" ON)
-else()
-  option(ALL_LANGUAGES "Enable runtime language selection" OFF)
-endif()
-
 if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
   option(POWER_LED_BLUE  "Override Power LED to be normally Blue" ON)
 else()
@@ -520,14 +514,6 @@ endif()
 
 if(AUDIO)
   add_definitions(-DAUDIO)
-endif()
-
-if(ALL_LANGUAGES)
-  add_definitions(-DALL_LANGS)
-  set(SRC
-    ${SRC}
-    translations/sim/lang_en.cpp
-  )
 endif()
 
 if(USBJ_EX)

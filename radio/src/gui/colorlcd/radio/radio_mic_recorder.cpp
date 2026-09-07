@@ -739,7 +739,7 @@ void RadioMicRecorder::askSaveAs()
     if (newName.empty()) return;
     char dir[sizeof(SOUNDS_PATH) + 1];
     strcpy(dir, SOUNDS_PATH "/");
-    strncpy(dir + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+    memcpy(dir + SOUNDS_PATH_LNG_OFS, "en", 2);
     snprintf(pendingRename, sizeof(pendingRename), "%s%s.wav", dir, newName.c_str());
     if (strcmp(pendingRename, filename) == 0) { takeSaved = true; refreshUI(); return; }
     processPendingRename();
@@ -885,7 +885,7 @@ void RadioMicRecorder::pickNextFilename()
 {
   char dir[sizeof(SOUNDS_PATH) + 1];
   strcpy(dir, SOUNDS_PATH "/");
-  strncpy(dir + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+  memcpy(dir + SOUNDS_PATH_LNG_OFS, "en", 2);
 
   FILINFO info;
   for (int i = 0; i < 100; i++) {

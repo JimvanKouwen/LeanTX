@@ -29,7 +29,8 @@ static const char* const _suffixes[] = {"-off", "-on"};
 char* getModelAudioPath(char* path, bool trailingSlash)
 {
   strcpy(path, SOUNDS_PATH "/");
-  strncpy(path + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+  // sound files are stored under a lowercase language folder, e.g. SOUNDS/en
+  memcpy(path + SOUNDS_PATH_LNG_OFS, "en", 2);
   char* buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), ' ');
 
   if (!isFileAvailable(path)) {

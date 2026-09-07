@@ -432,9 +432,9 @@ class FunctionEditPage : public Page
                 ? (func == FUNC_PLAY_SCRIPT ? SCRIPTS_FUNCS_PATH
                                             : SCRIPTS_RGB_PATH)
                 : std::string(SOUNDS_PATH, SOUNDS_PATH_LNG_OFS) +
-                      std::string(currentLanguagePack->id, 2),
+                      std::string("en", 2),
             (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) ? SCRIPTS_EXT
-                                                              : SOUNDS_EXT,
+                                                               : SOUNDS_EXT,
             sizeof(cfn->play.name),
             [=]() { return std::string(cfn->play.name, ZLEN(cfn->play.name)); },
             [=](std::string newValue) {

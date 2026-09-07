@@ -290,7 +290,6 @@ class EdgeTxStyles
 };
 
 extern EdgeTxStyles* styles;
-extern void setAllFonts();
 
 #define etx_obj_add_style(obj, style, part) \
   lv_obj_add_style(obj, (lv_style_t*)&(style), part)
