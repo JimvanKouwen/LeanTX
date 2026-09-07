@@ -54,26 +54,8 @@ struct LangStrings {
 #undef STR
 #undef STRARRAY
 
-extern const LangStrings cnLangStrings;
-extern const LangStrings czLangStrings;
-extern const LangStrings daLangStrings;
-extern const LangStrings deLangStrings;
+// Only English is shipped for now; re-add extern declarations here as translations are restored.
 extern const LangStrings enLangStrings;
-extern const LangStrings esLangStrings;
-extern const LangStrings fiLangStrings;
-extern const LangStrings frLangStrings;
-extern const LangStrings heLangStrings;
-extern const LangStrings huLangStrings;
-extern const LangStrings itLangStrings;
-extern const LangStrings koLangStrings;
-extern const LangStrings jpLangStrings;
-extern const LangStrings nlLangStrings;
-extern const LangStrings plLangStrings;
-extern const LangStrings ptLangStrings;
-extern const LangStrings ruLangStrings;
-extern const LangStrings seLangStrings;
-extern const LangStrings twLangStrings;
-extern const LangStrings uaLangStrings;
 
 extern const LangStrings* const langStrings[];
 extern const LangStrings* currentLangStrings;

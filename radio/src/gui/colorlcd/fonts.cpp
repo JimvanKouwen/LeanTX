@@ -218,29 +218,9 @@ FONT_TABLE(ua);
 
 } // extern "C"
 
-// Must match RadioLanguage order
+// Only English is shipped for now; re-add entries here (matching RadioLanguage order) as translations are restored.
 etxLvglFont* etxFonts[] = {
-  cn_fontTable,   // CN
-  en_fontTable,
-  en_fontTable,
-  en_fontTable,
-  en_fontTable,
-  en_fontTable,
-  en_fontTable,
-  en_fontTable,
-  he_fontTable,   // HE
-  en_fontTable,
-  en_fontTable,
-  jp_fontTable,   // JP
-  ko_fontTable,   // KO
-  en_fontTable,
-  en_fontTable,
-  en_fontTable,
-  ru_fontTable,   // RU
-  en_fontTable,
-  en_fontTable,
-  tw_fontTable,   // TW
-  ua_fontTable,   // UA
+  en_fontTable,   // EN
 };
 
 etxLvglFont* fontTable = en_fontTable;

@@ -152,7 +152,6 @@
 #define TR_SWTYPES                  SA4(TR_SWTYPES)
 #endif
 #define TR_VTRIMINC                 SA5(TR_VTRIMINC)
-#define TR_VSWASHTYPE               SA5(TR_VSWASHTYPE)
 #if defined(COLORLCD)
 #define TR_ROTARY_ENC_OPT           SA2(TR_ROTARY_ENC_OPT)
 #else
@@ -186,11 +185,6 @@
 #define TR_VDISPLAYTRIMS            SA3(TR_VDISPLAYTRIMS)
 #define TR_ADCFILTERVALUES          SA3(TR_ADCFILTERVALUES)
 #define TR_VMLTPX                   SA3(TR_VMLTPX)
-#if defined(HELI)
-#define TR_CYC_VSRCRAW              SA3(TR_CYC_VSRCRAW)
-#else
-#define TR_CYC_VSRCRAW              "[C1]","[C2]","[C3]"
-#endif
 #define TR_VPREC                    SA3(TR_VPREC)
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES          TR_BLUETOOTH_MODES_1, TR_BLUETOOTH_MODES_4

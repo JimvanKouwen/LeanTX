@@ -2,8 +2,9 @@ include(CMakeForceCompiler)
 include(Bitmaps)
 
 set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 GX15 TX16SMK3 T22 V12)
-set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
-set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
+# Only English is shipped for now; re-add language codes here as translations are restored.
+set(RADIO_LANGUAGES EN)
+set(TTS_LANGUAGES EN)
 
 set(PCB "X9D+" CACHE STRING "Radio type, one of: ${PCB_TYPES}")
 set_property(CACHE PCB PROPERTY STRINGS ${PCB_TYPES})
@@ -525,25 +526,7 @@ if(ALL_LANGUAGES)
   add_definitions(-DALL_LANGS)
   set(SRC
     ${SRC}
-    translations/sim/lang_cn.cpp
-    translations/sim/lang_cz.cpp
-    translations/sim/lang_da.cpp
-    translations/sim/lang_de.cpp
     translations/sim/lang_en.cpp
-    translations/sim/lang_es.cpp
-    translations/sim/lang_fi.cpp
-    translations/sim/lang_fr.cpp
-    translations/sim/lang_he.cpp
-    translations/sim/lang_it.cpp
-    translations/sim/lang_jp.cpp
-    translations/sim/lang_ko.cpp
-    translations/sim/lang_nl.cpp
-    translations/sim/lang_pl.cpp
-    translations/sim/lang_pt.cpp
-    translations/sim/lang_ru.cpp
-    translations/sim/lang_se.cpp
-    translations/sim/lang_tw.cpp
-    translations/sim/lang_ua.cpp
   )
 endif()
 

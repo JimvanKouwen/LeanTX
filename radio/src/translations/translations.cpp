@@ -88,68 +88,14 @@ uint8_t getLanguageId(const char* lang)
 
 bool isTextLangAvail(int lang)
 {
-#if defined(COLORLCD)
-  // Skip languages with no translation files
-  return lang != LANG_HU && lang != LANG_SK;
-#else
-  // Skip languages with no translation files or no unicode fonts
-  return lang != LANG_CN && lang != LANG_HE && lang != LANG_HU &&
-         lang != LANG_JP && lang != LANG_KO && lang != LANG_SK &&
-         lang != LANG_TW;
-#endif
+  // Only English is shipped for now; re-add exclusions here as translations are restored.
+  return true;
 }
 
-// Order must match languagePack[]
-#if defined(COLORLCD)
-const LangStrings* const langStrings[] = {
-  &cnLangStrings,
-  &czLangStrings,
-  &daLangStrings,
-  &deLangStrings,
-  &enLangStrings,
-  &esLangStrings,
-  &fiLangStrings,
-  &frLangStrings,
-  &heLangStrings,
-  &enLangStrings,
-  &itLangStrings,
-  &jpLangStrings,
-  &koLangStrings,
-  &nlLangStrings,
-  &plLangStrings,
-  &ptLangStrings,
-  &ruLangStrings,
-  &seLangStrings,
-  &enLangStrings,
-  &twLangStrings,
-  &uaLangStrings,
-};
-#else
+// Only English is shipped for now; re-add language codes here as translations are restored.
 const LangStrings* const langStrings[] = {
   &enLangStrings,
-  &czLangStrings,
-  &daLangStrings,
-  &deLangStrings,
-  &enLangStrings,
-  &esLangStrings,
-  &fiLangStrings,
-  &frLangStrings,
-  &enLangStrings,
-  &enLangStrings,
-  &itLangStrings,
-  &enLangStrings,
-  &enLangStrings,
-  &enLangStrings,
-  &plLangStrings,
-  &ptLangStrings,
-  &ruLangStrings,
-  &seLangStrings,
-  &enLangStrings,
-  &enLangStrings,
-  &uaLangStrings,
 };
-#endif
-const LangStrings* currentLangStrings = &enLangStrings;
 
 // Static string
 #define STR(x) const char* STR_##x##_FN() { return STR_##x; }

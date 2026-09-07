@@ -85,7 +85,6 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENUHELISETUP                TR_BW_COL("HELI SETUP", "Heli Settings")
 #define TR_MENUFLIGHTMODES              TR_SFC_AIR(TR_BW_COL("DRIVE MODES", "Drive Modes"), TR_BW_COL("FLIGHT MODES", "Flight Modes"))
 #define TR_MENUFLIGHTMODE               TR_SFC_AIR("DRIVE MODE", "FLIGHT MODE")
 #define TR_MENUINPUTS                   TR_BW_COL("INPUTS", "Inputs")
@@ -318,12 +317,6 @@
 #define TR_GPSFORMAT_2                 "NMEA"
 
 
-#define TR_VSWASHTYPE_1                "---"
-#define TR_VSWASHTYPE_2                "120"
-#define TR_VSWASHTYPE_3                "120X"
-#define TR_VSWASHTYPE_4                "140"
-#define TR_VSWASHTYPE_5                "90"
-
 #define TR_STICK_NAMES0                "Rud"
 #define TR_STICK_NAMES1                "Ele"
 #define TR_STICK_NAMES2                "Thr"
@@ -360,10 +353,6 @@
 
 #define TR_IMU_VSRCRAW_1             "TltX"
 #define TR_IMU_VSRCRAW_2             "TltY"
-
-#define TR_CYC_VSRCRAW_1             "CYC1"
-#define TR_CYC_VSRCRAW_2             "CYC2"
-#define TR_CYC_VSRCRAW_3             "CYC3"
 
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "Time"
@@ -491,11 +480,6 @@
 #define TR_FADEIN                      "Fade in"
 #define TR_FADEOUT                     "Fade out"
 #define TR_CHECKTRIMS                  TR("\006Check\012trims", "Check FM Trims")
-#define TR_SWASHTYPE                   "Swash Type"
-#define TR_COLLECTIVE                  TR("Collective", "Coll. pitch source")
-#define TR_AILERON                     TR("Lateral cyc.", "Lateral cyc. source")
-#define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. source")
-#define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Mode"
 #define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     "Subtype"
@@ -1198,7 +1182,6 @@
 #define TR_MENU_POTS                   CHAR_POT "Pots"
 #define TR_MENU_MIN                    CHAR_FUNCTION "MIN"
 #define TR_MENU_MAX                    CHAR_FUNCTION "MAX"
-#define TR_MENU_HELI                   CHAR_CYC "Cyclic"
 #define TR_MENU_TRIMS                  CHAR_TRIM "Trims"
 #define TR_MENU_SWITCHES               CHAR_SWITCH "Switches"
 #define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "Logical switches"

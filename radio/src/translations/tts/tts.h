@@ -47,78 +47,18 @@ extern const LanguagePack * currentLanguagePack;
 extern uint8_t currentLanguagePackIdx;
 extern uint8_t getLanguageId(const char* lang);
 
+// Only English is shipped for now; re-add language codes here as translations are restored.
 enum RadioLanguage {
-  LANG_CN,
-  LANG_CZ,
-  LANG_DA,
-  LANG_DE,
   LANG_EN,
-  LANG_ES,
-  LANG_FI,
-  LANG_FR,
-  LANG_HE,
-  LANG_HU,
-  LANG_IT,
-  LANG_JP,
-  LANG_KO,
-  LANG_NL,
-  LANG_PL,
-  LANG_PT,
-  LANG_RU,
-  LANG_SE,
-  LANG_SK,
-  LANG_TW,
-  LANG_UA,
   LANG_COUNT
 };
 
-extern const LanguagePack cnLanguagePack;
-extern const LanguagePack czLanguagePack;
-extern const LanguagePack daLanguagePack;
-extern const LanguagePack deLanguagePack;
 extern const LanguagePack enLanguagePack;
-extern const LanguagePack esLanguagePack;
-extern const LanguagePack fiLanguagePack;
-extern const LanguagePack frLanguagePack;
-extern const LanguagePack heLanguagePack;
-extern const LanguagePack huLanguagePack;
-extern const LanguagePack itLanguagePack;
-extern const LanguagePack jpLanguagePack;
-extern const LanguagePack koLanguagePack;
-extern const LanguagePack nlLanguagePack;
-extern const LanguagePack plLanguagePack;
-extern const LanguagePack ptLanguagePack;
-extern const LanguagePack ruLanguagePack;
-extern const LanguagePack seLanguagePack;
-extern const LanguagePack skLanguagePack;
-extern const LanguagePack twLanguagePack;
-extern const LanguagePack uaLanguagePack;
 extern const LanguagePack * const languagePacks[];
 
 #if defined(LANGUAGE_PACKS_DEFINITION)
 const LanguagePack * const languagePacks[] = {
-  // alphabetical order
-  &cnLanguagePack,
-  &czLanguagePack,
-  &daLanguagePack,
-  &deLanguagePack,
   &enLanguagePack,
-  &esLanguagePack,
-  &fiLanguagePack,
-  &frLanguagePack,
-  &heLanguagePack,
-  &huLanguagePack,
-  &itLanguagePack,
-  &jpLanguagePack,
-  &koLanguagePack,
-  &nlLanguagePack,
-  &plLanguagePack,
-  &ptLanguagePack,
-  &ruLanguagePack,
-  &seLanguagePack,
-  &skLanguagePack,
-  &twLanguagePack,
-  &uaLanguagePack,
   NULL
 };
 #endif

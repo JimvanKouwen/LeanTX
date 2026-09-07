@@ -297,16 +297,6 @@
 #define STR_FUNCTION_SWITCH_GROUPS currentLangStrings->STR_FUNCTION_SWITCH_GROUPS
 #endif
 
-#if defined(HELI)
-#define STR_AILERON currentLangStrings->STR_AILERON
-#define STR_COLLECTIVE currentLangStrings->STR_COLLECTIVE
-#define STR_ELEVATOR currentLangStrings->STR_ELEVATOR
-#define STR_MENUHELISETUP currentLangStrings->STR_MENUHELISETUP
-#define STR_SWASHRING currentLangStrings->STR_SWASHRING
-#define STR_SWASHTYPE currentLangStrings->STR_SWASHTYPE
-#define STR_VSWASHTYPE currentLangStrings->STR_VSWASHTYPE
-#endif
-
 #if defined(MULTIMODULE)
 #define STR_MULTI_BAYANG_OPTIONS currentLangStrings->STR_MULTI_BAYANG_OPTIONS
 #define STR_MULTI_DSM_CLONE currentLangStrings->STR_MULTI_DSM_CLONE
@@ -626,7 +616,6 @@
 #define STR_MENU_FSWITCH currentLangStrings->STR_MENU_FSWITCH
 #define STR_MENU_GLOBAL_VARS currentLangStrings->STR_MENU_GLOBAL_VARS
 #define STR_MENU_GVARS currentLangStrings->STR_MENU_GVARS
-#define STR_MENU_HELI currentLangStrings->STR_MENU_HELI
 #define STR_MENU_INPUTS currentLangStrings->STR_MENU_INPUTS
 #define STR_MENU_INVERT currentLangStrings->STR_MENU_INVERT
 #define STR_MENU_LOGICAL_SWITCHES currentLangStrings->STR_MENU_LOGICAL_SWITCHES
