@@ -361,11 +361,6 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
         }
       }
 #endif
-      // is that necessary ???
-      // md->swashR.collectiveWeight = 100;
-      // md->swashR.aileronWeight    = 100;
-      // md->swashR.elevatorWeight   = 100;
-
       md->rfAlarms.warning = 45;
       md->rfAlarms.critical = 42;
     }

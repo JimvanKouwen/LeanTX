@@ -101,12 +101,6 @@
   #define CASE_BLUETOOTH(x)
 #endif
 
-#if defined(HELI)
-  #define CASE_HELI(x) x,
-#else
-  #define CASE_HELI(x)
-#endif
-
 #if defined(FLIGHT_MODES)
   #define CASE_FLIGHT_MODES(x) x,
 #else

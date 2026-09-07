@@ -290,21 +290,6 @@ PACK(struct TimerData {
   NOBACKUP(char name[LEN_TIMER_NAME]);
 });
 
-/*
- * Swash Ring structure
- */
-
-PACK(struct SwashRingData {
-  uint8_t   type ENUM(SwashType);
-  uint8_t   value;
-  uint8_t   collectiveSource CUST(r_mixSrcRaw,w_mixSrcRaw);
-  uint8_t   aileronSource CUST(r_mixSrcRaw,w_mixSrcRaw);
-  uint8_t   elevatorSource CUST(r_mixSrcRaw,w_mixSrcRaw);
-  int8_t    collectiveWeight;
-  int8_t    aileronWeight;
-  int8_t    elevatorWeight;
-});
-
 #if MAX_SCRIPTS > 0
 union ScriptDataInput {
   int16_t value;
@@ -792,7 +777,6 @@ PACK(struct ModelData {
 
   LogicalSwitchData logicalSw[MAX_LOGICAL_SWITCHES];
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
-  SwashRingData swashR FUNC(swash_is_active);
   FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
@@ -894,7 +878,6 @@ PACK(struct ModelData {
   uint8_t radioGFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t radioTrainerDisabled:2 ENUM(ModelOverridableEnable);
   // Model level tabs control (model setting)
-  uint8_t modelHeliDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelFMDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelGVDisabled:2 ENUM(ModelOverridableEnable);
@@ -1145,7 +1128,6 @@ PACK(struct RadioData {
 
   NOBACKUP(int16_t radioGFDisabled:1);
   NOBACKUP(int16_t radioTrainerDisabled:1);
-  NOBACKUP(int16_t modelHeliDisabled:1);
   NOBACKUP(int16_t modelFMDisabled:1);
   NOBACKUP(int16_t modelCurvesDisabled:1);
   NOBACKUP(int16_t modelGVDisabled:1);

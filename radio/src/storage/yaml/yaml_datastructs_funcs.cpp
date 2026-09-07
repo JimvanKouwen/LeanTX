@@ -255,15 +255,6 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       return yaml_str2uint(val, val_len) * 3 + sign + MIXSRC_FIRST_TELEM;
 
     } else if (val_len > 3 &&
-               val[0] == 'C' &&
-               val[1] == 'Y' &&
-               val[2] == 'C' &&
-               val[3] >= '1' &&
-               val[3] <= '3') {
-
-      return MIXSRC_FIRST_HELI + (val[3] - '1');
-
-    } else if (val_len > 3 &&
                val[0] == 'T' &&
                val[1] == 'm' &&
                val[2] == 'r' &&
@@ -354,11 +345,6 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     }
     else if (val <= MIXSRC_LAST_POT) {
         str = analogGetCanonicalName(ADC_INPUT_FLEX, val - MIXSRC_FIRST_POT);
-    }
-    else if (val >= MIXSRC_FIRST_HELI
-             && val <= MIXSRC_LAST_HELI) {
-        if (!wf(opaque, "CYC", 3)) return false;
-        str = yaml_unsigned2str(val - MIXSRC_FIRST_HELI + 1);
     }
     else if (val >= MIXSRC_FIRST_TRIM
              && val <= MIXSRC_LAST_TRIM) {
@@ -1552,12 +1538,6 @@ static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
   }
 
   return is_active;
-}
-
-static bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs)
-{
-  auto swashR = reinterpret_cast<SwashRingData*>(data + (bitoffs >> 3UL));
-  return swashR->type | swashR->value;
 }
 
 static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,

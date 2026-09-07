@@ -745,10 +745,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
   }
 #endif
-  else if (idx <= MIXSRC_LAST_HELI) {
-    idx -= MIXSRC_FIRST_HELI;
-    getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
-  } else if (idx <= MIXSRC_LAST_TRIM) {
+  else if (idx <= MIXSRC_LAST_TRIM) {
     idx -= MIXSRC_FIRST_TRIM;
     char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
     strAppend(pos, getTrimLabel(idx, defaultOnly));

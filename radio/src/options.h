@@ -52,9 +52,6 @@ static const char * const options[] = {
 #if defined(HAPTIC) && defined(PCBX9D)
   "haptic",
 #endif
-#if !defined(HELI)
-  "noheli",
-#endif
 #if defined(HORUS_STICKS)
   "horussticks",
 #endif

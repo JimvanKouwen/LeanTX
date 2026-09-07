@@ -57,10 +57,6 @@ int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
 int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
 
-#if defined(HELI)
-int16_t cyc_anas[3] = {0};
-#endif
-
 // TOOD: find better home for this.
 int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
 {
@@ -416,15 +412,6 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-  else if (i <= MIXSRC_LAST_HELI) {
-#if defined(HELI)
-    return cyc_anas[i - MIXSRC_FIRST_HELI];
-#else
-    if (valid != nullptr) *valid = false;
-    return 0;
-#endif
-  }
-
   else if (i <= MIXSRC_LAST_TRIM) {
     i -= MIXSRC_FIRST_TRIM;
     if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
@@ -758,74 +745,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
   if (tick10ms)
     evalLogicalSwitches(mode==e_perout_mode_normal);
-
-#if defined(HELI)
-  if (modelHeliEnabled()) {
-    int heliEleValue = getValue(g_model.swashR.elevatorSource);
-    int heliAilValue = getValue(g_model.swashR.aileronSource);
-    if (g_model.swashR.value) {
-      uint32_t v = ((int32_t)heliEleValue*heliEleValue + (int32_t)heliAilValue*heliAilValue);
-      uint32_t q = calc100toRESX(g_model.swashR.value);
-      q *= q;
-      if (v>q) {
-        uint16_t d = isqrt32(v);
-        int16_t tmp = calc100toRESX(g_model.swashR.value);
-        heliEleValue = (int32_t) heliEleValue*tmp/d;
-        heliAilValue = (int32_t) heliAilValue*tmp/d;
-      }
-    }
-
-  #define REZ_SWASH_X(x)  ((x) - (x)/8 - (x)/128 - (x)/512)   //  1024*sin(60) ~= 886
-  #define REZ_SWASH_Y(x)  ((x))   //  1024 => 1024
-
-    if (g_model.swashR.type) {
-      getvalue_t vp = heliEleValue + getSourceTrimValue(g_model.swashR.elevatorSource);
-      getvalue_t vr = heliAilValue + getSourceTrimValue(g_model.swashR.aileronSource);
-      getvalue_t vc = 0;
-      if (g_model.swashR.collectiveSource)
-        vc = getValue(g_model.swashR.collectiveSource);
-
-      vp = (vp * g_model.swashR.elevatorWeight) / 100;
-      vr = (vr * g_model.swashR.aileronWeight) / 100;
-      vc = (vc * g_model.swashR.collectiveWeight) / 100;
-
-      switch (g_model.swashR.type) {
-        case SWASH_TYPE_120:
-          vp = REZ_SWASH_Y(vp);
-          vr = REZ_SWASH_X(vr);
-          cyc_anas[0] = vc - vp;
-          cyc_anas[1] = vc + vp/2 + vr;
-          cyc_anas[2] = vc + vp/2 - vr;
-          break;
-        case SWASH_TYPE_120X:
-          vp = REZ_SWASH_X(vp);
-          vr = REZ_SWASH_Y(vr);
-          cyc_anas[0] = vc - vr;
-          cyc_anas[1] = vc + vr/2 + vp;
-          cyc_anas[2] = vc + vr/2 - vp;
-          break;
-        case SWASH_TYPE_140:
-          vp = REZ_SWASH_Y(vp);
-          vr = REZ_SWASH_Y(vr);
-          cyc_anas[0] = vc - vp;
-          cyc_anas[1] = vc + vp + vr;
-          cyc_anas[2] = vc + vp - vr;
-          break;
-        case SWASH_TYPE_90:
-          vp = REZ_SWASH_Y(vp);
-          vr = REZ_SWASH_Y(vr);
-          cyc_anas[0] = vc - vp;
-          cyc_anas[1] = vc + vr;
-          cyc_anas[2] = vc - vr;
-          break;
-        default:
-          break;
-      }
-    }
-  } else {
-    cyc_anas[0] = cyc_anas[1] = cyc_anas[2] = 0;
-  }
-#endif
 
   memclear(chans, sizeof(chans)); // all outputs to 0
 

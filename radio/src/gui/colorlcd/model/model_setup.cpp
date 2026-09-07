@@ -31,7 +31,6 @@
 #include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "menu.h"
-#include "model_heli.h"
 #include "module_setup.h"
 #include "preflight_checks.h"
 #include "sourcechoice.h"
@@ -101,16 +100,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
   {
     STR_DEF(STR_MODEL_MENU_TABS), nullptr,
   },
-#if defined(HELI)
-  {
-    STR_DEF(STR_MENUHELISETUP),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_DEFAULT(g_model.modelHeliDisabled),
-                g_eeGeneral.modelHeliDisabled);
-    }
-  },
-#endif
 #if defined(FLIGHT_MODES)
   {
     STR_DEF(STR_MENUFLIGHTMODES),
@@ -475,9 +464,6 @@ const static PageButtonDef modelSetupButtons[] = {
   {STR_DEF(STR_FUNCTION_SWITCHES), []() { new ModelFunctionSwitches(); }},
 #endif
   {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines); }},
-#if defined(HELI)
-  {STR_DEF(STR_MENUHELISETUP), []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
-#endif
   {nullptr},
 };
 

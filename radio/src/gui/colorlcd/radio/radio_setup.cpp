@@ -621,109 +621,76 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
 }
 
 const static SetupLineDef viewOptionsPageSetupLines[] = {
-  {
-    STR_DEF(STR_RADIO_MENU_TABS), nullptr,
-  },
-  {
-    STR_DEF(STR_MAIN_MENU_THEMES),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),
-                g_model.radioThemesDisabled);
-    }
-  },
-  {
-    STR_DEF(STR_MENUSPECIALFUNCS),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.radioGFDisabled),
-                g_model.radioGFDisabled);
-    }
-  },
-  {
-    STR_DEF(STR_MENUTRAINER),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled),
-                g_model.radioTrainerDisabled);
-    }
-  },
-  {
-    STR_DEF(STR_MODEL_MENU_TABS), nullptr,
-  },
-#if defined(HELI)
-  {
-    STR_DEF(STR_MENUHELISETUP),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled),
-                g_model.modelHeliDisabled);
-    }
-  },
-#endif
+    {
+        STR_DEF(STR_RADIO_MENU_TABS),
+        nullptr,
+    },
+    {STR_DEF(STR_MAIN_MENU_THEMES),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y,
+                  GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),
+                  g_model.radioThemesDisabled);
+     }},
+    {STR_DEF(STR_MENUSPECIALFUNCS),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled),
+                  g_model.radioGFDisabled);
+     }},
+    {STR_DEF(STR_MENUTRAINER),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y,
+                  GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled),
+                  g_model.radioTrainerDisabled);
+     }},
+    {
+        STR_DEF(STR_MODEL_MENU_TABS),
+        nullptr,
+    },
 #if defined(FLIGHT_MODES)
-  {
-    STR_DEF(STR_MENUFLIGHTMODES),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelFMDisabled),
-                g_model.modelFMDisabled);
-    }
-  },
+    {STR_DEF(STR_MENUFLIGHTMODES),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled),
+                  g_model.modelFMDisabled);
+     }},
 #endif
 #if defined(GVARS)
-  {
-    STR_DEF(STR_MENU_GLOBAL_VARS),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelGVDisabled),
-                g_model.modelGVDisabled);
-    }
-  },
+    {STR_DEF(STR_MENU_GLOBAL_VARS),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled),
+                  g_model.modelGVDisabled);
+     }},
 #endif
-  {
-    STR_DEF(STR_MENUCURVES),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
-                g_model.modelCurvesDisabled);
-    }
-  },
-  {
-    STR_DEF(STR_MENULOGICALSWITCHES),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelLSDisabled),
-                g_model.modelLSDisabled);
-    }
-  },
-  {
-    STR_DEF(STR_MENUCUSTOMFUNC),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelSFDisabled),
-                g_model.modelSFDisabled);
-    }
-  },
+    {STR_DEF(STR_MENUCURVES),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y,
+                  GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
+                  g_model.modelCurvesDisabled);
+     }},
+    {STR_DEF(STR_MENULOGICALSWITCHES),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled),
+                  g_model.modelLSDisabled);
+     }},
+    {STR_DEF(STR_MENUCUSTOMFUNC),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled),
+                  g_model.modelSFDisabled);
+     }},
 #if defined(LUA_MODEL_SCRIPTS)
-  {
-    STR_DEF(STR_MENUCUSTOMSCRIPTS),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled),
-                g_model.modelCustomScriptsDisabled);
-    }
-  },
+    {STR_DEF(STR_MENUCUSTOMSCRIPTS),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y,
+                  GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled),
+                  g_model.modelCustomScriptsDisabled);
+     }},
 #endif
-  {
-    STR_DEF(STR_MENUTELEMETRY),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled),
-                g_model.modelTelemetryDisabled);
-    }
-  },
-  {nullptr, nullptr},
+    {STR_DEF(STR_MENUTELEMETRY),
+     [](Window* parent, coord_t x, coord_t y) {
+       viewOption(parent, x, y,
+                  GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled),
+                  g_model.modelTelemetryDisabled);
+     }},
+    {nullptr, nullptr},
 };
 
 const static SetupLineDef manageModelsSetupLines[] = {

@@ -59,11 +59,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
                  (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
         },
         STR_MENU_OTHER);
-#if defined(HELI)
-    if (modelHeliEnabled())
-      addButton(CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, nullptr,
-                STR_MENU_HELI);
-#endif
     addButton(CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, nullptr,
               STR_MENU_TRIMS);
 #if defined(FUNCTION_SWITCHES)

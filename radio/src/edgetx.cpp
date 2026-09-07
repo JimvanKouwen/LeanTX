@@ -2047,9 +2047,6 @@ bool radioTrainerEnabled() {
 }
 
 // Model menu tab state
-bool modelHeliEnabled() {
-  return FEATURE_ENABLED(modelHeliDisabled);
-}
 bool modelFMEnabled() {
   return FEATURE_ENABLED(modelFMDisabled);
 }

@@ -102,15 +102,6 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
   EXPECT_STREQ(getSourceString(MIXSRC_MAX), STR_MENU_MAX);
 
-#if defined(HELI)
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI), "CYC1");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 1), "CYC2");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 2), "CYC3");
-#else
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI), "[C1]");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 1), "[C2]");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 2), "[C3]");
-#endif
 #if defined(SURFACE_RADIO)
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM), CHAR_TRIM "ST");
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 1), CHAR_TRIM "TH");

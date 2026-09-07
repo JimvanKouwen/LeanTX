@@ -12,7 +12,6 @@ set_property(CACHE TRANSLATIONS PROPERTY STRINGS ${RADIO_LANGUAGES})
 set(DEFAULT_MODE "" CACHE STRING "Default sticks mode")
 set(POPUP_LEVEL 2 CACHE STRING "Popup level")
 
-option(HELI "Heli menu" ON)
 option(FLIGHT_MODES "Flight Modes" ON)
 option(CURVES "Curves" ON)
 option(GVARS "Global variables" ON)
@@ -249,10 +248,6 @@ endif()
 
 if(LUA)
   include(lua/CMakeLists.txt)
-endif()
-
-if(HELI)
-  add_definitions(-DHELI)
 endif()
 
 if(FLIGHT_MODES)

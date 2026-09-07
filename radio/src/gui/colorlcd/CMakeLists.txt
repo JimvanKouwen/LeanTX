@@ -136,9 +136,6 @@ if(GVARS)
   add_gui_src(model/model_gvars.cpp)
 endif()
 
-if(HELI)
-  add_gui_src(model/model_heli.cpp)
-endif()
 
 if(PXX2 OR MULTIMODULE)
   add_gui_src(radio/radio_spectrum_analyser.cpp)

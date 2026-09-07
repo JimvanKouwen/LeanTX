@@ -114,9 +114,6 @@ static const uint8_t mask_model_general[] __FLASH = {
 static const uint8_t mask_model_gvars[] __FLASH = {
 #include "mask_icon_model_gvars.lbm"
 };
-static const uint8_t mask_model_heli[] __FLASH = {
-#include "mask_icon_model_heli.lbm"
-};
 static const uint8_t mask_model_inputs[] __FLASH = {
 #include "mask_icon_model_inputs.lbm"
 };
@@ -411,7 +408,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_RADIO_VERSION, mask_radio_about),
     BI(ICON_MODEL, mask_menu_model_setup),
     BI(ICON_MODEL_SETUP, mask_model_general),
-    BI(ICON_MODEL_HELI, mask_model_heli),
     BI(ICON_MODEL_FLIGHT_MODES, mask_model_flight_modes),
     BI(ICON_MODEL_INPUTS, mask_model_inputs),
     BI(ICON_MODEL_MIXER, mask_model_mixer),

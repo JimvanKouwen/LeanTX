@@ -413,7 +413,6 @@ const LuaMultipleField luaMultipleFields[] = {
     {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
     {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
-    {MIXSRC_FIRST_HELI, "cyc", "Cyclic %d", 3},
 };
 
 static bool _searchSingleFieldsByName(const char* name, LuaField& field,

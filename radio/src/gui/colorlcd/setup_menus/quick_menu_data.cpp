@@ -24,7 +24,6 @@
 #include "model_curves.h"
 #include "model_flightmodes.h"
 #include "model_gvars.h"
-#include "model_heli.h"
 #include "model_inputs.h"
 #include "model_logical_switches.h"
 #include "model_mixer_scripts.h"

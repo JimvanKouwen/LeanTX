@@ -43,7 +43,6 @@ static inline void check_struct()
   CHKSIZE(VarioData, 5);
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 18);
-  CHKSIZE(SwashRingData, 8);
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(LogicalSwitchData, 9);
   CHKSIZE(TelemetrySensor, 14);

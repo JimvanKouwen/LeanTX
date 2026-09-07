@@ -240,7 +240,6 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_GF,
   ITEM_VIEW_OPTIONS_TRAINER,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
-  CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
   ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
@@ -860,7 +859,6 @@ void menuModelSetup(event_t event)
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
      VIEWOPT_ROW(LABEL(ModelMenuTabs)),
-      CASE_HELI(VIEWOPT_ROW(0))
       CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
@@ -2557,11 +2555,6 @@ void menuModelSetup(event_t event)
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, STR_MODEL_MENU_TABS);
         break;
-#if defined(HELI)
-      case ITEM_VIEW_OPTIONS_HELI:
-        g_model.modelHeliDisabled = viewOptChoice(y, STR_MENUHELISETUP, g_model.modelHeliDisabled, attr, event);
-        break;
-#endif
 #if defined(FLIGHT_MODES)
       case ITEM_VIEW_OPTIONS_FM:
         g_model.modelFMDisabled = viewOptChoice(y, STR_MENUFLIGHTMODES, g_model.modelFMDisabled, attr, event);

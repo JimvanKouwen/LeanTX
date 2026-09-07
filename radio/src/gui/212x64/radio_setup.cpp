@@ -124,7 +124,6 @@ enum MenuRadioSetupItems {
   ITEM_VIEW_OPTIONS_GF,
   ITEM_VIEW_OPTIONS_TRAINER,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
-  CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
   CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
   ITEM_VIEW_OPTIONS_CURVES,
@@ -269,7 +268,6 @@ void menuRadioSetup(event_t event)
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
      VIEWOPT_ROW(LABEL(ModelMenuTabs)),
-      CASE_HELI(VIEWOPT_ROW(0))
       CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
       CASE_GVARS(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
@@ -855,11 +853,6 @@ void menuRadioSetup(event_t event)
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;
-#if defined(HELI)
-      case ITEM_VIEW_OPTIONS_HELI:
-        g_eeGeneral.modelHeliDisabled = viewOptCheckBox(y, STR_MENUHELISETUP, g_eeGeneral.modelHeliDisabled, attr, event, g_model.modelHeliDisabled);
-        break;
-#endif
 #if defined(FLIGHT_MODES)
       case ITEM_VIEW_OPTIONS_FM:
         g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event, g_model.modelFMDisabled);

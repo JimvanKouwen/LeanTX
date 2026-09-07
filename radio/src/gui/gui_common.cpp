@@ -193,14 +193,6 @@ static bool isSourceSpacemouseAvailable(int source) {
 }
 #endif
 
-static bool isSourceHeliAvailable(int source) {
-#if defined(HELI)
-  return modelHeliEnabled();
-#else
-  return false;
-#endif
-}
-
 static bool isSourceTrimAvailable(int source) {
   return source < keysGetMaxTrims();
 }
@@ -269,7 +261,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
 #endif
   { MIXSRC_MIN, MIXSRC_MAX, SRC_MINMAX, sourceIsAvailable },
-  { MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SRC_HELI, isSourceHeliAvailable },
   { MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SRC_TRIM, isSourceTrimAvailable },
   { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SRC_SWITCH, isSourceSwitchAvailable },
 #if defined(FUNCTION_SWITCHES)
@@ -307,7 +298,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
+            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
             );
 }
 

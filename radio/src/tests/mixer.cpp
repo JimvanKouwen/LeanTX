@@ -65,10 +65,6 @@ class MixerTest : public EdgeTxTest {};
       } \
     } while (0)
 
-#define MIXSRC_CYC1    (MIXSRC_FIRST_HELI)
-#define MIXSRC_CYC2    (MIXSRC_FIRST_HELI + 1)
-#define MIXSRC_CYC3    (MIXSRC_FIRST_HELI + 2)
-
 #if defined(SURFACE_RADIO)
   #define ELE_CHAN          0
   #define ELE_THRTRIMSW     1
@@ -926,79 +922,6 @@ TEST_F(TrimsTest, throttleTrimEle) {
   g_eeGeneral.templateSetup = 0;
   applyDefaultTemplate();
 }
-
-#if defined(HELI)
-TEST(Heli, BasicTest)
-{
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
-  g_model.swashR.collectiveSource = MIXSRC_THR;
-  g_model.swashR.elevatorSource = MIXSRC_ELE;
-  g_model.swashR.aileronSource = MIXSRC_AIL;
-  g_model.swashR.collectiveWeight = 100;
-  g_model.swashR.elevatorWeight = 100;
-  g_model.swashR.aileronWeight = 100;
-  g_model.swashR.type = SWASH_TYPE_120;
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_CYC1;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[1].destCh = 1;
-  g_model.mixData[1].mltpx = MLTPX_ADD;
-  g_model.mixData[1].srcRaw = MIXSRC_CYC2;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
-  g_model.mixData[2].destCh = 2;
-  g_model.mixData[2].mltpx = MLTPX_ADD;
-  g_model.mixData[2].srcRaw = MIXSRC_CYC3;
-  g_model.mixData[2].weight = makeSourceNumVal(100);
-  anaSetFiltered(inputMappingConvertMode(THR_STICK), 0);
-  anaSetFiltered(inputMappingConvertMode(ELE_STICK), 1024);
-  anaSetFiltered(inputMappingConvertMode(AIL_STICK), 0);
-  evalFlightModeMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], -CHANNEL_MAX);
-  EXPECT_EQ(chans[1], CHANNEL_MAX/2);
-  EXPECT_EQ(chans[2], CHANNEL_MAX/2);
-}
-
-TEST(Heli, Mode2Test)
-{
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
-  g_eeGeneral.templateSetup = 2;
-  applyDefaultTemplate();
-  g_model.swashR.collectiveSource = MIXSRC_THR;
-  g_model.swashR.elevatorSource = MIXSRC_ELE;
-  g_model.swashR.aileronSource = MIXSRC_AIL;
-  g_model.swashR.collectiveWeight = 100;
-  g_model.swashR.elevatorWeight = 100;
-  g_model.swashR.aileronWeight = 100;
-  g_model.swashR.type = SWASH_TYPE_120;
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_CYC1;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[1].destCh = 1;
-  g_model.mixData[1].mltpx = MLTPX_ADD;
-  g_model.mixData[1].srcRaw = MIXSRC_CYC2;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
-  g_model.mixData[2].destCh = 2;
-  g_model.mixData[2].mltpx = MLTPX_ADD;
-  g_model.mixData[2].srcRaw = MIXSRC_CYC3;
-  g_model.mixData[2].weight = makeSourceNumVal(100);
-  anaSetFiltered(inputMappingConvertMode(THR_STICK), 0);
-  anaSetFiltered(inputMappingConvertMode(ELE_STICK), 1024);
-  anaSetFiltered(inputMappingConvertMode(AIL_STICK), 0);
-  evalFlightModeMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], -CHANNEL_MAX);
-  EXPECT_EQ(chans[1], CHANNEL_MAX/2);
-  EXPECT_EQ(chans[2], CHANNEL_MAX/2);
-  SYSTEM_RESET();
-}
-#endif
 
 TEST(Trainer, UnpluggedTest)
 {

@@ -107,16 +107,14 @@ enum MenuRadioIndexes
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
   MENU_MODEL_SETUP,
-  CASE_HELI(MENU_MODEL_HELI)
-  CASE_FLIGHT_MODES(MENU_MODEL_FLIGHT_MODES)
-  MENU_MODEL_INPUTS,
+  CASE_FLIGHT_MODES(MENU_MODEL_FLIGHT_MODES) MENU_MODEL_INPUTS,
   MENU_MODEL_MIXES,
   MENU_MODEL_OUTPUTS,
   MENU_MODEL_CURVES,
 #if LCD_W >= 212
   CASE_GVARS(MENU_MODEL_GVARS)
 #endif
-  MENU_MODEL_LOGICAL_SWITCHES,
+      MENU_MODEL_LOGICAL_SWITCHES,
   MENU_MODEL_SPECIAL_FUNCTIONS,
 #if defined(LUA_MODEL_SCRIPTS)
   MENU_MODEL_CUSTOM_SCRIPTS,
@@ -147,7 +145,6 @@ void menuModelSetup(event_t event);
 void menuModelFailsafe(event_t event);
 void menuModelModuleOptions(event_t event);
 void menuModelReceiverOptions(event_t event);
-void menuModelHeli(event_t event);
 void menuModelFlightModesAll(event_t event);
 void menuModelExpoOne(event_t event);
 void menuModelExposAll(event_t event);

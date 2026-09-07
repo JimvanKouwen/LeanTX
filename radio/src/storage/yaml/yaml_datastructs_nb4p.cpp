@@ -190,14 +190,6 @@ const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_STICKY, "FUNC_STICKY"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_SwashType[] = {
-  {  SWASH_TYPE_NONE, "TYPE_NONE"  },
-  {  SWASH_TYPE_120, "TYPE_120"  },
-  {  SWASH_TYPE_120X, "TYPE_120X"  },
-  {  SWASH_TYPE_140, "TYPE_140"  },
-  {  SWASH_TYPE_90, "TYPE_90"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_NONE, "NONE"  },
   {  SWSRC_ON, "ON"  },
@@ -431,7 +423,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "backlightSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_SIGNED( "radioGFDisabled", 1 ),
   YAML_SIGNED( "radioTrainerDisabled", 1 ),
-  YAML_SIGNED( "modelHeliDisabled", 1 ),
   YAML_SIGNED( "modelFMDisabled", 1 ),
   YAML_SIGNED( "modelCurvesDisabled", 1 ),
   YAML_SIGNED( "modelGVDisabled", 1 ),
@@ -564,17 +555,6 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_SwashRingData[] = {
-  YAML_ENUM("type", 8, enum_SwashType, NULL),
-  YAML_UNSIGNED( "value", 8 ),
-  YAML_UNSIGNED_CUST( "collectiveSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
-  YAML_UNSIGNED_CUST( "aileronSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
-  YAML_UNSIGNED_CUST( "elevatorSource", 8, r_mixSrcRaw, w_mixSrcRaw ),
-  YAML_SIGNED( "collectiveWeight", 8 ),
-  YAML_SIGNED( "aileronWeight", 8 ),
-  YAML_SIGNED( "elevatorWeight", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_trim_t[] = {
@@ -924,7 +904,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
-  YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
   YAML_ARRAY("flightModeData", 384, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
@@ -958,7 +937,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("radioThemesDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("radioGFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("radioTrainerDisabled", 2, enum_ModelOverridableEnable, NULL),
-  YAML_ENUM("modelHeliDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelFMDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCurvesDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelGVDisabled", 2, enum_ModelOverridableEnable, NULL),

@@ -21,30 +21,26 @@
 
 #include "edgetx.h"
 
-const MenuHandler menuTabModel[]  = {
-  { menuModelSelect, nullptr },
-  { menuModelSetup, nullptr },
-#if defined(HELI)
-  { menuModelHeli, modelHeliEnabled },
-#endif
+const MenuHandler menuTabModel[] = {
+    {menuModelSelect, nullptr},
+    {menuModelSetup, nullptr},
 #if defined(FLIGHT_MODES)
-  { menuModelFlightModesAll, modelFMEnabled },
+    {menuModelFlightModesAll, modelFMEnabled},
 #endif
-  { menuModelExposAll, nullptr },
-  { menuModelMixAll, nullptr },
-  { menuModelLimits, nullptr },
-  { menuModelCurvesAll, modelCurvesEnabled },
+    {menuModelExposAll, nullptr},
+    {menuModelMixAll, nullptr},
+    {menuModelLimits, nullptr},
+    {menuModelCurvesAll, modelCurvesEnabled},
 #if defined(GVARS) && defined(FLIGHT_MODES) && (LCD_W >= 212)
-  { menuModelGVars, modelGVEnabled },
+    {menuModelGVars, modelGVEnabled},
 #endif
-  { menuModelLogicalSwitches, modelLSEnabled },
-  { menuModelSpecialFunctions, modelSFEnabled },
+    {menuModelLogicalSwitches, modelLSEnabled},
+    {menuModelSpecialFunctions, modelSFEnabled},
 #if defined(LUA_MODEL_SCRIPTS)
-  { menuModelCustomScripts, modelCustomScriptsEnabled },
+    {menuModelCustomScripts, modelCustomScriptsEnabled},
 #endif
-  { menuModelTelemetry, modelTelemetryEnabled },
-  { menuModelDisplay, nullptr }
-};
+    {menuModelTelemetry, modelTelemetryEnabled},
+    {menuModelDisplay, nullptr}};
 
 uint8_t s_copyMode = 0;
 int8_t s_copySrcRow;
