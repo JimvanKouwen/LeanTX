@@ -21,17 +21,10 @@
 
 #include "gtests.h"
 
-#if defined(SURFACE_RADIO)
-#define THR_100    128      // approximately 100% full throttle
-#define THR_50      96      // approximately 50% full throttle
-#define THR_10      71      // approximately 10% full throttle
-#define THR_0       64      // approximately 0% full throttle
-#else
 #define THR_100    128      // approximately 100% full throttle
 #define THR_50      64      // approximately 50% full throttle
 #define THR_10      13      // approximately 10% full throttle
 #define THR_0        0      // approximately 0% full throttle
-#endif
 
 #define TEST_AB_EQUAL(a, b) if (a != b) { return ::testing::AssertionFailure() << \
                             #a "= " << (uint32_t)a << ", " << #b "= " << (uint32_t)b; };

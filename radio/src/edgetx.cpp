@@ -135,14 +135,7 @@ void checkValidMCU(void)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
-#if defined(RADIO_TLITE)
-  #define TARGET_IDCODE_SECONDARY   0x413
-  // Tlite ELRS have a CKS F4 run as an F2 (F4 firmware won't run on those)
-#endif
-
-#if defined(STM32F205xx)
-  #define TARGET_IDCODE   0x411
-#elif defined(STM32F407xx)
+#if defined(STM32F407xx)
   #define TARGET_IDCODE   0x413
 #elif defined(STM32F429xx)
   #define TARGET_IDCODE   0x419
@@ -158,15 +151,9 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x0
 #endif
 
-#if defined(TARGET_IDCODE_SECONDARY)
-  if(idcode != TARGET_IDCODE && idcode != TARGET_IDCODE_SECONDARY) {
-    runFatalErrorScreen("Wrong MCU");
-  }
-#else
   if(idcode != TARGET_IDCODE) {
     runFatalErrorScreen("Wrong MCU");
   }
-#endif
 #endif
 }
 
@@ -363,13 +350,6 @@ void generalDefault()
   if (BATTERY_MAX != 120)
     g_eeGeneral.vBatMax = BATTERY_MAX - 120;
 
-#if defined(SURFACE_RADIO)
-  g_eeGeneral.stickMode = 0;
-  g_eeGeneral.templateSetup = 0;
-#elif defined(DEFAULT_MODE)
-  g_eeGeneral.stickMode = DEFAULT_MODE - 1;
-  g_eeGeneral.templateSetup = DEFAULT_TEMPLATE_SETUP;
-#endif
 
 
   g_eeGeneral.backlightMode = e_backlight_mode_all;
@@ -400,14 +380,6 @@ void generalDefault()
 
 #if defined(PXX2)
   setDefaultOwnerId();
-#endif
-
-#if defined(RADIOMASTER_RTF_RELEASE)
-  // Those settings are for headless radio
-  g_eeGeneral.USBMode = USB_JOYSTICK_MODE;
-  g_eeGeneral.disableRtcWarning = 1;
-  g_eeGeneral.splashMode = 3; // Disable splash
-  g_eeGeneral.pwrOnSpeed = 1; // 1 second
 #endif
 
 #if defined(IFLIGHT_RELEASE)
@@ -841,11 +813,7 @@ bool isThrottleWarningAlertNeeded()
                         (int32_t)100;
     return abs(v - idleValue) > THRCHK_DEADBAND;
   } else {
-#if defined(SURFACE_RADIO) // surface radio, stick centered
-    return v > THRCHK_DEADBAND;
-#else
     return v > THRCHK_DEADBAND - RESX;
-#endif
   }
 }
 
@@ -1859,14 +1827,10 @@ uint32_t pwrCheck()
         bool modelConnectedConfirmed = !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
         bool trainerConfirmed = !isTrainerConnected();
 #endif
-#if defined(SHUTDOWN_CONFIRMATION)
-        while (1)
-#else
         while (
             (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
             (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) ||
             (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm))
-#endif
         {
 
 #if !defined(COLORLCD)

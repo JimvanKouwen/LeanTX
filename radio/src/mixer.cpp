@@ -654,11 +654,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   return v;
 }  
 
-#if defined(SURFACE_RADIO)
-  constexpr int IDLE_TRIM_SCALE = 1;
-#else
   constexpr int IDLE_TRIM_SCALE = 2;
-#endif
 
 int getStickTrimValue(int stick, int stickValue)
 {
@@ -676,17 +672,7 @@ int getStickTrimValue(int stick, int stickValue)
       trim = (g_model.extendedTrims) ? 2 * TRIM_EXTENDED_MAX + trim
                                      : 2 * TRIM_MAX + trim;
       trim = trim * (1024 - stickValue) / (IDLE_TRIM_SCALE * RESX);
-#if defined(SURFACE_RADIO)
-      // Throttle Idle trim (g_model.thrTrim) should affect only forward stick (0 to 1024)
-      // Return no trim for reverse side when throttle idle trim is enabled
-      if (stickValue < 0) return 0;
-#endif
     }
-#if defined(SURFACE_RADIO)
-    // divide throtle trim by two since since the full extend
-    // of forward/reverse chan is only 1024 instead of 2048
-    trim >>= 1;
-#endif
   }
   return trim;
 }
@@ -1249,13 +1235,8 @@ void doMixerPeriodicUpdates()
     }
 
     // calibrate it (resolution increased by factor 4)
-#if defined(SURFACE_RADIO)
-    // For surface radio round to nearest value for center point calculation in evalTimers
-    val = (val + ((1 << (RESX_SHIFT - 6)) / 2)) >> (RESX_SHIFT - 6);
-#else
     // Use previous calculation for air radios to avoid breaking things
     val = val >> (RESX_SHIFT - 6);
-#endif
 
     evalTimers(val, tick10ms);
 

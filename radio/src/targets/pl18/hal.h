@@ -46,9 +46,6 @@
   #define VBUS_MONITOR_GPIO               GPIO_PIN(GPIOJ, 14) // PJ.14
   // ADC
   #define ADC_VREF_PREC2                  330
-#elif defined(RADIO_NB4P)
-  #define ADC_GPIO_RAW1                 GPIOC
-  #define ADC_VREF_PREC2                  330
 #endif
 
 // Trims
@@ -317,12 +314,6 @@
   #define AUDIO_UNMUTE_DELAY            120  // ms
   #define AUDIO_MUTE_DELAY              500  // ms
   #define INVERTED_MUTE_PIN
-#elif defined(RADIO_NB4P)
-  #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 9) // PH.09 audio amp control pin
-  #define AUDIO_UNMUTE_DELAY            120  // ms
-  #define AUDIO_MUTE_DELAY              500  // ms
-  #define INVERTED_MUTE_PIN
-  #define VOICE_CHIP_EN_GPIO            GPIO_PIN(GPIOI, 5) // PI.05
 #endif
 
 // I2C Bus
@@ -391,27 +382,6 @@
   #define INTMODULE_TIMER_IRQn            TIM3_IRQn
   #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
   #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#elif defined(RADIO_NB4P)
-  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 8)  // PI.08
-  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
-  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
-  #define INTMODULE_USART                 USART3
-  #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
-  #define INTMODULE_USART_IRQn            USART3_IRQn
-  #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
-  #define INTMODULE_DMA                   DMA1
-  #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_3
-  #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream3_IRQn
-  #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
-  #define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_4
-  #define INTMODULE_RX_DMA                DMA1
-  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
-  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
-
-  #define INTMODULE_TIMER                 TIM3
-  #define INTMODULE_TIMER_IRQn            TIM3_IRQn
-  #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-  #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #elif defined(RADIO_NV14_FAMILY)
   #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOH, 9) // PH.09
   #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOF, 7) // PF.07
@@ -453,13 +423,9 @@
 #define EXTMODULE_RX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
-#if defined(RADIO_NB4P)
-#define EXTMODULE_TIMER_IRQn            TIM5_IRQn
-#define EXTMODULE_TIMER_IRQHandler      TIM5_IRQHandler
-#else
 #define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
 #define EXTMODULE_TIMER_IRQHandler      TIM8_UP_TIM13_IRQHandler
-#endif
+
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_3
 //USART
@@ -510,7 +476,6 @@
 #define ROTARY_ENCODER_NAVIGATION
 
 // Bluetooth
-#if !defined(RADIO_NB4P)
   #define BLUETOOTH_ON_GPIO               GPIO_PIN(GPIOI, 8) // PI.8
   #define BT_USART                        USART3
   #define BT_USART_IRQn                   USART3_IRQn
@@ -520,7 +485,7 @@
   #define BT_EN_GPIO                      GPIO_PIN(GPIOI, 8)  // PI.08
   #define BT_CONNECTED_GPIO               GPIO_PIN(GPIOJ, 1)  // PJ.01
   #define BT_CMD_MODE_GPIO                GPIO_PIN(GPIOH, 6)  // PH.06
-#endif
+
 
 // SDRAM
 #define SDRAM_BANK1

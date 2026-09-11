@@ -29,9 +29,6 @@
   #if defined(RADIO_NV14_FAMILY)
     #define BL_SELECT_KEY              "[R TRIM]"
     #define BL_EXIT_KEY                "[L TRIM]"
-  #elif defined(RADIO_NB4P)
-    #define BL_SELECT_KEY              "[SW1A]"
-    #define BL_EXIT_KEY                "[SW1B]"
   #elif defined(RADIO_PL18U)
     #define BL_SELECT_KEY              "[KR Dn]"
     #define BL_EXIT_KEY                "[KR Up]"

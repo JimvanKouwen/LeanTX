@@ -92,7 +92,6 @@ body:
         affecting more than one transmitter.
       multiple: true
       options:
-        - BetaFPV LiteRadio3 Pro
         - iFlight Commando 8
         - iFlight Commando 14
         - Fatfish F16
@@ -103,23 +102,17 @@ body:
         - Flysky PL18/PL18EV
         - Flysky PL18U
         - Flysky ST16
-        - FrSky Q X7 / Q X7S (ACCST)
         - FrSky Q X7 / Q X7S (ACCESS)
-        - FrSky X9D
-        - FrSky X9D+
         - FrSky X9D+2019
         - FrSky X9E / X9E Hall
-        - FrSky X9 Lite / Lite S
         - FrSky X10 / X10S (ACCST)
         - FrSky X10 Express / X10S Express (ACCESS)
         - FrSky X12
-        - FrSky X-Lite / S / Pro
         - HelloRadioSky V12
         - HelloRadioSky V14
         - HelloRadioSky V14LCD
         - HelloRadioSky V16
         - Jumper Bumblebee
-        - Jumper T12
         - Jumper T12 MAX
         - Jumper T14
         - Jumper T15
@@ -129,16 +122,12 @@ body:
         - Jumper T20/T20S
         - Jumper T20 V2
         - Jumper T22
-        - Jumper T-Lite
-        - Jumper T-Pro
         - Jumper T-Pro V2
         - RadioMaster Boxer
         - RadioMaster GX12
         - RadioMaster GX15
-        - RadioMaster MT12
         - RadioMaster Pocket
-        - RadioMaster T8
-        - RadioMaster TX12 / TX12MK2
+        - RadioMaster TX12MK2
         - RadioMaster TX15
         - RadioMaster TX16S / TX16S Mark II
         - RadioMaster TX16S MK3

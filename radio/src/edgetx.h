@@ -85,11 +85,6 @@ enum RotaryEncoderMode {
 #define RESXul     1024ul
 #define RESXl      1024l
 
-#if defined(JACK_DETECT_GPIO)
-#define CASE_JACK_DETECT(x) x,
-#else
-#define CASE_JACK_DETECT(x)
-#endif
 
 #include "debug.h"
 
@@ -209,10 +204,6 @@ extern uint8_t heartbeat;
 #include "pwr.h"
 
 bool trimDown(uint8_t idx);
-
-#if defined(KEYS_GPIO_REG_BIND)
-void bindButtonHandler(event_t event);
-#endif
 
 uint16_t evalChkSum();
 
@@ -578,12 +569,12 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
 #if STATUS_LEDS
   #define LED_ERROR_BEGIN()            ledRed()
-  // Green "ready to use" if available, unless overridden by user or mfg preference
-#if !defined(POWER_LED_BLUE) && (defined(LED_GREEN_GPIO) || defined(LED_STRIP_GPIO))
+  // Green "ready to use" if available
+#if defined(LED_GREEN_GPIO) || defined(LED_STRIP_GPIO)
   #define LED_ERROR_END() ledGreen()
   #define LED_BIND() ledBlue()
 #else
-// Either green is not an option, or blue is preferred "ready to use" color
+// Green is not available
   #define LED_ERROR_END()              ledBlue()
 #endif
 #else
@@ -842,14 +833,6 @@ extern Clipboard clipboard;
   #include "spacemouse.h"
 #endif
 
-#if defined(JACK_DETECT_GPIO)
-enum JackMode {
-  JACK_UNSELECTED_MODE,
-  JACK_HEADPHONE_MODE,
-  JACK_TRAINER_MODE,
-  JACK_MAX_MODE = JACK_TRAINER_MODE
-};
-#endif
 
 #if defined(IMU)
 #include "gyro.h"

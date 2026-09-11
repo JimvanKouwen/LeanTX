@@ -184,7 +184,6 @@
 #endif
 
 // Haptic: TIM1_CH1
-// #define HAPTIC_PWM
 // #define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 8) // PA.08
 // #define HAPTIC_GPIO_TIMER               TIM1
 // #define HAPTIC_GPIO_AF                  GPIO_AF1

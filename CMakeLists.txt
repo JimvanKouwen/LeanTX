@@ -114,11 +114,6 @@ if(EdgeTX_SUPERBUILD)
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/wasm
   )
 
-  add_custom_target(companion
-    COMMAND ${CMAKE_COMMAND} --build native --target companion
-    DEPENDS native-configure
-  )
-
   add_custom_target(gtests-radio
     COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
     DEPENDS native-configure

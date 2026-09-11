@@ -15,9 +15,6 @@ MAIN_CONTROL_LUT = {
     "LV": {"str": "Ele", "local": "STR_STICK_NAMES1"},
     "RV": {"str": "Thr", "local": "STR_STICK_NAMES2"},
     "RH": {"str": "Ail", "local": "STR_STICK_NAMES3"},
-    # Surface radios
-    "ST": {"str": "ST", "local": "STR_SURFACE_NAMES0"},
-    "TH": {"str": "TH", "local": "STR_SURFACE_NAMES1"},
 }
 
 

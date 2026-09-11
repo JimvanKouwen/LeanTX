@@ -80,9 +80,7 @@ const char* analogGetPhysicalName(uint8_t type, uint8_t idx)
 
 const char* analogGetCanonicalName(uint8_t type, uint8_t idx)
 {
-  // Main controls are special cases here as
-  // we use the label slot to place the specific names
-  // (2-gimbal radios vs. surface radios)
+  // Main controls use the label slot for their canonical names.
 
   if (type == ADC_INPUT_MAIN)
     return adcGetInputLabel(type, idx);

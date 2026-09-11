@@ -167,11 +167,7 @@ void boardInit()
   timersInit();
 
   usbChargerInit();
-#if !defined(POWER_LED_BLUE)
   ledBlue();
-#else
-  ledGreen();
-#endif
 
   ExtFLASH_InitRuntime();
 

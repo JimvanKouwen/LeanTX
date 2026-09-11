@@ -115,11 +115,7 @@ TEST(Lua, testModelInputs)
   luaExecStr("if noInputs > 0 then error('getInputsCount()') end");
 
   // add one line on Input4
-#if defined(SURFACE_RADIO)
-  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_TH, weight=56, offset=3, switch=2})");
-#else
   luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=2})");
-#endif
   EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[0].srcRaw);
@@ -128,11 +124,7 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(2, g_model.expoData[0].swtch);
 
   // add another one before existing line on Input4
-#if defined(SURFACE_RADIO)
-  luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_ST, weight=-56})");
-#else
   luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_Rud, weight=-56})");
-#endif
   EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
@@ -151,11 +143,7 @@ TEST(Lua, testModelInputs)
 
 
   // add another line after existing lines on Input4
-#if defined(SURFACE_RADIO)
-  luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_TH, weight=100})");
-#else
   luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
-#endif
   EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
@@ -173,11 +161,7 @@ TEST(Lua, testModelInputs)
 
   EXPECT_EQ(3u, g_model.expoData[2].chn);
   EXPECT_STRNEQ("test3", g_model.expoData[2].name);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[2].srcRaw);
-#else
   EXPECT_EQ(MIXSRC_LAST_STICK, g_model.expoData[2].srcRaw);
-#endif
   EXPECT_EQ(100u, g_model.expoData[2].weight);
   EXPECT_EQ(0u, g_model.expoData[2].offset);
   EXPECT_EQ(0, g_model.expoData[2].swtch);
@@ -191,11 +175,7 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
-#if defined(SURFACE_RADIO)
-  luaExecStr("if getSwitchIndex('St-') == nil then error('failed') end");
-#else
   luaExecStr("if getSwitchIndex('Rud-') == nil then error('failed') end");
-#endif
 }
 
 TEST(Lua, testFloatIntegerEquality)
@@ -241,14 +221,6 @@ TEST(Lua, testFloatIntegerEquality)
 TEST(Lua, testLegacyNames)
 {
   MODEL_RESET();
-#if defined(SURFACE_RADIO)
-  for (uint8_t i = 0; i < 2; i ++)
-    anaSetFiltered(i, -1024);
-  luaExecStr("value = getValue('thr')");
-  luaExecStr("if value ~= -1024 then error('th not defined in Legacy') end");
-  luaExecStr("value = getValue('ste')");
-  luaExecStr("if value ~= -1024 then error('st not defined in Legacy') end");
-#else
   for (uint8_t i = 0; i < 4; i ++)
     anaSetFiltered(i, -1024);
   luaExecStr("value = getValue('thr')");
@@ -259,7 +231,6 @@ TEST(Lua, testLegacyNames)
   luaExecStr("if value ~= -1024 then error('rud not defined in Legacy') end");
   luaExecStr("value = getValue('ele')");
   luaExecStr("if value ~= -1024 then error('ele not defined in Legacy') end");
-#endif
 }
 
 TEST(Lua, ioSeek)

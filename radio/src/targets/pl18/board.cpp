@@ -144,13 +144,6 @@ void ledStripOff()
 }
 #endif
 
-#if defined(RADIO_NB4P)
-void disableVoiceChip()
-{
-  gpio_init(VOICE_CHIP_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_clear(VOICE_CHIP_EN_GPIO);
-}
-#endif
 
 void boardBLEarlyInit()
 {
@@ -173,9 +166,6 @@ void boardBLEarlyInit()
 void boardBLPreJump()
 {
   SDRAM_Init();
-#if defined(RADIO_NB4P)
-  _adc_driver.deinit();
-#endif
 }
 
 void boardBLInit()
@@ -275,9 +265,6 @@ void boardInit()
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   rotaryEncoderInit();
 #endif
-#if defined(RADIO_NB4P)
-  disableVoiceChip();
-#endif
 
   audioInit();
   monitorInit();
@@ -289,11 +276,7 @@ void boardInit()
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 #if defined(LED_STRIP_GPIO)
-#if !defined(POWER_LED_BLUE)
   ledBlue();
-#else
-  ledGreen();
-#endif
 #endif
 }
 

@@ -41,9 +41,6 @@ StickEnum = StrEnum(
         "LV",
         "RV",
         "RH",
-        # Surface radios
-        "ST",
-        "TH",
     ),
 )
 

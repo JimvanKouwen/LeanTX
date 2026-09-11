@@ -564,10 +564,6 @@ void perMain()
 
   handleUsbConnection();
 
-#if defined(SHARED_DSC_HEADPHONE_JACK)
-  handleJackConnection();
-#endif
-
   checkTrainerSettings();
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
@@ -623,10 +619,6 @@ void perMain()
 
 #if !defined(COLORLCD)
   event_t evt = getEvent();
-#endif
-
-#if defined(KEYS_GPIO_REG_BIND) && defined(BIND_KEY)
-  bindButtonHandler(evt);
 #endif
 
   if (radioGFEnabled())

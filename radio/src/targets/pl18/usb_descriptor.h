@@ -33,10 +33,6 @@
   #define USB_NAME                        "Flysky NV14"
   #define USB_MANUFACTURER                'F', 'l', 'y', 's', 'k', 'y', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                     'N', 'V', '1', '4', ' ', ' ', ' ', ' '  /* 8 Bytes */
-#elif defined(RADIO_NB4P)
-  #define USB_NAME                        "FlySky NB4+"
-  #define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                     'N', 'B', '4', '+', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_PL18EV)
   #define USB_NAME                        "FlySky PL18EV"
   #define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */

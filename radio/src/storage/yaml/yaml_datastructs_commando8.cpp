@@ -333,7 +333,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "imperial", 1 ),
   YAML_UNSIGNED( "disableRssiPoweroffAlarm", 1 ),
   YAML_UNSIGNED( "USBMode", 2 ),
-  YAML_UNSIGNED( "jackMode", 2 ),
+  YAML_PADDING( 2 ),
   YAML_PADDING( 1 ),
   YAML_STRING("ttsLanguage", 2),
   YAML_STRING("uiLanguage", 2),
@@ -377,7 +377,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_UNSIGNED( "oneLogPerDay", 1 ),
   YAML_UNSIGNED( "keyLockEnabled", 1 ),
-  YAML_PADDING( 5 ),
+  YAML_UNSIGNED( "invertLCD", 1 ),
+  YAML_PADDING( 4 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_END
 };
@@ -387,9 +388,8 @@ static const struct YamlNode struct_unsigned_8[] = {
   YAML_END
 };
 static const struct YamlNode struct_ModelHeader[] = {
-  YAML_STRING("name", 12),
+  YAML_STRING("name", 10),
   YAML_ARRAY("modelId", 8, 2, struct_unsigned_8, NULL),
-  YAML_STRING("bitmap", 10),
   YAML_END
 };
 static const struct YamlNode struct_TimerData[] = {
@@ -405,7 +405,7 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_UNSIGNED( "showElapsed", 1 ),
   YAML_UNSIGNED( "extraHaptic", 1 ),
   YAML_PADDING( 6 ),
-  YAML_STRING("name", 8),
+  YAML_STRING("name", 3),
   YAML_END
 };
 static const struct YamlNode struct_CurveRef[] = {
@@ -444,7 +444,7 @@ static const struct YamlNode struct_LimitData[] = {
   YAML_UNSIGNED( "revert", 1 ),
   YAML_PADDING( 3 ),
   YAML_SIGNED( "curve", 8 ),
-  YAML_STRING("name", 6),
+  YAML_STRING("name", 4),
   YAML_END
 };
 static const struct YamlNode struct_ExpoData[] = {
@@ -499,7 +499,7 @@ static const struct YamlNode struct_trim_t[] = {
 static const struct YamlNode struct_FlightModeData[] = {
   YAML_IDX,
   YAML_ARRAY("trim", 16, 6, struct_trim_t, NULL),
-  YAML_STRING("name", 10),
+  YAML_STRING("name", 6),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_PADDING( 6 ),
   YAML_UNSIGNED( "fadeIn", 8 ),
@@ -672,9 +672,9 @@ static const struct YamlNode struct_ScriptData[] = {
   YAML_ARRAY("inputs", 16, 6, union_ScriptDataInput, NULL),
   YAML_END
 };
-static const struct YamlNode struct_string_32[] = {
+static const struct YamlNode struct_string_24[] = {
   YAML_IDX,
-  YAML_STRING("val", 4),
+  YAML_STRING("val", 3),
   YAML_END
 };
 static const struct YamlNode union_anonymous_14_elmts[] = {
@@ -761,7 +761,7 @@ static const struct YamlNode struct_LineDataSource[] = {
 };
 static const struct YamlNode struct_FrSkyLineData[] = {
   YAML_IDX,
-  YAML_ARRAY("sources", 16, 3, struct_LineDataSource, NULL),
+  YAML_ARRAY("sources", 16, 2, struct_LineDataSource, NULL),
   YAML_END
 };
 static const struct YamlNode struct_TelemetryScriptData[] = {
@@ -771,7 +771,7 @@ static const struct YamlNode struct_TelemetryScriptData[] = {
 };
 static const struct YamlNode union_TelemetryScreenData_u_elmts[] = {
   YAML_ARRAY("bars", 48, 4, struct_FrSkyBarData, NULL),
-  YAML_ARRAY("lines", 48, 4, struct_FrSkyLineData, NULL),
+  YAML_ARRAY("lines", 32, 4, struct_FrSkyLineData, NULL),
   YAML_STRUCT("script", 176, struct_TelemetryScriptData, NULL),
   YAML_END
 };
@@ -792,8 +792,8 @@ static const struct YamlNode struct_USBJoystickChData[] = {
 };
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
-  YAML_STRUCT("header", 192, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
+  YAML_STRUCT("header", 96, struct_ModelHeader, NULL),
+  YAML_ARRAY("timers", 96, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
   YAML_UNSIGNED( "thrTrim", 1 ),
   YAML_UNSIGNED( "noGlobalFunctions", 1 ),
@@ -813,21 +813,19 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
-  YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
+  YAML_ARRAY("limitData", 88, 32, struct_LimitData, NULL),
   YAML_ARRAY("expoData", 144, 64, struct_ExpoData, NULL),
   YAML_ARRAY("curves", 32, 32, struct_CurveHeader, NULL),
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
-  YAML_ARRAY("flightModeData", 352, 9, struct_FlightModeData, fmd_is_active),
+  YAML_ARRAY("flightModeData", 320, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
   YAML_ARRAY("switchWarning", 2, 32, struct_swtchWarn, nullptr),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
-  YAML_UNSIGNED_CUST( "voltsSource", 8, r_tele_sensor, w_tele_sensor ),
-  YAML_UNSIGNED_CUST( "altitudeSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_STRUCT("rssiAlarms", 0, struct_RssiAlarmData, NULL),
   YAML_STRUCT("rfAlarms", 16, struct_RFAlarmData, NULL),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
@@ -838,10 +836,10 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
   YAML_ARRAY("scriptsData", 192, 7, struct_ScriptData, NULL),
-  YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
+  YAML_ARRAY("inputNames", 24, 32, struct_string_24, NULL),
   YAML_UNSIGNED( "potsWarnEnabled", 8 ),
   YAML_ARRAY("potsWarnPosition", 8, 8, struct_signed_8, NULL),
-  YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
+  YAML_ARRAY("telemetrySensors", 112, 40, struct_TelemetrySensor, NULL),
   YAML_PADDING( 8 ),
   YAML_ARRAY("screens", 192, 4, struct_TelemetryScreenData, NULL),
   YAML_UNSIGNED( "view", 8 ),
@@ -863,7 +861,7 @@ static const struct YamlNode struct_ModelData[] = {
 };
 static const struct YamlNode struct_PartialModel[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
-  YAML_STRUCT("header", 192, struct_ModelHeader, NULL),
+  YAML_STRUCT("header", 96, struct_ModelHeader, NULL),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_END
 };

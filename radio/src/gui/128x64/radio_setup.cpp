@@ -38,11 +38,7 @@ int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const c
   return editChoice(RADIO_SETUP_2ND_COLUMN, y, title, nullptr, value, -2, +2, attr, event, INDENT_WIDTH);
 }
 
-#if !defined(SURFACE_RADIO)
 #define CASE_TX_MODE(x) x,
-#else
-#define CASE_TX_MODE(x)
-#endif
 
 enum {
   CASE_RTCLOCK(ITEM_RADIO_SETUP_DATE) CASE_RTCLOCK(ITEM_RADIO_SETUP_TIME) CASE_AUDIO(
@@ -99,7 +95,7 @@ enum {
   ITEM_RADIO_SETUP_PPM,
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI) ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
-  CASE_JACK_DETECT(ITEM_RADIO_SETUP_JACK_MODE) ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
+  ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
       CASE_TX_MODE(ITEM_RADIO_SETUP_STICK_MODE_LABELS)
           CASE_TX_MODE(ITEM_RADIO_SETUP_STICK_MODE) ITEM_VIEW_OPTIONS_LABEL,
@@ -208,7 +204,6 @@ void menuRadioSetup(event_t event)
           0,
           IF_FAI_CHOICE(0) 0,
           0,                   // USB mode
-          CASE_JACK_DETECT(0)  // Jack mode
           0,                   // Channel order
           CASE_ROTARY_ENCODER(0) CASE_TX_MODE(LABEL(TX_MODE)) CASE_TX_MODE(0)
           // View options
@@ -723,11 +718,6 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.USBMode = editChoice(LCD_W-2, y, STR_USBMODE, STR_USBMODES, g_eeGeneral.USBMode, USB_UNSELECTED_MODE, USB_MAX_MODE, attr|RIGHT, event);
         break;
 
-#if defined(JACK_DETECT_GPIO)
-      case ITEM_RADIO_SETUP_JACK_MODE:
-        g_eeGeneral.jackMode = editChoice(LCD_W-2, y, STR_JACK_MODE, STR_JACK_MODES, g_eeGeneral.jackMode, JACK_UNSELECTED_MODE, JACK_MAX_MODE, attr|RIGHT, event);
-        break;
-#endif
 
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
         lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR
@@ -742,7 +732,6 @@ void menuRadioSetup(event_t event)
         }
         break;
 
-#if !defined(SURFACE_RADIO)
       case ITEM_RADIO_SETUP_STICK_MODE_LABELS:
         lcdDrawTextAlignedLeft(y, STR_MODE);
         for (uint8_t i=0; i<4; i++) {
@@ -771,7 +760,6 @@ void menuRadioSetup(event_t event)
           waitKeysReleased();
         }
         break;
-#endif
 #if defined(ROTARY_ENCODER_NAVIGATION)
       case ITEM_RADIO_SETUP_ROTARY_ENC_MODE:
         lcdDrawTextAlignedLeft(y, STR_ROTARY_ENC_MODE);

@@ -3,7 +3,6 @@ set(GUI_SRC
   lcd.cpp
   splash.cpp
   popups.cpp
-  widgets.cpp
   startup_shutdown.cpp
   model_select.cpp
   model_setup.cpp

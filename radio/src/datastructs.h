@@ -53,7 +53,7 @@ static inline void check_struct()
   CHKSIZE(FlightModeData, 4 + 2 * MAX_GVARS + 2 * MAX_TRIMS + LEN_FLIGHT_MODE_NAME);
   CHKSIZE(CustomFunctionData, 11);
 
-#if defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
+#if defined(PCBX7)
   CHKSIZE(LimitData, 11);
   CHKSIZE(TimerData, 12);
   CHKSIZE(FrSkyBarData, 6);
@@ -75,9 +75,7 @@ static inline void check_struct()
   #error CHKSIZE not set up
 #endif
 
-#if defined(PCBXLITES)
-  CHKSIZE(RadioData, 951);
-#elif defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_GX15) || defined(RADIO_T15PRO) || defined(RADIO_TX16SMK3) || defined(RADIO_T22)
+#if defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_GX15) || defined(RADIO_T15PRO) || defined(RADIO_TX16SMK3) || defined(RADIO_T22)
   CHKSIZE(RadioData, 1183);
 #elif defined(RADIO_V12)
   CHKSIZE(RadioData, 1180);
@@ -93,7 +91,7 @@ static inline void check_struct()
   CHKSIZE(RadioData, 948);
 #endif
 
-#if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
+#if defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
   CHKSIZE(ModelData, 6347);
 #elif defined(RADIO_FAMILY_T20)
   CHKSIZE(ModelData, 6383);
@@ -101,13 +99,13 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6411);
 #elif defined(PCBX9E)
     CHKSIZE(ModelData, 6763);
-#elif defined(PCBX9D) || defined(PCBX9DP)
+#elif defined(PCBX9DP)
   CHKSIZE(ModelData, 6762);
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE) || \
+#elif defined(PCBX7) || \
     defined(RADIO_T14) || defined(RADIO_T12MAX)
   CHKSIZE(ModelData, 6321);
 #elif defined(PCBPL18)
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY)
   CHKSIZE(ModelData, 6867);
 #else
   CHKSIZE(ModelData, 6869);

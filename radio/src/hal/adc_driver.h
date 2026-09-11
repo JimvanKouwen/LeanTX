@@ -54,12 +54,6 @@ enum {
   ADC_MAIN_RH,
 };
 
-// Surface radios
-enum {
-  ADC_MAIN_ST,
-  ADC_MAIN_TH,
-};
-
 struct etx_hal_adc_input_t {
   const char* name;
   const char* label;

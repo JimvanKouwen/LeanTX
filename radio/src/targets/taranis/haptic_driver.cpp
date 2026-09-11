@@ -26,7 +26,6 @@
 #include "board.h"
 
 #if defined(HAPTIC_PWM)
-// TODO test Haptic on X7 (I added PWM support)
 void hapticOff()
 {
   HAPTIC_COUNTER_REGISTER = 0;
@@ -48,20 +47,19 @@ void hapticInit()
   HAPTIC_TIMER->ARR = 100;
   HAPTIC_TIMER->PSC = HAPTIC_TIMER_FREQ / 10000 - 1;
 #if defined(HAPTIC_CCMR1)
-  HAPTIC_TIMER->CCMR1 = HAPTIC_CCMR1; // PWM
+  HAPTIC_TIMER->CCMR1 = HAPTIC_CCMR1;
 #elif defined(HAPTIC_CCMR2)
-  HAPTIC_TIMER->CCMR2 = HAPTIC_CCMR2; // PWM
+  HAPTIC_TIMER->CCMR2 = HAPTIC_CCMR2;
 #endif
   HAPTIC_TIMER->CCER = HAPTIC_CCER;
-  HAPTIC_TIMER->BDTR = TIM_BDTR_MOE; // Enable output
+  HAPTIC_TIMER->BDTR = TIM_BDTR_MOE;
   HAPTIC_COUNTER_REGISTER = 0;
   HAPTIC_TIMER->EGR = 0;
-  HAPTIC_TIMER->CR1 = TIM_CR1_CEN; // Counter enable
+  HAPTIC_TIMER->CR1 = TIM_CR1_CEN;
 }
 
 #else
 
-// No PWM before X9D+
 void hapticInit()
 {
   gpio_init(HAPTIC_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
@@ -78,4 +76,3 @@ void hapticOn()
 }
 
 #endif
-

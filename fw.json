@@ -2,7 +2,6 @@
     "targets": [
         ["Fatfish F16","f16-"],
         ["Flysky EL18", "el18-"],
-        ["Flysky NB4+", "nb4p-"],
         ["Flysky NV14", "nv14-"],
         ["Flysky PA01", "pa01-"],
         ["Flysky PL18", "pl18-"],
@@ -36,7 +35,6 @@
         ["RadioMaster Boxer", "boxer-"],
         ["RadioMaster GX12", "gx12-"],
         ["RadioMaster GX15", "gx15-"],
-        ["RadioMaster MT12","mt12-"],
         ["RadioMaster Pocket", "pocket-"],
         ["RadioMaster TX12MK2", "tx12mk2-"],
         ["RadioMaster TX15", "tx15-"],

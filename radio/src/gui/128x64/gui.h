@@ -32,8 +32,6 @@
 
 #define MIXES_2ND_COLUMN               (10*FW)
 
-void drawWheel(coord_t centrex, int16_t wval);
-void drawThrottle(coord_t centrex, int16_t tval);
 
 void drawProgressScreen(const char * title, const char * message, int num, int den);
 

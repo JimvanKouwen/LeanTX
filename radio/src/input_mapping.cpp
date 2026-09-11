@@ -27,17 +27,6 @@
 #define _CHANNEL_ORDER(a,b,c,d) \
   (((a) & 0x3) | (((b) & 0x3) << 2) | (((c) & 0x3) << 4) | (((d) & 0x3) << 6))
 
-#if defined(SURFACE_RADIO)
-
-#define ST 0
-#define TH 1
-
-const uint8_t _channel_order_lut[] = {
-  _CHANNEL_ORDER(ST,TH,0,0),
-  _CHANNEL_ORDER(TH,ST,0,0),
-};
-
-#else
 
 #define RUD 0
 #define ELE 1
@@ -70,9 +59,7 @@ const uint8_t _channel_order_lut[] = {
   _CHANNEL_ORDER(AIL,THR,RUD,ELE),
   _CHANNEL_ORDER(AIL,THR,ELE,RUD),
 };
-#endif
 
-#if !defined(SURFACE_RADIO)
 
 /*
 mode1 rud ele thr ail
@@ -88,34 +75,23 @@ const uint8_t _input_mode_lut[]  = {
     AIL, THR, ELE, RUD
 };
 
-#endif
 
 bool inputMappingModesUsed()
 {
-#if defined(SURFACE_RADIO)
-  return false;
-#else
   return true;
-#endif
 }
 
 uint8_t inputMappingGetThrottle()
 {
-#if defined(SURFACE_RADIO)
-  return TH;
-#else
   return THR;
-#endif
 }
 
 uint8_t inputMappingConvertMode(uint8_t mode, uint8_t ch)
 {
-#if !defined(SURFACE_RADIO)
   if (ch < adcGetMaxInputs(ADC_INPUT_MAIN)) {
     mode = min(mode, uint8_t(MAX_INPUT_MODES - 1));
     return _input_mode_lut[mode * MAX_STICKS + ch];
   }
-#endif
   return ch;
 }
 

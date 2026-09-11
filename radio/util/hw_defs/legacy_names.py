@@ -531,49 +531,6 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"mt12"},
-        "inputs": {
-            "ST": {
-                "yaml": "ST",
-                "lua": "ste",
-                "description": "Steering"
-            },
-            "TH": {
-                "yaml": "TH",
-                "lua": "thr",
-                "description": "Throttle"
-            },
-            "P1": {
-                "yaml": "POT1",
-                "lua": "s1",
-                "label": "S1",
-                "short_label": "1",
-                "description": "Potentiometer 1"
-            },
-            "P2": {
-                "yaml": "POT2",
-                "lua": "s2",
-                "label": "S2",
-                "short_label": "2",
-                "description": "Potentiometer 2"
-            },
-            "P3": {
-                "yaml": "POT3",
-                "lua": "s3",
-                "label": "S3",
-                "short_label": "3",
-                "description": "Analog 3"
-            },
-            "P4": {
-                "yaml": "POT4",
-                "lua": "s4",
-                "label": "S4",
-                "short_label": "4",
-                "description": "Analog 4"
-            }
-        }
-    },
-    {
         "targets": {"t14", "t12max", "tpros"},
         "inputs": {
             "LH": {
@@ -615,13 +572,10 @@ LEGACY_NAMES = [
     {
         "targets": {
             "commando8",
-            "lr3pro",
             "nv14", "el18",
-            "t8", "t12",
-            "tlite", "tpro", "tprov2", "tpros", "bumblebee",
-            "tx12", "tx12mk2",
-            "x7", "x7access",
-            "xlite", "xlites",
+"tprov2", "tpros", "bumblebee",
+"tx12mk2",
+"x7access",
             "zorro"
         },
         "inputs": {
@@ -812,37 +766,6 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {
-            "nb4p"
-        },
-        "inputs": {
-            "ST": {
-                "yaml": "ST",
-                "lua": "ste",
-                "description": "Steering"
-            },
-            "TH": {
-                "yaml": "TH",
-                "lua": "thr",
-                "description": "Throttle"
-            },
-            "P1": {
-                "yaml": "POT1",
-                "lua": "s1",
-                "label": "VR1L",
-                "short_label": "1",
-                "description": "Potentiometer 1"
-            },
-            "P2": {
-                "yaml": "POT2",
-                "lua": "s2",
-                "label": "VR1R",
-                "short_label": "2",
-                "description": "Potentiometer 2"
-            }
-        }
-    },
-    {
         "targets": {"v12"},
         "inputs": {
             "LH": {
@@ -1027,39 +950,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"x9lite", "x9lites"},
-        "inputs": {
-            "LH": {
-                "yaml": "Rud",
-                "lua": "rud",
-                "description": "Rudder"
-            },
-            "LV": {
-                "yaml": "Ele",
-                "lua": "ele",
-                "description": "Elevator"
-            },
-            "RV": {
-                "yaml": "Thr",
-                "lua": "thr",
-                "description": "Throttle"
-            },
-            "RH": {
-                "yaml": "Ail",
-                "lua": "ail",
-                "description": "Aileron"
-            },
-            "P1": {
-                "yaml": "POT1",
-                "lua": "s1",
-                "label": "S1",
-                "short_label": "1",
-                "description": "Potentiometer 1"
-            }
-        }
-    },
-    {
-        "targets": {"x9d", "x9d+", "x9d+2019"},
+        "targets": {"x9d+2019"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",

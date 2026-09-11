@@ -213,28 +213,6 @@ void setScaledVolume(uint8_t volume);
 void setVolume(uint8_t volume);
 int32_t getVolume();
 #endif
-#if defined(AUDIO_SPEAKER_ENABLE_GPIO)
-void initSpeakerEnable();
-void enableSpeaker();
-void disableSpeaker();
-#else
-static inline void initSpeakerEnable() { }
-static inline void enableSpeaker() { }
-static inline void disableSpeaker() { }
-#endif
-#if defined(HEADPHONE_TRAINER_SWITCH_GPIO)
-void initHeadphoneTrainerSwitch();
-void enableHeadphone();
-void enableTrainer();
-#else
-static inline void initHeadphoneTrainerSwitch() { }
-static inline void enableHeadphone() { }
-static inline void enableTrainer() { }
-#endif
-#if defined(JACK_DETECT_GPIO)
-void initJackDetect();
-bool isJackPlugged();
-#endif
 void audioConsumeCurrentBuffer();
 #define audioDisableIrq()               __disable_irq()
 #define audioEnableIrq()                __enable_irq()

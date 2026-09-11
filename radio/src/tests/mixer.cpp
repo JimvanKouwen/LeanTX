@@ -65,17 +65,10 @@ class MixerTest : public EdgeTxTest {};
       } \
     } while (0)
 
-#if defined(SURFACE_RADIO)
-  #define ELE_CHAN          0
-  #define ELE_THRTRIMSW     1
-  #define THR_STICK_MIN_THR_POS 0
-  #define TRIM_SCALE(x) (x / 2)
-#else
   #define ELE_CHAN          1
   #define ELE_THRTRIMSW     1
   #define THR_STICK_MIN_THR_POS -1024
   #define TRIM_SCALE(x) (x)
-#endif
 
 #define THR_CHAN          inputMappingGetThrottle()
 #define THR_STICK         THR_CHAN
@@ -145,13 +138,6 @@ TEST_F(TrimsTest, throttleTrim)
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], THR_STICK_MIN_THR_POS);
-#if defined(SURFACE_RADIO)
-  // stick bellow 0  + trim max :no trim in reverse
-  anaSetFiltered(inputMappingConvertMode(THR_STICK),  -512);
-  setTrimValue(0, THR_STICK, TRIM_MAX);
-  evalMixes(1);
-  EXPECT_EQ(channelOutputs[THR_CHAN], -512);
-#endif
   // now the same tests with extended Trims
   g_model.extendedTrims = 1;
   // stick max + trim max
@@ -194,29 +180,17 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrim)
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
-#else
   EXPECT_EQ(channelOutputs[2], -1024+256);
-#endif
   // stick max + trim min
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024+512);
-#endif
   // stick max + trim min
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024+512);
-#endif
   // stick min + trim max
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  -1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
@@ -235,13 +209,6 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrim)
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
-#if defined(SURFACE_RADIO)
-  // stick max + trim mid: no effect since we are in reverse mode
-  anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
-  setTrimValue(0, THR_STICK, 0);
-  evalMixes(1);
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
-#else
   // stick max + trim mid
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, THR_STICK, 0);
@@ -252,7 +219,6 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrim)
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024+2048);
-#endif
   // stick min + trim max
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  -1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
@@ -447,11 +413,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsets)
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
   EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], 99); // THR output value is still reflecting 100 trim
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], 200); // THR output value is still reflecting 100 trim
-#endif
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
@@ -464,11 +426,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
   setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, 100);
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 trim idle
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 trim idle
-#endif
   moveTrimsToOffsets();
 
   // Trim affecting Throttle should not be affected
@@ -477,15 +435,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
 
   // Other trims should
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
-  evalMixes(1);
-  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 trim idle
-#else
   EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 trim idle
-#endif
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
@@ -510,11 +462,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   EXPECT_EQ(channelOutputs[ELE_CHAN], -200);             // ELE output value is reflecting -100 Thr trim
   moveTrimsToOffsets();
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], 99);  // THR output value remains unchanged
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], 200);  // THR output value remains unchanged
-#endif
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
   EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
@@ -537,11 +485,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 100);
   setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 ele trim idle
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 ele trim idle
-#endif
   moveTrimsToOffsets();
 
   // Trim affecting Throttle (now Ele because of crosstrims) should not be affected
@@ -552,14 +496,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
   EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // Ele chan offset transferred
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is still reflecting 100 trim idle
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is still reflecting 100 trim idle
-#endif
 }
 
-#if !defined(SURFACE_RADIO)
 TEST_F(TrimsTest, InstantTrim)
 {
   anaSetFiltered(AIL_STICK, 50);
@@ -589,7 +528,6 @@ TEST_F(TrimsTest, InstantTrimNegativeCurve)
   EXPECT_EQ(128, getTrimValue(0, AIL_STICK));
 #endif
 }
-#endif
 
 TEST(Curves, LinearIntpol)
 {
@@ -906,7 +844,7 @@ TEST_F(TrimsTest, throttleTrimEle) {
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_eeGeneral.templateSetup = 17; // WARNING: NOT RETA (TAER or TH/ST)
+  g_eeGeneral.templateSetup = 17; // WARNING: NOT RETA (TAER)
   applyDefaultTemplate();
   g_model.thrTrim = 1;
   // checks ELE sticks are not affected by throttleTrim
@@ -1087,21 +1025,13 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 0);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024+256);
-#endif
   EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim min
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MIN);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024+512);
-#endif
   EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim max
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  -1024);
@@ -1128,21 +1058,13 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 0);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024+1024);
-#endif
   EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim min
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  +1024);
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
   evalMixes(1);
-#if defined(SURFACE_RADIO)
-  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
-#else
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024+2048);
-#endif
   EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim max
   anaSetFiltered(inputMappingConvertMode(THR_STICK),  -1024);

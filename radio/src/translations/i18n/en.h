@@ -37,7 +37,7 @@
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_MODEL_SETTINGS            "Model\nSettings"
 #define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
-#define TR_QM_FLIGHT_MODES              TR_SFC_AIR("Drive\nModes", "Flight\nModes")
+#define TR_QM_FLIGHT_MODES              "Flight\nModes"
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -66,7 +66,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#define TR_QM_RESET                     TR_SFC_AIR("Drive\nReset", "Flight\nReset")
+#define TR_QM_RESET                     "Flight\nReset"
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -85,8 +85,8 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENUFLIGHTMODES              TR_SFC_AIR(TR_BW_COL("DRIVE MODES", "Drive Modes"), TR_BW_COL("FLIGHT MODES", "Flight Modes"))
-#define TR_MENUFLIGHTMODE               TR_SFC_AIR("DRIVE MODE", "FLIGHT MODE")
+#define TR_MENUFLIGHTMODES              TR_BW_COL("FLIGHT MODES", "Flight Modes")
+#define TR_MENUFLIGHTMODE               "FLIGHT MODE"
 #define TR_MENUINPUTS                   TR_BW_COL("INPUTS", "Inputs")
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
@@ -166,9 +166,6 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDCard","Storage")
 #define TR_USBMODES_4                  "Serial"
-#define TR_JACK_MODES_1                "Ask"
-#define TR_JACK_MODES_2                "Audio"
-#define TR_JACK_MODES_3                "Trainer"
 
 #define TR_SBUS_INVERSION_VALUES_1     "normal"
 #define TR_SBUS_INVERSION_VALUES_2     "not inverted"
@@ -321,8 +318,6 @@
 #define TR_STICK_NAMES1                "Ele"
 #define TR_STICK_NAMES2                "Thr"
 #define TR_STICK_NAMES3                "Ail"
-#define TR_SURFACE_NAMES0              "ST"
-#define TR_SURFACE_NAMES1              "TH"
 
 #define TR_ON_ONE_SWITCHES_1           "ON"
 #define TR_ON_ONE_SWITCHES_2           "One"
@@ -583,8 +578,8 @@
 #define TR_MENUWHENDONE                TR_ENTER " WHEN DONE"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 "[ENTER LONG] " TR_AXISDIR
-#define TR_SETMIDPOINT                 TR_BW_COL(TR_SFC_AIR("SET POTS MIDPOINT", TR("SET AXIS MIDPOINT", "CENTER AXIS/SLIDERS")), "CENTER AXIS/SLIDERS")
-#define TR_MOVESTICKSPOTS              TR_BW_COL(TR_SFC_AIR("MOVE ST/TH/POTS/AXIS", "MOVE AXIS/POTS"), "MOVE AXIS/POTS")
+#define TR_SETMIDPOINT                 TR_BW_COL(TR("SET AXIS MIDPOINT", "CENTER AXIS/SLIDERS"), "CENTER AXIS/SLIDERS")
+#define TR_MOVESTICKSPOTS              TR_BW_COL("MOVE AXIS/POTS", "MOVE AXIS/POTS")
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -614,7 +609,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
-#define TR_FM                          TR_SFC_AIR("DM", "FM")
+#define TR_FM                          "FM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Press any key to skip"
 #define TR_THROTTLE_NOT_IDLE           "Throttle not idle"
 #define TR_ALARMSDISABLED              "Alarms disabled"
@@ -936,7 +931,6 @@
 #define TR_COUNTRY_CODE                "Country code"
 #define TR_USBMODE                     "USB mode"
 #define TR_USB_CHARGE                  "Charge while radio on"
-#define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "Voice language"
 #define TR_TEXT_LANGUAGE               "Text language"
 #define TR_UNITS_SYSTEM                "Units"

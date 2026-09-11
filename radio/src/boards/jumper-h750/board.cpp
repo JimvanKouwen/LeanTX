@@ -127,11 +127,7 @@ void boardInit()
   delaysInit();
   timersInit();
 
-#if !defined(POWER_LED_BLUE)
   ledBlue();
-#else
-  ledGreen();
-#endif
 
   ExtFLASH_InitRuntime();
 

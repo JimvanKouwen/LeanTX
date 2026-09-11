@@ -92,18 +92,6 @@ void setDefaultRSSIValues()
   g_model.rfAlarms.critical = 42;
 }
 
-void setVendorSpecificModelDefaults(uint8_t id)
-{
-#if defined(RADIOMASTER_RTF_RELEASE)
-  // Those settings are for headless radio
-  g_model.trainerData.mode = TRAINER_MODE_SLAVE;
-  g_model.moduleData[INTERNAL_MODULE].type = MODULE_TYPE_MULTIMODULE;
-  g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKY;
-  g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYD_SUBTYPE_D8;
-  g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
-#endif
-}
-
 #if defined(FUNCTION_SWITCHES)
 void initCustomSwitches()
 {
@@ -182,8 +170,6 @@ void setModelDefaults(uint8_t id)
   memset(&g_model, 0, sizeof(g_model));
   applyDefaultTemplate();
   
-  setVendorSpecificModelDefaults(id);
-
 #if !defined(STORAGE_MODELSLIST)
   // EEPROM model indexes starting with 0
   id++;

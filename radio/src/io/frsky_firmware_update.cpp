@@ -252,8 +252,8 @@ const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
 
 // X12S / X10 IXJT = use TX + RX @ 38400 bauds with BOOTCMD pin inverted
 // X10 / X10 ISRM = use TX + RX @ 57600 bauds (no BOOTCMD)
-// X9D / X9D+ / X9E / XLite IXJT = use S.PORT @ 57600 bauds
-// XLite PRO / X9Lite / X9D+ 2019 ISRM = use TX + RX @ 57600 bauds
+// X9E IXJT = use S.PORT @ 57600 bauds
+// X9D+ 2019 ISRM = use TX + RX @ 57600 bauds
 
 static const etx_serial_init serialInitParams = {
   .baudrate = 0,
@@ -319,8 +319,8 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     // - X12S / X10 IXJT = use TX + RX @ 38400 bauds with BOOTCMD pin
     //   -> internal USART + boot pin
     //
-    // - X9D / X9D+ / X9E / XLite IXJT = use S.PORT @ 57600 bauds
-    //   -> no internal USART OR no boot pin (XLite has an internal USART)
+    // - X9E IXJT = use S.PORT @ 57600 bauds
+    //   -> no internal USART or boot pin
 
     // X12S / X10 iXJT: TX + RX @ 38400 bauds with BOOTCMD pin inverted
     if (mod_desc->set_bootcmd) {

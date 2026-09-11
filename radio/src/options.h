@@ -49,9 +49,6 @@ static const char * const options[] = {
 #if !defined(GVARS)
   "nogvars",
 #endif
-#if defined(HAPTIC) && defined(PCBX9D)
-  "haptic",
-#endif
 #if defined(HORUS_STICKS)
   "horussticks",
 #endif
@@ -60,9 +57,6 @@ static const char * const options[] = {
 #endif
 #if defined(SPACEMOUSE)
   "spacemouse",
-#endif
-#if defined(INTERNAL_MODULE_PPM)
-  "internalppm",
 #endif
 #if defined(INTERNAL_MODULE_MULTI)
   "internalmulti",
@@ -85,23 +79,14 @@ static const char * const options[] = {
 #if defined(NO_RAS)
   "noras",
 #endif
-#if defined(SHUTDOWN_CONFIRMATION)
-  "shutdownconfirm",
-#endif
 #if defined(IMU_LSM6DS33)
   "lsm6ds33",
-#endif
-#if defined(BIND_KEY)
-  "bindkey",
 #endif
 #if defined(CLI)
     "cli",
 #endif
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
     "passthrough",
-#endif
-#if defined(POWER_LED_BLUE)
-    "power_led_blue",
 #endif
   nullptr //sentinel
 };

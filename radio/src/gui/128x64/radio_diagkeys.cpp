@@ -121,12 +121,6 @@ void menuRadioDiagKeys(event_t event)
 
     if (i < keysGetMaxTrims() * 2) {
       y = trim_yo + FH * (i / 2);
-#if defined(SURFACE_RADIO)
-      if (i & 1) {
-        lcdDrawText(14 * FW, y, "T");
-        lcdDrawNumber(lcdNextPos, y, 1 + i / 2);
-      }
-#else
       if (i & 1) {
         if (i < 8) {
           lcdDraw1bitBitmap(14 * FW, y, sticks, i / 2, INVERS);
@@ -135,7 +129,6 @@ void menuRadioDiagKeys(event_t event)
           lcdDrawNumber(lcdNextPos, y, 1 + i / 2);
         }
       }
-#endif
       displayTrimState(i & 1 ? 20 * FW : 18 * FW, y, i);
     }
 

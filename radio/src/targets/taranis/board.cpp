@@ -86,7 +86,6 @@ void boardBLInit()
   #include "csd203_sensor.h"
 #endif
 
-HardwareOptions hardwareOptions;
 
 #if !defined(BOOT)
 
@@ -109,20 +108,6 @@ void SDLEDpwrInit()
 }
 #endif
 
-#if defined(IMU) && defined(IMU_I2C_BUS) && defined(IMU_I2C_BUS)
-#include "drivers/lsm6ds.h"
-#include "stm32_i2c_driver.h"
-
-#define HAS_IMU
-
-static void gyroInit()
-{
-  const etx_imu_t candidates[] = {
-    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
-  };
-  gyroStart(imuDetect(candidates, DIM(candidates)));
-}
-#endif
 
 void boardInit()
 {
@@ -165,11 +150,7 @@ void boardInit()
 
 #if STATUS_LEDS
   ledInit();
-#if !defined(POWER_LED_BLUE)
   ledBlue();
-#else
-  ledGreen();
-#endif
 #endif
 
 #if defined(CSD203_SENSOR)
@@ -277,9 +258,6 @@ void boardInit()
   gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
-#if defined(HAS_IMU)
-  gyroInit();
-#endif
 }
 #endif
 
@@ -320,7 +298,7 @@ void boardOff()
   while (1) {
     WDG_RESET();
 #if defined(PWR_BUTTON_PRESS)
-    // X9E/X7 needs watchdog reset because CPU is still running while
+    // These radios need a watchdog reset because the CPU remains running while
     // the power key is held pressed by the user.
     // The power key should be released by now, but we must make sure
     if (!pwrPressed()) {

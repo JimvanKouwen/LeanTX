@@ -102,12 +102,7 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
   EXPECT_STREQ(getSourceString(MIXSRC_MAX), STR_MENU_MAX);
 
-#if defined(SURFACE_RADIO)
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM), CHAR_TRIM "ST");
-  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 1), CHAR_TRIM "TH");
-#else
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM), CHAR_TRIM "Rud");
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 1), CHAR_TRIM "Ele");
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 2), CHAR_TRIM "Thr");
-#endif
 }

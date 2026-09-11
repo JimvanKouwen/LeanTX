@@ -388,7 +388,7 @@ static const TouchControllerDescriptor FT6236 =
   .hasTouchEvent = defaultHasTouchEvent,
   .touchRead = ft6236TouchRead,
   .printDebugInfo = ft6236PrintDebugInfo,
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY)
   .rotate = DEG_180,
 #else
   .rotate = DEG_270,
@@ -400,7 +400,7 @@ static const TouchControllerDescriptor CST836U =
   .hasTouchEvent = defaultHasTouchEvent,
   .touchRead = cst836uTouchRead,
   .printDebugInfo = cst836uPrintDebugInfo,
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY)
   .rotate = DEG_180,
 #else
   .rotate = DEG_270,
@@ -412,7 +412,7 @@ static const TouchControllerDescriptor CST340 =
   .hasTouchEvent = cst340HasTouchEvent,
   .touchRead = cst340TouchRead,
   .printDebugInfo = cst340PrintDebugInfo,
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY)
   .rotate = DEG_180,
 #else
   .rotate = DEG_270,
@@ -447,7 +447,7 @@ void _detect_touch_controller()
     touchController = TC_FT6236;
     tcd = &FT6236;
     boardTouchType = "FT6236";
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY)
     TouchControllerType = 0;
 #else
     TouchControllerType = 1;

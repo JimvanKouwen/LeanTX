@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 GX15 TX16SMK3 T22 V12)
+set(PCB_TYPES X7 X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 GX15 TX16SMK3 T22 V12)
 # Only English is shipped for now; re-add language codes here as translations are restored.
 set(RADIO_LANGUAGES EN)
 set(TTS_LANGUAGES EN)
@@ -31,7 +31,6 @@ option(ASTERISK "Enable asterisk icon (test only firmware)" OFF)
 option(LUA "Enable LUA support" ON)
 option(SIMU_DISKIO "Enable disk IO simulation in simulator. Simulator will use FatFs module and simulated IO layer that  uses \"./sdcard.image\" file as image of SD card. This file must contain whole SD card from first to last sector" OFF)
 option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
-option(FAS_PROTOTYPE "Support of old FAS prototypes (different resistors)" OFF)
 option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
@@ -48,7 +47,6 @@ option(MODULE_PROTOCOL_D8 "Add support for D8 modules" ON)
 option(FRSKY_RELEASE "Used to build FrSky released firmware" OFF)
 option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
-option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
@@ -60,12 +58,6 @@ else()
 endif()
 option(AUDIO "Enable audio" ON)
 option(EXFAT "Enable exFAT filesystem support in FatFs" OFF)
-
-if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
-  option(POWER_LED_BLUE  "Override Power LED to be normally Blue" ON)
-else()
-  option(POWER_LED_BLUE  "Override Power LED to be normally Blue" OFF)
-endif()
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -105,7 +97,7 @@ elseif(PCB STREQUAL T22)
   include(targets/t22/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
   include(targets/stm32h7s78-dk/CMakeLists.txt)
-elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
+elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X7)
   include(targets/taranis/CMakeLists.txt)
 else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
@@ -162,10 +154,6 @@ endif()
 
 if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
-endif()
-
-if(CPU_TYPE STREQUAL STM32F2)
-  include(targets/common/arm/stm32/f2/CMakeLists.txt)
 endif()
 
 if(CPU_FAMILY STREQUAL STM32)
@@ -269,10 +257,6 @@ if(NOT RAS)
   add_definitions(-DNO_RAS)
 endif()
 
-if(FAS_PROTOTYPE)
-  add_definitions(-DFAS_PROTOTYPE)
-endif()
-
 if(AUTOSOURCE)
   add_definitions(-DAUTOSOURCE)
 endif()
@@ -302,10 +286,6 @@ set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp lib_file.cpp)
 if(BLUETOOTH)
   add_definitions(-DBLUETOOTH)
   set(SRC ${SRC} bluetooth.cpp)
-endif()
-
-if(SHUTDOWN_CONFIRMATION)
-  add_definitions(-DSHUTDOWN_CONFIRMATION)
 endif()
 
 if(PPM_CENTER_ADJUSTABLE)
@@ -409,16 +389,8 @@ if(MODULE_PROTOCOL_D8)
   add_definitions(-DMODULE_PROTOCOL_D8)
 endif()
 
-if(JUMPER_RELEASE)
-  add_definitions(-DJUMPER_RELEASE)
-endif()
-
 if(RADIOMASTER_RELEASE)
   add_definitions(-DRADIOMASTER_RELEASE)
-endif()
-
-if(RADIOMASTER_RTF_RELEASE)
-  add_definitions(-DRADIOMASTER_RTF_RELEASE)
 endif()
 
 if(TBS_RELEASE)
@@ -436,14 +408,6 @@ endif()
 
 if(IFLIGHT_RELEASE)
   add_definitions(-DIFLIGHT_RELEASE)
-endif()
-
-if(BETAFPV_RELEASE)
-  add_definitions(-DBETAFPV_RELEASE)
-endif()
-
-if(HARDWARE_TRAINER_MULTI)
-  add_definitions(-DHARDWARE_TRAINER_MULTI)
 endif()
 
 add_definitions(-DPOPUP_LEVEL=${POPUP_LEVEL})
@@ -521,10 +485,6 @@ if(USBJ_EX)
   set(SRC ${SRC}
     usb_joystick.cpp
   )
-endif()
-
-if(POWER_LED_BLUE)
-  add_definitions(-DPOWER_LED_BLUE)
 endif()
 
 foreach(FILE ${TARGET_SRC})
@@ -625,7 +585,7 @@ set(COMMON_FLAGS "${COMMON_FLAGS} ${WARNING_FLAGS}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
 
-# "-Wno-register" because ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver uses invalid C++17 storage class specifier
+# "-Wno-register" because the vendored STM32 HAL drivers use invalid C++17 storage class specifiers
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -fno-rtti -Wno-register")
 
 if(SDRAM)

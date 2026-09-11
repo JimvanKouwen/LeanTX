@@ -274,12 +274,11 @@
       "required": ["cpu", "cpu_type"],
       "properties": {
         "cpu":                     { "type": "string", "pattern": "^STM32[A-Za-z0-9]+$" },
-        "cpu_type":                { "type": "string", "enum": ["STM32F2", "STM32F4", "STM32H7"] },
+        "cpu_type":                { "type": "string", "enum": ["STM32F4", "STM32H7"] },
         "has_audio_mute":          { "type": "boolean" },
         "has_ext_module_support":  { "type": "boolean" },
         "has_int_module_support":  { "type": "boolean" },
-        "sport_max_baudrate":      { "type": "integer", "minimum": 0 },
-        "surface":                 { "type": "boolean" }
+        "sport_max_baudrate":      { "type": "integer", "minimum": 0 }
       }
     },
 

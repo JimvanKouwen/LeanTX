@@ -80,16 +80,6 @@ elseif(PCBREV STREQUAL NV14)
     # defines existing internal modules
     set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
     set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS2A CACHE STRING "Default internal module")
-elseif(PCBREV STREQUAL NB4P)
-  set(FLAVOUR nb4p)
-  set(ROTARY_ENCODER YES)
-  set(LED_STRIP ON)
-  set(AFHDS3 ON)
-  set(KEY_DRIVER nb4p_key_driver.cpp)
-
-  # Defines internal modules for PL18 via UART7
-  set(INTERNAL_MODULES MULTI;AFHDS3;CRSF CACHE STRING "Internal modules")
-  set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
   add_definitions(-DUSE_HATS_AS_KEYS)
@@ -211,11 +201,6 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
 
-if(PCBREV STREQUAL NB4P)
-  target_sources(board_bl PUBLIC
-    boards/generic_stm32/analog_inputs.cpp
-  )
-endif()
 
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
@@ -238,9 +223,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
-if(PCBREV STREQUAL NB4P)
-  target_sources(board PRIVATE ${TARGET_SRC_DIR}/nb4p_switch_driver.cpp)
-endif()
 
 if(USE_VS1053B)
   add_definitions(-DUSE_VS1053B)

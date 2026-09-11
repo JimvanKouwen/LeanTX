@@ -43,11 +43,6 @@
   #define TR_BW_COL(x, y) x
 #endif
 
-#if defined(SURFACE_RADIO)
-  #define TR_SFC_AIR(x, y) x
-#else
-  #define TR_SFC_AIR(x, y) y
-#endif
 
 #if (LCD_W == 212) || defined(COLORLCD)
  #define LCDW_128_LINEBREAK
@@ -181,7 +176,6 @@
 #define TR_TRNMODE                  SA3(TR_TRNMODE)
 #define TR_VPERSISTENT              SA3(TR_VPERSISTENT)
 #define TR_COUNTRY_CODES            SA3(TR_COUNTRY_CODES)
-#define TR_JACK_MODES               SA3(TR_COUNTRY_CODES)
 #define TR_VDISPLAYTRIMS            SA3(TR_VDISPLAYTRIMS)
 #define TR_ADCFILTERVALUES          SA3(TR_ADCFILTERVALUES)
 #define TR_VMLTPX                   SA3(TR_VMLTPX)

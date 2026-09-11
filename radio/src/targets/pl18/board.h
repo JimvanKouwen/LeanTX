@@ -29,10 +29,6 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
-#if defined(RADIO_NB4P)
-  #define SURFACE_RADIO  true
-#endif
-
 #define FLASHSIZE                       0x200000
 #define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x20000
@@ -96,7 +92,7 @@ extern "C" void SDRAM_Init();
     else                                        \
       gpio_set(INTMODULE_PWR_GPIO);             \
   } while (0)
-#elif defined(RADIO_NB4P) || defined(RADIO_PL18U)
+#elif defined(RADIO_PL18U)
   #define INTERNAL_MODULE_ON()            gpio_clear(INTMODULE_PWR_GPIO)
   #define INTERNAL_MODULE_OFF()           gpio_set(INTMODULE_PWR_GPIO);
 #else
@@ -143,8 +139,6 @@ extern "C" void SDRAM_Init();
 
 #if defined(RADIO_NV14_FAMILY)
   #define BATTERY_DIVIDER               3102 // = 2047 * 510k / (510k + 510k) * 10 / 3.3V
-#elif defined(RADIO_NB4P)
-  #define BATTERY_DIVIDER               3102 // = 2047 * 10k / (10k + 10k) * 10 / 3.3V
 #else
   #define BATTERY_DIVIDER               962  // = 2047 * 22k / (120k + 22k) * 10 / 3.3V
 #endif
@@ -226,13 +220,13 @@ bool isBacklightEnabled();
 }
 #endif
 
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY)
   #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? (gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1) : 1  
 #else
   #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
 #endif
 
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY)
   #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
 #else
   #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 1 : 0
