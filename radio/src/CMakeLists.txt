@@ -41,12 +41,7 @@ option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(DEBUG_LABELS "Turn on Labels traces" OFF)
 option(NANO "Use nano newlib and binalloc" ON)
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
-option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
-option(MODULE_PROTOCOL_LBT "Add support for EU/LBT modules" ON)
-option(MODULE_PROTOCOL_D8 "Add support for D8 modules" ON)
-option(FRSKY_RELEASE "Used to build FrSky released firmware" OFF)
 option(TBS_RELEASE "Used to build TBS released firmware" OFF)
-option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
@@ -141,7 +136,6 @@ AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
 
 add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
 add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys stm32_keys)
-
 
 include(hal/CMakeLists.txt)
 
@@ -377,17 +371,7 @@ if(TEST_BUILD_WARNING)
   add_definitions(-DTEST_BUILD_WARNING)
 endif()
 
-if(MODULE_PROTOCOL_FCC)
-  add_definitions(-DMODULE_PROTOCOL_FCC)
-endif()
 
-if(MODULE_PROTOCOL_LBT)
-  add_definitions(-DMODULE_PROTOCOL_LBT)
-endif()
-
-if(MODULE_PROTOCOL_D8)
-  add_definitions(-DMODULE_PROTOCOL_D8)
-endif()
 
 if(RADIOMASTER_RELEASE)
   add_definitions(-DRADIOMASTER_RELEASE)
@@ -397,22 +381,13 @@ if(TBS_RELEASE)
   add_definitions(-DTBS_RELEASE)
 endif()
 
-if(IMRC_RELEASE)
-  add_definitions(-DIMRC_RELEASE)
-endif()
-
-if(FRSKY_RELEASE)
-  add_definitions(-DFRSKY_RELEASE)
-  set(POPUP_LEVEL 3)
-endif()
-
 if(IFLIGHT_RELEASE)
   add_definitions(-DIFLIGHT_RELEASE)
 endif()
 
 add_definitions(-DPOPUP_LEVEL=${POPUP_LEVEL})
 
-if(INTERNAL_MODULE_MULTI OR INTERNAL_MODULE_CRSF)
+if(INTERNAL_MODULE_CRSF)
   set(DEFAULT_TEMPLATE_SETUP 21 CACHE STRING "")
 else()
   set(DEFAULT_TEMPLATE_SETUP 0 CACHE STRING "")
@@ -431,7 +406,7 @@ if(SIZE_TARGET_MEM_DEFINE MATCHES 32768)
   add_definitions(-DSDRAM_32M)
 elseif(SIZE_TARGET_MEM_DEFINE MATCHES 16384)
   add_definitions(-DSDRAM_16M)
-else(SIZE_TARGET_MEM_DEFINE MATCHES 8192)
+else()
   add_definitions(-DSDRAM_8M)
 endif()
 
@@ -684,12 +659,6 @@ if (LUA)
   )
 endif()
 
-if(ACCESS_DENIED)
-  add_subdirectory(thirdparty/AccessDenied)
-  include_directories(thirdparty/AccessDenied)
-  target_link_libraries(firmware PRIVATE AccessDenied)
-endif()
-
 if(FIRMWARE_STRIP_BOOTLOADER)
   # Strip bootloader from binary
   message("-- Strip bootloader from firmware binary")
@@ -701,10 +670,10 @@ endif()
 if(FIRMWARE_FORMAT_UF2)
   if(VERSION_TAG)
     set(UF2_VERSION_STRING "edgetx-${VERSION_TAG} (${GIT_STR})")
-  else()
+else()
     set(UF2_VERSION_STRING "edgetx-${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} (${GIT_STR})")
   endif()
-  
+
   add_custom_command(
     TARGET firmware POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py
@@ -721,7 +690,6 @@ add_custom_command(
   COMMAND ${CMAKE_OBJCOPY} -O binary ${OBJCOPY_ARGS} firmware.elf firmware.bin
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
-
 
 find_program(GAWK gawk
   HINTS "c:/cygwin/bin/" "c:/msys/bin/"

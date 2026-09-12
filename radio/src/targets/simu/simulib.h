@@ -82,7 +82,7 @@ uint32_t WASM_EXPORT(simuLcdGetDepth)();
 void WASM_EXPORT(simuRotaryEncoderEvent)(int32_t steps);
 
 // Capabilities: cap values match SimulatorInterface::Capability enum
-// (0=LUA, 1=ROTARY_ENC, 2=ROTARY_ENC_NAV, 3=TELEM_FRSKY_SPORT,
+// (0=LUA, 1=ROTARY_ENC, 2=ROTARY_ENC_NAV, 3=reserved,
 //  4=SERIAL_AUX1, 5=SERIAL_AUX2). Returns 0 or 1.
 int32_t WASM_EXPORT(simuGetCapability)(uint8_t cap);
 
@@ -180,7 +180,7 @@ void WASM_EXPORT(simuCreateDefaults)();
 extern bool simuCreateDefaultSettings;
 
 // Aux serial bridge (firmware -> host).  port_nr is 0 for AUX1, 1 for AUX2.
-// encoding values match SimulatorSerialEncoding (0=8N1, 1=8E2, 2=PXX1_PWM)
+// encoding values match SimulatorSerialEncoding (0=8N1, 1=8E2)
 // and ETX_Encoding_* — they share the same numeric values.  Called when the
 // firmware initialises an aux serial port (start), shuts it down (stop),
 // reconfigures the baudrate, or transmits data.

@@ -314,7 +314,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif // OVERRIDE_CHANNEL_FUNCTION
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
-          else if (func >= FUNC_RANGECHECK && func <= FUNC_BIND) {
+          else if (func == FUNC_BIND) {
             val_max = NUM_MODULES-1;
             const char *text[] = {"Int.", "Ext."};
             lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, text, CFN_PARAM(cfn), attr);
@@ -521,7 +521,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             repeatLastCursorHorMove(event);
           }
           break;
-        
+
         case 5:
             drawCheckBox(MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
             if (active) {

@@ -19,9 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "sbus.h"
-
 #include "edgetx.h"
+#include "sbus.h"
 #include "timers_driver.h"
 
 #define SBUS_FRAME_SIZE 25

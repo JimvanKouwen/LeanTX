@@ -12,14 +12,13 @@ if(NOT NATIVE_BUILD)
   # STM32 HAL/LL library
   set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F4xx_HAL_Driver)
   include_directories(${STM32CUBE_DIR}/Inc)
-  
+
   if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     set(STM32_COLORLCD_DRIVERS
       ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma2d.c
       ${STM32CUBE_DIR}/Src/stm32f4xx_hal_ltdc.c
     )
   endif()
-
 
   add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
     # LL drivers
@@ -50,9 +49,9 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_flash.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_flash_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_cortex.c
-    
+
     ${STM32_COLORLCD_DRIVERS}
-    
+
     )
 
   target_compile_options(stm32cube_ll PRIVATE -DUSE_FULL_LL_DRIVER)
@@ -113,7 +112,7 @@ if(NOT NATIVE_BUILD)
     )
 
   include_directories(${RTOS_DIR}/portable/GCC/ARM_CM4F)
-  
+
   # EdgeTx Compat layer
   set(FIRMWARE_SRC ${FIRMWARE_SRC} rtos.c)
 

@@ -1,9 +1,4 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
-option(PXX1 "PXX1 protocol support" ON)
-option(PXX2 "PXX2 protocol support" OFF)
-option(AFHDS3 "AFHDS3 TX Module" ON)
-option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
-option(GHOST "Ghost TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
@@ -59,8 +54,8 @@ set(FLAVOUR c14)
 add_definitions(-DMANUFACTURER_IFLIGHT)
 
 # Defines internal modules for PL18 via UART7
-# set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
-# set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+# set(INTERNAL_MODULES "" CACHE STRING "Internal modules")
+# set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET bm480_bitmaps)
 set(FONTS_TARGET x12_fonts)
@@ -70,7 +65,6 @@ set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL NO)
-
 
 add_definitions(
   -DSTM32H750IBTx -DSTM32H750xx
@@ -161,7 +155,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/tp_gt911.cpp
   ${TARGET_SRC_DIR}/battery_driver.cpp
-  targets/common/arm/stm32/heartbeat_driver.cpp
   drivers/icm42607C.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
@@ -188,16 +181,7 @@ endif()
 
 set(SRC
   ${SRC}
-  io/frsky_firmware_update.cpp
-  io/multi_firmware_update.cpp
   )
-
-if (MULTIMODULE)
-  add_definitions(-DMULTI_PROTOLIST)
-  set(SRC ${SRC}
-    io/multi_protolist.cpp
-    )
-endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)

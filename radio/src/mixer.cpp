@@ -522,7 +522,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
         return telemetryItem.value;
     }
   }
-  
+
   if (valid != nullptr) *valid = false;
   return 0;
 }
@@ -552,7 +552,7 @@ void evalInputs(uint8_t mode)
 
   auto max_calib_analogs = adcGetInputOffset(ADC_INPUT_VBAT);
   auto pots_offset = adcGetInputOffset(ADC_INPUT_FLEX);
-  
+
   for (uint8_t i = 0; i < max_calib_analogs; i++) {
     int16_t v = anaIn(i);
     uint8_t ch = (i < pots_offset ? inputMappingConvertMode(i) : i);
@@ -993,7 +993,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         *ptr >>= 6;  // this is quite tricky, reduces the value a lot but should be still over 100% and reduces flash need
       } */
 
-
       PACK( union u_int16int32_t {
         struct {
           int16_t lo;
@@ -1035,8 +1034,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
   mixWarning = lv_mixWarning;
 }
-
-
 
 #define MAX_ACT 0xffff
 uint8_t lastFlightMode = 255; // TODO reinit everything here when the model changes, no???
@@ -1295,18 +1292,6 @@ void doMixerPeriodicUpdates()
         s_sum_samples_thr_1s = 0;
       }
     }
-
-#if defined(PXX) || defined(DSM2)
-    static uint8_t countRangecheck = 0;
-    for (uint8_t i = 0; i < NUM_MODULES; ++i) {
-      if (isModuleBeeping(i)) {
-        if (++countRangecheck >= 250) {
-          countRangecheck = 0;
-          AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP);
-        }
-      }
-    }
-#endif
 
     checkTrims();
   }

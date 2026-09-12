@@ -32,7 +32,7 @@
 #define MENU_BODY_TOP    (FH + 1)
 #define MENU_BODY_BOTTOM (LCD_H)
 
-#if defined(PXX2) || defined(CROSSFIRE)
+#if defined(CROSSFIRE)
 constexpr uint8_t COLUMN2_X = 10 * FW;
 #endif
 
@@ -63,29 +63,7 @@ void menuRadioFirmwareOptions(event_t event)
   }
 }
 
-#if defined(PXX2)
-void drawPXX2Version(coord_t x, coord_t y, PXX2Version version)
-{
-  if (version.major == 0xFF && version.minor == 0x0F && version.revision == 0x0F) {
-    lcdDrawText(x, y, "---");
-  }
-  else {
-    lcdDrawNumber(x, y, 1 + version.major, LEFT);
-    lcdDrawChar(lcdNextPos, y, '.');
-    lcdDrawNumber(lcdNextPos, y, version.minor, LEFT);
-    lcdDrawChar(lcdNextPos, y, '.');
-    lcdDrawNumber(lcdNextPos, y, version.revision, LEFT);
-  }
-}
-
-void drawPXX2FullVersion(coord_t x, coord_t y, PXX2Version hwVersion, PXX2Version swVersion)
-{
-  drawPXX2Version(x, y, hwVersion);
-  lcdDrawText(lcdNextPos, y, "/");
-  drawPXX2Version(lcdNextPos, y, swVersion);
-}
-#endif
-#if defined(PXX2) || defined(CROSSFIRE)
+#if defined(CROSSFIRE)
 void menuRadioModulesVersion(event_t event)
 {
   if (menuEvent) {
@@ -96,28 +74,6 @@ void menuRadioModulesVersion(event_t event)
   }
 
   title(STR_MENU_MODULES_RX_VERSION);
-#if defined(PXX2)
-if (event == EVT_ENTRY) {
-    memclear(&reusableBuffer.hardwareAndSettings.modules, sizeof(reusableBuffer.hardwareAndSettings.modules));
-  }
-
-  if (event == EVT_ENTRY || get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-    if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
-      moduleState[INTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-    }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-    if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
-      moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-    }
-#endif
-
-    reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms() + 1000 /* 10s*/;
-  }
-#endif
 
   coord_t y = (FH + 1) - menuVerticalOffset * FH;
 
@@ -152,15 +108,6 @@ if (event == EVT_ENTRY) {
         y += FH;
         continue;
       }
-#if defined(MULTIMODULE) || defined(DSMP) 
-      if (isModuleMultimodule(module) || isModuleDSMP(module)) {
-        char statusText[64] = "";
-        getModuleStatusString(module,statusText);
-        lcdDrawText(COLUMN2_X, y, statusText);
-        y += FH;
-        continue;
-      }
-#endif
 #if defined(CROSSFIRE)
       if (isModuleCrossfire(module)) {
         char statusText[64] = "";
@@ -179,51 +126,13 @@ if (event == EVT_ENTRY) {
         continue;
       }
 #endif
-      if (!isModulePXX2(module)) {
+      {
         lcdDrawText(COLUMN2_X, y, STR_NO_INFORMATION);
         y += FH;
         continue;
       }
-#if defined(PXX2)
-      uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module]
-                            .information.modelID;
-      lcdDrawText(COLUMN2_X, y, getPXX2ModuleName(modelId));
-#endif
     }
     y += FH;
-#if defined(PXX2)
-    // Module version
-    if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
-      if (reusableBuffer.hardwareAndSettings.modules[module].information.modelID) {
-        drawPXX2FullVersion(COLUMN2_X, y, reusableBuffer.hardwareAndSettings.modules[module].information.hwVersion, reusableBuffer.hardwareAndSettings.modules[module].information.swVersion);
-        static const char * variants[] = {"FCC", "EU", "FLEX"};
-        uint8_t variant = reusableBuffer.hardwareAndSettings.modules[module].information.variant - 1;
-        if (variant < DIM(variants)) {
-          lcdDrawText(lcdNextPos + 1, y, variants[variant]);
-        }
-      }
-    }
-    y += FH;
-
-    for (uint8_t receiver=0; receiver<PXX2_MAX_RECEIVERS_PER_MODULE; receiver++) {
-      if (reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID && reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].timestamp < get_tmr10ms() + 2000) {
-        // Receiver model
-        if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
-          lcdDrawTextIndented(y, STR_RECEIVER);
-          lcdDrawNumber(lcdLastRightPos + 2, y, receiver + 1);
-          uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID;
-          lcdDrawText(COLUMN2_X, y, getPXX2ReceiverName(modelId));
-        }
-        y += FH;
-
-        // Receiver version
-        if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
-          drawPXX2FullVersion(COLUMN2_X, y, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.hwVersion, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.swVersion);
-        }
-        y += FH;
-      }
-    }
-#endif
   }
 
   uint8_t lines = (y - (FH + 1)) / FH + menuVerticalOffset;
@@ -256,7 +165,7 @@ enum MenuRadioVersionItems
 #if defined(PCBTARANIS)
   ITEM_RADIO_FIRMWARE_OPTIONS,
 #endif
-#if defined(PXX2) || defined(CROSSFIRE)
+#if defined(CROSSFIRE)
   ITEM_RADIO_MODULES_VERSION,
 #endif
   ITEM_RADIO_VERSION_COUNT
@@ -279,7 +188,7 @@ void menuRadioVersion(event_t event)
   }
 #endif
 
-#if defined(PXX2) || defined(CROSSFIRE)
+#if defined(CROSSFIRE)
   lcdDrawText(INDENT_WIDTH, y, STR_MODULES_RX_VERSION, menuVerticalPosition == ITEM_RADIO_MODULES_VERSION ? INVERS : 0);
   y += FH;
   if (menuVerticalPosition == ITEM_RADIO_MODULES_VERSION && event == EVT_KEY_BREAK(KEY_ENTER)) {

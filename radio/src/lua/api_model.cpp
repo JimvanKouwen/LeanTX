@@ -34,14 +34,6 @@
 
 #include <storage/sdcard_yaml.h>
 
-#if defined(MULTIMODULE)
-#include "pulses/multi.h"
-#endif
-
-#if defined(DSMP)
-#include "pulses/dsmp.h"
-#endif
-
 /*luadoc
 @function model.getInfo()
 
@@ -124,52 +116,11 @@ static int luaModelSetInfo(lua_State *L)
 /*luadoc
 @function model.getModule(index)
 
-Get RF module parameters
+Return RF module parameters. Type is 0 (off) or 5 (CRSF).
 
-`Type` values:
-  * 0 NONE
-  * 1 PPM
-  * 2 XJT_PXX1
-  * 3 ISRM_PXX2
-  * 4 DSM2
-  * 5 CROSSFIRE
-  * 6 MULTIMODULE
-  * 7 R9M_PXX1
-  * 8 R9M_PXX2
-  * 9 R9M_LITE_PXX1
-  * 10 R9M_LITE_PXX2
-  * 11 R9M_LITE_PRO_PXX1
-  * 12 R9M_LITE_PRO_PXX2
-  * 13 SBUS
-  * 14 XJT_LITE_PXX2
-  * 15 MODULE_TYPE_FLYSKY_AFHDS3,
-  * 16 ??
-  * 17 MODULE_TYPE_LEMON_DSMP
-
-`subType` values for XJT_PXX1:
- * -1 OFF
- * 0 D16
- * 1 D8
- * 2 LR12
-
-@param index (number) module index (0 for internal, 1 for external)
-
-@retval nil requested module does not exist
-
-@retval table module parameters:
- * `subType` (number) protocol index
- * `modelId` (number) receiver number
- * `firstChannel` (number) start channel (0 is CH1)
- * `channelsCount` (number) number of channels sent to module
- * `Type` (number) module type
- * if the module type is Multi additional information are available
- * `protocol` (number) protocol number (Multi only)
- * `subProtocol` (number) sub-protocol number (Multi only)
- * `channelsOrder` (number) first 4 channels expected order (Multi only)
- * if the module type is LemonDSMP additional info is available
- * `channelsOrder` (number) first 4 channels expected order (DSMP only)
-
-@status current Introduced in 2.2.0
+@param index module index (0 internal, 1 external)
+@retval table with Type, modelId, firstChannel, channelsCount, and subType (always 0)
+@retval nil if the module index does not exist
 */
 static int luaModelGetModule(lua_State *L)
 {
@@ -177,38 +128,11 @@ static int luaModelGetModule(lua_State *L)
   if (idx < NUM_MODULES) {
     ModuleData & module = g_model.moduleData[idx];
     lua_newtable(L);
-    lua_pushtableinteger(L, "subType", module.subType);
+    lua_pushtableinteger(L, "subType", 0);
     lua_pushtableinteger(L, "modelId", g_model.header.modelId[idx]);
     lua_pushtableinteger(L, "firstChannel", module.channelsStart);
     lua_pushtableinteger(L, "channelsCount", module.getChannelsCount());
     lua_pushtableinteger(L, "Type", module.type);
-#if defined(MULTIMODULE)
-    if (module.type == MODULE_TYPE_MULTIMODULE) {
-      int protocol = g_model.moduleData[idx].multi.rfProtocol + 1;
-      int subprotocol = g_model.moduleData[idx].subType;
-      lua_pushtableinteger(L, "protocol", protocol);
-      lua_pushtableinteger(L, "subProtocol", subprotocol);
-      if (getMultiModuleStatus(idx).isValid()) {
-        if (getMultiModuleStatus(idx).ch_order == 0xFF)
-          lua_pushtableinteger(L, "channelsOrder", -1);
-        else
-          lua_pushtableinteger(L, "channelsOrder", getMultiModuleStatus(idx).ch_order);
-      }
-      else {
-        lua_pushtableinteger(L, "channelsOrder", -1);
-      }
-    }
-#endif
-#if defined(DSMP)
-    if (module.type == MODULE_TYPE_LEMON_DSMP) {
-      auto& status = getDSMPStatus(idx);
-      int ch_order = -1;
-      if (status.isValid() && status.ch_order != 0xFF) {
-        ch_order = status.ch_order;
-      }
-      lua_pushtableinteger(L, "channelsOrder", ch_order);
-    }
-#endif
   }
   else {
     lua_pushnil(L);
@@ -235,8 +159,6 @@ static int luaModelSetModule(lua_State *L)
   unsigned int idx = luaL_checkinteger(L, 1);
 
   if (idx < NUM_MODULES) {
-    int protocol = -1;
-    int subprotocol = -1;
 
     ModuleData & module = g_model.moduleData[idx];
     luaL_checktype(L, -1, LUA_TTABLE);
@@ -244,38 +166,25 @@ static int luaModelSetModule(lua_State *L)
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "Type")) {
-        uint8_t newtype = luaL_checkinteger(L, -1);
+        auto requested = luaL_checkinteger(L, -1);
+        uint8_t newtype = requested == MODULE_TYPE_CROSSFIRE ? MODULE_TYPE_CROSSFIRE : MODULE_TYPE_NONE;
         if (newtype != module.type) {
           setModuleType(idx, newtype);
         }
       }
       else if (!strcmp(key, "subType")) {
-        module.subType = luaL_checkinteger(L, -1);
+        // CRSF has no RF sub-protocol.
       }
       else if (!strcmp(key, "modelId")) {
         g_model.header.modelId[idx] = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "firstChannel")) {
-        module.channelsStart = luaL_checkinteger(L, -1);
+        module.channelsStart = limit<int>(0, luaL_checkinteger(L, -1), MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT);
       }
       else if (!strcmp(key, "channelsCount")) {
-        module.channelsCount = luaL_checkinteger(L, -1) - 8;
+        module.channelsCount = CROSSFIRE_CHANNELS_COUNT - 8;
       }
-#if defined(MULTIMODULE)
-      if (!strcmp(key, "protocol")) {
-        protocol = luaL_checkinteger(L, -1);
-      }
-      if (!strcmp(key, "subProtocol")) {
-        subprotocol = luaL_checkinteger(L, -1);
-      }
-#endif
     }
-#if defined(MULTIMODULE)
-    if (protocol > 0 && subprotocol >= 0) {
-      g_model.moduleData[idx].multi.rfProtocol = protocol - 1;
-      g_model.moduleData[idx].subType = subprotocol;
-    }
-#endif
     storageDirty(EE_MODEL);
   }
   return 0;
@@ -471,7 +380,7 @@ static int luaModelDeleteFlightModes(lua_State *L)
 @function model.getFlightMode(index)
 
 @param index (unsigned number) flight mode number (use 0 for FM0)
- 
+
 Return input data for given input and line number
 
 @retval nil requested input or line does not exist
@@ -1329,7 +1238,6 @@ static int luaModelSetCurve(lua_State *L)
   // Init to invalid values
   memset(xPoints, -127, sizeof(xPoints));
   memset(yPoints, -127, sizeof(yPoints));
-
 
   CurveHeader &destCurveHeader = g_model.curves[curveIdx];
   CurveHeader newCurveHeader;

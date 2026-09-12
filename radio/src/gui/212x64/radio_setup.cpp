@@ -93,12 +93,9 @@ enum MenuRadioSetupItems {
               CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_AUTO_OFF)
                   CASE_HAPTIC(ITEM_RADIO_SETUP_PWR_ON_OFF_HAPTIC)
                       ITEM_MODEL_QUICK_SELECT,
-#if defined(PXX2)
-  ITEM_RADIO_SETUP_OWNER_ID,
-#endif
   CASE_GPS(ITEM_RADIO_SETUP_LABEL_GPS) CASE_GPS(ITEM_RADIO_SETUP_TIMEZONE)
       CASE_GPS(ITEM_RADIO_SETUP_ADJUST_RTC) CASE_GPS(ITEM_RADIO_SETUP_GPSFORMAT)
-          CASE_PXX1(ITEM_RADIO_SETUP_COUNTRYCODE) ITEM_RADIO_SETUP_IMPERIAL,
+           ITEM_RADIO_SETUP_IMPERIAL,
   ITEM_RADIO_SETUP_PPM,
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI) ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
@@ -170,10 +167,6 @@ void menuRadioSetup(event_t event)
   }
 #endif
 
-#if defined(PXX2)
-  uint8_t old_editMode = s_editMode;
-#endif
-
   MENU(
       STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, ITEM_RADIO_SETUP_MAX,
       {
@@ -225,10 +218,10 @@ void menuRadioSetup(event_t event)
           CASE_PWR_BUTTON_PRESS(0)  // pwr auto off
           CASE_HAPTIC(0)            // power on/off haptic
           0,                        // Model quick select
-          CASE_PXX2(0)              // owner registration ID
+
           // GPS
           CASE_GPS(LABEL(GPS)) CASE_GPS(0) CASE_GPS(0) CASE_GPS(0)
-              CASE_PXX1(0)        // country code
+
           0,                      // imperial
           0,                      // PPM unit
           IF_FAI_CHOICE(0) 0,     // switches delay
@@ -529,15 +522,6 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.alarmsFlash = editCheckBox(g_eeGeneral.alarmsFlash, RADIO_SETUP_2ND_COLUMN, y, STR_ALARM, attr, event, INDENT_WIDTH) ;
         break;
 
-#if defined(PXX2)
-      case ITEM_RADIO_SETUP_OWNER_ID:
-        editSingleName(RADIO_SETUP_2ND_COLUMN, y, STR_OWNER_ID,
-                       g_eeGeneral.ownerRegistrationID,
-                       PXX2_LEN_REGISTRATION_ID, event, attr,
-                       old_editMode);
-        break;
-#endif
-
       case ITEM_RADIO_SETUP_BACKLIGHT_DELAY:
         lcdDrawTextIndented(y, STR_DURATION);
         lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.lightAutoOff*5, attr|LEFT);
@@ -678,12 +662,6 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_GPSFORMAT:
         g_eeGeneral.gpsFormat = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_GPS_COORDS_FORMAT, STR_GPSFORMAT, g_eeGeneral.gpsFormat, 0, 1, attr, event, INDENT_WIDTH);
-        break;
-#endif
-
-#if defined(PXX1)
-      case ITEM_RADIO_SETUP_COUNTRYCODE:
-        g_eeGeneral.countryCode = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_COUNTRY_CODE, STR_COUNTRY_CODES, g_eeGeneral.countryCode, 0, 2, attr, event);
         break;
 #endif
 

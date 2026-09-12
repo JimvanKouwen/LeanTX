@@ -34,7 +34,6 @@
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
-#include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
 #include "boards/generic_stm32/rgb_leds.h"
 
@@ -73,9 +72,6 @@ void boardBLInit()
 
 #if !defined(BOOT)
   #include "edgetx.h"
-  #if defined(PXX1)
-    #include "pulses/pxx1.h"
-  #endif
 #endif
 
 #if defined(BLUETOOTH)
@@ -85,7 +81,6 @@ void boardBLInit()
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
 #endif
-
 
 #if !defined(BOOT)
 
@@ -107,7 +102,6 @@ void SDLEDpwrInit()
   SDLED_PWR_ON();
 }
 #endif
-
 
 void boardInit()
 {

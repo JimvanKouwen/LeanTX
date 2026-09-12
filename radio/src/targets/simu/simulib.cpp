@@ -39,7 +39,6 @@
 #include "gvars.h"
 #endif
 #include "trainer.h"
-#include "telemetry/frsky.h"
 #include "telemetry/crossfire.h"
 #if defined(LUA)
 #include "lua/lua_api.h"
@@ -714,8 +713,8 @@ int32_t simuGetCapability(uint8_t cap)
 #else
       return 0;
 #endif
-    case 3:  // CAP_TELEM_FRSKY_SPORT
-      return 1;
+    case 3:  // Reserved legacy telemetry capability
+      return 0;
     case 4:  // CAP_SERIAL_AUX1
       return (auxSerialGetPort(SP_AUX1) != nullptr) ? 1 : 0;
     case 5:  // CAP_SERIAL_AUX2
@@ -735,25 +734,9 @@ void simuSetTrimValue(uint8_t idx, int32_t value)
 void simuSendTelemetry(uint8_t module, uint8_t protocol,
                        const uint8_t* data, uint32_t len)
 {
-  switch (protocol) {
-    case 0:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT
-      sportProcessTelemetryPacket(module, data, len);
-      break;
-    case 1:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB
-      frskyDProcessPacket(module, data, len);
-      break;
-    case 2:  // SIMU_TELEMETRY_PROTOCOL_CROSSFIRE
-      processCrossfireTelemetryFrame(module, (uint8_t*)data, len);
-      break;
-    case 3:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB
-      if (len >= 3) {
-        uint8_t id = data[0];
-        int16_t value = ((uint8_t)(data[2]) << 8) + (uint8_t)(data[1]);
-        processHubPacket(id, value);
-      }
-      break;
-    default:
-      break;
+  // Keep the simulator API's existing CRSF protocol number.
+  if (protocol == 2) {
+    processCrossfireTelemetryFrame(module, (uint8_t*)data, len);
   }
 }
 

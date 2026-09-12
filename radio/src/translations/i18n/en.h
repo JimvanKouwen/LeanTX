@@ -168,8 +168,7 @@
 #define TR_USBMODES_4                  "Serial"
 
 #define TR_SBUS_INVERSION_VALUES_1     "normal"
-#define TR_SBUS_INVERSION_VALUES_2     "not inverted"
-#define TR_MULTI_CUSTOM                "Custom"
+#define TR_SBUS_INVERSION_VALUES_2 "not inverted"
 #define TR_VTRIMINC_1                  TR("Expo","Exponential")
 #define TR_VTRIMINC_2                  TR("ExFine","Extra Fine")
 #define TR_VTRIMINC_3                  "Fine"
@@ -368,14 +367,8 @@
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Master/CPPM Module"
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial"
 #define TR_VTRAINER_BLUETOOTH_1        "Master/" TR("BT","Bluetooth")
-#define TR_VTRAINER_BLUETOOTH_2        "Slave/" TR("BT","Bluetooth")
-#define TR_VTRAINER_MULTI              "Master/Multi"
-#define TR_VTRAINER_CRSF               "Master/CRSF"
-#define TR_VFAILSAFE_1                 "Not set"
-#define TR_VFAILSAFE_2                 "Hold"
-#define TR_VFAILSAFE_3                 "Custom"
-#define TR_VFAILSAFE_4                 "No pulses"
-#define TR_VFAILSAFE_5                 "Receiver"
+#define TR_VTRAINER_BLUETOOTH_2 "Slave/" TR("BT", "Bluetooth")
+#define TR_VTRAINER_CRSF "Master/CRSF"
 #define TR_VSENSORTYPES_1              "Custom"
 #define TR_VSENSORTYPES_2              "Calculated"
 #define TR_VFORMULAS_1                 "Add"
@@ -623,9 +616,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "CALIBRATED ANALOGS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
 #define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
-#define   TR_TRIMS2OFFSETS              TR_BW_COL("\006Trims => Subtrims", "Trims => Subtrims")
-#define TR_CHANNELS2FAILSAFE           "Channels=>Failsafe"
-#define TR_CHANNEL2FAILSAFE            "Channel=>Failsafe"
+#define TR_TRIMS2OFFSETS TR_BW_COL("\006Trims => Subtrims", "Trims => Subtrims")
 #define TR_MENUMODELSEL                TR("MODELSEL", "MODEL SELECTION")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
 
@@ -636,21 +627,11 @@
 #define TR_MONITOR_OUTPUT_DESC         "Outputs"
 #define TR_MONITOR_MIXER_DESC          "Mixers"
   #define TR_RECEIVER_NUM              TR("RxNum", "Receiver No.")
-  #define TR_RECEIVER                  "Receiver"
-#define TR_MULTI_RFTUNE                TR("Freq tune", "RF Freq. fine tune")
-#define TR_MULTI_RFPOWER               "RF power"
-#define TR_MULTI_WBUS                  "Output"
-#define TR_MULTI_TELEMETRY             "Telemetry"
-#define TR_MULTI_VIDFREQ               TR("Vid. freq.", "Video frequency")
-#define TR_RF_POWER                    "RF Power"
-#define TR_MULTI_FIXEDID               TR("FixedID", "Fixed ID")
-#define TR_MULTI_OPTION                TR("Option", "Option value")
-#define TR_MULTI_AUTOBIND              TR("Bind Ch.", "Bind on channel")
+#define TR_RECEIVER "Receiver"
+#define TR_RF_POWER "RF Power"
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Disable Ch. map")
 #define TR_DSMP_ENABLE_AETR            TR("Enb. AETR", "Enable AETR")
-#define TR_DISABLE_TELEM               TR("No Telem", "Disable Telemetry")
-#define TR_MULTI_LOWPOWER              TR("Low power", "Low power mode")
-#define TR_MULTI_LNA_DISABLE           "LNA disable"
+#define TR_DISABLE_TELEM TR("No Telem", "Disable Telemetry")
 #define TR_MODULE_TELEMETRY            TR("S.Port", "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("ON", "Enabled")
 #define TR_DISABLE_INTERNAL            TR("Disable int.", "Disable internal RF")
@@ -663,22 +644,10 @@
 #define TR_MODULE_UPGRADE              TR("Upg. advised", "Module update recommended")
 #define TR_REBIND                      "Rebinding required"
 #define TR_REG_OK                      "Registration ok"
-#define TR_BIND_OK                     "Bind successful"
-#define TR_BINDING_CH1_8_TELEM_ON      "Ch1-8 Telem ON"
-#define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 Telem OFF"
-#define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 Telem ON"
-#define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 Telem OFF"
+#define TR_BIND_OK "Bind successful"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "Protocol invalid")
 #define TR_MODULE_STATUS               TR("Status", "Module Status")
-#define TR_MODULE_SYNC                 TR("Sync", "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ             TR("Servo rate", "Servo update rate")
-#define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
-#define TR_MULTI_RFCHAN                TR("RF Channel", "Select RF channel")
-#define TR_AFHDS3_RX_FREQ              TR("RX freq.", "RX frequency")
-#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetry")
-#define TR_AFHDS3_ONE_TO_MANY          "Multicast"
-#define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
-#define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
+#define TR_MODULE_SYNC TR("Sync", "Proto Sync Status")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_GPS_COORDS_FORMAT           TR("GPS Coords", "Coordinate format")
 #define TR_VARIO                       TR("Vario", "Variometer")
@@ -737,38 +706,31 @@
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
 #define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Axis/Pots/Sliders"
-#define TR_RF_PROTOCOL                 "RF Protocol"
-#define TR_MODULE_OPTIONS              "Module options"
+#define TR_RF_PROTOCOL "RF Protocol"
 #define TR_POWER                       "Power"
 #define TR_NO_TX_OPTIONS               "No TX options"
 #define TR_RTC_BATT                    "RTC Batt"
 #define TR_POWER_METER_EXT             "Power Meter (EXT)"
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
-#define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
-#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_SPECTRUM_ANALYSER_INT "Spectrum (INT)"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD card full"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Logs & Screenshots" LCDW_128_LINEBREAK "disabled", TR_SDCARD_FULL "\nLogs and Screenshots disabled")
-#define TR_NEEDS_FILE                  "NEEDS FILE"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
+#define TR_NEEDS_FILE "NEEDS FILE"
 #define TR_INCOMPATIBLE                "Incompatible"
 #define TR_WARNING                     "WARNING"
 #define TR_STORAGE_WARNING             "STORAGE"
 #define TR_THROTTLE_UPPERCASE          "THROTTLE"
 #define TR_ALARMSWARN                  "ALARMS"
-#define TR_SWITCHWARN                  TR("SWITCH", "CONTROL")
-#define TR_FAILSAFEWARN                "FAILSAFE"
+#define TR_SWITCHWARN TR("SWITCH", "CONTROL")
 #define TR_TEST_WARNING                TR("TESTING", "TEST BUILD")
 #define TR_TEST_NOTSAFE                "Use for tests only"
-#define TR_WARN_RTC_BATTERY_LOW        "RTC Battery low"
-#define TR_WARN_MULTI_LOWPOWER         "Low power mode"
+#define TR_WARN_RTC_BATTERY_LOW "RTC Battery low"
 #define TR_BATTERY                     "BATTERY"
 #define TR_WRONG_PCBREV                "Wrong PCB detected"
-#define TR_EMERGENCY_MODE              "EMERGENCY MODE"
-#define TR_NO_FAILSAFE                 "Failsafe not set"
+#define TR_EMERGENCY_MODE "EMERGENCY MODE"
 #define TR_KEYSTUCK                    "Key stuck"
 #define TR_VOLUME                      "Volume"
 #define TR_BRIGHTNESS                  "Brightness"
@@ -868,11 +830,7 @@
 #define TR_VIEW_TEXT                   "View text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloader"
 #define TR_FLASH_DEVICE                TR("Flash device","Flash device")
-#define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "Flash S.Port device")
-#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
-#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Flash RX by int. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Flash FC by ext. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
+#define TR_FLASH_EXTERNAL_DEVICE TR("Flash S.Port", "Flash S.Port device")
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "Flash Bluetooth module")
 #define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "Device not responding")
 #define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "Device file prob.")
@@ -881,10 +839,10 @@
 #define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "Device file refused")
 #define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "Device file sig.")
 #define TR_CURRENT_VERSION             TR("Curr Vers: ", "Current version: ")
-#define TR_FLASH_INTERNAL_MODULE       TR("Flash int. module", "Flash internal module")
-#define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
-#define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. module", "Flash external module")
-#define TR_FLASH_EXTERNAL_MULTI        TR("Flash Ext. Multi", "Flash External Multi")
+#define TR_FLASH_INTERNAL_MODULE \
+  TR("Flash int. module", "Flash internal module")
+#define TR_FLASH_EXTERNAL_MODULE \
+  TR("Flash ext. module", "Flash external module")
 #define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("FW update error", "Firmware update error")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Flash successful"
@@ -895,9 +853,7 @@
 #define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX upgrade required"
 #define TR_TELEMETRY_DISABLED          "Telem. disabled"
 #define TR_MORE_OPTIONS_AVAILABLE      "More options available"
-#define TR_EXTERNALRF                  "External RF"
-#define TR_FAILSAFE                    TR("Failsafe", "Failsafe mode")
-#define TR_FAILSAFESET                 "FAILSAFE SETTINGS"
+#define TR_EXTERNALRF "External RF"
 #define TR_REG_ID                      "Reg. ID"
 #define TR_OWNER_ID                    "Owner ID"
 #define TR_HOLD                        "Hold"
@@ -966,23 +922,17 @@
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Unbind")
-#define TR_POWERMETER_ATTN_NEEDED     "Attenuator needed"
-#define TR_PXX2_SELECT_RX              "Select RX"
-#define TR_PXX2_DEFAULT                "<default>"
+#define TR_POWERMETER_ATTN_NEEDED "Attenuator needed"
 #define TR_BT_SELECT_DEVICE            "Select device"
 #define TR_DISCOVER                    BUTTON("Discover")
 #define TR_BUTTON_INIT                 BUTTON("Init")
-#define TR_WAITING                     "Waiting..."
-#define TR_RECEIVER_DELETE             "Delete receiver?"
-#define TR_RECEIVER_RESET              "Reset receiver?"
+#define TR_WAITING "Waiting..."
 #define TR_SHARE                       "Share"
 #define TR_BIND                        "Bind"
 #define TR_PAIRING                     "Pairing"
-#define TR_BTAUDIO                     "BT Audio"
-#define TR_REGISTER                    BUTTON(TR("Reg", "Register"))
+#define TR_BTAUDIO "BT Audio"
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Range"))
-#define TR_RANGE_TEST                  "Range Test"
-#define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
+#define TR_RANGE_TEST "Range Test"
 #define TR_RESET_BTN                   BUTTON("Reset")
 #define TR_KEYS_BTN                    BUTTON("Keys")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "Analogs"))
@@ -1056,10 +1006,7 @@
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Inputs"
 #define TR_OUTPUTS                     "Outputs"
-#define TR_TOO_MANY_LUA_SCRIPTS        "Too many Lua scripts!"
-#define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
-#define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"
-#define TR_SPORT_UPDATE_POWER_MODES_2  "ON"
+#define TR_TOO_MANY_LUA_SCRIPTS "Too many Lua scripts!"
 #define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
@@ -1127,11 +1074,9 @@
 
 #define TR_TOP_BAR                     "Top bar"
 #define TR_FLASH_ERASE                 "Flash erase..."
-#define TR_FLASH_WRITE                 "Flash write..."
-#define TR_OTA_UPDATE                  "OTA update..."
+#define TR_FLASH_WRITE "Flash write..."
 #define TR_MODULE_RESET                "Module reset..."
-#define TR_UNSUPPORTED_RX              "Unsupported RX"
-#define TR_OTA_UPDATE_ERROR            "OTA update error"
+#define TR_UNSUPPORTED_RX "Unsupported RX"
 #define TR_DEVICE_RESET                "Device reset..."
 #define TR_ALTITUDE                    "Altitude"
 #define TR_SCALE                       "Scale"

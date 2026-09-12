@@ -83,18 +83,6 @@
   #define CASE_PWR_BUTTON_PRESS(x)
 #endif
 
-#if defined(PXX1)
-  #define CASE_PXX1(x) x,
-#else
-  #define CASE_PXX1(x)
-#endif
-
-#if defined(PXX2)
-  #define CASE_PXX2(x) x,
-#else
-  #define CASE_PXX2(x)
-#endif
-
 #if defined(BLUETOOTH)
   #define CASE_BLUETOOTH(x) x,
 #else

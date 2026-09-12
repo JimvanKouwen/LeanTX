@@ -29,7 +29,7 @@
 #endif
 
 #include "edgetx.h"
-#include "io/frsky_firmware_update.h"
+#include "io/bluetooth_firmware_container.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/storage.h"
@@ -115,16 +115,12 @@ void toggleLatencySwitch()
 {
   latencyToggleSwitch ^= 1;
 
-#if defined(PCBHORUS)
+#if defined(EXTMODULE_TX_GPIO)
   if (latencyToggleSwitch)
     gpio_clear(EXTMODULE_TX_GPIO);
   else
     gpio_set(EXTMODULE_TX_GPIO);
-#else
-  if (latencyToggleSwitch)
-    sportUpdatePowerOn();
-  else
-    sportUpdatePowerOff();
+
 #endif
 }
 #endif
@@ -259,7 +255,6 @@ USBJoystickChData *usbJChAddress(uint8_t idx)
   return &g_model.usbJoystickCh[idx];
 }
 
-
 void memswap(void * a, void * b, uint8_t size)
 {
   uint8_t * x = (uint8_t *)a;
@@ -272,18 +267,6 @@ void memswap(void * a, void * b, uint8_t size)
     *y++ = temp;
   }
 }
-
-#if defined(PXX2)
-void setDefaultOwnerId()
-{
-  uint8_t ch;
-  for (uint8_t i = 0; i < PXX2_LEN_REGISTRATION_ID; i++) {
-    ch = ((uint8_t *)cpu_uid)[4+i]&0x7f;
-    if(ch<0x20 || ch==0x7f) ch='-';
-    g_eeGeneral.ownerRegistrationID[PXX2_LEN_REGISTRATION_ID-1-i] = ch;
-  }
-}
-#endif
 
 void generalDefaultSwitches()
 {
@@ -350,8 +333,6 @@ void generalDefault()
   if (BATTERY_MAX != 120)
     g_eeGeneral.vBatMax = BATTERY_MAX - 120;
 
-
-
   g_eeGeneral.backlightMode = e_backlight_mode_all;
   g_eeGeneral.lightAutoOff = 2;
   g_eeGeneral.inactivityTimer = 10;
@@ -376,10 +357,6 @@ void generalDefault()
 
 #if defined(STORAGE_MODELSLIST)
   strcpy(g_eeGeneral.currModelFilename, DEFAULT_MODEL_FILENAME);
-#endif
-
-#if defined(PXX2)
-  setDefaultOwnerId();
 #endif
 
 #if defined(IFLIGHT_RELEASE)
@@ -655,24 +632,6 @@ void resetBacklightTimeout()
   lightOffCounter = (autoOff*250) << 1;
 }
 
-
-#if defined(MULTIMODULE)
-void checkMultiLowPower()
-{
-  bool low_power_warning = false;
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    if (isModuleMultimodule(i) &&
-        g_model.moduleData[i].multi.lowPowerMode) {
-      low_power_warning = true;
-    }
-  }
-
-  if (low_power_warning) {
-    ALERT("MULTI", STR_WARN_MULTI_LOWPOWER, AU_ERROR);
-  }
-}
-#endif
-
 static void checkRTCBattery()
 {
   if (!mixerTaskRunning()) getADC();
@@ -687,23 +646,6 @@ void checkSDfreeStorage() {
   }
 }
 
-static void checkFailsafe()
-{
-  for (int i=0; i<NUM_MODULES; i++) {
-#if defined(MULTIMODULE)
-    // use delayed check for MPM
-    if (isModuleMultimodule(i)) break;
-#endif
-    if (isModuleFailsafeAvailable(i)) {
-      ModuleData & moduleData = g_model.moduleData[i];
-      if (moduleData.failsafeMode == FAILSAFE_NOT_SET) {
-        ALERT(STR_FAILSAFEWARN, STR_NO_FAILSAFE, AU_ERROR);
-        break;
-      }
-    }
-  }
-}
-
 #if defined(GUI)
 void checkAll(bool isBootCheck)
 {
@@ -715,7 +657,6 @@ void checkAll(bool isBootCheck)
   }
 
   checkSwitches();
-  checkFailsafe();
 
   if (isBootCheck && !g_eeGeneral.disableRtcWarning) {
     // only done once at board start
@@ -732,10 +673,6 @@ void checkAll(bool isBootCheck)
     readModelNotes();
 #endif
   }
-
-#if defined(MULTIMODULE)
-  checkMultiLowPower();
-#endif
 
 #if defined(COLORLCD)
   if (!waitKeysReleased()) {
@@ -1499,8 +1436,7 @@ void edgeTxInit()
     }
 #endif // !defined(COLORLCD)
 
-#if defined(AUTOUPDATE)
-    sportStopSendByteLoop();
+#if defined(AUTOUPDATE) && defined(BLUETOOTH)
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
       FrSkyFirmwareInformation information;
       if (readFrSkyFirmwareInformation(AUTOUPDATE_FILENAME, information) == nullptr) {

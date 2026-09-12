@@ -29,13 +29,11 @@
 #include "trainer_driver.h"
 
 #include "module_ports.h"
-#include "intmodule_heartbeat.h"
 
 #include "board.h"
 #include "dataconstants.h"
 
 #include "pulses/pulses.h"
-#include "pulses/pxx1.h"
 
 #include "trainer.h"
 
@@ -149,7 +147,6 @@ static const stm32_usart_t extmoduleUSART = {
 };
 
 DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0);
-
 
 #if (defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)) \
   || defined(STM32H7) || defined(STM32H7RS)
@@ -337,7 +334,6 @@ static void _sport_direction_init()
 #endif
 #endif
 
-
 #if (defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)) || defined(STM32H7) || defined(STM32H7RS)
 
 #define HAS_SPORT_INVERTER
@@ -429,15 +425,6 @@ static const etx_module_port_t _internal_ports[] = {
     .dir_flags = ETX_MOD_DIR_TX,
     .drv = { .serial = &STM32SoftSerialTxDriver },
     .hw_def = REF_STM32_SOFTSERIAL_PORT(InternalModule),
-  },
-#endif
-#if defined(INTERNAL_MODULE_PXX1)
-  {
-    .port = ETX_MOD_PORT_SPORT,
-    .type = ETX_MOD_TYPE_SERIAL,
-    .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
-    .drv = { .serial = &STM32SerialDriver },
-    .hw_def = REF_STM32_SERIAL_PORT(SportModule),
   },
 #endif
 };
@@ -574,29 +561,6 @@ static const etx_module_t _external_module = {
 };
 #endif
 
-#if defined(SPORT_UPDATE_PWR_GPIO)
-#include "sport_update.h"
-
-// Not declared 'static' to be accessible
-// from board.cpp
-void _sport_set_pwr(uint8_t enabled)
-{
-  gpio_write(SPORT_UPDATE_PWR_GPIO, enabled);
-}
-
-const etx_module_t _sport_module = {
-  .ports = nullptr,
-  .set_pwr = _sport_set_pwr,
-  .set_bootcmd = nullptr,
-  .n_ports = 0,
-};
-
-#endif // SPORT_UPDATE_PWR_GPIO
-
-#if !defined(RADIO_X10EXPRESS)
-uint32_t __pxx1_get_inverter_comp() { return 1; }
-#endif
-
 void boardInitModulePorts()
 {
 #if defined(TELEMETRY_USART) && defined(TELEMETRY_DIR_GPIO)
@@ -604,7 +568,9 @@ void boardInitModulePorts()
 #endif
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
-  sportUpdateInit();
+  // Keep the unused accessory update connector powered down.
+  gpio_init(SPORT_UPDATE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(SPORT_UPDATE_PWR_GPIO);
 #endif
 
 #if defined(HAS_SPORT_INVERTER)
@@ -623,16 +589,6 @@ void boardInitModulePorts()
   }
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(PXX_FREQUENCY_HIGH)
-  pxx1SetInternalBaudrate(PXX1_FAST_SERIAL_BAUDRATE);
-#endif
-
-#if defined(INTMODULE_HEARTBEAT) &&                                     \
-  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
-  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
-  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
-  trainerSetChangeCb(_intmodule_heartbeat_trainer_hook);
-#endif
 }
 
 BEGIN_MODULES()
@@ -645,8 +601,5 @@ BEGIN_MODULES()
   &_external_module,
 #else
   nullptr,
-#endif
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  &_sport_module,
 #endif
 END_MODULES()

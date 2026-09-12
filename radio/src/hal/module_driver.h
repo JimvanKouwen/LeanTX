@@ -27,24 +27,14 @@
 enum ChannelsProtocols {
   PROTOCOL_CHANNELS_UNINITIALIZED,
   PROTOCOL_CHANNELS_NONE,
-  PROTOCOL_CHANNELS_PPM,
-  PROTOCOL_CHANNELS_PXX1,
-  PROTOCOL_CHANNELS_DSM2,
   PROTOCOL_CHANNELS_CROSSFIRE,
-  PROTOCOL_CHANNELS_MULTIMODULE,
-  PROTOCOL_CHANNELS_SBUS,
-  PROTOCOL_CHANNELS_PXX2,
-  PROTOCOL_CHANNELS_AFHDS2A,
-  PROTOCOL_CHANNELS_AFHDS3,
-  PROTOCOL_CHANNELS_GHOST,
-  PROTOCOL_CHANNELS_DSMP
 };
 
 struct etx_proto_driver_t {
 
     // Protocol implemented by this module driver
     ChannelsProtocols protocol;
-    
+
     // Init module communication
     void* (*init)(uint8_t module);
 

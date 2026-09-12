@@ -476,84 +476,18 @@ PACK(struct TrainerModuleData {
  * Module structure
  */
 
-PACK(struct PpmModule {
-  int8_t  delay:6;
-  uint8_t pulsePol:1;
-  uint8_t outputType:1;    // false = open drain, true = push pull
-  int8_t  frameLength;
-});
-
 PACK(struct ModuleData {
   // antennaMode stays unconditional as boards differing on EXTERNAL_ANTENNA share
   // generated YAML descriptors.
   uint8_t type:6 ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
   int8_t  antennaMode:2 ENUM(AntennaModes);
-  CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
-  uint8_t failsafeMode:4 ENUM(FailsafeModes);  // only 3 bits used
-  uint8_t subType:4 SKIP;
+  uint8_t reserved SKIP;
 
   union {
-    uint8_t raw[PXX2_MAX_RECEIVERS_PER_MODULE * PXX2_LEN_RX_NAME + 1];
-    NOBACKUP(PpmModule ppm);
-    NOBACKUP(struct {
-      uint8_t rfProtocol SKIP;
-      uint8_t disableTelemetry:1;
-      uint8_t disableMapping:1;
-      uint8_t autoBindMode:1;
-      uint8_t lowPowerMode:1;
-      uint8_t receiverTelemetryOff:1;
-      uint8_t receiverHigherChannels:1;
-      uint8_t spare:2 SKIP;
-      int8_t optionValue;
-    } multi);
-    NOBACKUP(struct {
-      uint8_t power:2;                  // 0=10 mW, 1=100 mW, 2=500 mW, 3=1W
-      uint8_t spare1:2 SKIP;
-      uint8_t receiverTelemetryOff:1;     // false = receiver telem enabled
-      uint8_t receiverHigherChannels:1;  // false = pwm out 1-8, true 9-16
-      uint8_t spare2:2 SKIP;
-      uint8_t spare3 SKIP;
-    } pxx);
-    NOBACKUP(struct {
-      uint8_t spare1:6 SKIP;
-      uint8_t noninverted:1;
-      uint8_t spare2:1 SKIP;
-      int8_t refreshRate;  // definition as framelength for ppm (* 5 + 225 = time in 1/10 ms)
-    } sbus);
-    NOBACKUP(struct {
-      uint8_t receivers:7; // 4 bits spare
-      uint8_t racingMode:1;
-      char receiverName[PXX2_MAX_RECEIVERS_PER_MODULE][PXX2_LEN_RX_NAME];
-    } pxx2);
-    NOBACKUP(struct {
-      uint8_t rx_id[4];
-      uint8_t mode:3;
-      uint8_t rfPower:1;
-      uint8_t reserved:4;
-      uint8_t rx_freq[2];
-
-      void setDefault() {
-        rx_id[0] = rx_id[1] = rx_id[2] = rx_id[3] = 0;
-        mode = 3;
-        rfPower = 0;
-        rx_freq[0] = 50;
-        rx_freq[1] = 0;
-      }
-    } flysky);
-    NOBACKUP(struct {
-      uint8_t emi:2;
-      uint8_t telemetry:1;
-      uint8_t phyMode:3;
-      uint8_t reserved:2;
-      uint8_t rfPower;
-    } afhds3);
-    NOBACKUP(struct {
-      uint8_t raw12bits:1;
-      uint8_t telemetryBaudrate:3;
-      uint8_t spare1:4 SKIP;
-    } ghost);
+    // Keep backup offsets stable without retaining legacy protocol settings.
+    uint8_t raw[25];
     NOBACKUP(PACK(struct {
       uint8_t telemetryBaudrate:3;
       uint8_t crsfArmingMode:1;
@@ -561,10 +495,6 @@ PACK(struct ModuleData {
       int16_t crsfArmingTrigger:10 CUST(r_swtchSrc,w_swtchSrc);
       int16_t spare3:6;
     }) crsf);
-    NOBACKUP(struct {
-      uint8_t flags;
-      uint8_t enableAETR : 1;
-    } dsmp);
   } NAME(mod) FUNC(select_mod_type);
 
   NOBACKUP(inline uint8_t getChannelsCount() const
@@ -786,7 +716,7 @@ PACK(struct ModelData {
   GVarData gvars[MAX_GVARS];
 
   NOBACKUP(VarioData varioData);
-  NOBACKUP(uint8_t rssiSource CUST(r_tele_sensor,w_tele_sensor));
+  NOBACKUP(uint8_t reservedRssiSource SKIP);
 
   TOPBAR_DATA
 
@@ -801,7 +731,7 @@ PACK(struct ModelData {
   uint8_t spare1:1 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
-  int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
+  int16_t reservedFailsafe[MAX_OUTPUT_CHANNELS] SKIP;
   TrainerModuleData trainerData;
 
   SCRIPT_DATA
@@ -837,7 +767,7 @@ PACK(struct ModelData {
   uint8_t view;
 #endif
 
-  char modelRegistrationID[PXX2_LEN_REGISTRATION_ID];
+  uint8_t reservedModelRegistration[8] SKIP;
 
   FUNCTION_SWITCHS_FIELDS
 
@@ -1071,7 +1001,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  disableRssiPoweroffAlarm:1);
   NOBACKUP(uint8_t  USBMode:2);
   NOBACKUP(uint8_t  spareJackMode:2 SKIP);
-  NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
+  NOBACKUP(uint8_t  reservedAccessoryPower:1 SKIP);
 
   NOBACKUP(char     ttsLanguage[2]);
   NOBACKUP(char     uiLanguage[2]);
@@ -1097,7 +1027,7 @@ PACK(struct RadioData {
 
   EXTRA_GENERAL_FIELDS
 
-  char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
+  uint8_t reservedOwnerRegistration[8] SKIP;
 
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   NOBACKUP(uint8_t  rotEncMode:3);

@@ -22,13 +22,12 @@
 #include "radio_sdmanager.h"
 
 #include "edgetx.h"
+#include "io/elrs_firmware_update.h"
 #include "etx_lv_theme.h"
 #include "file_browser.h"
 #include "file_preview.h"
 #include "fullscreen_dialog.h"
 #include "io/bootloader_flash.h"
-#include "io/frsky_firmware_update.h"
-#include "io/multi_firmware_update.h"
 #include "io/uf2_flash.h"
 #include "lib_file.h"
 #include "menu.h"
@@ -79,131 +78,6 @@ class FlashDialog: public FullScreenDialog
   static LAYOUT_VAL_SCALED(PROGRESS_YO, 27)
   static LAYOUT_VAL_SCALED(PROGRESS_W, 200)
 };
-
-#if defined(PXX2)
-
-#include "pulses/pxx2_ota.h"
-
-// Forward declaration of C-style callback for startBind()
-class FrskyOtaFlashDialog;
-ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog);
-
-class FrskyOtaFlashDialog : public BaseDialog
-{
- public:
-  explicit FrskyOtaFlashDialog(const char* title) :
-    BaseDialog(title, true)
-  {
-    new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
-  }
-
-  void flash(const char * filename, ModuleIndex module)
-  {
-    memclear(&reusableBuffer.sdManager.otaUpdateInformation, sizeof(OtaUpdateInformation));
-    strncpy(reusableBuffer.sdManager.otaUpdateInformation.filename, filename, min<uint8_t>(strlen(filename), FF_MAX_LFN));
-    reusableBuffer.sdManager.otaUpdateInformation.module = module;
-    moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].startBind(&reusableBuffer.sdManager.otaUpdateInformation, onUpdateStateChangedCallbackFor(this));
-
-    setCloseHandler([=]() { moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL; });
-  }
-
-  void onUpdateConfirmation()
-  {
-    OtaUpdateInformation * destination = moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].otaUpdateInformation;
-    Pxx2OtaUpdate otaUpdate(reusableBuffer.sdManager.otaUpdateInformation.module, destination->candidateReceiversNames[destination->selectedReceiverIndex]);
-    auto dialog = new FlashDialog<Pxx2OtaUpdate>(otaUpdate);
-    dialog->flash(destination->filename);
-    deleteLater();
-  }
-
-  void onUpdateStateChanged()
-  {
-    // This callback will be called a lot of times. Make sure the update confirm dialog only popup once.
-    if (updateConfirmDialog) {
-      return;
-    }
-
-    if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
-      uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
-      if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
-        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
-        tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
-        *tmp++ = '.';
-        tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
-        *tmp++ = '.';
-        tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.revision);
-
-        updateConfirmDialog = new ConfirmDialog(getPXX2ReceiverName(modelId),
-                          std::string(reusableBuffer.sdManager.otaReceiverVersion).c_str(),
-                          [=]() { onUpdateConfirmation(); },
-                          [=]() { deleteLater(); });
-      } else {
-        deleteLater();
-        POPUP_WARNING(STR_OTA_UPDATE_ERROR, STR_UNSUPPORTED_RX);
-      }
-    }
-  }
-
-  void checkEvents() override
-  {
-    if (moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode == MODULE_MODE_BIND) {
-      if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INIT) {
-        if (reusableBuffer.sdManager.otaUpdateInformation.candidateReceiversCount > 0) {
-          if (reusableBuffer.sdManager.otaUpdateInformation.candidateReceiversCount != popupReceiversCount) {
-            if (rxChoiceMenu == nullptr) {
-              rxChoiceMenu = new Menu();
-              rxChoiceMenu->setTitle(STR_PXX2_SELECT_RX);
-              rxChoiceMenu->setCancelHandler([=]() {
-                // Seems menu didn't delete itself before call cancelHandler().
-                // Delete the menu explicity to ensure menu is deleted before dialog.
-                rxChoiceMenu->deleteLater();
-                deleteLater();
-              });
-            } else {
-              rxChoiceMenu->removeLines();
-            }
-
-            popupReceiversCount = min<uint8_t>(reusableBuffer.sdManager.otaUpdateInformation.candidateReceiversCount, PXX2_MAX_RECEIVERS_PER_MODULE);
-            for (uint8_t rx = 0; rx < popupReceiversCount; rx++) {
-              const char* receiverName = reusableBuffer.sdManager.otaUpdateInformation.candidateReceiversNames[rx];
-              rxChoiceMenu->addLine(receiverName, [=]() {
-                reusableBuffer.sdManager.otaUpdateInformation.selectedReceiverIndex = rx;
-                reusableBuffer.sdManager.otaUpdateInformation.step = BIND_INFO_REQUEST;
-#if defined(SIMU)
-                reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID = 0x01;
-                onUpdateStateChanged();
-#endif
-                return 0;
-              });
-            }
-          }
-        }
-      }
-    }
-
-    BaseDialog::checkEvents();
-  }
-
- protected:
-  uint8_t popupReceiversCount = 0;
-  Menu* rxChoiceMenu = nullptr;
-  ConfirmDialog* updateConfirmDialog = nullptr;
-};
-
-// Wrapper for C-style callback of startBind()
-// Only one OTA flash is possible at a time, it's fine to use a global holder.
-FrskyOtaFlashDialog* frskyOtaFlashDialogHolder = nullptr;
-void onUpdateStateChangedCallback() {
-  if (frskyOtaFlashDialogHolder != nullptr) {
-    frskyOtaFlashDialogHolder->onUpdateStateChanged();
-  }
-}
-ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog) {
-  frskyOtaFlashDialogHolder = dialog;
-  return onUpdateStateChangedCallback;
-}
-
-#endif  // PXX2
 
 void RadioSdManagerPage::build(Window * window)
 {
@@ -313,26 +187,9 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       });
     }
 #if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
-#if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
-    if (!strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
-      MultiFirmwareInformation information;
-      if (information.readMultiFirmwareInformation(fullpath) == nullptr) {
-#if defined(INTERNAL_MODULE_MULTI)
-        menu->addLine(STR_FLASH_INTERNAL_MULTI, [=]() {
-          MultiFirmwareUpdate(fullpath, INTERNAL_MODULE,
-                              MULTI_TYPE_MULTIMODULE);
-        });
-#endif
-        menu->addLine(STR_FLASH_EXTERNAL_MULTI, [=]() {
-          MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE,
-                              MULTI_TYPE_MULTIMODULE);
-        });
-      }
-    }
-#endif
     else if (!strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
       menu->addLine(STR_FLASH_EXTERNAL_ELRS, [=]() {
-        MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
+        ElrsFirmwareUpdate(fullpath, EXTERNAL_MODULE);
       });
 #endif
     } else if (!strcasecmp(BITMAPS_PATH, path) &&
@@ -370,94 +227,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
                       [=]() { BootloaderUpdate(fullpath); });
       }
 #endif
-#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
-    } else if (!strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
-
-      auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
-      if (mod_desc && mod_desc->set_pwr) {
-        menu->addLine(STR_FLASH_EXTERNAL_DEVICE,
-                      [=]() { FrSkyFirmwareUpdate(fullpath, SPORT_MODULE); });
-      }
-      menu->addLine(STR_FLASH_INTERNAL_MODULE,
-                    [=]() { FrSkyFirmwareUpdate(fullpath, INTERNAL_MODULE); });
-      menu->addLine(STR_FLASH_EXTERNAL_MODULE,
-                    [=]() { FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE); });
-    } else if (!strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
-      FrSkyFirmwareInformation information;
-      if (readFrSkyFirmwareInformation(fullpath, information) ==
-          nullptr) {
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-        menu->addLine(STR_FLASH_INTERNAL_MODULE, [=]() {
-          FrSkyFirmwareUpdate(fullpath, INTERNAL_MODULE);
-        });
-#endif
-        if (information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE) {
-          menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-            FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE);
-          });
-        }
-        if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
-            information.productFamily == FIRMWARE_FAMILY_SENSOR) {
-
-          auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
-          if (mod_desc && mod_desc->set_pwr) {
-            menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
-              FrSkyFirmwareUpdate(fullpath, SPORT_MODULE);
-            });
-          } else {
-            menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-              FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE);
-            });
-          }
-        }
-#if defined(PXX2)
-        if (information.productFamily == FIRMWARE_FAMILY_RECEIVER) {
-          if (isReceiverOTAEnabledFromModule(INTERNAL_MODULE,
-                                             information.productId))
-            menu->addLine(STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA, [=]() {
-              auto dialog = new FrskyOtaFlashDialog(
-                  STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA);
-              dialog->flash(fullpath, INTERNAL_MODULE);
-            });
-#if defined(HARDWARE_EXTERNAL_MODULE)
-          if (isReceiverOTAEnabledFromModule(EXTERNAL_MODULE,
-                                             information.productId))
-            menu->addLine(STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA, [=]() {
-              auto dialog = new FrskyOtaFlashDialog(
-                  STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA);
-              dialog->flash(fullpath, EXTERNAL_MODULE);
-            });
-#endif  // HARDWARE_EXTERNAL_MODULE
-        }
-        if (information.productFamily == FIRMWARE_FAMILY_FLIGHT_CONTROLLER) {
-          menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA,
-                        [=]() {
-            auto dialog = new FrskyOtaFlashDialog(
-                STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
-            dialog->flash(fullpath, INTERNAL_MODULE);
-          });
-#if defined(HARDWARE_EXTERNAL_MODULE)
-          menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA,
-                        [=]() {
-            auto dialog = new FrskyOtaFlashDialog(
-                STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA);
-            dialog->flash(fullpath, EXTERNAL_MODULE);
-          });
-#endif  // HARDWARE_EXTERNAL_MODULE
-        }
-#endif  // PXX2
-#if _NYI_  // Not yet implemented
-#if defined(BLUETOOTH)
-        if (information.productFamily == FIRMWARE_FAMILY_BLUETOOTH_CHIP) {
-          menu->addLine(STR_FLASH_BLUETOOTH_MODULE, [=]() {
-            BluetoothFirmwareUpdate(fullpath);
-          });
-        }
-#endif
-#endif  // _NYI_
-      }
     }
-#endif
 #if defined(LUA)
     else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
       menu->addLine(STR_EXECUTE_FILE, [=]() {
@@ -547,22 +317,14 @@ void RadioSdManagerPage::BluetoothFirmwareUpdate(const char* fn)
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
-void RadioSdManagerPage::FrSkyFirmwareUpdate(const char* fn,
+
+
+void RadioSdManagerPage::ElrsFirmwareUpdate(const char* fn,
                                              ModuleIndex module)
 {
-  FrskyDeviceFirmwareUpdate deviceFirmwareUpdate(module);
+  ElrsDeviceFirmwareUpdate deviceFirmwareUpdate(module);
   auto dialog =
-      new FlashDialog<FrskyDeviceFirmwareUpdate>(deviceFirmwareUpdate);
-  dialog->flash(fn);
-}
-
-void RadioSdManagerPage::MultiFirmwareUpdate(const char* fn,
-                                             ModuleIndex module,
-                                             MultiModuleType type)
-{
-  MultiDeviceFirmwareUpdate deviceFirmwareUpdate(module, type);
-  auto dialog =
-      new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
+      new FlashDialog<ElrsDeviceFirmwareUpdate>(deviceFirmwareUpdate);
   dialog->flash(fn);
 }
 #endif

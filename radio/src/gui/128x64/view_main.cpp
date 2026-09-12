@@ -430,7 +430,6 @@ void menuMainView(event_t event)
       chainMenu(menuViewTelemetry);
       break;
 
-
     case EVT_KEY_FIRST(KEY_EXIT):
 #if defined(GVARS)
       if (gvarDisplayTimer > 0) {
@@ -504,7 +503,7 @@ void menuMainView(event_t event)
       if (view == VIEW_INPUTS) {
         // Sticks + Pots
         doMainScreenGraphics();
-        
+
         // Switches
         // -> 2 columns: one for each side
         // -> 4 slots on each side
@@ -611,12 +610,6 @@ void menuMainView(event_t event)
   }
 #endif
 
-#if defined(DSM2)
-  if (moduleState[0].mode == MODULE_MODE_BIND) {
-    // Issue 98
-    lcdDrawText(15 * FW, 0, "BIND", 0);
-  }
-#endif
 #if defined(RTCLOCK)
   if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {
     drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);

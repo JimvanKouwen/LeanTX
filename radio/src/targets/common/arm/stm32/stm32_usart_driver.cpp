@@ -98,7 +98,7 @@ void stm32_usart_enable_tx_irq(const stm32_usart_t* usart)
   if (!NVIC_GetEnableIRQ(usart->IRQn)) {
     _enable_usart_irq(usart);
   }
-  
+
   LL_USART_EnableIT_TXE(usart->USARTx);
 }
 
@@ -405,7 +405,6 @@ void stm32_usart_tx_inversion(const stm32_usart_t* usart, bool on)
 // - USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
 
 // OBSOLETE:
-// - asymmetric bitrates for half-duplex (GHOST)
 // - ??? ability to switch RX DMA OFF ??? (-> X12S)
 //
 bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
@@ -429,7 +428,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     gpio_af_t af = _get_usart_af(usart->txGPIO, usart->USARTx);
     gpio_init_af(usart->txGPIO, af, _get_pin_speed(params->baudrate));
   }
-  
+
   bool half_duplex = usart->set_input;
 
 #if defined(STM32H7) || defined(STM32H7RS)
@@ -765,7 +764,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
       status = LL_USART_ReadReg(usart->USARTx, USART_STATUS_REG);
     }
   }
-  
+
   // Receive: do it first as it is more time critical
   if (LL_USART_IsEnabledIT_RXNE(usart->USARTx)) {
 

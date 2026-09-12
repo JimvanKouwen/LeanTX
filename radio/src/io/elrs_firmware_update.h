@@ -21,16 +21,18 @@
 
 #pragma once
 
-#include <stdint.h>
+#include "ff.h"
 
-struct HeartbeatCapture {
-  uint8_t valid;
-#if defined(DEBUG_LATENCY)
-  uint32_t count;
-#endif
+class ElrsDeviceFirmwareUpdate
+{
+  public:
+    explicit ElrsDeviceFirmwareUpdate(ModuleIndex module):
+      module(module)
+    {
+    }
+
+    bool flashFirmware(const char * filename, ProgressHandler progressHandler);
+
+  protected:
+    ModuleIndex module;
 };
-
-extern volatile HeartbeatCapture heartbeatCapture;
-
-void init_intmodule_heartbeat();
-void stop_intmodule_heartbeat();

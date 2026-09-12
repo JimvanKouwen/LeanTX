@@ -20,14 +20,13 @@
  */
 
 #include "os/sleep.h"
-#if !defined(DISABLE_MULTI_UPDATE)
 
 #include "hal.h"
 #include "hal/module_port.h"
 
 #include <stdio.h>
 #include "edgetx.h"
-#include "multi_firmware_update.h"
+#include "elrs_firmware_update.h"
 #include "stk500.h"
 #include "debug.h"
 
@@ -41,16 +40,11 @@
   #include "lib_file.h"
 #endif
 
-#if defined(MULTI_PROTOLIST)
-  #include "io/multi_protolist.h"
-#endif
 
-#define UPDATE_MULTI_EXT_BIN ".bin"
 
-class MultiFirmwareUpdateDriver
+class ElrsFirmwareUpdateDriver
 {
   ModuleIndex module;
-  MultiModuleType type;
 
   etx_module_state_t* mod_st = nullptr;
 
@@ -70,8 +64,8 @@ class MultiFirmwareUpdateDriver
   void leaveProgMode();
 
  public:
-  MultiFirmwareUpdateDriver(ModuleIndex module, MultiModuleType type) :
-      module(module), type(type)
+  ElrsFirmwareUpdateDriver(ModuleIndex module) :
+      module(module)
   {
   }
 
@@ -86,52 +80,31 @@ static const etx_serial_init serialInitParams = {
   .polarity = ETX_Pol_Normal,
 };
 
-bool MultiFirmwareUpdateDriver::init()
+bool ElrsFirmwareUpdateDriver::init()
 {
-  if (type == MULTI_TYPE_MULTIMODULE && module == INTERNAL_MODULE) {
-    // duplex internal USART
-    mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_UART, &serialInitParams, false);
-  } else if (type == MULTI_TYPE_MULTIMODULE && module == EXTERNAL_MODULE) {
-    // TX on PPM (inverted softserial)
-    etx_serial_init params(serialInitParams);
-    params.direction = ETX_Dir_TX;
-    params.polarity = ETX_Pol_Inverted;
-    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART, &params, true);
-    if (!mod_st) return false;
-
-    // RX on S.PORT (inverted softserial)
-    params.direction = ETX_Dir_RX;
-    params.polarity = ETX_Pol_Inverted;
-    if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params, true)) {
-      modulePortDeInit(mod_st);
-      return false;
-    }
-  } else if (type == MULTI_TYPE_ELRS && module == EXTERNAL_MODULE) {
-    // half-duplex on S.PORT USART
-    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &serialInitParams, false);
-  }
-
+  // ELRS bootloader uses the external bay's half-duplex serial line.
+  if (module != EXTERNAL_MODULE) return false;
+  mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &serialInitParams, false);
   if (!mod_st) return false;
-
   modulePortSetPower(module, true);
   return true;
 }
 
-bool MultiFirmwareUpdateDriver::getByte(uint8_t & byte) const
+bool ElrsFirmwareUpdateDriver::getByte(uint8_t & byte) const
 {
   auto drv = modulePortGetSerialDrv(mod_st->rx);
   auto ctx = modulePortGetCtx(mod_st->rx);
   return drv->getByte(ctx, &byte) > 0;
 }
 
-void MultiFirmwareUpdateDriver::sendByte(uint8_t byte) const
+void ElrsFirmwareUpdateDriver::sendByte(uint8_t byte) const
 {
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto ctx = modulePortGetCtx(mod_st->tx);
   drv->sendByte(ctx, byte);
 }
 
-void MultiFirmwareUpdateDriver::sendBuffer(uint8_t* buffer, uint16_t size) const
+void ElrsFirmwareUpdateDriver::sendBuffer(uint8_t* buffer, uint16_t size) const
 {
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto ctx = modulePortGetCtx(mod_st->tx);
@@ -141,21 +114,21 @@ void MultiFirmwareUpdateDriver::sendBuffer(uint8_t* buffer, uint16_t size) const
   drv->waitForTxCompleted(ctx);
 }
 
-void MultiFirmwareUpdateDriver::clear() const
+void ElrsFirmwareUpdateDriver::clear() const
 {
   auto drv = modulePortGetSerialDrv(mod_st->rx);
   auto ctx = modulePortGetCtx(mod_st->rx);
   drv->clearRxBuffer(ctx);
 }
 
-void MultiFirmwareUpdateDriver::deinit()
+void ElrsFirmwareUpdateDriver::deinit()
 {
   clear();
   modulePortSetPower(module, false);
   modulePortDeInit(mod_st);
 }
 
-bool MultiFirmwareUpdateDriver::getRxByte(uint8_t & byte) const
+bool ElrsFirmwareUpdateDriver::getRxByte(uint8_t & byte) const
 {
   uint32_t time = time_get_ms();
   
@@ -172,13 +145,13 @@ bool MultiFirmwareUpdateDriver::getRxByte(uint8_t & byte) const
   return false;
 }
 
-bool MultiFirmwareUpdateDriver::checkRxByte(uint8_t byte) const
+bool ElrsFirmwareUpdateDriver::checkRxByte(uint8_t byte) const
 {
   uint8_t rxchar;
   return getRxByte(rxchar) ? rxchar == byte : false;
 }
 
-const char * MultiFirmwareUpdateDriver::waitForInitialSync()
+const char * ElrsFirmwareUpdateDriver::waitForInitialSync()
 {
   uint8_t byte;
   tmr10ms_t now = get_tmr10ms();;
@@ -225,7 +198,7 @@ const char * MultiFirmwareUpdateDriver::waitForInitialSync()
   return nullptr;
 }
 
-const char * MultiFirmwareUpdateDriver::getDeviceSignature(uint8_t * signature) const
+const char * ElrsFirmwareUpdateDriver::getDeviceSignature(uint8_t * signature) const
 {
   clear();
 
@@ -245,7 +218,7 @@ const char * MultiFirmwareUpdateDriver::getDeviceSignature(uint8_t * signature) 
   return nullptr;
 }
 
-const char * MultiFirmwareUpdateDriver::loadAddress(uint32_t offset) const
+const char * ElrsFirmwareUpdateDriver::loadAddress(uint32_t offset) const
 {
   sendByte(STK_LOAD_ADDRESS);
   sendByte(offset & 0xFF); // low  byte
@@ -263,7 +236,7 @@ const char * MultiFirmwareUpdateDriver::loadAddress(uint32_t offset) const
   return nullptr;
 }
 
-const char * MultiFirmwareUpdateDriver::progPage(uint8_t * buffer, uint16_t size) const
+const char * ElrsFirmwareUpdateDriver::progPage(uint8_t * buffer, uint16_t size) const
 {
   sendByte(STK_PROG_PAGE);
 
@@ -294,7 +267,7 @@ const char * MultiFirmwareUpdateDriver::progPage(uint8_t * buffer, uint16_t size
   return nullptr;
 }
 
-void MultiFirmwareUpdateDriver::leaveProgMode()
+void ElrsFirmwareUpdateDriver::leaveProgMode()
 {
   sendByte(STK_LEAVE_PROGMODE);
   sendByte(CRC_EOP);
@@ -304,7 +277,7 @@ void MultiFirmwareUpdateDriver::leaveProgMode()
   deinit();
 }
 
-const char* MultiFirmwareUpdateDriver::flashFirmware(
+const char* ElrsFirmwareUpdateDriver::flashFirmware(
     FIL* file, const char* label, ProgressHandler progressHandler)
 {
 #if defined(SIMU)
@@ -385,120 +358,7 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
   return result;
 }
 
-// example :  multi-stm-bcsid-01020176
-#define MULTI_SIGN_SIZE                             24
-#define MULTI_SIGN_BOOTLOADER_SUPPORT_OFFSET        10
-#define MULTI_SIGN_BOOTLOADER_CHECK_OFFSET          11
-#define MULTI_SIGN_TELEM_TYPE_OFFSET                12
-#define MULTI_SIGN_TELEM_INVERSION_OFFSET           13
-#define MULTI_SIGN_VERSION_OFFSET                   15
-
-const char * MultiFirmwareInformation::readV1Signature(const char * buffer)
-{
-  if (!memcmp(buffer, "multi-stm", 9))
-    boardType = FIRMWARE_MULTI_STM;
-  else if (!memcmp(buffer, "multi-avr", 9))
-    boardType = FIRMWARE_MULTI_AVR;
-  else if (!memcmp(buffer, "multi-orx", 9))
-    boardType = FIRMWARE_MULTI_ORX;
-  else
-    return STR_DEVICE_FILE_WRONG_SIG;
-
-  if (buffer[MULTI_SIGN_BOOTLOADER_SUPPORT_OFFSET] == 'b')
-    optibootSupport = true;
-  else
-    optibootSupport = false;
-
-  if (buffer[MULTI_SIGN_BOOTLOADER_CHECK_OFFSET] == 'c')
-    bootloaderCheck = true;
-  else
-    bootloaderCheck = false;
-
-  if (buffer[MULTI_SIGN_TELEM_TYPE_OFFSET] == 't')
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_STATUS;
-  else if (buffer[MULTI_SIGN_TELEM_TYPE_OFFSET] == 's')
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY;
-  else
-    telemetryType = FIRMWARE_MULTI_TELEM_NONE;
-
-  if (buffer[MULTI_SIGN_TELEM_INVERSION_OFFSET] == 'i')
-    telemetryInversion = true;
-  else
-    telemetryInversion = false;
-
-  return nullptr;
-}
-
-const char * MultiFirmwareInformation::readV2Signature(const char * buffer)
-{
-  // new format
-  uint32_t options = 0;
-  const char * beg = buffer + 7;
-  const char * cursor = beg;
-
-  while (cursor - beg < 8) {
-    options <<= 4;
-    if (*cursor >= '0' && *cursor <= '9')
-      options |= *cursor - '0';
-    else if (*cursor >= 'a' && *cursor <= 'f')
-      options |= *cursor - 'a' + 10;
-    else if (*cursor >= 'A' && *cursor <= 'F')
-      options |= *cursor - 'A' + 10;
-    else
-      break; // should be '-'
-    cursor++;
-  }
-
-  if (cursor - beg < 8)
-    return STR_DEVICE_FILE_WRONG_SIG;
-
-  boardType = options & 0x3;
-  optibootSupport = options & 0x80 ? true : false;
-  telemetryInversion = options & 0x200 ? true : false;
-  bootloaderCheck = options & 0x100 ? true : false;
-
-  telemetryType = FIRMWARE_MULTI_TELEM_NONE;
-  if (options & 0x400)
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_STATUS;
-  if (options & 0x800)
-    telemetryType = FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY;
-
-  return nullptr;
-}
-
-const char * MultiFirmwareInformation::readMultiFirmwareInformation(const char * filename)
-{
-  FIL file;
-  if (f_open(&file, filename, FA_READ) != FR_OK)
-    return STR_DEVICE_FILE_ERROR;
-
-  const char * err = readMultiFirmwareInformation(&file);
-  f_close(&file);
-
-  return err;
-}
-
-const char * MultiFirmwareInformation::readMultiFirmwareInformation(FIL * file)
-{
-  char buffer[MULTI_SIGN_SIZE];
-  UINT count;
-
-  if (f_size(file) < MULTI_SIGN_SIZE)
-    return STR_DEVICE_FILE_ERROR;
-
-  f_lseek(file, f_size(file) - MULTI_SIGN_SIZE);
-  if (f_read(file, buffer, MULTI_SIGN_SIZE, &count) != FR_OK || count != MULTI_SIGN_SIZE) {
-    return STR_DEVICE_FILE_ERROR;
-  }
-
-  if (!memcmp(buffer, "multi-x", 7)) {
-    return readV2Signature(buffer);
-  }
-
-  return readV1Signature(buffer);
-}
-
-bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
+bool ElrsDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
 {
   FIL file;
 
@@ -507,46 +367,9 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     return false;
   }
 
-  if (type == MULTI_TYPE_MULTIMODULE) {
-    MultiFirmwareInformation firmwareFile;
-    if (firmwareFile.readMultiFirmwareInformation(&file)) {
-      f_close(&file);
-      POPUP_WARNING(STR_DEVICE_FILE_ERROR);
-      return false;
-    }
-    f_lseek(&file, 0);
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-    if (module == EXTERNAL_MODULE) {
-      if (!firmwareFile.isMultiExternalFirmware()) {
-        f_close(&file);
-        POPUP_WARNING(STR_NEEDS_FILE, STR_EXT_MULTI_SPEC);
-        return false;
-      }
-    }
-#endif
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-    if (module == INTERNAL_MODULE) {
-      if (!firmwareFile.isMultiInternalFirmware()) {
-        f_close(&file);
-        POPUP_WARNING(STR_NEEDS_FILE, STR_INT_MULTI_SPEC);
-        return false;
-      }
-    }
-#endif
-  }
-
   pulsesStop();
 
-#if defined(MULTI_PROTOLIST)
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    MultiRfProtocols::removeInstance(i);
-  }
-#endif
 
-  // switch S.PORT power OFF if supported
-  modulePortSetPower(SPORT_MODULE, false);
 
   progressHandler(getBasename(filename), STR_DEVICE_RESET, 0, 0);
 
@@ -554,7 +377,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   watchdogSuspend(500 /*5s*/);
   sleep_ms(3000);
 
-  MultiFirmwareUpdateDriver driver(module, type);
+  ElrsFirmwareUpdateDriver driver(module);
   const char * result = driver.flashFirmware(&file, getBasename(filename), progressHandler);
   f_close(&file);
 
@@ -571,15 +394,5 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   watchdogSuspend(50 /*500ms*/);
   pulsesStart();
 
-// TODO: S.PORT power control
-//       -> where is it actually turned ON normally?
-//
-// #if defined(SPORT_UPDATE_PWR_GPIO)
-//   if (spuPwr) {
-//     SPORT_UPDATE_POWER_ON();
-//   }
-// #endif
-
   return result == nullptr;
 }
-#endif

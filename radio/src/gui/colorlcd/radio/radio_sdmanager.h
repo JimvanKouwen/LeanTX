@@ -24,7 +24,6 @@
 #include "dataconstants.h"
 #include "pagegroup.h"
 
-enum MultiModuleType : short;
 
 class FileBrowser;
 class FilePreview;
@@ -55,9 +54,7 @@ class RadioSdManagerPage : public PageGroupItem
   void BluetoothFirmwareUpdate(const char* fn);
 #endif
 #if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
-  void FrSkyFirmwareUpdate(const char* fn, ModuleIndex module);
-  void MultiFirmwareUpdate(const char* fn, ModuleIndex module,
-                           MultiModuleType type);
+  void ElrsFirmwareUpdate(const char* fn, ModuleIndex module);
 #endif
 
   void checkEvents() override;

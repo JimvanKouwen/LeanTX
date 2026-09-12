@@ -93,12 +93,21 @@ if(EdgeTX_SUPERBUILD)
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
 
+  # Preserve GNU make's job slots across the nested cmake --build commands.
+  # Older CMake releases do not recognize JOB_SERVER_AWARE.
+  set(SUPERBUILD_JOBSERVER_ARGS)
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
+    set(SUPERBUILD_JOBSERVER_ARGS JOB_SERVER_AWARE TRUE)
+  endif()
+
   add_custom_target(simulator
+    ${SUPERBUILD_JOBSERVER_ARGS}
     COMMAND ${CMAKE_COMMAND} --build native --target simulator
     DEPENDS native-configure
   )
 
   add_custom_target(simu
+    ${SUPERBUILD_JOBSERVER_ARGS}
     COMMAND ${CMAKE_COMMAND} --build native --target simu
     DEPENDS native-configure
   )
@@ -115,26 +124,31 @@ if(EdgeTX_SUPERBUILD)
   )
 
   add_custom_target(gtests-radio
+    ${SUPERBUILD_JOBSERVER_ARGS}
     COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
     DEPENDS native-configure
   )
 
   add_custom_target(tests-radio
+    ${SUPERBUILD_JOBSERVER_ARGS}
     COMMAND ${CMAKE_COMMAND} --build native --target tests-radio
     DEPENDS native-configure
   )
 
   add_custom_target(bootloader
+    ${SUPERBUILD_JOBSERVER_ARGS}
     COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader
     DEPENDS arm-none-eabi-configure
   )
 
   add_custom_target(firmware
+    ${SUPERBUILD_JOBSERVER_ARGS}
     COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware
     DEPENDS arm-none-eabi-configure
   )
 
   add_custom_target(firmware-size
+    ${SUPERBUILD_JOBSERVER_ARGS}
     COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size
     DEPENDS arm-none-eabi-configure
   )

@@ -31,20 +31,12 @@ static const char * const options[] = {
 #if defined(CROSSFIRE)
   "crossfire",
 #endif
-#if defined(GHOST)
-  "ghost",
-#endif
-#if !defined(MODULE_PROTOCOL_D8)
   "eu",
-#endif
 #if defined(FAI)
   "FAImode",
 #endif
 #if defined(FAI_CHOICE)
   "FAIchoice",
-#endif
-#if defined(AFHDS3)
-  "afhds3",
 #endif
 #if !defined(GVARS)
   "nogvars",
@@ -57,15 +49,6 @@ static const char * const options[] = {
 #endif
 #if defined(SPACEMOUSE)
   "spacemouse",
-#endif
-#if defined(INTERNAL_MODULE_MULTI)
-  "internalmulti",
-#endif
-#if defined(INTERNAL_MODULE_PXX2)
-  "internalaccess",
-#endif
-#if defined(MULTIMODULE)
-  "multimodule",
 #endif
 #if defined(LUA_MODEL_SCRIPTS)
   "lua",

@@ -151,7 +151,7 @@ static void cliSerialPrintf(const char * format, ...)
 
   // no need to do anything if we don't have an output
   if (!cliSendCb) return;
-  
+
   va_start(arglist, format);
   vsnprintf(tmp, CLI_PRINT_BUFFER_SIZE-1, format, arglist);
   tmp[CLI_PRINT_BUFFER_SIZE-1] = '\0';
@@ -188,7 +188,6 @@ static uint32_t cliGetBaudRate()
 
   return 0;
 }
-
 
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
 
@@ -1588,10 +1587,7 @@ int cliDisplay(const char ** argv)
 
 int cliDebugVars(const char ** argv)
 {
-#if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
-  extern volatile int32_t authenticateFrames;
-  cliSerialPrint("authenticateFrames=%d", authenticateFrames);
-#elif defined(PCBTARANIS)
+#if defined(PCBTARANIS)
   //cliSerialPrint("telemetryErrors=%d", telemetryErrors);
 #endif
 
@@ -1712,57 +1708,6 @@ int cliBlueTooth(const char ** argv)
 }
 #endif
 
-#if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
-
-extern "C" {
-#include "AccessDenied/access_denied.h"
-}
-
-static uint8_t cryptInput[16];
-static uint8_t cryptOutput[16];
-
-static void testAccessDenied(uint32_t runs)
-{
-  while(runs--)
-    access_denied(0, cryptInput, cryptOutput);
-}
-
-int cliCrypt(const char ** argv)
-{
-  if (argv[1][0] == '\0')
-    return -1;
-
-  strncpy((char*)cryptInput, argv[1], sizeof(cryptInput));
-  cliSerialPrint("Input:");
-  dumpBody(cryptInput, sizeof(cryptInput));
-  dumpEnd();
-
-  watchdogSuspend(2000/* 20s */);
-  if (pulsesStarted()) {
-    pausePulses();
-  }
-  mixerTaskStop();
-  perMainEnabled = false;
-
-  uint32_t startMs = time_get_ms();
-  testAccessDenied(100000);
-  cliSerialPrintf("access_denied: %f us/run\r\n", (time_get_ms() - startMs)*1000.0f / 100000.0f);
-
-  cliSerialPrint("Decrypted (SW):");
-  dumpBody(cryptOutput, sizeof(cryptOutput));
-  dumpEnd();
-
-  perMainEnabled = true;
-  if (pulsesStarted()) {
-    resumePulses();
-  }
-  mixerTaskStart();
-  watchdogSuspend(0);
-
-  return 0;
-}
-#endif
-
 int cliTriggerEM(const char** argv)
 {
   // Wait USB unplug since that could interfere
@@ -1846,9 +1791,6 @@ const CliCommand cliCommands[] = {
 #if defined(BLUETOOTH)
   { "bt", cliBlueTooth, "<baudrate>|<command>" },
 #endif
-#if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
-  { "crypt", cliCrypt, "<string to be encrypted>" },
-#endif
 #if defined(TP_GT911)
   { "reset_gt911", cliResetGT911, ""},
 #endif
@@ -1921,7 +1863,7 @@ static void cliTask()
 
     // TODO: implement block read instead
     //       of going byte-by-byte.
-    
+
     /* Block for max 100ms. */
     const TickType_t xTimeout = 100 / portTICK_PERIOD_MS;
     size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);

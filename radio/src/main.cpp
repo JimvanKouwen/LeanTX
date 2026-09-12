@@ -613,10 +613,6 @@ void perMain()
     return;
   }
 
-#if defined(MULTIMODULE)
-  checkFailsafeMulti();
-#endif
-
 #if !defined(COLORLCD)
   event_t evt = getEvent();
 #endif

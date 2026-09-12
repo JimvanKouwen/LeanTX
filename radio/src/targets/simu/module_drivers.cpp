@@ -55,8 +55,6 @@ bool is_trainer_dsc_connected() { return false; }
 void trainer_init_module_cppm() {}
 void trainer_stop_module_cppm() {}
 
-void init_intmodule_heartbeat() {}
-void stop_intmodule_heartbeat() {}
 
 static bool _sport_used = false;
 
@@ -151,15 +149,6 @@ const etx_module_port_t _internal_ports[] = {
     .hw_def = nullptr,
   },
 #endif
-#if defined(INTERNAL_MODULE_PXX1)
-  {
-    .port = ETX_MOD_PORT_SPORT,
-    .type = ETX_MOD_TYPE_SERIAL,
-    .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
-    .drv = { .serial = &_fakeSerialDriver },
-    .hw_def = &_sport_used,
-  },
-#endif
 };
 
 static const etx_module_t _internal_module = {
@@ -167,16 +156,6 @@ static const etx_module_t _internal_module = {
   .set_pwr = nullptr,
   .set_bootcmd = nullptr,
   .n_ports = DIM(_internal_ports),
-};
-#endif
-
-#if defined(SPORT_UPDATE_PWR_GPIO)
-void _sport_set_pwr(uint8_t) {}
-const etx_module_t _sport_module = {
-  .ports = nullptr,
-  .set_pwr = _sport_set_pwr,
-  .set_bootcmd = nullptr,
-  .n_ports = 0,
 };
 #endif
 
@@ -255,7 +234,6 @@ static const etx_module_t _external_module = {
 };
 #endif
 
-
 BEGIN_MODULES()
 #if defined(HARDWARE_INTERNAL_MODULE)
   &_internal_module,
@@ -266,8 +244,5 @@ BEGIN_MODULES()
   &_external_module,
 #else
   nullptr,
-#endif
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  &_sport_module,
 #endif
 END_MODULES()

@@ -35,7 +35,6 @@
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
-#include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
 #include "boards/generic_stm32/rgb_leds.h"
 

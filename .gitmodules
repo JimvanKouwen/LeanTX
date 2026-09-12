@@ -1,6 +1,3 @@
-[submodule "radio/src/thirdparty/AccessDenied"]
-	path = radio/src/thirdparty/AccessDenied
-	url = https://github.com/raphaelcoeffic/AccessDenied.git
 [submodule "radio/src/thirdparty/FreeRTOS"]
 	path = radio/src/thirdparty/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git

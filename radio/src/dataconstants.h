@@ -184,13 +184,7 @@ enum BeeperMode {
 enum ModuleIndex {
   INTERNAL_MODULE,
   EXTERNAL_MODULE,
-  // end of "normal" modules
-  
-  MAX_MODULES,
-
-  // only used for power control
-  // and firmware updates
-  SPORT_MODULE = MAX_MODULES
+  MAX_MODULES
 };
 
 enum ArmingMode {
@@ -231,25 +225,25 @@ enum SerialPort {
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 #define IS_INTERNAL_MODULE_ENABLED() \
-  (g_model.moduleData[INTERNAL_MODULE].type != MODULE_TYPE_NONE)
+  (g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_CROSSFIRE)
 #else
 #define IS_INTERNAL_MODULE_ENABLED() (false)
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
 #define IS_EXTERNAL_MODULE_ENABLED() \
-  (g_model.moduleData[EXTERNAL_MODULE].type != MODULE_TYPE_NONE)
+  (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_CROSSFIRE)
 #else
 #define IS_EXTERNAL_MODULE_ENABLED() false
 #endif
 
 #define IS_MODULE_ENABLED(moduleIdx)                            \
-  (g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE)
+  (g_model.moduleData[moduleIdx].type == MODULE_TYPE_CROSSFIRE)
 
 enum UartModes {
   UART_MODE_NONE,
   UART_MODE_TELEMETRY_MIRROR,
-  UART_MODE_TELEMETRY,
+  UART_MODE_RESERVED_TELEMETRY SKIP,
   UART_MODE_SBUS_TRAINER,
   UART_MODE_SBUS_TRAINER_INV,
   UART_MODE_LUA,
@@ -267,26 +261,9 @@ enum UartModes {
 #define LEN_MODEL_FILENAME 16
 #define LEN_BLUETOOTH_NAME 10
 
-enum TelemetryProtocol
-{
-  PROTOCOL_TELEMETRY_FIRST,
-  PROTOCOL_TELEMETRY_FRSKY_SPORT = PROTOCOL_TELEMETRY_FIRST,
-  PROTOCOL_TELEMETRY_FRSKY_D,
-  PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY,
-  PROTOCOL_TELEMETRY_CROSSFIRE,
-  PROTOCOL_TELEMETRY_SPEKTRUM,
-  PROTOCOL_TELEMETRY_FLYSKY_IBUS,
-  PROTOCOL_TELEMETRY_FLYSKY_IBUS2,
-  PROTOCOL_TELEMETRY_HITEC,
-  PROTOCOL_TELEMETRY_HOTT,
-  PROTOCOL_TELEMETRY_MLINK,
-  PROTOCOL_TELEMETRY_MULTIMODULE,
-  PROTOCOL_TELEMETRY_AFHDS3,
-  PROTOCOL_TELEMETRY_GHOST,
-  PROTOCOL_TELEMETRY_FLYSKY_NV14,
-  PROTOCOL_TELEMETRY_DSMP,
-  PROTOCOL_TELEMETRY_LAST=PROTOCOL_TELEMETRY_DSMP,
-  PROTOCOL_TELEMETRY_LUA
+enum TelemetryProtocol {
+  PROTOCOL_TELEMETRY_CROSSFIRE = 3,
+  PROTOCOL_TELEMETRY_LUA = 15
 };
 
 #define TELEM_LABEL_LEN                4
@@ -380,8 +357,6 @@ enum TelemetryScreenType {
 #define IS_BARS_SCREEN(screenIndex)                                     \
   (TELEMETRY_SCREEN_TYPE(screenIndex) == TELEMETRY_SCREEN_TYPE_BARS)
 
-constexpr int16_t FAILSAFE_CHANNEL_HOLD = 2000;
-constexpr int16_t FAILSAFE_CHANNEL_NOPULSE = 2001;
 
 #define LEN_SCRIPT_FILENAME            6
 #define LEN_SCRIPT_NAME                6
@@ -677,10 +652,6 @@ enum UartSampleModes {
 };
 #endif
 
-// PXX2 constants
-#define PXX2_LEN_REGISTRATION_ID            8
-#define PXX2_LEN_RX_NAME                    8
-#define PXX2_MAX_RECEIVERS_PER_MODULE       3
 
 // A model On/Off setting that can also take a global value
 enum ModelOverridableEnable {

@@ -21,15 +21,25 @@
 
 #pragma once
 
-#include <inttypes.h>
-#include <functional>
-#include <map>
-#include <list>
+#include "dataconstants.h"
+#include "definitions.h"
 
-#include "hal/serial_driver.h"
-#include "hal/module_driver.h"
+#include "hal/module_port.h"
 
-#define AFHDS2_PERIOD (2 * 1000) /* us */
+// The FrSky Bluetooth firmware container retains its original on-disk format.
+constexpr uint8_t FIRMWARE_FAMILY_BLUETOOTH_CHIP = 4;
 
-extern const etx_serial_init afhds2SerialInitParams;
-extern const etx_proto_driver_t Afhds2InternalDriver;
+PACK(struct FrSkyFirmwareInformation {
+  uint32_t fourcc;
+  uint8_t headerVersion;
+  uint8_t firmwareVersionMajor;
+  uint8_t firmwareVersionMinor;
+  uint8_t firmwareVersionRevision;
+  uint32_t size;
+  uint8_t productFamily;
+  uint8_t productId;
+  uint16_t crc;
+});
+
+const char * readFrSkyFirmwareInformation(const char * filename, FrSkyFirmwareInformation & data);
+

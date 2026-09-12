@@ -79,3 +79,76 @@ TEST(Model, testModelNameParse)
   loadModelYamlStr(_model_config[4]);
   EXPECT_STREQ(modelName(), "\"Tst Name");
 }
+
+extern uint8_t getRequiredProtocol(uint8_t module);
+
+// Loading a removed or unrecognized protocol must also turn an already active
+// module off; it must never retain the previous model's RF selection.
+TEST(Model, UnknownRfModuleIsOff)
+{
+  const char* types[] = {"TYPE_PPM", "TYPE_XJT_PXX1", "TYPE_ISRM_PXX2",
+                         "TYPE_DSM2", "TYPE_MULTIMODULE", "TYPE_GHOST",
+                         "TYPE_AFHDS3", "unknown", "5", "261"};
+  for (const char* type : types) {
+    for (int module = 0; module < NUM_MODULES; ++module) {
+      SCOPED_TRACE(type);
+      SCOPED_TRACE(module);
+      g_model.moduleData[module].type = MODULE_TYPE_CROSSFIRE;
+      char yaml[128];
+      snprintf(yaml, sizeof(yaml), "moduleData:\n  %d:\n    type: %s\n", module, type);
+      loadModelYamlStr(yaml);
+      EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[module].type);
+      EXPECT_EQ(PROTOCOL_CHANNELS_NONE, getRequiredProtocol(module));
+    }
+  }
+}
+
+TEST(Model, CrossfireRfModuleLoads)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("moduleData:\n  0:\n    type: TYPE_CROSSFIRE\n"
+                   "  1:\n    type: TYPE_CROSSFIRE\n");
+  for (int module = 0; module < NUM_MODULES; ++module)
+    EXPECT_EQ(MODULE_TYPE_CROSSFIRE, g_model.moduleData[module].type);
+}
+
+TEST(Model, UnsupportedRfTypesCannotStartDriver)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  for (int module = 0; module < NUM_MODULES; ++module) {
+    for (int type = 0; type < 64; ++type) {
+      if (type == MODULE_TYPE_CROSSFIRE) continue;
+      g_model.moduleData[module].type = type;
+      EXPECT_EQ(PROTOCOL_CHANNELS_NONE, getRequiredProtocol(module));
+    }
+    for (int type : {-1, 1, 4, 6, 15, 255, 261}) {
+      setModuleType(module, type);
+      EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[module].type);
+      EXPECT_EQ(0, sentModuleChannels(module));
+    }
+    setModuleType(module, MODULE_TYPE_CROSSFIRE);
+    EXPECT_EQ(MODULE_TYPE_CROSSFIRE, g_model.moduleData[module].type);
+    EXPECT_EQ(16, sentModuleChannels(module));
+  }
+}
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+TEST(Model, CrossfireRfDriverIsAvailable)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  setModuleType(EXTERNAL_MODULE, MODULE_TYPE_CROSSFIRE);
+  EXPECT_EQ(PROTOCOL_CHANNELS_CROSSFIRE, getRequiredProtocol(EXTERNAL_MODULE));
+  setModuleType(EXTERNAL_MODULE, MODULE_TYPE_NONE);
+  EXPECT_EQ(PROTOCOL_CHANNELS_NONE, getRequiredProtocol(EXTERNAL_MODULE));
+}
+#endif
+
+TEST(Model, MissingRfTypeDefaultsOff)
+{
+  // loadModel() clears g_model before parsing. Empty YAML values are omitted
+  // by the parser, so they retain this RF-off default.
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("moduleData:\n  0:\n    type:\n  1:\n    type: \"\"\n");
+  for (int module = 0; module < NUM_MODULES; ++module)
+    EXPECT_EQ(PROTOCOL_CHANNELS_NONE, getRequiredProtocol(module));
+}

@@ -59,4 +59,3 @@ PpmFrameSettings<T>::PpmFrameSettings(Window* parent, T* ppm) :
 
 // explicit instantiation to make linker happy
 template struct PpmFrameSettings<TrainerModuleData>;
-template struct PpmFrameSettings<PpmModule>;

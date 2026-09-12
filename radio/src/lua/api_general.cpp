@@ -42,18 +42,9 @@
   #include "standalone_lua.h"
 #endif
 
-#include "telemetry/frsky.h"
-
-#if defined(MULTIMODULE)
-  #include "telemetry/multi.h"
-#endif
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
-#endif
-
-#if defined(GHOST)
-  #include "telemetry/ghost.h"
 #endif
 
 #if defined(SIMU)
@@ -447,7 +438,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   // hardware specific inputs
   if (_searchSingleFieldsByName(name, field, flags, _lua_inputs, DIM(_lua_inputs)))
     return true;
-  
+
   // well known single fields
   if (_searchSingleFieldsByName(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
@@ -468,7 +459,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
       return true;
     }
   }
-  
+
   // search in multiples
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {
     const char * fieldName = luaMultipleFields[n].name;
@@ -561,7 +552,7 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   // hardware specific inputs
   if (_searchSingleFieldsById(id, field, flags, _lua_inputs, DIM(_lua_inputs)))
     return true;
-  
+
   // well known single fields
   if (_searchSingleFieldsById(id, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
@@ -881,233 +872,6 @@ static TelemetryQueue* getTelemetryQueue()
 #endif
 }
 
-/*luadoc
-@function sportTelemetryPop()
-
-Pops a received SPORT packet from the queue. Please note that only packets using a data ID within 0x5000 to 0x50FF
-(frame ID == 0x10), as well as packets with a frame ID equal 0x32 (regardless of the data ID) will be passed to
-the LUA telemetry receive queue.
-
-@retval nil queue does not contain any (or enough) bytes to form a whole packet
-
-@retval multiple returns 4 values:
- * sensor ID (number)
- * frame ID (number)
- * data ID (number)
- * value (number)
-
-@status current Introduced in 2.2.0
-*/
-static int luaSportTelemetryPop(lua_State * L)
-{
-  auto queue = getTelemetryQueue();
-
-  if (queue) {
-    if (queue->size() >= sizeof(SportTelemetryPacket)) {
-      SportTelemetryPacket packet;
-      for (uint8_t i=0; i<sizeof(packet); i++) {
-        queue->pop(packet.raw[i]);
-      }
-      lua_pushinteger(L, packet.physicalId);
-      lua_pushinteger(L, packet.primId);
-      lua_pushinteger(L, packet.dataId);
-      lua_pushinteger(L, packet.value);
-      return 4;
-    }
-  }
-
-  return 0;
-}
-
-#define BIT(x, index) (((x) >> index) & 0x01)
-uint8_t getDataId(uint8_t physicalId)
-{
-  uint8_t result = physicalId;
-  result += (BIT(physicalId, 0) ^ BIT(physicalId, 1) ^ BIT(physicalId, 2)) << 5;
-  result += (BIT(physicalId, 2) ^ BIT(physicalId, 3) ^ BIT(physicalId, 4)) << 6;
-  result += (BIT(physicalId, 0) ^ BIT(physicalId, 2) ^ BIT(physicalId, 4)) << 7;
-  return result;
-}
-
-/*luadoc
-@function sportTelemetryPush()
-
-This functions allows for sending SPORT telemetry data toward the receiver,
-and more generally, to anything connected SPORT bus on the receiver or transmitter.
-
-When called without parameters, it will only return the status of the output buffer without sending anything.
-
-@param sensorId  physical sensor ID
-
-@param frameId   frame ID
-
-@param dataId    data ID
-
-@param value     value
-
-@retval boolean  data queued in output buffer or not.
-
-@retval nil      incorrect telemetry protocol.
-
-@status current Introduced in 2.2.0, retval nil added in 2.3.4
-*/
-
-static bool _supports_sport(uint8_t module)
-{
-  return IS_NATIVE_FRSKY_PROTOCOL(module) ||
-    (isModuleMultimodule(module) &&
-     (IS_D16_MULTI(module) || IS_R9_MULTI(module)));
-}
-
-static int luaSportTelemetryPush(lua_State * L)
-{
-  bool extmod = _supports_sport(EXTERNAL_MODULE);
-  bool intmod = _supports_sport(INTERNAL_MODULE);
-  
-  // dirty hack until 2 simultanous protocols are supported
-  if (!extmod && !intmod) {
-    lua_pushnil(L);
-    return 1;
-  }
-
-  if (lua_gettop(L) == 0) {
-    lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
-    return 1;
-  }
-  else if (lua_gettop(L) > int(sizeof(SportTelemetryPacket))) {
-    lua_pushboolean(L, false);
-    return 1;
-  }
-
-  uint16_t dataId = luaL_checkinteger(L, 3);
-
-  if (outputTelemetryBuffer.isAvailable()) {
-    for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-      TelemetrySensor & sensor = g_model.telemetrySensors[i];
-      if (sensor.id == dataId) {
-        if (sensor.frskyInstance.rxIndex == TELEMETRY_ENDPOINT_SPORT) {
-          SportTelemetryPacket packet;
-          packet.physicalId = getDataId(luaL_checkinteger(L, 1));
-          packet.primId = luaL_checkinteger(L, 2);
-          packet.dataId = dataId;
-          packet.value = luaL_checkinteger(L, 4);
-          outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
-        }
-        else {
-          outputTelemetryBuffer.sport.physicalId = getDataId(luaL_checkinteger(L, 1));
-          outputTelemetryBuffer.sport.primId = luaL_checkinteger(L, 2);
-          outputTelemetryBuffer.sport.dataId = dataId;
-          outputTelemetryBuffer.sport.value = luaL_checkinteger(L, 4);
-        }
-        outputTelemetryBuffer.setDestination(sensor.frskyInstance.rxIndex);
-        lua_pushboolean(L, true);
-        return 1;
-      }
-    }
-
-    // sensor not found, we send the frame to the SPORT line
-    {
-      SportTelemetryPacket packet;
-      packet.physicalId = getDataId(luaL_checkinteger(L, 1));
-      packet.primId = luaL_checkinteger(L, 2);
-      packet.dataId = dataId;
-      packet.value = luaL_checkinteger(L, 4);
-      outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
-#if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
-      uint8_t destination = (intmod ? INTERNAL_MODULE : EXTERNAL_MODULE);
-      outputTelemetryBuffer.setDestination(isModulePXX2(destination)
-                                           ? (destination << 2)
-                                           : TELEMETRY_ENDPOINT_SPORT);
-#else
-      outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
-#endif
-      lua_pushboolean(L, true);
-      return 1;
-    }
-  }
-
-  lua_pushboolean(L, false);
-  return 1;
-}
-
-#if defined(PXX2)
-/*luadoc
-@function accessTelemetryPush()
-
-This functions allows for sending SPORT / ACCESS telemetry data toward the receiver,
-and more generally, to anything connected SPORT bus on the receiver or transmitter.
-
-When called without parameters, it will only return the status of the output buffer without sending anything.
-
-@param module    module index (0 = internal, 1 = external)
-
-@param rxUid     receiver index
-
-@param sensorId  physical sensor ID
-
-@param frameId   frame ID
-
-@param dataId    data ID
-
-@param value     value
-
-@retval boolean  data queued in output buffer or not.
-
-@status current Introduced in 2.3
-
-*/
-
-bool getDefaultAccessDestination(uint8_t & destination)
-{
-  for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-    TelemetrySensor & sensor = g_model.telemetrySensors[i];
-    if (sensor.type == TELEM_TYPE_CUSTOM) {
-      TelemetryItem sensorItem = telemetryItems[i];
-      if (sensorItem.isFresh()) {
-        destination = sensor.frskyInstance.rxIndex;
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-static int luaAccessTelemetryPush(lua_State * L)
-{
-  if (lua_gettop(L) == 0) {
-    lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
-    return 1;
-  }
-
-  if (outputTelemetryBuffer.isAvailable()) {
-    int8_t module = luaL_checkinteger(L, 1);
-    uint8_t rxUid = luaL_checkinteger(L, 2);
-    uint8_t destination;
-
-    if (module < 0) {
-      if (!getDefaultAccessDestination(destination)) {
-        lua_pushboolean(L, false);
-        return 1;
-      }
-    }
-    else {
-      destination = (module << 2) + rxUid;
-    }
-
-    outputTelemetryBuffer.sport.physicalId = getDataId(luaL_checkinteger(L, 3));
-    outputTelemetryBuffer.sport.primId = luaL_checkinteger(L, 4);
-    outputTelemetryBuffer.sport.dataId = luaL_checkinteger(L, 5);
-    outputTelemetryBuffer.sport.value = luaL_checkinteger(L, 6);
-    outputTelemetryBuffer.setDestination(destination);
-    lua_pushboolean(L, true);
-    return 1;
-  }
-
-  lua_pushboolean(L, false);
-  return 1;
-}
-#endif
-
 #if defined(CROSSFIRE)
 /*luadoc
 @function crossfireTelemetryPop()
@@ -1229,134 +993,6 @@ static int luaCrossfireTelemetryPush(lua_State* L)
 }
 #endif
 
-#if defined(GHOST)
-/*luadoc
-@function ghostTelemetryPop()
-
-Pops a received Ghost Telemetry packet from the queue.
-
-@retval nil queue does not contain any (or enough) bytes to form a whole packet
-
-@retval multiple returns 2 values:
- * type (number)
- * packet (table) data bytes
-
-@status current Introduced in 2.7.0
-*/
-static int luaGhostTelemetryPop(lua_State * L)
-{
-  auto queue = getTelemetryQueue();
-
-  if (queue) {
-    uint8_t length = 0, data = 0;
-    if (queue->probe(length) && queue->size() >= uint32_t(length)) {
-      // length value includes type(1B), payload, crc(1B)
-      queue->pop(length);
-      queue->pop(data); // type
-      lua_pushinteger(L, data);          // return type
-      lua_newtable(L);
-      for (uint8_t i=0; i<length-2; i++) {
-        queue->pop(data);
-        lua_pushinteger(L, i + 1);
-        lua_pushinteger(L, data);
-        lua_settable(L, -3);
-      }
-      return 2;
-    }
-  }
-
-  return 0;
-}
-
-/*luadoc
-@function ghostTelemetryPush()
-
-This functions allows for sending telemetry data toward the Ghost link.
-
-When called without parameters, it will only return the status of the output buffer without sending anything.
-
-@param command command
-
-@param data table of data bytes
-
-@retval boolean  data queued in output buffer or not.
-
-@retval nil      incorrect telemetry protocol.
-
-@status current Introduced in 2.7.0
-*/
-static int luaGhostTelemetryPush(lua_State * L)
-{
-  bool extmod = (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_GHOST);
-  if (!extmod) {
-    lua_pushnil(L);
-    return 1;
-  }
-
-  if (lua_gettop(L) == 0) {
-    lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
-  }
-  else if (lua_gettop(L) > TELEMETRY_OUTPUT_BUFFER_SIZE ) {
-    lua_pushboolean(L, false);
-    return 1;
-  }
-  else if (outputTelemetryBuffer.isAvailable()) {
-    uint8_t type = luaL_checkinteger(L, 1);
-    luaL_checktype(L, 2, LUA_TTABLE);
-    uint8_t length = luaL_len(L, 2);              // payload length
-
-    if( length > 10 ) {                           // max 10B payload
-      lua_pushboolean(L, false);
-      return 1;
-    }
-
-    // Ghost frames are fixed 14B:
-    // address(1B) + len (1B) + type(1B) + payload(10B) + crc(1B)
-    // -> address + len up-front are inserted later
-    outputTelemetryBuffer.pushByte(type);         // type (1B)
-    int i = 0;
-    for (; i < length; i++) {                     // data, max 10B
-      lua_rawgeti(L, 2, i + 1);
-      outputTelemetryBuffer.pushByte(luaL_checkinteger(L, -1));
-    }
-    for (; i < 10; i++) {                         // fill zeroes to frame size
-      outputTelemetryBuffer.pushByte(0);
-    }
-    // CRC over type (1B) + payload (10B)
-    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data, 11 ));
-    outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
-    lua_pushboolean(L, true);
-  }
-  else {
-    lua_pushboolean(L, false);
-  }
-  return 1;
-}
-#endif
-
-/*luadoc
-@function getRAS()
-
-Return the RAS value or nil if no valid hardware found
-
-@retval number representing RAS value. Value bellow 0x33 (51 decimal) are all ok, value above 0x33 indicate a hardware antenna issue.
-This is just a hardware pass/fail measure and does not represent the quality of the radio link
-
-@notice RAS was called SWR in the past
-
-@status current Introduced in 2.2.0
-*/
-static int luaGetRAS(lua_State * L)
-{
-  if (isRasValueValid()) {
-    lua_pushinteger(L, telemetryData.swrInternal.value());
-  }
-  else {
-    lua_pushnil(L);
-  }
-  return 1;
-}
-
 /*luadoc
 @function getTxGPS()
 
@@ -1394,7 +1030,6 @@ static int luaGetTxGPS(lua_State * L)
 #endif
   return 1;
 }
-
 
 /*luadoc
 @function getFlightMode(mode)
@@ -1483,7 +1118,7 @@ Play a numerical value (text to speech)
  * `0 or not present` plays integral part of the number (for a number 123 it plays 123)
  * `PREC1` plays a number with one decimal place (for a number 123 it plays 12.3)
  * `PREC2` plays a number with two decimal places (for a number 123 it plays 1.23)
- 
+
  @param volume (number):
  - (1..5) override radio settings Wav volume for the duration of file
  - omitting the parameter uses radio settings Wav volume
@@ -2012,9 +1647,9 @@ static int luaSetTelemetryValue(lua_State * L)
       telemetrySensor.subId = subId;
       telemetrySensor.instance = instance;
       telemetrySensor.init(name ? name: name_buf, unit, prec);
-      
+
       storageDirty(EE_MODEL);
-      
+
       lua_pushboolean(L, true);
     } else {
       lua_pushboolean(L, false);
@@ -2255,27 +1890,6 @@ This function reads/writes the Multi protocol buffer to interact with a protocol
 
 @status current Introduced in 2.3.2
 */
-#if defined(MULTIMODULE)
-uint8_t * Multi_Buffer = nullptr;
-
-static int luaMultiBuffer(lua_State * L)
-{
-  uint8_t address = luaL_checkinteger(L, 1);
-  if (!Multi_Buffer)
-    Multi_Buffer = (uint8_t *) malloc(MULTI_BUFFER_SIZE);
-
-  if (!Multi_Buffer || address >= MULTI_BUFFER_SIZE) {
-    lua_pushinteger(L, 0);
-    return 0;
-  }
-  uint16_t value = luaL_optinteger(L, 2, 0x100);
-  if (value < 0x100) {
-    Multi_Buffer[address] = value;
-  }
-  lua_pushinteger(L, Multi_Buffer[address]);
-  return 1;
-}
-#endif
 
 /*luadoc
 @function setSerialBaudrate(baudrate)
@@ -2563,7 +2177,6 @@ static int luaGetLogicalSwitchValue(lua_State * L)
     lua_pushnil(L);
   return 1;
 }
-
 
 /*luadoc
 @function getSwitchInfo(sourceIndex)
@@ -3001,7 +2614,6 @@ static int luaApplyRGBLedColors(lua_State * L)
 }
 #endif
 
-
 /*luadoc
 @function getStickMode()
 
@@ -3078,7 +2690,6 @@ static int luaSetIMU_Y(lua_State* const L)
   return 1;
 }
 
-
 #define KEY_EVENTS(xxx, yyy)                                    \
   { "EVT_"#xxx"_FIRST", LRO_NUMVAL(EVT_KEY_FIRST(yyy)) },       \
   { "EVT_"#xxx"_BREAK", LRO_NUMVAL(EVT_KEY_BREAK(yyy)) },       \
@@ -3101,7 +2712,6 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getOutputValue, luaGetOutputValue )
   LROT_FUNCENTRY( getSourceValue, luaGetSourceValue )
   LROT_FUNCENTRY( getTrainerStatus, luaGetTrainerStatus )
-  LROT_FUNCENTRY( getRAS, luaGetRAS )
   LROT_FUNCENTRY( getTxGPS, luaGetTxGPS )
   LROT_FUNCENTRY( getFieldInfo, luaGetFieldInfo )
   LROT_FUNCENTRY( getSourceInfo, luaGetFieldInfo )
@@ -3129,22 +2739,10 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
   LROT_FUNCENTRY( GREY, luaGrey )
 #endif
-#if defined(PXX2)
-  LROT_FUNCENTRY( accessTelemetryPush, luaAccessTelemetryPush )
-#endif
-  LROT_FUNCENTRY( sportTelemetryPop, luaSportTelemetryPop )
-  LROT_FUNCENTRY( sportTelemetryPush, luaSportTelemetryPush )
   LROT_FUNCENTRY( setTelemetryValue, luaSetTelemetryValue )
 #if defined(CROSSFIRE)
   LROT_FUNCENTRY( crossfireTelemetryPop, luaCrossfireTelemetryPop )
   LROT_FUNCENTRY( crossfireTelemetryPush, luaCrossfireTelemetryPush )
-#endif
-#if defined(GHOST)
-  LROT_FUNCENTRY( ghostTelemetryPop, luaGhostTelemetryPop )
-  LROT_FUNCENTRY( ghostTelemetryPush, luaGhostTelemetryPush )
-#endif
-#if defined(MULTIMODULE)
-  LROT_FUNCENTRY( multiBuffer, luaMultiBuffer )
 #endif
   LROT_FUNCENTRY( setSerialBaudrate, luaSetSerialBaudrate )
   LROT_FUNCENTRY( serialWrite, luaSerialWrite )

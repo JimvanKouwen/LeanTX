@@ -60,7 +60,6 @@ extern HardwareOptions hardwareOptions;
 #define LUA_MEM_EXTRA_MAX              (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
 #define LUA_MEM_MAX                    (6 MB)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-
 extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                   (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
@@ -100,10 +99,6 @@ enum {
   #else
     #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() (hardwareOptions.pcbrev == PCBREV_X12S_LT13)
   #endif
-#endif
-
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-  #define HARDWARE_INTERNAL_RAS
 #endif
 
 // Pulses driver
@@ -201,7 +196,6 @@ void lcdSetInitalFrameBuffer(void* fbAddress);
 void lcdInit();
 void lcdCopy(void * dest, void * src);
 
-
 #define lcdOff()              backlightEnable(0) /* just disable the backlight */
 
 #define lcdRefreshWait(...)
@@ -259,7 +253,6 @@ extern uint32_t telemetryErrors;
 
 // soft-serial
 void telemetryPortInvertedInit(uint32_t baudrate);
-
 
 // Aux serial port driver
 #if defined(RADIO_TX16S) || defined(RADIO_F16)

@@ -104,7 +104,7 @@ void InternalModuleWindow::updateAntennaLine()
 #if defined(INTMODULE_ANTSEL_GPIO)
   ant_box->show(g_eeGeneral.internalModule != MODULE_TYPE_NONE);
 #else
-  ant_box->show(isModuleXJT(INTERNAL_MODULE));
+  ant_box->show(isInternalModuleCrossfire());
 #endif
 #endif
 }

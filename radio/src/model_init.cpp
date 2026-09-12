@@ -69,7 +69,6 @@ void setDefaultMixes()
 
 void setDefaultModelRegistrationID()
 {
-  memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
 }
 
 void setDefaultGVars()
@@ -169,7 +168,7 @@ void setModelDefaults(uint8_t id)
 {
   memset(&g_model, 0, sizeof(g_model));
   applyDefaultTemplate();
-  
+
 #if !defined(STORAGE_MODELSLIST)
   // EEPROM model indexes starting with 0
   id++;

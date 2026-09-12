@@ -100,7 +100,7 @@
       "name": "x10express",
       "displayName": "FrSky Horus X10 Express",
       "inherits": "firmware",
-      "cacheVariables": { "PCB": "X10", "PCBREV": "EXPRESS", "PXX1": "YES" }
+      "cacheVariables": { "PCB": "X10", "PCBREV": "EXPRESS" }
     },
     {
       "name": "x12s",
@@ -112,7 +112,7 @@
       "name": "x7access",
       "displayName": "FrSky QX7 Access",
       "inherits": "firmware",
-      "cacheVariables": { "PCB": "X7", "PCBREV": "ACCESS", "PXX1": "YES" }
+      "cacheVariables": { "PCB": "X7", "PCBREV": "ACCESS" }
     },
     {
       "name": "x9dp2019",

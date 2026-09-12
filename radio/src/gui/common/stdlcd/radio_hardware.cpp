@@ -93,8 +93,6 @@ enum {
   ITEM_RADIO_HARDWARE_SERIAL_PORT,
   ITEM_RADIO_HARDWARE_SERIAL_PORT_END = ITEM_RADIO_HARDWARE_SERIAL_PORT + MAX_SERIAL_PORTS - 1,
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
-  ITEM_RADIO_HARDWARE_RAS,
-  ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
 #if (defined(BACKLIGHT_GPIO) || OLED_SCREEN) && (LCD_W == 128)
   ITEM_RADIO_HARDWARE_SCREEN_LABEL,
   ITEM_RADIO_HARDWARE_SCREEN_INVERT,
@@ -172,7 +170,7 @@ static void menuRadioCFSOne(event_t event)
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
 #endif
     });
-  
+
   int8_t sub = menuVerticalPosition;
   int8_t editMode = s_editMode;
 
@@ -353,7 +351,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
 #if defined(INTMODULE_ANTSEL_GPIO)
     0;
 #else
-    g_eeGeneral.internalModule == MODULE_TYPE_XJT_PXX1 ? 0 : HIDDEN_ROW;
+    isInternalModuleCrossfire() ? 0 : HIDDEN_ROW;
 #endif
 #endif
 
@@ -366,14 +364,6 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   }
   tab[ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL] = has_serial ? READONLY_ROW : HIDDEN_ROW;
   tab[ITEM_RADIO_HARDWARE_JITTER_FILTER] = 0;
-  tab[ITEM_RADIO_HARDWARE_RAS] = READONLY_ROW;
-
-  auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
-  if (mod_desc && mod_desc->set_pwr) {
-    tab[ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER] = 0;
-  } else {
-    tab[ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER] = HIDDEN_ROW;
-  }
 
 #if (defined(BACKLIGHT_GPIO) || OLED_SCREEN) && (LCD_W == 128)
   tab[ITEM_RADIO_HARDWARE_SCREEN_LABEL] = READONLY_ROW;
@@ -595,31 +585,6 @@ void menuRadioHardware(event_t event)
                              event);
         break;
 
-      case ITEM_RADIO_HARDWARE_RAS:
-#if defined(HARDWARE_INTERNAL_RAS)
-        lcdDrawTextAlignedLeft(y, "RAS");
-        if (telemetryData.swrInternal.isFresh())
-          lcdDrawNumber(HW_SETTINGS_COLUMN2, y, telemetryData.swrInternal.value());
-        else
-          lcdDrawText(HW_SETTINGS_COLUMN2, y, "---");
-        lcdDrawText(lcdNextPos, y, "/");
-#else
-        lcdDrawTextAlignedLeft(y, "Ext. RAS");
-        lcdNextPos = HW_SETTINGS_COLUMN2;
-#endif
-        if (telemetryData.swrExternal.isFresh())
-          lcdDrawNumber(lcdNextPos, y, telemetryData.swrExternal.value());
-        else
-          lcdDrawText(lcdNextPos, y, "---");
-        break;
-
-      case ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER:
-        g_eeGeneral.sportUpdatePower = editChoice(HW_SETTINGS_COLUMN2, y, STR_SPORT_UPDATE_POWER_MODE, STR_SPORT_UPDATE_POWER_MODES, g_eeGeneral.sportUpdatePower, 0, 1, attr, event);
-        if (attr && checkIncDec_Ret) {
-          modulePortSetPower(SPORT_MODULE, g_eeGeneral.sportUpdatePower);
-        }
-        break;
-
 #if (defined(BACKLIGHT_GPIO) || OLED_SCREEN) && (LCD_W == 128)
       case ITEM_RADIO_HARDWARE_SCREEN_LABEL:
         lcdDrawTextAlignedLeft(y, STR_SCREEN);
@@ -770,7 +735,7 @@ void menuRadioHardware(event_t event)
             swIndex = index;
             pushMenu(menuRadioCFSOne);
           }
-  
+
           if (config != SWITCH_NONE) {
             if (g_eeGeneral.switchName(index)[0]) {
               char s[LEN_SWITCH_NAME + 1];

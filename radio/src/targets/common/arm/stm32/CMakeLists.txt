@@ -16,7 +16,7 @@ set(STM32_DRIVER_DIR targets/common/arm/stm32)
 include_directories(${STM32_DRIVER_DIR})
 
 if(NOT NATIVE_BUILD)
-  
+
   # STM32 USB Device library
   set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB_Device_Library)
 
@@ -164,7 +164,6 @@ if(CSD203_SENSOR)
   add_definitions(-DCSD203_SENSOR)
   message("-- Adding support for Current sensor")
 endif()
-
 
 if(DEBUG OR CLI OR USB_SERIAL)
   add_definitions(-DUSB_SERIAL)

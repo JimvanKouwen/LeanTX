@@ -30,16 +30,12 @@
 
 #define TAB "\037\033"
 
-#if defined(FRSKY_RELEASE)
-#define FACTORY_RELEASE "-frsky"
-#elif defined(RADIOMASTER_RELEASE)
+#if defined(RADIOMASTER_RELEASE)
 #define FACTORY_RELEASE "-RM"
 #elif defined(IFLIGHT_RELEASE)
 #define FACTORY_RELEASE "-IF"
 #elif defined(TBS_RELEASE)
 #define FACTORY_RELEASE "-tbs"
-#elif defined(IMRC_RELEASE)
-#define FACTORY_RELEASE "-imrc"
 #endif
 
 // If factory release, append mfg tag to version

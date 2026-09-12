@@ -77,8 +77,6 @@ set(GUI_SRC
   model/timer_setup.cpp
   model/trainer_setup.cpp
 
-  module/bind_menu_d16.cpp
-  module/custom_failsafe.cpp
   module/module_setup.cpp
   module/ppm_settings.cpp
 
@@ -108,10 +106,6 @@ macro(add_gui_src src)
     )
 endmacro(add_gui_src)
 
-if(DSMP)
-   add_gui_src(module/dsmp_settings.cpp)
-endif()
-
 if(LUA)
   add_gui_src(standalone_lua.cpp)
   set(SRC ${SRC}
@@ -136,39 +130,12 @@ if(GVARS)
   add_gui_src(model/model_gvars.cpp)
 endif()
 
-
-if(PXX2 OR MULTIMODULE)
-  add_gui_src(radio/radio_spectrum_analyser.cpp)
-endif()
-
 if(CROSSFIRE)
   add_gui_src(module/crossfire_settings.cpp)
 endif()
 
-if(AFHDS2)
-  add_gui_src(module/afhds2a_settings.cpp)
-endif()
-
-if(AFHDS3)
-  add_gui_src(module/afhds3_settings.cpp)
-  add_gui_src(module/afhds3_options.cpp)
-endif()
-
-if(MULTIMODULE)
-  add_gui_src(module/mpm_settings.cpp)
-  add_gui_src(module/multi_rfprotos.cpp)
-endif()
-
-if(INTERNAL_MODULE_PXX1 OR EXTERNAL_ANTENNA)
+if(EXTERNAL_ANTENNA)
   add_gui_src(module/ext_antenna_settings.cpp)
-endif()
-
-if(PXX2)
-  add_gui_src(module/access_settings.cpp)
-endif()
-
-if(GHOST)
-  add_gui_src(radio/radio_ghost_module_config.cpp)
 endif()
 
 if(BLUETOOTH)

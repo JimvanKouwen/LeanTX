@@ -3,7 +3,7 @@ get_target_build_options() {
 
     case $target_name in
         x7access)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS"
             ;;
         tx12mk2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
@@ -54,7 +54,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X10"
             ;;
         x10express)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS"
             ;;
         x12s)
             BUILD_OPTIONS+="-DPCB=X12S"

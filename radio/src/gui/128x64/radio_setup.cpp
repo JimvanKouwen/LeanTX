@@ -88,10 +88,10 @@ enum {
               CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_AUTO_OFF)
                   CASE_HAPTIC(ITEM_RADIO_SETUP_PWR_ON_OFF_HAPTIC)
                       ITEM_MODEL_QUICK_SELECT,
-  CASE_PXX2(ITEM_RADIO_SETUP_OWNER_ID) CASE_GPS(ITEM_RADIO_SETUP_LABEL_GPS)
+   CASE_GPS(ITEM_RADIO_SETUP_LABEL_GPS)
       CASE_GPS(ITEM_RADIO_SETUP_TIMEZONE) CASE_GPS(ITEM_RADIO_SETUP_ADJUST_RTC)
           CASE_GPS(ITEM_RADIO_SETUP_GPSFORMAT)
-              CASE_PXX1(ITEM_RADIO_SETUP_COUNTRYCODE) ITEM_RADIO_SETUP_IMPERIAL,
+               ITEM_RADIO_SETUP_IMPERIAL,
   ITEM_RADIO_SETUP_PPM,
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI) ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
@@ -159,10 +159,6 @@ void menuRadioSetup(event_t event)
   }
 #endif
 
-#if defined(PXX2)
-  uint8_t old_editMode = s_editMode;
-#endif
-
   MENU(
       STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, ITEM_RADIO_SETUP_MAX,
       {
@@ -197,10 +193,10 @@ void menuRadioSetup(event_t event)
           CASE_SPLASH_PARAM(0) CASE_PWR_BUTTON_PRESS(0) CASE_PWR_BUTTON_PRESS(0)
               CASE_PWR_BUTTON_PRESS(0) CASE_HAPTIC(0)  // power on/off haptic
           0,                                           // Model quick select
-          CASE_PXX2(0) /* owner registration ID */
+
           // GPS
           CASE_GPS(LABEL(GPS)) CASE_GPS(0) CASE_GPS(0) CASE_GPS(0)
-              CASE_PXX1(0) 0,
+               0,
           0,
           IF_FAI_CHOICE(0) 0,
           0,                   // USB mode
@@ -638,19 +634,6 @@ void menuRadioSetup(event_t event)
                           nullptr, attr, event);
         break;
 
-#if defined(PXX2)
-      case ITEM_RADIO_SETUP_OWNER_ID:
-        lcdDrawTextAlignedLeft(y, STR_OWNER_ID);
-        if (attr)
-          editName(RADIO_SETUP_2ND_COLUMN, y,
-                   g_eeGeneral.ownerRegistrationID,
-                   PXX2_LEN_REGISTRATION_ID, event, attr, 0,
-                   old_editMode);
-        else
-          lcdDrawSizedText(LCD_W-2, y, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID, RIGHT);
-        break;
-#endif
-
 #if defined(GPS)
       case ITEM_RADIO_SETUP_LABEL_GPS:
         lcdDrawTextAlignedLeft(y, STR_GPS);
@@ -680,12 +663,6 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-#if defined(PXX1)
-      case ITEM_RADIO_SETUP_COUNTRYCODE:
-        g_eeGeneral.countryCode = editChoice(LCD_W-2, y, STR_COUNTRY_CODE, STR_COUNTRY_CODES, g_eeGeneral.countryCode, 0, 2, attr|RIGHT, event);
-        break;
-#endif
-
       case ITEM_RADIO_SETUP_IMPERIAL:
         g_eeGeneral.imperial = editChoice(LCD_W-2, y, STR_UNITS_SYSTEM, STR_VUNITSSYSTEM, g_eeGeneral.imperial, 0, 1, attr|RIGHT, event);
         break;
@@ -706,7 +683,6 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-
       case ITEM_RADIO_SETUP_SWITCHES_DELAY:
         lcdDrawTextAlignedLeft(y, STR_SWITCHES_DELAY);
         lcdDrawNumber(LCD_W-14, y, 10*SWITCHES_DELAY(), attr|RIGHT);
@@ -717,7 +693,6 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_USB_MODE:
         g_eeGeneral.USBMode = editChoice(LCD_W-2, y, STR_USBMODE, STR_USBMODES, g_eeGeneral.USBMode, USB_UNSELECTED_MODE, USB_MAX_MODE, attr|RIGHT, event);
         break;
-
 
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
         lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR

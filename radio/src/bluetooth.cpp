@@ -1,3 +1,4 @@
+#include "io/bluetooth_firmware_container.h"
 /*
  * Copyright (C) EdgeTX
  *
@@ -21,7 +22,14 @@
 
 #include <stdio.h>
 #include "edgetx.h"
-#include "io/frsky_firmware_update.h"
+
+// Bluetooth trainer framing is independent of the RF protocol.
+enum BluetoothDataState { STATE_DATA_IDLE, STATE_DATA_START, STATE_DATA_IN_FRAME, STATE_DATA_XOR };
+constexpr uint8_t START_STOP = 0x7E;
+constexpr uint8_t BYTE_STUFF = 0x7D;
+constexpr uint8_t STUFF_MASK = 0x20;
+constexpr uint8_t TRAINER_FRAME = 0x80;
+
 #include "bluetooth_driver.h"
 #include "os/sleep.h"
 #include "trainer.h"
@@ -279,32 +287,6 @@ void Bluetooth::sendTrainer()
   #endif
 
   bufferIndex = 0;
-}
-
-void Bluetooth::forwardTelemetry(const uint8_t * packet)
-{
-  crc = 0x00;
-
-  buffer[bufferIndex++] = START_STOP; // start byte
-  for (uint8_t i=0; i<sizeof(SportTelemetryPacket); i++) {
-    pushByte(packet[i]);
-  }
-  pushByte(crc);
-  buffer[bufferIndex++] = START_STOP; // end byte
-
-  if (bufferIndex >= 2*FRSKY_SPORT_PACKET_SIZE) {
-    write(buffer, bufferIndex);
-    bufferIndex = 0;
-  }
-
-  // If not in verbose mode output one buffer per line
-  #if defined(DEBUG_BLUETOOTH) && !defined(DEBUG_BLUETOOTH_VERBOSE)
-    BLUETOOTH_TRACE_TIMESTAMP();
-    for(int i=0; i < bufferIndex; i++) {
-      BLUETOOTH_TRACE(" %02X", buffer[i]);
-    }
-    BLUETOOTH_TRACE(CRLF);
-  #endif
 }
 
 void Bluetooth::receiveTrainer()

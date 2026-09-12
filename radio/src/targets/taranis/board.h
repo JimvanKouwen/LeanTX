@@ -52,7 +52,6 @@ void rotaryEncoderCheck();
 
 # define BOOTLOADER_KEYS                0x42
 
-
 #if defined(RADIO_FAMILY_T20)
 # define SECONDARY_BOOTLOADER_KEYS      0x1200
 #endif
@@ -66,10 +65,6 @@ void boardOff();
 // Pulses driver
 #define INTERNAL_MODULE_ON()   gpio_set(INTMODULE_PWR_GPIO)
 #define INTERNAL_MODULE_OFF()  gpio_clear(INTMODULE_PWR_GPIO)
-
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-  #define HARDWARE_INTERNAL_RAS
-#endif
 
 #define EXTERNAL_MODULE_ON()            EXTERNAL_MODULE_PWR_ON()
 #define EXTERNAL_MODULE_OFF()           EXTERNAL_MODULE_PWR_OFF()
@@ -156,7 +151,6 @@ void pwrResetHandler();
 #define BACKLIGHT_FORCED_ON             101
 #endif
 
-
 void backlightInit();
 void backlightDisable();
 void backlightFullOn();
@@ -182,7 +176,6 @@ void debugPutc(const char c);
 
 // Audio driver
 void audioInit();
-
 
 // Haptic driver
 void hapticInit();
@@ -322,4 +315,3 @@ void setTopBatteryValue(uint32_t volts);
 #endif
 
 #define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)
-

@@ -63,7 +63,7 @@
   #define IS_SLAVE_TRAINER()           (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 #endif
 
-#if defined(LUA) || defined(PXX2) || defined(MULTIMODULE)
+#if defined(LUA)
   #define RADIO_TOOLS
 #endif
 
@@ -84,7 +84,6 @@ enum RotaryEncoderMode {
 #define RESXu      1024u
 #define RESXul     1024ul
 #define RESXl      1024l
-
 
 #include "debug.h"
 
@@ -130,7 +129,6 @@ void memswap(void * a, void * b, uint8_t size);
 #endif
 
 #include "fifo.h"
-#include "io/frsky_sport.h"
 
 #if defined(CLI)
 #include "cli.h"
@@ -265,7 +263,6 @@ extern uint8_t flightModeTransitionLast;
 
 extern uint32_t availableMemory();
 
-
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms);
 void evalMixes(uint8_t tick10ms);
 void doMixerCalculations();
@@ -328,8 +325,6 @@ void checkAlarm();
 void checkAll(bool isBootCheck = false);
 
 void getADC();
-
-#include "sbus.h"
 
 void resetBacklightTimeout();
 void checkBacklight();
@@ -557,7 +552,6 @@ enum AUDIO_SOUNDS {
 #include "rtc.h"
 #endif
 
-
 void checkBattery();
 void edgeTxClose(uint8_t shutdown=true);
 void edgeTxInit();
@@ -593,10 +587,6 @@ constexpr uint8_t SD_SCREEN_FILE_LENGTH = 64;
 #endif
 
 constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
-
-#if defined(GHOST)
-  #include "telemetry/ghost_menu.h"
-#endif
 
 // Re-useable byte array to save having multiple buffers
 union ReusableBuffer
@@ -639,10 +629,6 @@ union ReusableBuffer
     uint8_t previousType;
     uint8_t newType;
 #endif
-#if defined(PXX2)
-    BindInformation bindInformation;
-    PXX2ModuleSetup pxx2;
-#endif
 #if defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
@@ -675,15 +661,7 @@ union ReusableBuffer
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
 #endif
-#if defined(PXX2)
-    OtaUpdateInformation otaUpdateInformation;
-    char otaReceiverVersion[64];  // Large enough for STR_CURRENT_VERSION string plus version number
-#endif
   } sdManager;
-
-#if defined(PXX2)
-  PXX2HardwareAndSettings hardwareAndSettings; // radio_version
-#endif
 
 #if !defined(COLORLCD)
   #define TOOL_NAME_MAX_LEN (LCD_W / FW)
@@ -703,9 +681,6 @@ union ReusableBuffer
     uint8_t oldOffset;
     uint8_t linesCount;
 #endif
-#if defined(PXX2)
-    ModuleInformation modules[NUM_MODULES];
-#endif
   } radioTools;
 
   struct {
@@ -724,15 +699,6 @@ union ReusableBuffer
     uint8_t dirty;
     uint8_t moduleOFF;
   } spectrumAnalyser;
-
-#if defined(GHOST)
-  struct {
-    GhostMenuData line[GHST_MENU_LINES + 1];
-    uint8_t menuStatus;
-    uint8_t menuAction;
-    uint8_t buttonAction;
-  } ghostMenu;
-#endif
 
   struct {
     uint32_t freq;
@@ -832,7 +798,6 @@ extern Clipboard clipboard;
 #if defined(SPACEMOUSE)
   #include "spacemouse.h"
 #endif
-
 
 #if defined(IMU)
 #include "gyro.h"

@@ -23,36 +23,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "spektrum.h"
-
 #if defined(CROSSFIRE)
   #include "crossfire.h"
 #endif
 
-#if defined(GHOST)
-  #include "ghost.h"
-#endif
-
 #if defined(RADIO_NV14_FAMILY)
-  #include "telemetry/flysky_nv14.h"
-#endif
-
-#if defined(MULTIMODULE)
-  #include "hitec.h"
-  #include "hott.h"
-  #include "multi.h"
-#endif
-
-#if  defined(MULTIMODULE) || defined(PPM)
-  #include "mlink.h"
-#endif
-
-#if defined(MULTIMODULE) || defined(AFHDS2) || defined(AFHDS3)
-  #include "flysky_ibus.h"
-#endif
-
-#if defined(AFHDS3)
-  #include "flysky_ibus2.h"
 #endif
 
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
@@ -531,13 +506,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
   int index = availableTelemetryIndex();
   if (index >= 0) {
     switch (protocol) {
-      case PROTOCOL_TELEMETRY_FRSKY_SPORT:
-        frskySportSetDefault(index, id, subId, instance);
-        break;
 
-      case PROTOCOL_TELEMETRY_FRSKY_D:
-        frskyDSetDefault(index, id);
-        break;
 
 #if defined(CROSSFIRE)
       case PROTOCOL_TELEMETRY_CROSSFIRE:
@@ -545,49 +514,6 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
         break;
 #endif
 
-#if defined(GHOST)
-      case PROTOCOL_TELEMETRY_GHOST:
-        ghostSetDefault(index, id, instance);
-        break;
-#endif
-
-#if defined(MULTIMODULE) || defined(AFHDS3) || defined(AFHDS2)
-      case PROTOCOL_TELEMETRY_FLYSKY_IBUS:
-        flySkySetDefault(index, id, subId, instance);
-        break;
-#endif
-
-#if defined(AFHDS3)
-      case PROTOCOL_TELEMETRY_FLYSKY_IBUS2:
-        flySkyIbus2SetDefault(index, id, subId, instance);
-        break;
-#endif
-
-#if defined(AFHDS2) && defined(RADIO_NV14_FAMILY)
-      case PROTOCOL_TELEMETRY_FLYSKY_NV14:
-        flySkyNv14SetDefault(index, id, subId, instance);
-        break;
-#endif
-
-      case PROTOCOL_TELEMETRY_SPEKTRUM:
-        spektrumSetDefault(index, id, subId, instance);
-        break;
-
-#if defined(MULTIMODULE)
-      case PROTOCOL_TELEMETRY_HITEC:
-        hitecSetDefault(index, id, subId, instance);
-        break;
-
-      case PROTOCOL_TELEMETRY_HOTT:
-        hottSetDefault(index, id, subId, instance);
-        break;
-#endif
-
-#if defined(MULTIMODULE) || defined(PPM)
-      case PROTOCOL_TELEMETRY_MLINK:
-        mlinkSetDefault(index, id, subId, instance);
-        break;
-#endif
 
 #if defined(LUA)
      case PROTOCOL_TELEMETRY_LUA:
@@ -693,7 +619,7 @@ int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t
       value    *= power10[destPrec-prec];
       temp_prec = destPrec;
   }
-  
+
   if (unit == UNIT_CELSIUS) {
     if (destUnit == UNIT_FAHRENHEIT) {
       // T(°F) = T(°C)×1,8 + 32
@@ -736,7 +662,7 @@ int32_t TelemetrySensor::getValue(int32_t value, uint8_t unit, uint8_t prec) con
       prec = 1;
     }
     */
-    
+
     value = (custom.ratio * value + 122) / 255;  //  122/255 (0.48) is to aproximate up (ceiling) 
   }
 
@@ -808,18 +734,6 @@ bool TelemetrySensor::isSameInstance(TelemetryProtocol protocol, uint8_t instanc
 {
   if (this->instance == instance)
     return true;
-
-  if (protocol == PROTOCOL_TELEMETRY_FRSKY_SPORT) {
-#if defined(SIMU)
-    if (((this->instance ^ instance) & 0x1F) == 0)
-      return true;
-#else
-    if (((this->instance ^ instance) & 0x9F) == 0 && (this->instance >> 5) != TELEMETRY_ENDPOINT_SPORT && (instance >> 5) != TELEMETRY_ENDPOINT_SPORT) {
-      this->instance = instance; // update the instance in case we had telemetry switching
-      return true;
-    }
-#endif
-  }
 
   return false;
 }

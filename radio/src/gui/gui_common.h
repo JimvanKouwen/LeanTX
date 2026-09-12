@@ -73,13 +73,10 @@ bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInCustomFunctions(int swtch);
 bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableInMixes(int swtch);
-bool isPxx2IsrmChannelsCountAllowed(int channels);
-bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
 bool isTrainerUsingModuleBay();
 bool isExternalModuleAvailable(int moduleType);
 bool isInternalModuleAvailable(int moduleType);
 bool isInternalModuleSupported(int moduleType);
-bool isRfProtocolAvailable(int protocol);
 bool isTrainerModeAvailable(int mode);
 bool isAssignableFunctionAvailable(int function, bool modelFunctions);
 bool isPotTypeAvailable(uint8_t type);
@@ -101,9 +98,7 @@ bool isTelemetryFieldAvailable(int index);
 uint8_t getTelemetrySensorsCount();
 bool isTelemetryFieldComparisonAvailable(int index);
 bool isSensorAvailable(int sensor);
-bool isRssiSensorAvailable(int sensor);
 bool isVarioSensorAvailable(int sensor);
-bool hasSportPower();
 
 bool modelHasNotes();
 
@@ -146,94 +141,7 @@ void checkExternalAntenna();
 void setAntennaModeWithConfirm(int8_t newMode, uint8_t storageId,
                                 std::function<void(int8_t)> setter);
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && !defined(COLORLCD)
-void onAntennaSwitchConfirm(const char* result);
-void onAntennaSelection(const char* result);
 #endif
-#endif
-
-#if defined(PXX2)
-inline bool isRacingModeAllowed()
-{
-  return isModulePXX2(INTERNAL_MODULE) && g_model.moduleData[INTERNAL_MODULE].getChannelsCount() == 8;
-}
-
-inline bool isRacingModeEnabled()
-{
-  return isRacingModeAllowed() && g_model.moduleData[INTERNAL_MODULE].pxx2.racingMode;
-}
-
-inline uint8_t IF_ALLOW_RACING_MODE(int moduleIdx)
-{
-  if (!IS_MODULE_ENABLED(moduleIdx)) {
-    return HIDDEN_ROW;
-  }
-  else if (isRacingModeAllowed()) {
-    return 0;
-  }
-  return HIDDEN_ROW;
-}
-#else
-inline uint8_t IF_ALLOW_RACING_MODE(int)
-{
-  return HIDDEN_ROW;
-}
-#endif
-
-#if defined(MULTIMODULE)
-extern uint8_t MULTI_DISABLE_CHAN_MAP_ROW_STATIC(uint8_t moduleIdx);
-extern uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx);
-extern bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx);
-extern bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx);
-extern uint8_t MULTIMODULE_RFPROTO_COLUMNS(uint8_t moduleIdx);
-extern uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx);
-
-#if defined(MANUFACTURER_FRSKY)
-  #define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE TELEM, DISABLE CN.MAP
-#else
-  #define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE CN.MAP
-#endif
-#define MULTIMODULE_DSM_CLONED_RAW(moduleIdx)   isMultiProtocolDSMCloneAvailable(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW
-#define MULTIMODULE_TYPE_ROW(moduleIdx)         isModuleMultimodule(moduleIdx) ? MULTIMODULE_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
-#define MULTIMODULE_STATUS_ROWS(moduleIdx)      isModuleMultimodule(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, (isModuleMultimodule(moduleIdx) && getModuleSyncStatus(moduleIdx).isValid()) ? TITLE_ROW : HIDDEN_ROW,
-#define MULTIMODULE_MODE_ROWS(moduleIdx)        (g_model.moduleData[moduleIdx].multi.customProto) ? (uint8_t) 3 : MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t)2 : (uint8_t)1
-#define MULTIMODULE_TYPE_ROWS(moduleIdx)        isModuleMultimodule(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW,
-#define MULTIMODULE_SUBTYPE_ROWS(moduleIdx)     isModuleMultimodule(moduleIdx) ? MULTIMODULE_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
-#define MULTIMODULE_OPTIONS_ROW(moduleIdx)      (isModuleMultimodule(moduleIdx) && MULTIMODULE_HASOPTIONS(moduleIdx)) ? (uint8_t) 0: HIDDEN_ROW
-#define MODULE_POWER_ROW(moduleIdx)            (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleAFHDS3(moduleIdx)) ? (isModuleR9MLiteNonPro(moduleIdx) ? (isModuleR9M_FCC_VARIANT(moduleIdx) ? READONLY_ROW : (uint8_t)0) : (uint8_t)0) : HIDDEN_ROW
-
-#else
-#define MULTIMODULE_DSM_CLONED_RAW(moduleIdx)
-#define MULTIMODULE_TYPE_ROWS(moduleIdx)
-#define MULTIMODULE_STATUS_ROWS(moduleIdx)
-#define MULTIMODULE_MODULE_ROWS(moduleIdx)
-#define MULTIMODULE_TYPE_ROW(moduleIdx)
-#define MULTIMODULE_SUBTYPE_ROWS(moduleIdx)
-#define MULTIMODULE_TYPE_ROWS(moduleIdx)
-#define MULTIMODULE_MODE_ROWS(moduleIdx)        (uint8_t)0
-#define MULTIMODULE_OPTIONS_ROW(moduleIdx)      HIDDEN_ROW
-#define MODULE_POWER_ROW(moduleIdx)            isModuleR9MNonAccess(moduleIdx) || isModuleAFHDS3(moduleIdx) ? (isModuleR9MLiteNonPro(moduleIdx) ? (isModuleR9M_FCC_VARIANT(moduleIdx) ? READONLY_ROW : (uint8_t)0) : (uint8_t)0) : HIDDEN_ROW
-#endif
-
-#if defined(AFHDS3)
-#define AFHDS3_PROTOCOL_ROW(moduleIdx)          isModuleAFHDS3(moduleIdx) ? uint8_t(0) : HIDDEN_ROW,
-#define AFHDS3_MODE_ROWS(moduleIdx)             isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW,
-#define AFHDS3_MODULE_ROWS(moduleIdx)           isModuleAFHDS3(moduleIdx) ? uint8_t(0) : HIDDEN_ROW, isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW,
-#else
-#define AFHDS3_PROTOCOL_ROW(moduleIdx)
-#define AFHDS3_MODE_ROWS(moduleIdx)
-#define AFHDS3_MODULE_ROWS(moduleIdx)
-#endif
-
-#if defined(DSMP)
-#define DSMP_STATUS_ROWS(moduleIdx)             isModuleDSMP(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleDSMP(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW,
-#else
-#define DSMP_STATUS_ROWS(moduleIdx)
-#endif
-
-#define FAILSAFE_ROW(moduleIdx)               isModuleFailsafeAvailable(moduleIdx) ? (g_model.moduleData[moduleIdx].failsafeMode==FAILSAFE_CUSTOM ? (uint8_t)1 : (uint8_t)0) : HIDDEN_ROW
-
-extern uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx);
 
 void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
                                LcdFlags flags, uint8_t old_editMode);

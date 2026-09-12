@@ -1,10 +1,5 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(STICK_DEAD_ZONE "Enable sticks dead zone" ON)
-option(PXX1 "PXX1 protocol support" ON)
-option(PXX2 "PXX2 protocol support" OFF)
-option(AFHDS3 "AFHDS3 TX Module" ON)
-option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
-option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(USE_RTC_CLOCK "RTC Clock" ON)
 option(PREFER_SDIO "Prefer SDIO Storage" ON)
@@ -54,39 +49,35 @@ if(PCBREV STREQUAL PL18U)
   set(KEY_DRIVER pl18u_key_driver.cpp)
 
   # Defines internal module for PL18U
-  set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
-  set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
+  set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
+  set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
 elseif (PCBREV STREQUAL EL18)
     set(FLAVOUR el18)
     add_definitions(-DRADIO_NV14_FAMILY -DUSE_HATS_AS_KEYS)
     set(HAS_SDIO ON)
     set(FLYSKY_GIMBAL ON)
     set(USE_VS1053B ON)
-    set(AFHDS3 ON)
 
     # defines existing internal modules
-    set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
-    set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
+    set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL NV14)
     set(FLAVOUR nv14)
     add_definitions(-DRADIO_NV14_FAMILY)
-    add_definitions(-DUSE_HATS_AS_KEYS -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
+    add_definitions(-DUSE_HATS_AS_KEYS)
     set(HAS_SDIO ON)
     set(FLYSKY_GIMBAL ON)
     set(USE_VS1053B ON)
-    set(AFHDS2 ON)
-    set(AFHDS3 ON)
 
     # defines existing internal modules
-    set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
-    set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS2A CACHE STRING "Default internal module")
+    set(INTERNAL_MODULES "" CACHE STRING "Internal modules")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
   add_definitions(-DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
   set(LED_STRIP ON)
-  set(AFHDS3 ON)
   set(KEY_DRIVER key_driver.cpp)
 else()
   set(FLAVOUR pl18)
@@ -94,12 +85,11 @@ else()
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
   set(LED_STRIP ON)
-  set(AFHDS3 ON)
   set(KEY_DRIVER key_driver.cpp)
 
   # Defines internal modules for PL18 via UART7
-  set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
-  set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+  set(INTERNAL_MODULES "" CACHE STRING "Internal modules")
+  set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
 endif()
 
 set(BITMAPS_TARGET bm480_bitmaps)
@@ -201,7 +191,6 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
 
-
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
 # Firmware board library
@@ -210,7 +199,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/${TOUCH_DRIVER}
   ${TARGET_SRC_DIR}/battery_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
@@ -222,7 +210,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   drivers/frftl.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
-
 
 if(USE_VS1053B)
   add_definitions(-DUSE_VS1053B)
@@ -237,21 +224,13 @@ if(LED_STRIP)
   target_sources(board PRIVATE targets/common/arm/stm32/stm32_rgbleds.cpp)
 endif()
 
-
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   bootloader/loadboot.cpp
 )
 
 set(SRC ${SRC}
-  io/frsky_firmware_update.cpp
-  io/multi_firmware_update.cpp
-  io/multi_protolist.cpp
 )
-
-if (MULTIMODULE)
-  add_definitions(-DMULTI_PROTOLIST)
-endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)

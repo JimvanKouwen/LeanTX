@@ -1,11 +1,6 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(IMU_LSM6DS33 "Enable I2C2 and LSM6DS33 IMU" OFF)
-option(PXX1 "PXX1 protocol support" ON)
-option(PXX2 "PXX2 protocol support" OFF)
-option(AFHDS3 "AFHDS3 TX Module" ON)
-option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
-option(GHOST "Ghost TX Module" ON)
 option(SPACEMOUSE "Support for SpaceMouse" OFF)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 
@@ -30,7 +25,7 @@ set(TARGET_LINKER_DIR stm32f429_sdram)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
 
 # defines existing internal modules
-set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
+set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
 
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
@@ -51,10 +46,9 @@ if (PCB STREQUAL X10)
 
   if (PCBREV STREQUAL EXPRESS)
     set(FLAVOUR x10express)
-    set(DEFAULT_INTERNAL_MODULE ISRM_PXX2 CACHE STRING "Default internal module")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
     set(BLUETOOTH ON)
     set(AUX_SERIAL OFF)
-    set(EXTERNAL_ANTENNA ON)
     add_definitions(-DHARDWARE_POWER_MANAGEMENT_UNIT)
     add_definitions(-DMANUFACTURER_FRSKY)
   elseif (PCBREV STREQUAL T15)
@@ -65,7 +59,7 @@ if (PCB STREQUAL X10)
     option(BLUETOOTH "Support for bluetooth module" OFF)
     if (BLUETOOTH)
       set(AUX_SERIAL OFF)
-    else()
+else()
       set(AUX_SERIAL ON)
     endif()
     # Aux2 is reserved for serial gimbal on this radio
@@ -76,7 +70,7 @@ if (PCB STREQUAL X10)
   elseif (PCBREV STREQUAL T16)
     set(FLAVOUR t16)
     add_definitions(-DRADIO_FAMILY_T16)
-    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
     add_definitions(-DMANUFACTURER_JUMPER)
     if (NOT BLUETOOTH)
@@ -90,7 +84,7 @@ if (PCB STREQUAL X10)
 #   Uncomment the line below to enable bootloader support for SPI flash
 #    add_definitions(-DSPI_FLASH)
 
-    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
     set(USB_CHARGER YES)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
@@ -102,7 +96,7 @@ if (PCB STREQUAL X10)
   elseif (PCBREV STREQUAL F16)
     set(FLAVOUR f16)
     add_definitions(-DRADIO_FAMILY_T16)
-    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
     add_definitions(-DMANUFACTURER_FATFISH)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
@@ -125,25 +119,23 @@ if (PCB STREQUAL X10)
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
     add_definitions(-DRADIO_FAMILY_T16)
-    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
     add_definitions(-DMANUFACTURER_JUMPER)
     if (NOT BLUETOOTH)
       set(AUX2_SERIAL ON)
     endif()
     set(FLYSKY_GIMBAL ON)
-  else()
+else()
     set(FLAVOUR x10)
-    set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
+    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
     set(BLUETOOTH ON)
-    set(EXTERNAL_ANTENNA ON)
     add_definitions(-DMANUFACTURER_FRSKY)
   endif()
 elseif (PCB STREQUAL X12S)
-  set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
+  set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
   set(FLAVOUR x12s)
   set(BLUETOOTH ON)
-  set(EXTERNAL_ANTENNA ON)
   set(PCBREV "13" CACHE STRING "PCB Revision")
   set(AUX2_SERIAL ON) # wire to GPS
   set(USE_VS1053B ON)
@@ -211,16 +203,7 @@ if(AUX_SERIAL)
   add_definitions(-DCONFIGURABLE_MODULE_PORT)
 endif()
 
-if(NOT INTERNAL_MODULE_PXX1)
   option(ALLOW_TRAINER_MULTI "Allow multimodule to be use as trainer input" OFF)
-endif()
-
-if("PXX2" IN_LIST INTERNAL_MODULES)
-  if (NOT PCBREV STREQUAL EXPRESS)
-    set(ACCESS_DENIED ON)
-    add_definitions(-DACCESS_DENIED)
-  endif()
-endif()
 
 if(ALLOW_TRAINER_MULTI)
   add_definitions(-DALLOW_TRAINER_MULTI)
@@ -292,7 +275,6 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   targets/common/arm/stm32/delays_driver.cpp
-  targets/common/arm/stm32/heartbeat_driver.cpp
   drivers/lsm6ds.cpp
   drivers/icm42627.cpp
   drivers/sc7u22.cpp
@@ -316,7 +298,7 @@ if(HARDWARE_TOUCH)
 
   if(FLAVOUR STREQUAL t15)
     target_sources(board PRIVATE ${TARGET_SRC_DIR}/cst8xx_driver.cpp)
-  else()
+else()
     add_definitions(-DTP_GT911)
     target_sources(board PRIVATE ${TARGET_SRC_DIR}/tp_gt911.cpp)
   endif()
@@ -346,12 +328,5 @@ set(FIRMWARE_SRC
   bootloader/loadboot.cpp
 )
 
-if (MULTIMODULE)
-  add_definitions(-DMULTI_PROTOLIST)
-endif()
-
 set(SRC ${SRC}
-  io/frsky_firmware_update.cpp
-  io/multi_firmware_update.cpp
-  io/multi_protolist.cpp
 )

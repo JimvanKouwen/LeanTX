@@ -20,6 +20,8 @@
  */
 
 #include "hal/trainer_driver.h"
+#include "hal/module_port.h"
+#include "sbus.h"
 
 #include "edgetx.h"
 #include "serial.h"

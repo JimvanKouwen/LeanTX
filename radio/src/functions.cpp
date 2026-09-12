@@ -276,17 +276,13 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             timerSet(CFN_TIMER_INDEX(cfn), CFN_PARAM(cfn));
             break;
 
-          case FUNC_SET_FAILSAFE:
-            setCustomFailsafe(CFN_PARAM(cfn));
-            break;
 
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
-          case FUNC_RANGECHECK:
           case FUNC_BIND: {
             unsigned int moduleIndex = CFN_PARAM(cfn);
             if (moduleIndex < NUM_MODULES) {
               moduleState[moduleIndex].mode =
-                  1 + CFN_FUNC(cfn) - FUNC_RANGECHECK;
+                  isModuleBindRangeAvailable(moduleIndex) ? MODULE_MODE_BIND : MODULE_MODE_NORMAL;
             }
             break;
           }
@@ -398,14 +394,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-#if defined(PXX2)
-          case FUNC_RACING_MODE:
-            if (isRacingModeEnabled()) {
-              newActiveFunctions |= (1u << FUNCTION_RACING_MODE);
-            }
-            break;
-#endif
-
 #if defined(AUDIO_MUTE_GPIO)
           case FUNC_DISABLE_AUDIO_AMP:
             newActiveFunctions |= (1u << FUNCTION_DISABLE_AUDIO_AMP);
@@ -443,8 +431,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
         if (functionsContext.isFunctionSwitchActive(i)) {
           switch (CFN_FUNC(cfn)) {
-            case FUNC_RANGECHECK:
-            case FUNC_BIND:
+              case FUNC_BIND:
             {
               unsigned int moduleIndex = CFN_PARAM(cfn);
               if (moduleIndex < NUM_MODULES) {

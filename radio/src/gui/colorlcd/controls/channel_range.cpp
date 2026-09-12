@@ -120,28 +120,13 @@ void ModuleChannelRange::update()
 {
   ChannelRange::update();
 
-#if defined(DSMP)
-  if (isModuleDSMP(moduleIdx)) {
-    // Disable Ch start, module asume starting in Ch1
-    chStart->enable(false);
-  } 
-#endif   
-
   auto min_mod_ch = minModuleChannels(moduleIdx);
   auto max_mod_ch = maxModuleChannels(moduleIdx);
   chEnd->enable(min_mod_ch < max_mod_ch);
 
   if (chEnd->getValue() > chEnd->getMax()) chEnd->setValue(chEnd->getMax());
 
-  if (!isModulePXX2(moduleIdx)) {
-    chEnd->setAvailableHandler(nullptr);
-  }
-#if defined(PXX2)
-  else {
-    chEnd->setAvailableHandler(
-        [=](int value) { return isPxx2IsrmChannelsCountAllowed(value - 8); });
-  }
-#endif
+  chEnd->setAvailableHandler(nullptr);
 }
 
 uint8_t ModuleChannelRange::getChannelsStart()

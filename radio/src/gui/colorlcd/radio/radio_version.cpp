@@ -34,20 +34,6 @@
 #include "mixer_scheduler.h"
 #endif
 
-#if defined(PXX2)
-char* getVersion(char* str, PXX2Version version)
-{
-  if (version.major == 0xFF && version.minor == 0x0F &&
-      version.revision == 0x0F) {
-    return strAppend(str, "---", 4);
-  } else {
-    sprintf(str, "%u.%u.%u", (1 + version.major) % 0xFF, version.minor,
-            version.revision);
-    return str;
-  }
-}
-#endif
-
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -78,25 +64,6 @@ class VersionDialog : public BaseDialog
   VersionDialog() :
       BaseDialog(STR_MODULES_RX_VERSION, true)
   {
-#if defined(PXX2)
-    memclear(&reusableBuffer.hardwareAndSettings.modules,
-             sizeof(reusableBuffer.hardwareAndSettings.modules));
-    reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
-#if defined(HARDWARE_INTERNAL_MODULE)
-    // Query modules
-    if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
-      moduleState[INTERNAL_MODULE].readModuleInformation(
-          &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
-          PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-    }
-#endif
-
-    if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
-      moduleState[EXTERNAL_MODULE].readModuleInformation(
-          &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
-          PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-    }
-#endif
 
     // define grid layout
     FlexGridLayout grid(col_dsc, row_dsc);
@@ -182,8 +149,7 @@ class VersionDialog : public BaseDialog
   {
     // initialize module name with module selection made in model settings
     // initialize to module does not provide status
-    // PXX2 will overwrite name
-    // CRSF, MPM, NV14 and PXX2 will overwrite status
+    // CRSF will overwrite status
     name->setText(STR_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
     module_status_w->hide();
 
@@ -202,136 +168,8 @@ class VersionDialog : public BaseDialog
     }
 #endif
 
-#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
-    // NV14 AFHDS2A internal module is able to provide FW version
-    extern uint32_t NV14internalModuleFwVersion;
-    if (isModuleAFHDS2A(module)) {
-      sprintf(reusableBuffer.moduleSetup.msg, "FW Ver %d.%d.%d",
-              (int)((NV14internalModuleFwVersion >> 16) & 0xFF),
-              (int)((NV14internalModuleFwVersion >> 8) & 0xFF),
-              (int)(NV14internalModuleFwVersion & 0xFF));
-      status->setText(reusableBuffer.moduleSetup.msg);
-      module_status_w->show();
-    }
-#endif
-
-#if defined(MULTIMODULE)
-    // MPM is able to provide status
-    if (isModuleMultimodule(module)) {
-      char statusText[64];
-
-      getMultiModuleStatus(module).getStatusString(statusText);
-      status->setText(statusText);
-      module_status_w->show();
-    }
-#endif
-
-#if defined(PXX2)
-    // PXX2 modules are able to provide status
-    if (isModulePXX2(module)) {
-      char tmp[20];
-
-      // PXX2 module name
-      name->setText(
-          getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module]
-                                .information.modelID));
-
-      // PXX2 module status
-      std::string mod_ver;
-      if (reusableBuffer.hardwareAndSettings.modules[module]
-              .information.modelID) {
-        mod_ver +=
-            getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                                .information.hwVersion);
-        mod_ver += " / ";
-        mod_ver +=
-            getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                                .information.swVersion);
-
-        static const char* variants[] = {"FCC", "EU", "FLEX"};
-        uint8_t variant = reusableBuffer.hardwareAndSettings.modules[module]
-                              .information.variant -
-                          1;
-        if (variant < DIM(variants)) {
-          mod_ver += " ";
-          mod_ver += variants[variant];
-        }
-      }
-      status->setText(mod_ver);
-      module_status_w->show();
-
-      // PXX2 Receivers
-      std::string rx_n;
-      std::string rx_ver;
-
-      for (uint8_t receiver = 0; receiver < PXX2_MAX_RECEIVERS_PER_MODULE;
-           receiver++) {
-        if (reusableBuffer.hardwareAndSettings.modules[module]
-                .receivers[receiver]
-                .information.modelID) {
-          if (!rx_ver.empty()) {
-            rx_n += "\n";
-            rx_ver += "\n";
-          }
-
-          // Receiver model
-          uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module]
-                                .receivers[receiver]
-                                .information.modelID;
-          rx_n += getPXX2ReceiverName(modelId);
-
-          // Receiver version
-          rx_ver +=
-              getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                                  .receivers[receiver]
-                                  .information.hwVersion);
-          rx_ver += " / ";
-          rx_ver +=
-              getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                                  .receivers[receiver]
-                                  .information.swVersion);
-        }
-      }
-
-      if (!rx_n.empty() && !rx_ver.empty()) {
-        // unhide RX labels
-        rx_name->setText(rx_n);
-        rx_name_w->show();
-        rx_status->setText(rx_ver);
-        rx_status_w->show();
-      } else {
-        // hide RX labels
-        rx_name_w->hide();
-        rx_status_w->hide();
-      }
-    }
-#endif
   }
 
-#if defined(PXX2)
-  void checkEvents() override
-  {
-    if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
-      // Query modules
-#if defined(HARDWARE_INTERNAL_MODULE)
-      if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
-        moduleState[INTERNAL_MODULE].readModuleInformation(
-            &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
-            PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-      }
-#endif
-      if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
-        moduleState[EXTERNAL_MODULE].readModuleInformation(
-            &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
-            PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-      }
-      reusableBuffer.hardwareAndSettings.updateTime =
-          get_tmr10ms() + 500 /* 5s*/;
-    }
-    update();
-    BaseDialog::checkEvents();
-  }
-#endif
 };
 
 #if VERSION_MAJOR == 2 && LCD_H == 272

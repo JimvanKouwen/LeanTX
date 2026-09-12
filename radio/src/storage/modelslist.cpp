@@ -87,13 +87,8 @@ void ModelCell::setRfData(ModelHeader *header, ModuleData* modData)
 
 void ModelCell::setRfModuleData(uint8_t moduleIdx, ModuleData *modData)
 {
-  moduleData[moduleIdx].type = modData->type;
-  if (modData->type != MODULE_TYPE_MULTIMODULE) {
-    moduleData[moduleIdx].subType = (uint8_t)modData->subType;
-  } else {
-    // do we care here about MM_RF_CUSTOM_SELECTED? probably not...
-    moduleData[moduleIdx].subType = modData->multi.rfProtocol;
-  }
+  moduleData[moduleIdx].type = modData->type == MODULE_TYPE_CROSSFIRE ? MODULE_TYPE_CROSSFIRE : MODULE_TYPE_NONE;
+  moduleData[moduleIdx].subType = 0;
 }
 
 //-----------------------------------------------------------------------------

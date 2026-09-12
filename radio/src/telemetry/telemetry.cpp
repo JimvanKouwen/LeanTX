@@ -20,13 +20,9 @@
  */
 
 #include "edgetx.h"
-#include "multi.h"
 #include "os/async.h"
 #include "os/timer.h"
-#include "pulses/afhds3.h"
-#include "pulses/flysky.h"
 #include "mixer_scheduler.h"
-#include "io/multi_protolist.h"
 #include "hal/module_port.h"
 #include "sensor_names.h"
 
@@ -37,28 +33,8 @@
   #include <FreeRTOS/include/timers.h>
 #endif
 
-#include "spektrum.h"
-
 #if defined(CROSSFIRE)
   #include "crossfire.h"
-#endif
-
-#if defined(GHOST)
-  #include "ghost.h"
-#endif
-
-#if defined(MULTIMODULE)
-  #include "hitec.h"
-  #include "hott.h"
-  #include "multi.h"
-#endif
-
-#if  defined(MULTIMODULE) || defined(PPM)
-  #include "mlink.h"
-#endif
-
-#if defined(MULTIMODULE) || defined(AFHDS2) || defined(AFHDS3)
-  #include "flysky_ibus.h"
 #endif
 
 struct telemetry_buffer {
@@ -90,67 +66,9 @@ uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
 }
 
 rxStatStruct *getRxStatLabels() {
-  // default to RSSI/db notation
-  rxStat.label = STR_RXSTAT_LABEL_RSSI;
-  rxStat.unit  = STR_RXSTAT_UNIT_DBM;
-  rxStat.max   = 99;
-
-  // Currently we can only display a single rx stat in settings/telemetry.
-  // If both modules are used we choose the internal one
-  // TODO: have to rx stat sections in settings/telemetry
-  uint8_t moduleToUse = INTERNAL_MODULE;
-
-  if(g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE &&
-     g_model.moduleData[EXTERNAL_MODULE].type != MODULE_TYPE_NONE) {
-    moduleToUse = EXTERNAL_MODULE;
-  }
-
-  uint8_t moduleType = g_model.moduleData[moduleToUse].type;
-
-  switch (moduleType) {
-#if defined(MULTIMODULE)
-    case MODULE_TYPE_MULTIMODULE: {
-      uint8_t multiProtocol = g_model.moduleData[moduleToUse].multi.rfProtocol;
-
-      if (multiProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
-          multiProtocol == MODULE_SUBTYPE_MULTI_HOTT ||
-          multiProtocol == MODULE_SUBTYPE_MULTI_MLINK) {
-        rxStat.label = STR_RXSTAT_LABEL_RQLY;
-        rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
-        rxStat.max = 100;
-      }
-    } break;
-#endif
-    case MODULE_TYPE_PPM:
-      if (g_model.moduleData[moduleToUse].subType == PPM_PROTO_TLM_MLINK) {
-        rxStat.label = STR_RXSTAT_LABEL_RQLY;
-        rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
-        rxStat.max = 100;
-      }
-      break;
-
-    case MODULE_TYPE_CROSSFIRE:
-    case MODULE_TYPE_GHOST:
-      rxStat.label = STR_RXSTAT_LABEL_RQLY;
-      rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
-      rxStat.max = 100;
-      break;
-
-#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
-    case MODULE_TYPE_FLYSKY_AFHDS2A:
-      extern uint32_t NV14internalModuleFwVersion;
-
-      if (moduleToUse == INTERNAL_MODULE) {
-        if (NV14internalModuleFwVersion >= 0x1000E) {
-          rxStat.label = STR_RXSTAT_LABEL_SIGNAL;
-          rxStat.unit = STR_RXSTAT_UNIT_NOUNIT;
-          rxStat.max = 99;
-        }
-      }
-      break;
-#endif
-  }
-
+  rxStat.label = STR_RXSTAT_LABEL_RQLY;
+  rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
+  rxStat.max = 100;
   return &rxStat;
 }
 
@@ -251,22 +169,6 @@ void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
   async_call_isr(_poll_frame, &_poll_frame_queued[module], (void*)drv, module);
 }
 
-inline bool isBadAntennaDetected()
-{
-  if (!isRasValueValid())
-    return false;
-
-  if (telemetryData.swrInternal.isFresh() &&
-      telemetryData.swrInternal.value() > FRSKY_BAD_ANTENNA_THRESHOLD)
-    return true;
-
-  if (telemetryData.swrExternal.isFresh() &&
-      telemetryData.swrExternal.value() > FRSKY_BAD_ANTENNA_THRESHOLD)
-    return true;
-
-  return false;
-}
-
 static inline void pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
 {
   if (!drv || !drv->processData) return;
@@ -339,14 +241,6 @@ void telemetryWakeup()
         !g_model.disableTelemetryWarning) {
       audioEvent(AU_SENSOR_LOST);
     }
-
-#if defined(PXX1) || defined(PXX2)
-    if (isBadAntennaDetected()) {
-      AUDIO_RAS_RED();
-      if (POPUP_WARNING_ON_UI_TASK(STR_WARNING, STR_ANTENNAPROBLEM))
-        SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
-    }
-#endif
 
     if (!g_model.disableTelemetryWarning) {
       if (TELEMETRY_STREAMING()) {

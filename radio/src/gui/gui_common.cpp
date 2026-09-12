@@ -30,7 +30,6 @@
 #include "os/sleep.h"
 
 #undef CPN
-#include "MultiSubtypeDefs.h"
 
 uint8_t switchToMix(uint8_t source)
 {
@@ -48,16 +47,6 @@ bool isInputAvailable(int input)
       return true;
   }
   return false;
-}
-
-bool isRssiSensorAvailable(int sensor)
-{
-  if (sensor == 0)
-    return true;
-  else {
-    TelemetrySensor &telemSensor = g_model.telemetrySensors[abs(sensor) - 1];
-    return (telemSensor.isAvailable() && telemSensor.id == RSSI_ID);
-  }
 }
 
 bool isVarioSensorAvailable(int sensor)
@@ -358,7 +347,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     int index = (swtch - SWSRC_FIRST_TRIM) / 2;
     return index < keysGetMaxTrims();
   }
-  
+
   if (swtch >= SWSRC_FIRST_LOGICAL_SWITCH && swtch <= SWSRC_LAST_LOGICAL_SWITCH) {
     if (context == GeneralCustomFunctionsContext) {
       return false;
@@ -498,6 +487,7 @@ bool checkSwitchAvailable(int swtch, uint32_t swtchTypes)
 
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
+  if (mode == UART_MODE_RESERVED_TELEMETRY) return false;
 #if defined(USB_SERIAL)
   // Do not list OFF on VCP if internal RF module is set to CROSSFIRE to allow pass-through flashing
   if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
@@ -557,23 +547,14 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #endif
 
 #if defined(USB_SERIAL)
-  // Telemetry input & SBUS trainer on VCP is not yet supported
-  if (port_nr == SP_VCP &&
-      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
+  // SBUS trainer on VCP is not supported.
+  if (port_nr == SP_VCP && mode == UART_MODE_SBUS_TRAINER)
     return false;
 #endif
 
   auto p = serialGetModePort(mode);
   if (p >= 0 && p != port_nr) return false;
   return true;
-}
-
-bool hasSportPower() {
-  auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
-  if (mod_desc && mod_desc->set_pwr) {
-    return true;
-  }
-  return false;
 }
 
 bool isSwitchAvailableInLogicalSwitches(int swtch)
@@ -628,8 +609,10 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_HAPTIC:
       return false;
 #endif
-#if !defined(DANGEROUS_MODULE_FUNCTIONS)
+    case FUNC_SET_FAILSAFE:
     case FUNC_RANGECHECK:
+      return false;
+#if !defined(DANGEROUS_MODULE_FUNCTIONS)
     case FUNC_BIND:
       return false;
 #endif
@@ -774,13 +757,6 @@ void checkExternalAntenna()
   // Get the per-model antenna mode from the appropriate field
   int8_t modelAntennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
 
-#if !defined(INTMODULE_ANTSEL_GPIO)
-  if (!isModuleXJT(INTERNAL_MODULE)) {
-    globalData.externalAntennaEnabled = false;
-    return;
-  }
-#endif
-
   if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
     globalData.externalAntennaEnabled = true;
 #if defined(INTMODULE_ANTSEL_GPIO) && !defined(SIMU)
@@ -856,20 +832,6 @@ void setAntennaModeWithConfirm(int8_t newMode, uint8_t storageId,
 
 #endif // defined(EXTERNAL_ANTENNA)
 
-#if defined(PXX2)
-bool isPxx2IsrmChannelsCountAllowed(int channels)
-{
-  if (g_model.moduleData[INTERNAL_MODULE].subType == MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16 && channels > 8)
-    return false;
-  return (channels % 8 == 0);
-}
-#else
-bool isPxx2IsrmChannelsCountAllowed(int channels)
-{
-  return true;
-}
-#endif
-
 bool isTrainerUsingModuleBay()
 {
   if (g_model.trainerData.mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
@@ -880,277 +842,41 @@ bool isTrainerUsingModuleBay()
   return false;
 }
 
-bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
-{
-  switch (moduleType) {
-    case MODULE_TYPE_NONE:
-    case MODULE_TYPE_SBUS:
-    case MODULE_TYPE_PPM:
-    case MODULE_TYPE_DSM2:
-    case MODULE_TYPE_MULTIMODULE:
-    case MODULE_TYPE_ISRM_PXX2:
-    case MODULE_TYPE_R9M_LITE_PXX2:
-    case MODULE_TYPE_R9M_LITE_PRO_PXX2:
-    case MODULE_TYPE_FLYSKY_AFHDS2A:
-    case MODULE_TYPE_FLYSKY_AFHDS3:
-      return false;
-
-    case MODULE_TYPE_XJT_PXX1:
-      // External XJT has a physical switch to disable S.PORT
-    case MODULE_TYPE_R9M_PXX1:
-      // R9M telemetry is disabled by pulses (pxx1.cpp)
-#if defined(HARDWARE_EXTERNAL_MODULE)
-      if (moduleBay == EXTERNAL_MODULE)
-        return false;
-#endif
-
-    case MODULE_TYPE_CROSSFIRE:
-#if defined(HARDWARE_INTERNAL_MODULE)
-      if (moduleBay == INTERNAL_MODULE)
-        return false;
-#endif
-
-    default:
-      return true;
-  }
-}
-
-bool areModulesConflicting(int intModuleType, int extModuleType)
-{
-  if (intModuleType == MODULE_TYPE_ISRM_PXX2)
-    return (extModuleType == MODULE_TYPE_GHOST);
-
-  return false;
-}
-
-#if defined(HARDWARE_INTERNAL_MODULE)
 bool isInternalModuleSupported(int moduleType)
 {
-  switch(moduleType) {
-#if defined(INTERNAL_MODULE_MULTI)
-  case MODULE_TYPE_MULTIMODULE: return true;
-#endif
+  if (moduleType == MODULE_TYPE_NONE) return true;
 #if defined(INTERNAL_MODULE_CRSF)
-  case MODULE_TYPE_CROSSFIRE: return true;
-#endif
-#if defined(INTERNAL_MODULE_PXX1)
-  case MODULE_TYPE_XJT_PXX1: return true;
-#endif
-#if defined(INTERNAL_MODULE_PXX2)
-  case MODULE_TYPE_ISRM_PXX2: return true;
-#endif
-#if defined(INTERNAL_MODULE_AFHDS2A)
-  case MODULE_TYPE_FLYSKY_AFHDS2A: return true;
-#endif
-#if defined(INTERNAL_MODULE_AFHDS3)
-  case MODULE_TYPE_FLYSKY_AFHDS3: return true;
-#endif
-  }
+  return moduleType == MODULE_TYPE_CROSSFIRE;
+#else
   return false;
+#endif
 }
 
 bool isInternalModuleAvailable(int moduleType)
 {
-#if defined(MUTUALLY_EXCLUSIVE_MODULES)
-  if (!isModuleNone(EXTERNAL_MODULE))
-    return false;
-#endif
-
-  if (moduleType == MODULE_TYPE_NONE)
-    return true;
-
-  if (g_eeGeneral.internalModule != moduleType)
-    return false;
-
-#if defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
-  if ((moduleType == MODULE_TYPE_XJT_PXX1) &&
-      isModuleUsingSport(EXTERNAL_MODULE,
-                         g_model.moduleData[EXTERNAL_MODULE].type)) {
-    return false;
-  }
-#endif
-
-#if defined(INTERNAL_MODULE_PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
-  if ((moduleType == MODULE_TYPE_ISRM_PXX2) &&
-      areModulesConflicting(moduleType,
-                            g_model.moduleData[EXTERNAL_MODULE].type)) {
-    return false;
-  }
-#endif
-
-  return true;
-}
-#else
-bool isInternalModuleSupported(int moduleType)
-{
-  return false;
-}
-
-bool isInternalModuleAvailable(int moduleType)
-{
-  return false;
-}
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-bool isExternalModuleAvailable(int moduleType)
-{
-
-#if defined(MUTUALLY_EXCLUSIVE_MODULES)
-  if (!isModuleNone(INTERNAL_MODULE))
-    return false;
-#endif
-
-#if defined(EXTMODULE_USART) && !defined(EXTMODULE_TIMER)
-  // Serial external bay with no PPM timer (e.g. C14, S.PORT-only): restrict to
-  // the protocols that run over the half-duplex telemetry line.
-  switch (moduleType) {
-    case MODULE_TYPE_NONE:
-    case MODULE_TYPE_CROSSFIRE:
-    case MODULE_TYPE_GHOST:
-      break;
-    default:
-      return false;
-  }
-#endif
-
-#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
-  if (isModuleTypeR9MLite(moduleType) || moduleType == MODULE_TYPE_XJT_LITE_PXX2)
-    return false;
-#endif
-
-#if !defined(PXX1)
-  if (isModuleTypePXX1(moduleType))
-    return false;
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML) and !defined(EXTMODULE_USART)
-  if (moduleType == MODULE_TYPE_XJT_LITE_PXX2 ||
-      moduleType == MODULE_TYPE_R9M_PXX2)
-    return false;
-#endif
-
-#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)
-  if (moduleType == MODULE_TYPE_R9M_PXX1 ||
-      moduleType == MODULE_TYPE_R9M_PXX2 ||
-      moduleType == MODULE_TYPE_XJT_PXX1 ||
-      moduleType == MODULE_TYPE_DSM2 ||
-      moduleType == MODULE_TYPE_LEMON_DSMP )
-    return false;
-#endif
-
-  if (moduleType == MODULE_TYPE_ISRM_PXX2)
-    return false; // doesn't exist for now
-
-
-  if (moduleType == MODULE_TYPE_XJT_LITE_PXX2 ||
-      moduleType == MODULE_TYPE_R9M_PXX2 ||
-      moduleType == MODULE_TYPE_R9M_LITE_PXX2 ||
-      moduleType == MODULE_TYPE_R9M_LITE_PRO_PXX2) {
-
-#if defined(PXX2)
-    return modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-                          ETX_MOD_PORT_UART, ETX_Pol_Normal,
-                          ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX);
-#else
-    return false;
-#endif
-  }
-
-#if !defined(CROSSFIRE)
-  if (moduleType == MODULE_TYPE_CROSSFIRE)
-    return false;
-#endif
-
-#if !defined(GHOST)
-  if (moduleType == MODULE_TYPE_GHOST)
-    return false;
-#endif
-
-#if !defined(DSM2)
-  if (moduleType == MODULE_TYPE_DSM2)
-     return false;
-#endif
-
-#if !defined(SBUS)
-  if (moduleType == MODULE_TYPE_SBUS)
-    return false;
-#endif
-
-#if !defined(MULTIMODULE)
-  if (moduleType == MODULE_TYPE_MULTIMODULE)
-    return false;
-#endif
-
+  if (moduleType == MODULE_TYPE_NONE) return true;
 #if defined(HARDWARE_INTERNAL_MODULE)
-  if (areModulesConflicting(g_model.moduleData[INTERNAL_MODULE].type, moduleType))
-    return false;
-
-  if (isTrainerUsingModuleBay() || (isModuleUsingSport(EXTERNAL_MODULE, moduleType) && isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)))
-    return false;
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (isModuleCrossfire(EXTERNAL_MODULE)) return false;
 #endif
-
-#if !defined(PPM)
-  if (moduleType == MODULE_TYPE_PPM)
-    return false;
+  return isInternalModuleSupported(moduleType) &&
+         g_eeGeneral.internalModule == moduleType;
+#else
+  return false;
 #endif
-
-#if !defined(AFHDS3)
-  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
-    return false;
-#endif
-
-#if !defined(AFHDS2)
-  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS2A)
-    return false;
-#endif
-  
-#if !defined(AFHDS3)
-  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
-    return false;
-#endif
-
-  return true;
 }
-
-#else // !defined(HARDWARE_EXTERNAL_MODULE)
 
 bool isExternalModuleAvailable(int moduleType)
 {
+  if (moduleType == MODULE_TYPE_NONE) return true;
+#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (isModuleCrossfire(INTERNAL_MODULE)) return false;
+#endif
+  return moduleType == MODULE_TYPE_CROSSFIRE && !isTrainerUsingModuleBay();
+#else
   return false;
-}
 #endif
-
-bool isRfProtocolAvailable(int protocol)
-{
-#if defined(CROSSFIRE) && defined(HARDWARE_EXTERNAL_MODULE)
-  if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_CROSSFIRE) {
-    return false;
-  }
-#endif
-
-#if defined(GHOST) && defined(HARDWARE_EXTERNAL_MODULE)
-  if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_GHOST) {
-    return false;
-  }
-#endif
-
-#if !defined(MODULE_PROTOCOL_D8)
-  if (protocol == MODULE_SUBTYPE_PXX1_ACCST_D8) {
-    return false;
-  }
-#endif
-
-#if (defined(PCBTARANIS) || defined(PCBHORUS)) && defined(HARDWARE_EXTERNAL_MODULE)
-  if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_R9M_PXX1) {
-    return false;
-  }
-  if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_R9M_PXX2) {
-    return false;
-  }
-#endif
-
-  return true;
 }
 
 bool isTrainerModeAvailable(int mode)
@@ -1195,7 +921,7 @@ bool isTrainerModeAvailable(int mode)
                                   ETX_MOD_DIR_RX);
       return port != nullptr;      
     }
-    
+
     if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
       const etx_module_port_t *port = nullptr;
 
@@ -1216,14 +942,7 @@ bool isTrainerModeAvailable(int mode)
 
   if (mode == TRAINER_MODE_MULTI) {
 
-#if !defined(MULTIMODULE)
     return false;
-#else
-  if ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
-       (!isModuleMultimodule(INTERNAL_MODULE) &&
-        !isModuleMultimodule(EXTERNAL_MODULE)))
-    return false;
-#endif
   }
 
   if (mode == TRAINER_MODE_CRSF) {
@@ -1298,46 +1017,6 @@ int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable)
   }
   return retval;
 }
-
-#if defined(MULTIMODULE)
-
-const uint8_t getMaxMultiOptions()
-{
-  return DIM(mm_options_strings::options);
-}
-
-const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol)
-{
-  const mm_protocol_definition *pdef;
-  for (pdef = multi_protocols; pdef->protocol != 0xfe; pdef++) {
-    if (pdef->protocol == protocol)
-      return pdef;
-  }
-  // Return the empty last protocol
-  return pdef;
-}
-
-const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
-{
-  const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
-  const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-  return STR_SAFE_VAL(pdef->optionsstr);
-}
-
-const char * getMultiOptionTitle(uint8_t moduleIdx)
-{
-  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-
-  if (status.isValid()) {
-    if (status.optionDisp >= getMaxMultiOptions()) {
-      status.optionDisp = 1; // Unknown options are defaulted to type 1 (basic option)
-    }
-    return STR_SAFE_VAL(mm_options_strings::options[status.optionDisp]);
-  }
-
-  return getMultiOptionTitleStatic(moduleIdx);
-}
-#endif
 
 #if !defined(COLORLCD)
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
@@ -1418,159 +1097,11 @@ void setPotType(int index, int value)
 
 uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
-  if (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4)) 
-    return 1;
-
-  if (isModuleCrossfire(moduleIdx))
-    return 0;
-
-  if (isModuleMultimodule(moduleIdx)) {
-    if (IS_RX_MULTI(moduleIdx))
-      return 1;
-    else
-      return 2;
-  }
-  else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx) || isModuleAFHDS3(moduleIdx) || isModuleDSMP(moduleIdx)) {
-    return 1;
-  }
-  else if (isModulePPM(moduleIdx) || isModulePXX1(moduleIdx) || isModulePXX2(moduleIdx) || isModuleDSM2(moduleIdx)) {
-    return 2;
-  }
-  else {
-    return HIDDEN_ROW;
-  }
+  if (!isModuleCrossfire(moduleIdx)) return HIDDEN_ROW;
+  return isModuleBindRangeAvailable(moduleIdx) ? 1 : 0;
 }
 
 uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
 {
-  if (!IS_MODULE_ENABLED(moduleIdx)) {
-    return HIDDEN_ROW;
-  }
-#if defined(MULTIMODULE)
-  else if (isModuleMultimodule(moduleIdx)) {
-    if (IS_RX_MULTI(moduleIdx))
-      return HIDDEN_ROW;
-    else if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
-      return 1;
-    else
-      return 0;
-  }
-#endif
-  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
-             isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
-             isModuleDSMP(moduleIdx)) {
-    // fixed number of channels
-    return 0;
-  } else {
-    return 1;
-  }
-}
-
-#if defined(MULTIMODULE)
-uint8_t MULTI_DISABLE_CHAN_MAP_ROW_STATIC(uint8_t moduleIdx)
-{
-  if (!isModuleMultimodule(moduleIdx))
-    return HIDDEN_ROW;
-
-  uint8_t protocol = g_model.moduleData[moduleIdx].multi.rfProtocol;
-  if (protocol < MODULE_SUBTYPE_MULTI_LAST) {
-    const mm_protocol_definition * pdef = getMultiProtocolDefinition(protocol);
-    if (pdef->disable_ch_mapping)
-      return 0;
-  }
-
-  return HIDDEN_ROW;
-}
-
-uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
-{
-  if (!isModuleMultimodule(moduleIdx))
-    return HIDDEN_ROW;
-
-  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  if (status.isValid()) {
-    return status.supportsDisableMapping() == true ? 0 : HIDDEN_ROW;
-  }
-
-  return MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx);
-}
-
-bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
-{
-  if (!isModuleMultimodule(moduleIdx)) {
-    return false;
-  }
-
-  if (g_model.moduleData[moduleIdx].multi.rfProtocol < MODULE_SUBTYPE_MULTI_LAST) {
-    return true;
-  }
-
-  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  if (status.isValid()) {
-    return status.protocolValid();
-  }
-
-  return false;
-}
-
-bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
-{
-  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  int proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
-
-  if (status.isValid()) {
-    TRACE("(%d) status.protocolSubNbr = %d", proto, status.protocolSubNbr);
-    return status.protocolSubNbr > 0;
-  }
-  else
-  {
-    if (proto > MODULE_SUBTYPE_MULTI_LAST) {
-      return true;
-    }
-    else {
-      auto subProto = getMultiProtocolDefinition(proto);
-      return subProto->subTypeString != nullptr;
-    }
-  }
-}
-
-uint8_t MULTIMODULE_RFPROTO_COLUMNS(uint8_t moduleIdx)
-{
-#if LCD_W < 212
-  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
-    return (MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t) 1 : HIDDEN_ROW);
-  else
-    return (MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW);
-#else
-  return (MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t) 1 : 0);
-#endif
-}
-
-uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx)
-{
-  if (!isModuleMultimodule(moduleIdx))
-    return false;
-
-  uint8_t protocol = g_model.moduleData[moduleIdx].multi.rfProtocol;
-  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-
-  if (status.isValid())
-    return status.optionDisp;
-
-  if (protocol < MODULE_SUBTYPE_MULTI_LAST)
-    return getMultiProtocolDefinition(protocol)->optionsstr != nullptr;
-
-  return false;
-}
-#endif
-
-uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx)
-{
-  if(isModuleR9MNonAccess(moduleIdx) || isModuleSBUS(moduleIdx))
-    return TITLE_ROW;
-  if(isModuleAFHDS3(moduleIdx))
-    return HIDDEN_ROW;
-  if(isModuleGhost(moduleIdx))
-    return 0;
-  return MULTIMODULE_OPTIONS_ROW(moduleIdx);
+  return isModuleCrossfire(moduleIdx) ? (uint8_t)0 : HIDDEN_ROW;
 }

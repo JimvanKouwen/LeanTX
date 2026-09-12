@@ -321,19 +321,6 @@ void DebugViewPage::build(Window* window)
       [] { return task_get_stack_usage(&audioTaskId); }, STR_STACK_AUDIO);
 #endif
 
-#if defined(DEBUG_LATENCY)
-  line = window->newLine(grid2);
-  line->padAll(PAD_TINY);
-
-  new StaticText(line, rect_t{}, STR_HEARTBEAT_LABEL);
-  if (heartbeatCapture.valid)
-    new DebugInfoNumber<uint16_t>(
-        line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return heartbeatCapture.count; }, COLOR_THEME_PRIMARY1);
-  else
-    new StaticText(window, grid.getFieldSlot(), "---");
-#endif
-
 #if defined(INTERNAL_GPS)
   if (serialGetModePort(UART_MODE_GPS) >= 0) {
     line = window->newLine(grid);

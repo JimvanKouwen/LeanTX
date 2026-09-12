@@ -38,12 +38,6 @@
 #include "usb_joystick.h"
 #endif
 
-#if defined(MULTIMODULE)
-  #include "pulses/multi.h"
-  #if defined(MULTI_PROTOLIST)
-    #include "io/multi_protolist.h"
-  #endif
-#endif
 
 uint8_t   storageDirtyMsk;
 tmr10ms_t storageDirtyTime10ms;
@@ -95,11 +89,6 @@ void postRadioSettingsLoad()
   g_eeGeneral.modelGVDisabled = false;
 #endif
 
-#if defined(PXX2)
-  if (is_memclear(g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
-    setDefaultOwnerId();
-  }
-#endif
 #if defined(PCBX12S) && defined(INTERNAL_GPS)
   // AUX2 is hardwired to AUX2 on X12S
   serialSetMode(SP_AUX2, UART_MODE_GPS);
@@ -138,7 +127,7 @@ static bool sortMixerLines()
   unsigned passes = 0;
   unsigned swaps;
   MixData tmp;
-  
+
   do {
     swaps = 0;
     for (int i = 0; i < MAX_MIXERS - 1; i++) {
@@ -217,12 +206,6 @@ void postModelLoad(bool alarms)
     storageDirty(EE_MODEL);
   }
 
-// fix #2552: reset rssiSource to default none (= 0)
-if(g_model.rssiSource) {
-  g_model.rssiSource = 0;
-
-  storageDirty(EE_MODEL);  
-}
 #if defined(STM32F4) && defined(CROSSFIRE)
   // Limit ext. CRSF speed to 3.75Mbps due to CRC errors at higher speeds
   if(isModuleCrossfire(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate == 4) {
@@ -230,45 +213,6 @@ if(g_model.rssiSource) {
     g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate = 3;
     storageDirty(EE_MODEL);
   }
-#endif
-
-#if defined(PXX2)
-  bool changed = false;
-
-  if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
-    if (!is_memclear(g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
-      memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
-      changed = true;
-    }
-  }
-
-  // fix colorLCD radios not writing yaml tag receivers
-  if(isModulePXX2(INTERNAL_MODULE)) {
-    ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
-    unsigned int oldVal = intModule->pxx2.receivers;
-    for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
-      if(intModule->pxx2.receiverName[receiverIdx][0])
-        intModule->pxx2.receivers |= (1 << receiverIdx);
-    }
-    if (oldVal != intModule->pxx2.receivers) changed = true;
-  }
-
-  if(isModulePXX2(EXTERNAL_MODULE)) {
-    ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
-    unsigned int oldVal = extModule->pxx2.receivers;
-    for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
-      if(extModule->pxx2.receiverName[receiverIdx][0])
-        extModule->pxx2.receivers |= (1 << receiverIdx);
-    }
-    if (oldVal != extModule->pxx2.receivers) changed = true;
-  }
-
-  if (changed)
-    storageDirty(EE_MODEL);
-#endif
-
-#if defined(MULTIMODULE) && defined(MULTI_PROTOLIST)
-  MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
 #endif
 
   AUDIO_FLUSH();
@@ -316,7 +260,6 @@ if(g_model.rssiSource) {
 
   LUA_LOAD_MODEL_SCRIPTS();
 
-  SEND_FAILSAFE_1S();
 
   // Reset debug stats for the newly loaded model (after checkAll() warnings)
   maxMixerDuration = 0;

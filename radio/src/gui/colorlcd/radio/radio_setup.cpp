@@ -802,14 +802,6 @@ const static SetupLineDef setupLines[] = {
                         GET_SET_INVERTED(g_eeGeneral.disablePwrOnOffHaptic));
      }},
 #endif
-#if defined(PXX2)
-    {// Owner ID
-     STR_DEF(STR_OWNER_ID),
-     [](Window* parent, coord_t x, coord_t y) {
-       new RadioTextEdit(parent, {x, y, 0, 0}, g_eeGeneral.ownerRegistrationID,
-                         PXX2_LEN_REGISTRATION_ID);
-     }},
-#endif
     {// Country code
      STR_DEF(STR_COUNTRY_CODE),
      [](Window* parent, coord_t x, coord_t y) {

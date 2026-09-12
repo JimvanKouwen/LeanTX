@@ -21,23 +21,7 @@ const struct YamlIdStr enum_AntennaModes[] = {
 };
 const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_NONE, "TYPE_NONE"  },
-  {  MODULE_TYPE_PPM, "TYPE_PPM"  },
-  {  MODULE_TYPE_XJT_PXX1, "TYPE_XJT_PXX1"  },
-  {  MODULE_TYPE_ISRM_PXX2, "TYPE_ISRM_PXX2"  },
-  {  MODULE_TYPE_DSM2, "TYPE_DSM2"  },
   {  MODULE_TYPE_CROSSFIRE, "TYPE_CROSSFIRE"  },
-  {  MODULE_TYPE_MULTIMODULE, "TYPE_MULTIMODULE"  },
-  {  MODULE_TYPE_R9M_PXX1, "TYPE_R9M_PXX1"  },
-  {  MODULE_TYPE_R9M_PXX2, "TYPE_R9M_PXX2"  },
-  {  MODULE_TYPE_R9M_LITE_PXX1, "TYPE_R9M_LITE_PXX1"  },
-  {  MODULE_TYPE_R9M_LITE_PXX2, "TYPE_R9M_LITE_PXX2"  },
-  {  MODULE_TYPE_GHOST, "TYPE_GHOST"  },
-  {  MODULE_TYPE_R9M_LITE_PRO_PXX2, "TYPE_R9M_LITE_PRO_PXX2"  },
-  {  MODULE_TYPE_SBUS, "TYPE_SBUS"  },
-  {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
-  {  MODULE_TYPE_FLYSKY_AFHDS2A, "TYPE_FLYSKY_AFHDS2A"  },
-  {  MODULE_TYPE_FLYSKY_AFHDS3, "TYPE_FLYSKY_AFHDS3"  },
-  {  MODULE_TYPE_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TrainerMultiplex[] = {
@@ -233,14 +217,6 @@ const struct YamlIdStr enum_ModelOverridableEnable[] = {
   {  OVERRIDE_ON, "ON"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_FailsafeModes[] = {
-  {  FAILSAFE_NOT_SET, "NOT_SET"  },
-  {  FAILSAFE_HOLD, "HOLD"  },
-  {  FAILSAFE_CUSTOM, "CUSTOM"  },
-  {  FAILSAFE_NOPULSES, "NOPULSES"  },
-  {  FAILSAFE_RECEIVER, "RECEIVER"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_TelemetrySensorFormula[] = {
   {  TELEM_FORMULA_ADD, "FORMULA_ADD"  },
   {  TELEM_FORMULA_AVERAGE, "FORMULA_AVERAGE"  },
@@ -350,6 +326,11 @@ static const struct YamlNode struct_switchDef[] = {
   YAML_STRUCT("offColor", 24, struct_RGBLedColor, switch_is_cfs),
   YAML_END
 };
+static const struct YamlNode struct_unsigned_8[] = {
+  YAML_IDX,
+  YAML_UNSIGNED( "val", 8 ),
+  YAML_END
+};
 static const struct YamlNode struct_KeyShortcut[] = {
   YAML_IDX,
   YAML_CUSTOM("shortcut",r_keyShortcut,w_keyShortcut),
@@ -444,7 +425,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRING("currModelFilename", 17),
   YAML_UNSIGNED( "blOffBright", 8 ),
   YAML_STRING("bluetoothName", 10),
-  YAML_STRING("ownerRegistrationID", 8),
+  YAML_PADDING( 64 ),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
   YAML_UNSIGNED( "rotEncMode", 3 ),
   YAML_PADDING( 2 ),
@@ -479,11 +460,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
   YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
-  YAML_END
-};
-static const struct YamlNode struct_unsigned_8[] = {
-  YAML_IDX,
-  YAML_UNSIGNED( "val", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_ModelHeader[] = {
@@ -639,75 +615,7 @@ static const struct YamlNode struct_RFAlarmData[] = {
   YAML_SIGNED( "critical", 8 ),
   YAML_END
 };
-static const struct YamlNode struct_PpmModule[] = {
-  YAML_SIGNED( "delay", 6 ),
-  YAML_UNSIGNED( "pulsePol", 1 ),
-  YAML_UNSIGNED( "outputType", 1 ),
-  YAML_SIGNED( "frameLength", 8 ),
-  YAML_END
-};
 static const struct YamlNode struct_anonymous_5[] = {
-  YAML_PADDING( 8 ),
-  YAML_UNSIGNED( "disableTelemetry", 1 ),
-  YAML_UNSIGNED( "disableMapping", 1 ),
-  YAML_UNSIGNED( "autoBindMode", 1 ),
-  YAML_UNSIGNED( "lowPowerMode", 1 ),
-  YAML_UNSIGNED( "receiverTelemetryOff", 1 ),
-  YAML_UNSIGNED( "receiverHigherChannels", 1 ),
-  YAML_PADDING( 2 ),
-  YAML_SIGNED( "optionValue", 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_anonymous_6[] = {
-  YAML_UNSIGNED( "power", 2 ),
-  YAML_PADDING( 2 ),
-  YAML_UNSIGNED( "receiverTelemetryOff", 1 ),
-  YAML_UNSIGNED( "receiverHigherChannels", 1 ),
-  YAML_PADDING( 2 ),
-  YAML_PADDING( 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_anonymous_7[] = {
-  YAML_PADDING( 6 ),
-  YAML_UNSIGNED( "noninverted", 1 ),
-  YAML_PADDING( 1 ),
-  YAML_SIGNED( "refreshRate", 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_string_64[] = {
-  YAML_IDX,
-  YAML_STRING("val", 8),
-  YAML_END
-};
-static const struct YamlNode struct_anonymous_8[] = {
-  YAML_UNSIGNED( "receivers", 7 ),
-  YAML_UNSIGNED( "racingMode", 1 ),
-  YAML_ARRAY("receiverName", 64, 3, struct_string_64, NULL),
-  YAML_END
-};
-static const struct YamlNode struct_anonymous_9[] = {
-  YAML_ARRAY("rx_id", 8, 4, struct_unsigned_8, NULL),
-  YAML_UNSIGNED( "mode", 3 ),
-  YAML_UNSIGNED( "rfPower", 1 ),
-  YAML_UNSIGNED( "reserved", 4 ),
-  YAML_ARRAY("rx_freq", 8, 2, struct_unsigned_8, NULL),
-  YAML_END
-};
-static const struct YamlNode struct_anonymous_10[] = {
-  YAML_UNSIGNED( "emi", 2 ),
-  YAML_UNSIGNED( "telemetry", 1 ),
-  YAML_UNSIGNED( "phyMode", 3 ),
-  YAML_UNSIGNED( "reserved", 2 ),
-  YAML_UNSIGNED( "rfPower", 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_anonymous_11[] = {
-  YAML_UNSIGNED( "raw12bits", 1 ),
-  YAML_UNSIGNED( "telemetryBaudrate", 3 ),
-  YAML_PADDING( 4 ),
-  YAML_END
-};
-static const struct YamlNode struct_anonymous_12[] = {
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
   YAML_UNSIGNED( "crsfArmingMode", 1 ),
   YAML_PADDING( 4 ),
@@ -715,34 +623,18 @@ static const struct YamlNode struct_anonymous_12[] = {
   YAML_SIGNED( "spare3", 6 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_13[] = {
-  YAML_UNSIGNED( "flags", 8 ),
-  YAML_UNSIGNED( "enableAETR", 1 ),
-  YAML_END
-};
 static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_ARRAY("raw", 8, 25, struct_unsigned_8, NULL),
-  YAML_STRUCT("ppm", 16, struct_PpmModule, NULL),
-  YAML_STRUCT("multi", 24, struct_anonymous_5, NULL),
-  YAML_STRUCT("pxx", 16, struct_anonymous_6, NULL),
-  YAML_STRUCT("sbus", 16, struct_anonymous_7, NULL),
-  YAML_STRUCT("pxx2", 200, struct_anonymous_8, NULL),
-  YAML_STRUCT("flysky", 56, struct_anonymous_9, NULL),
-  YAML_STRUCT("afhds3", 16, struct_anonymous_10, NULL),
-  YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
-  YAML_STRUCT("crsf", 24, struct_anonymous_12, NULL),
-  YAML_STRUCT("dsmp", 16, struct_anonymous_13, NULL),
+  YAML_STRUCT("crsf", 24, struct_anonymous_5, NULL),
   YAML_END
 };
 static const struct YamlNode struct_ModuleData[] = {
   YAML_IDX,
   YAML_UNSIGNED_CUST( "type", 6, r_moduleType, w_moduleType ),
   YAML_ENUM("antennaMode", 2, enum_AntennaModes, NULL),
-  YAML_CUSTOM("subType",r_modSubtype,w_modSubtype),
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED_CUST( "channelsCount", 8, r_channelsCount, w_channelsCount ),
-  YAML_ENUM("failsafeMode", 4, enum_FailsafeModes, NULL),
-  YAML_PADDING( 4 ),
+  YAML_PADDING( 8 ),
   YAML_UNION("mod", 200, union_anonymous_4_elmts, select_mod_type),
   YAML_END
 };
@@ -778,61 +670,61 @@ static const struct YamlNode struct_string_32[] = {
   YAML_STRING("val", 4),
   YAML_END
 };
-static const struct YamlNode union_anonymous_14_elmts[] = {
+static const struct YamlNode union_anonymous_6_elmts[] = {
   YAML_UNSIGNED( "id", 16 ),
   YAML_UNSIGNED( "persistentValue", 16 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_16[] = {
+static const struct YamlNode struct_anonymous_8[] = {
   YAML_UNSIGNED( "physID", 5 ),
   YAML_UNSIGNED( "rxIndex", 3 ),
   YAML_END
 };
-static const struct YamlNode union_anonymous_15_elmts[] = {
-  YAML_STRUCT("frskyInstance", 8, struct_anonymous_16, NULL),
+static const struct YamlNode union_anonymous_7_elmts[] = {
+  YAML_STRUCT("frskyInstance", 8, struct_anonymous_8, NULL),
   YAML_UNSIGNED( "instance", 8 ),
   YAML_ENUM("formula", 8, enum_TelemetrySensorFormula, NULL),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_18[] = {
+static const struct YamlNode struct_anonymous_10[] = {
   YAML_UNSIGNED( "ratio", 16 ),
   YAML_SIGNED( "offset", 16 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_19[] = {
+static const struct YamlNode struct_anonymous_11[] = {
   YAML_UNSIGNED( "source", 8 ),
   YAML_UNSIGNED( "index", 8 ),
   YAML_PADDING( 16 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_20[] = {
+static const struct YamlNode struct_anonymous_12[] = {
   YAML_ARRAY("sources", 8, 4, struct_signed_8, NULL),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_21[] = {
+static const struct YamlNode struct_anonymous_13[] = {
   YAML_UNSIGNED( "source", 8 ),
   YAML_PADDING( 24 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_22[] = {
+static const struct YamlNode struct_anonymous_14[] = {
   YAML_UNSIGNED( "gps", 8 ),
   YAML_UNSIGNED( "alt", 8 ),
   YAML_PADDING( 16 ),
   YAML_END
 };
-static const struct YamlNode union_anonymous_17_elmts[] = {
-  YAML_STRUCT("custom", 32, struct_anonymous_18, NULL),
-  YAML_STRUCT("cell", 32, struct_anonymous_19, NULL),
-  YAML_STRUCT("calc", 32, struct_anonymous_20, NULL),
-  YAML_STRUCT("consumption", 32, struct_anonymous_21, NULL),
-  YAML_STRUCT("dist", 32, struct_anonymous_22, NULL),
+static const struct YamlNode union_anonymous_9_elmts[] = {
+  YAML_STRUCT("custom", 32, struct_anonymous_10, NULL),
+  YAML_STRUCT("cell", 32, struct_anonymous_11, NULL),
+  YAML_STRUCT("calc", 32, struct_anonymous_12, NULL),
+  YAML_STRUCT("consumption", 32, struct_anonymous_13, NULL),
+  YAML_STRUCT("dist", 32, struct_anonymous_14, NULL),
   YAML_UNSIGNED( "param", 32 ),
   YAML_END
 };
 static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_IDX,
-  YAML_UNION("id1", 16, union_anonymous_14_elmts, select_id1),
-  YAML_UNION("id2", 8, union_anonymous_15_elmts, select_id2),
+  YAML_UNION("id1", 16, union_anonymous_6_elmts, select_id1),
+  YAML_UNION("id2", 8, union_anonymous_7_elmts, select_id2),
   YAML_STRING("label", 4),
   YAML_UNSIGNED( "subId", 8 ),
   YAML_ENUM("type", 1, enum_TelemetrySensorType, NULL),
@@ -845,7 +737,7 @@ static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_UNSIGNED( "persistent", 1 ),
   YAML_UNSIGNED( "onlyPositive", 1 ),
   YAML_PADDING( 1 ),
-  YAML_UNION("cfg", 32, union_anonymous_17_elmts, select_sensor_cfg),
+  YAML_UNION("cfg", 32, union_anonymous_9_elmts, select_sensor_cfg),
   YAML_END
 };
 static const struct YamlNode union_WidgetOptionValue_elmts[] = {
@@ -958,7 +850,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("switchWarning", 2, 32, struct_swtchWarn, nullptr),
   YAML_ARRAY("gvars", 56, 15, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
-  YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
+  YAML_PADDING( 8 ),
   YAML_STRUCT("rssiAlarms", 0, struct_RssiAlarmData, NULL),
   YAML_STRUCT("rfAlarms", 16, struct_RFAlarmData, NULL),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
@@ -966,7 +858,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("jitterFilter", 2, enum_ModelOverridableEnable, NULL),
   YAML_PADDING( 1 ),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
-  YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
+  YAML_PADDING( 512 ),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
   YAML_ARRAY("scriptsData", 192, 9, struct_ScriptData, NULL),
   YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
@@ -977,7 +869,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("topbarData", 0, struct_TopBarPersistentData, isAlwaysActive),
   YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
-  YAML_STRING("modelRegistrationID", 8),
+  YAML_PADDING( 64 ),
   YAML_CUSTOM("functionSwitchConfig",r_functionSwitchConfig,nullptr),
   YAML_CUSTOM("functionSwitchGroup",r_functionSwitchGroup,nullptr),
   YAML_CUSTOM("functionSwitchStartConfig",r_functionSwitchStartConfig,nullptr),

@@ -60,7 +60,7 @@ if(NOT NATIVE_BUILD)
       ${STM32CUBE_SRC_PREFIX}_hal_ltdc.c
       ${STM32CUBE_SRC_PREFIX}_hal_lptim.c
     )
-  else()
+else()
     set(STM32CUBE_PREFIX stm32h7xx)
     set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32H7xx_HAL_Driver)
     set(STM32CUBE_SRC_PREFIX ${STM32CUBE_DIR}/Src/${STM32CUBE_PREFIX})
@@ -170,7 +170,7 @@ if(NOT NATIVE_BUILD)
   endif()
 
   include_directories(${RTOS_DIR}/portable/GCC/ARM_CM4F)
-  
+
   # EdgeTx Compat layer
   set(FIRMWARE_SRC ${FIRMWARE_SRC} rtos.c)
 

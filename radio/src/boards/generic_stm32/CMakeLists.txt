@@ -11,8 +11,6 @@ set(MINIMAL_BOARD_LIB_SRC
 set(BOARD_LIB_SRC
   boards/generic_stm32/module_ports.cpp
   boards/generic_stm32/trainer_ports.cpp
-  boards/generic_stm32/sport_update.cpp
-  boards/generic_stm32/intmodule_heartbeat.cpp
   boards/generic_stm32/analog_inputs.cpp
   boards/generic_stm32/switches.cpp
   boards/generic_stm32/bor_level.cpp

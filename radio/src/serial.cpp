@@ -37,6 +37,7 @@
 
 #if !defined(BOOT)
   #include "edgetx.h"
+#include "sbus.h"
   #include "lua/lua_api.h"
 #else
   #include "dataconstants.h"
@@ -44,10 +45,6 @@
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
-#endif
-
-#if defined(GHOST)
-  #include "telemetry/ghost.h"
 #endif
 
 #if defined(DEBUG_SEGGER_RTT)
@@ -227,14 +224,6 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     // trainer mode selects it as input source. See sbusTrainerAcquire().
     break;
 
-  case UART_MODE_TELEMETRY:
-    // telemetrySetGetByte(ctx, getByte);
-
-    // TODO: setRxCb (see MODE_LUA)
-    //       de we really need telemetry
-    //       input over USB VCP?
-    break;
-
   case UART_MODE_TELEMETRY_MIRROR:
     telemetrySetMirrorCb(ctx, sendByte);
     break;
@@ -296,28 +285,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
 
 #if !defined(BOOT)
   case UART_MODE_TELEMETRY_MIRROR:
-    // TODO: query telemetry baudrate / add setting for module
-#if defined(CROSSFIRE)
-    if (isModuleCrossfire(EXTERNAL_MODULE) || isModuleCrossfire(INTERNAL_MODULE)) {
-      params.baudrate = CROSSFIRE_TELEM_MIRROR_BAUDRATE;
-      break;
-    }
-#endif
-#if defined(GHOST)
-    if (isModuleGhost(EXTERNAL_MODULE) || isModuleGhost(INTERNAL_MODULE)) {
-      params.baudrate = GHOST_TELEM_MIRROR_BAUDRATE;
-      break;
-    }
-#endif
-    params.baudrate = FRSKY_TELEM_MIRROR_BAUDRATE;
-    break;
-
-  case UART_MODE_TELEMETRY:
-    if (isModulePPM(EXTERNAL_MODULE) &&
-        g_model.telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-      params.baudrate = FRSKY_D_BAUDRATE;
-      params.direction = ETX_Dir_RX;
-    }
+    params.baudrate = CROSSFIRE_TELEM_MIRROR_BAUDRATE;
     break;
 
   case UART_MODE_SBUS_TRAINER:
@@ -481,7 +449,7 @@ void serialInit(uint8_t port_nr, int mode)
   if (!port || params.baudrate == 0 ||
       !port->uart || !port->uart->init)
     return;
-  
+
   auto hw_def = port->hw_def;
   state->usart_ctx = port->uart->init(hw_def, &params);
 
@@ -490,7 +458,7 @@ void serialInit(uint8_t port_nr, int mode)
 
   state->mode = mode;
   state->port = port;
-        
+
   // Update callbacks once the port is setup
   serialSetCallBacks(mode, state->usart_ctx, state->port);
 

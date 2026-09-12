@@ -36,10 +36,6 @@
 
 //-----------------------------------------------------------------------------
 
-static const char *_failsafe_module[] = {
-    "Int.",
-    "Ext.",
-};
 
 static const lv_style_const_prop_t sf_enable_state_style_props[] = {
     LV_STYLE_CONST_OUTLINE_WIDTH(3),
@@ -196,10 +192,6 @@ void FunctionLineButton::refresh()
       } else {
         sprintf(s + strlen(s), "---");
       }
-      break;
-
-    case FUNC_SET_FAILSAFE:
-      strcat(s, _failsafe_module[CFN_PARAM(cfn)]);
       break;
 
     case FUNC_HAPTIC:
@@ -466,13 +458,6 @@ class FunctionEditPage : public Page
         }
         break;
       }
-
-      case FUNC_SET_FAILSAFE:
-        static const char* const strModules[] = { "Int.", "Ext." };
-        new StaticText(line, rect_t{}, STR_MODULE);
-        new Choice(line, rect_t{}, strModules, 0, NUM_MODULES - 1,
-                  GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        break;
 
       case FUNC_PLAY_VALUE:
         addSourceChoice(line, STR_VALUE, cfn, MIXSRC_LAST_TELEM);

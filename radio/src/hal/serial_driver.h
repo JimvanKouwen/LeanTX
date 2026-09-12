@@ -28,7 +28,6 @@
 enum SerialEncoding {
   ETX_Encoding_8N1,
   ETX_Encoding_8E2,
-  ETX_Encoding_PXX1_PWM,
 };
 
 enum SerialDirection {
@@ -81,13 +80,13 @@ typedef struct {
 
   // Is TX phase completed
   bool (*txCompleted)(void* ctx);
-  
+
   // Wait for last send operation to complete
   void (*waitForTxCompleted)(void* ctx);
-  
+
   // 2-wire half-duplex
   void (*enableRx)(void* ctx);
-  
+
   // Fetch next available byte from internal buffer
   int (*getByte)(void* ctx, uint8_t* data);
 
@@ -110,10 +109,10 @@ typedef struct {
 
   // Configure inverter
   void (*setPolarity)(void*, uint8_t polarity);
-  
+
   // Set a HW specific option (SerialHWOption; possibly unsupported by the driver)
   void (*setHWOption)(void*, uint32_t option);
-  
+
   // Callbacks
   void (*setReceiveCb)(void* ctx, void (*on_receive)(uint8_t*, uint32_t));
   void (*setIdleCb)(void* ctx, void (*on_idle)(void*), void* param);

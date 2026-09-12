@@ -24,8 +24,6 @@
 #include "yaml_bits.h"
 #include "yaml_node.h"
 #include "yaml_tree_walker.h"
-
-#include "pulses/multi.h"
 #include "switches.h"
 #include "analogs.h"
 #include "stamp.h"
@@ -50,7 +48,7 @@
 //
 static inline void check_yaml_funcs()
 {
-  static_assert(offsetof(ModuleData, ppm) == 4,"");
+  static_assert(offsetof(ModuleData, crsf) == 4,"");
   check_size<ModuleData, 29>();
 #if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   static_assert(MAX_GVARS == 15,"");
@@ -183,7 +181,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       if (!val_len) return MIXSRC_NONE;
       val++; val_len--;
-      
+
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_LUA +
              script * MAX_SCRIPT_OUTPUTS;
@@ -205,7 +203,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_TRAINER;
-      
+
     } else if (val_len > 3 &&
                val[0] == 'c' &&
                val[1] == 'h' &&
@@ -214,7 +212,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_CH;
-      
+
     } else if (val_len > 3 &&
                val[0] == 'g' &&
                val[1] == 'v' &&
@@ -290,10 +288,10 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
     idx = switchLookupIdx(val, val_len);
     if (idx >= 0) return idx + MIXSRC_FIRST_SWITCH;
-    
+
     idx = _legacy_mix_src(val, val_len);
     if (idx >= 0) return idx;
-    
+
     return yaml_parse_enum(enum_MixSources, val, val_len);
 }
 
@@ -325,7 +323,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     }
 #if defined(LUA_INPUTS)
     else if (val <= MIXSRC_LAST_LUA) {
-      
+
         val -= MIXSRC_FIRST_LUA;
         uint32_t script = val / MAX_SCRIPT_OUTPUTS;
 
@@ -984,42 +982,7 @@ bool w_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
 
 static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  data += bitoffs >> 3UL;
-  data -= offsetof(ModuleData, ppm);
-
-  ModuleData* mod_data = reinterpret_cast<ModuleData*>(data);
-  switch (mod_data->type) {
-    case MODULE_TYPE_NONE:
-    case MODULE_TYPE_PPM:
-    case MODULE_TYPE_DSM2:
-      return 1;
-    case MODULE_TYPE_MULTIMODULE:
-      return 2;
-    case MODULE_TYPE_XJT_PXX1:
-    case MODULE_TYPE_R9M_PXX1:
-    case MODULE_TYPE_R9M_LITE_PXX1:
-      return 3;
-    case MODULE_TYPE_SBUS:
-      return 4;
-    case MODULE_TYPE_ISRM_PXX2:
-    case MODULE_TYPE_R9M_PXX2:
-    case MODULE_TYPE_R9M_LITE_PXX2:
-    case MODULE_TYPE_R9M_LITE_PRO_PXX2:
-    case MODULE_TYPE_XJT_LITE_PXX2:
-      return 5;
-    case MODULE_TYPE_FLYSKY_AFHDS2A:
-      return 6;
-    case MODULE_TYPE_FLYSKY_AFHDS3:
-      return 7;
-      break;
-    case MODULE_TYPE_GHOST:
-      return 8;
-    case MODULE_TYPE_CROSSFIRE:
-      return 9;
-    case MODULE_TYPE_LEMON_DSMP:
-      return 10;
-  }
-  return 0;
+  return 1; // CRSF settings are the only module payload.
 }
 
 static uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
@@ -1048,7 +1011,7 @@ static uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs)
 
   if (sensor->type == TELEM_TYPE_CALCULATED)
     return 2; // formula
-  
+
   return 1; // instance
 }
 
@@ -1071,7 +1034,7 @@ static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
       return 0; // custom
     }
   }
-  
+
   return 5;
 }
 
@@ -1089,7 +1052,7 @@ static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
   if (val_len == 0 || (val[0] < '0') || (val[0] > '9')) {
     return -1;
   }
-  
+
   return (uint32_t)yaml_str2int(val, val_len);
 }
 
@@ -1370,7 +1333,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
       if (ival < 0) return SWSRC_NONE;
       ival += yaml_str2int(val + 3, val_len - 3);
       ival += SWSRC_FIRST_SWITCH;
-      
+
     } else if (val_len > 2 && val[0] == 'S'
         && val[1] >= 'A' && val[1] <= 'Z'
         && val[2] >= '0' && val[2] <= '2') {
@@ -1379,7 +1342,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
       if (ival < 0) return SWSRC_NONE;
       ival += yaml_str2int(val + 2, val_len - 2);
       ival += SWSRC_FIRST_SWITCH;
-      
+
     }
     else if (val_len > 3
         && val[0] == '6'
@@ -1416,7 +1379,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
              && val[0] == 'F'
              && val[1] == 'M'
              && (val[2] >= '0' && val[2] <= '9')) {
-        
+
         ival = SWSRC_FIRST_FLIGHT_MODE + (val[2] - '0');
     }
     else if (val_len >= 2
@@ -1472,7 +1435,7 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
 
       auto trim = trimSwitchNames[sval - SWSRC_FIRST_TRIM];
       return wf(opaque, trim, strlen(trim));
-        
+
     } else if (sval <= SWSRC_LAST_LOGICAL_SWITCH) {
 
       wf(opaque, "L", 1);
@@ -1712,10 +1675,10 @@ static void r_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
   }
 
   if (!type) return;
-  
+
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
-  
+
   data -= sizeof(TelemetryScreenData) * idx + 1;
   *data = (*data & ~(0x03 << (2 * idx))) | (type << (2 * idx));
 }
@@ -1768,7 +1731,7 @@ static bool w_tele_sensor(const YamlNode* node, uint32_t val,
   if (!val) {
     return wf(opaque, "none", 4);
   }
-  
+
   const char* str = yaml_unsigned2str(val-1);  
   return wf(opaque, str, strlen(str));
 }
@@ -1832,7 +1795,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // value
     CFN_PARAM(cfn) = yaml_str2int_ref(val, val_len);
   }
-  
+
   // find "," and cut val_len
   uint8_t l_sep = find_sep(val, val_len);
 
@@ -1898,7 +1861,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       CFN_PARAM(cfn) = sensor + FUNC_RESET_PARAM_FIRST_TELEM;
     }
     break;
-      
+
   case FUNC_VOLUME:
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
@@ -2130,7 +2093,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     }
     if (!wf(opaque, str, strlen(str))) return false;
     break;
-      
+
   case FUNC_VOLUME:
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
@@ -2271,7 +2234,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
   switch(lswFamily(ls->func)) {
-  
+
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
     ls->v1 = r_swtchSrc(nullptr, val, l_sep);
@@ -2298,7 +2261,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
       ls->v3 = t - ls->v2;
     }
     break;
-    
+
   case LS_FAMILY_COMP:
     ls->v1 = r_mixSrcRawEx(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
@@ -2306,7 +2269,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
     ls->v2 = r_mixSrcRawEx(nullptr, val, val_len);
     break;
-    
+
   case LS_FAMILY_TIMER:
     ls->v1 = timerValue2lsw(yaml_str2uint(val, l_sep));
     val += l_sep; val_len -= l_sep;
@@ -2314,7 +2277,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
     ls->v2 = timerValue2lsw(yaml_str2uint(val, val_len));
     break;
-    
+
   default:
     ls->v1 = r_mixSrcRawEx(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
@@ -2340,7 +2303,7 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   const char* str = nullptr;
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
   switch(lswFamily(ls->func)) {
-  
+
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
     if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
@@ -2363,13 +2326,13 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
     }
     break;
-    
+
   case LS_FAMILY_COMP:
     if (!w_mixSrcRawExNoQuote(nullptr, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
     if (!w_mixSrcRawExNoQuote(nullptr, ls->v2, wf, opaque)) return false;
     break;
-    
+
   case LS_FAMILY_TIMER:
     str = yaml_unsigned2str(lswTimerValue(ls->v1));
     if (!wf(opaque,str,strlen(str))) return false;
@@ -2377,7 +2340,7 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_unsigned2str(lswTimerValue(ls->v2));
     if (!wf(opaque,str,strlen(str))) return false;
     break;
-    
+
   default:
     if (!w_mixSrcRawExNoQuote(nullptr, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
@@ -2411,163 +2374,16 @@ static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
 
 extern const struct YamlIdStr enum_ModuleType[];
 
-static const struct YamlIdStr enum_old_ModuleType[] = {
-  { MODULE_TYPE_FLYSKY_AFHDS2A, "TYPE_FLYSKY" },
-  { 0, NULL  }
-};
-
 static uint32_t r_moduleType(const YamlNode* node, const char* val, uint8_t val_len)
 {
   uint32_t type = yaml_parse_enum(enum_ModuleType, val, val_len);
-  if (!type && val_len > 0) {
-    type = yaml_parse_enum(enum_old_ModuleType, val, val_len);
-  }
-  return type;
+  return type == MODULE_TYPE_CROSSFIRE ? MODULE_TYPE_CROSSFIRE : MODULE_TYPE_NONE;
 }
 
 bool w_moduleType(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
   const char* str = yaml_output_enum(val, enum_ModuleType);
   return str ? wf(opaque, str, strlen(str)) : true;
-}
-
-static const struct YamlIdStr enum_XJT_Subtypes[] = {
-  { MODULE_SUBTYPE_PXX1_ACCST_D16, "D16" },
-  { MODULE_SUBTYPE_PXX1_ACCST_D8, "D8" },
-  { MODULE_SUBTYPE_PXX1_ACCST_LR12, "LR12" },
-  { 0, NULL  }
-};
-
-static const struct YamlIdStr enum_ISRM_Subtypes[] = {
-  { MODULE_SUBTYPE_ISRM_PXX2_ACCESS, "ACCESS" },
-  { MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, "D16" },
-  // unused !!!
-  // { MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12, "LR12" },
-  // { MODULE_SUBTYPE_ISRM_PXX2_ACCST_D8, "D8" },
-  { 0, NULL  }
-};
-
-static const struct YamlIdStr enum_R9M_Subtypes[] = {
-  { MODULE_SUBTYPE_R9M_FCC, "FCC" },
-  { MODULE_SUBTYPE_R9M_EU, "EU" },
-  { MODULE_SUBTYPE_R9M_EUPLUS, "EUPLUS" },
-  { MODULE_SUBTYPE_R9M_AUPLUS, "AUPLUS" },
-  { 0, NULL  }
-};
-
-enum ModuleSubtypeFlysky { FLYSKY_SUBTYPE_AFHDS3 = 0, FLYSKY_SUBTYPE_AFHDS2A };
-
-static const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
-  { FLYSKY_SUBTYPE_AFHDS2A, "AFHDS2A" },
-  { FLYSKY_SUBTYPE_AFHDS3, "AFHDS3" },
-  { 0, NULL  }
-};
-
-static const struct YamlIdStr enum_PPM_Subtypes[] = {
-  { 0, "NOTLM" },
-  { 1, "MLINK" },
-  { 0, NULL  }
-};
-
-static const struct YamlIdStr enum_DSM2_Subtypes[] = {
-  { 0, "LP45" },
-  { 1, "DSM2" },
-  { 2, "DSMX" },
-  { 0, NULL  }
-};
-
-static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
-                         const char* val, uint8_t val_len)
-{
-  data += bitoffs >> 3UL;
-  data -= offsetof(ModuleData, channelsStart);
-
-  auto md = reinterpret_cast<ModuleData*>(data);
-  if (isModuleTypeXJT(md->type)) {
-    md->subType = yaml_parse_enum(enum_XJT_Subtypes, val, val_len);
-  } else if (isModuleTypeISRM(md->type)) {
-    md->subType = yaml_parse_enum(enum_ISRM_Subtypes, val, val_len);
-  } else if (isModuleTypeR9MNonAccess(md->type)) {
-    md->subType = yaml_parse_enum(enum_R9M_Subtypes, val, val_len);
-#if defined(AFHDS3)
-  } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS2A) {
-    // Flysky sub-types have been converted into separate module types
-    auto sub_type = yaml_parse_enum(enum_FLYSKY_Subtypes, val, val_len);
-    if (sub_type == FLYSKY_SUBTYPE_AFHDS3)
-      md->type = MODULE_TYPE_FLYSKY_AFHDS3;
-#endif
-  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
-#if defined(MULTIMODULE)
-    // Read type/subType by the book (see MPM documentation)
-    // read "[type],[subtype]"
-    uint8_t l_sep = find_sep(val, val_len);
-
-    int type = yaml_str2uint(val, l_sep);
-    val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    int subtype = yaml_str2uint(val, val_len);
-
-    // convert to ETX format and write to vars
-    if (type > 0) {
-      type -= 1; // change to internal 0 based representation
-      md->multi.rfProtocol = type;
-      md->subType = subtype;
-    }
-#endif
-  } else if (md->type == MODULE_TYPE_DSM2) {
-    md->subType = yaml_parse_enum(enum_DSM2_Subtypes, val, val_len);
-  } else if (md->type == MODULE_TYPE_PPM) {
-    md->subType = yaml_parse_enum(enum_PPM_Subtypes, val, val_len);
-  } else {
-    md->subType = yaml_str2uint(val, val_len);
-  }  
-}
-
-static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
-                         yaml_writer_func wf, void* opaque)
-{
-  // rfProtocol + subType, depending on the module
-  data += bitoffs >> 3UL;
-  data -= offsetof(ModuleData, channelsStart);
-
-  const char* str = nullptr;
-  auto md = reinterpret_cast<ModuleData*>(data);
-  int32_t val = md->subType;
-  if (md->type == MODULE_TYPE_XJT_PXX1 || md->type == MODULE_TYPE_XJT_LITE_PXX2) {
-    str = yaml_output_enum(val, enum_XJT_Subtypes);
-  } else if (md->type == MODULE_TYPE_ISRM_PXX2) {
-    str = yaml_output_enum(val, enum_ISRM_Subtypes);
-  } else if (md->type == MODULE_TYPE_R9M_PXX1 || md->type == MODULE_TYPE_R9M_LITE_PXX1) {
-    str = yaml_output_enum(val, enum_R9M_Subtypes);
-  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
-#if defined(MULTIMODULE)
-    // Use type/subType by the book (see MPM documentation)
-    int type = md->multi.rfProtocol + 1;
-    int subtype = val;
-
-    // output "[type],[subtype]"
-    str = yaml_unsigned2str(type);
-    if (!wf(opaque, str, strlen(str))) return false;
-    if (!wf(opaque, ",", 1)) return false;
-    str = yaml_unsigned2str(subtype);
-#endif
-  } else if (md->type == MODULE_TYPE_DSM2) {
-    str = yaml_output_enum(md->subType, enum_DSM2_Subtypes);
-  } else if (md->type == MODULE_TYPE_PPM) {
-    str = yaml_output_enum(md->subType, enum_PPM_Subtypes);
-  } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS2A) {
-    str = yaml_output_enum(FLYSKY_SUBTYPE_AFHDS2A, enum_FLYSKY_Subtypes);
-  } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS3) {
-    str = yaml_output_enum(FLYSKY_SUBTYPE_AFHDS3, enum_FLYSKY_Subtypes);
-  } else {
-    str = yaml_unsigned2str(val);
-  }
-
-  if (str && !wf(opaque, str, strlen(str)))
-    return false;
-
-  return true;
 }
 
 static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t val_len)
@@ -2622,7 +2438,6 @@ static const struct YamlIdStr enum_SerialPort[] = {
 const struct YamlIdStr _old_enum_UartModes[] = {
   {  UART_MODE_NONE, "MODE_NONE"  },
   {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
-  {  UART_MODE_TELEMETRY, "MODE_TELEMETRY"  },
   {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
   {  UART_MODE_LUA, "MODE_LUA"  },
   {  0, NULL  }
@@ -2631,7 +2446,6 @@ const struct YamlIdStr _old_enum_UartModes[] = {
 static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_NONE, "NONE"  },
   {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
-  {  UART_MODE_TELEMETRY, "TELEMETRY_IN"  },
   {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
 {    UART_MODE_SBUS_TRAINER_INV, "SBUS_TRAINER_INV"  },
   {  UART_MODE_LUA, "LUA"  },
@@ -2687,7 +2501,7 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
 
   auto m = yaml_parse_enum(_old_enum_UartModes, val, val_len);
   if (!m) return;
-  
+
   auto serialPort = reinterpret_cast<uint32_t*>(data);
   *serialPort = (*serialPort & ~(0xF << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
                 (m << port_nr * SERIAL_CONF_BITS_PER_PORT);

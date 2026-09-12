@@ -19,26 +19,18 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_ll.h"
-#include "stm32_gpio.h"
+#pragma once
 
-#include "hal/module_port.h"
-#include "hal/gpio.h"
+#include "../../definitions.h"
+#include "telemetry_holders.h"
 
-#include "hal.h"
+class TelemetryData {
+ public:
+  TelemetryFilterDecorator<TelemetryValue> rssi;
+  uint8_t telemetryValid;
 
-#include "edgetx.h" // g_eeGeneral
+  void clear() { memset(this, 0, sizeof(*this)); }
+};
 
-void sportUpdateInit()
-{
-#if defined(SPORT_UPDATE_PWR_GPIO)
-
-
-  gpio_init(SPORT_UPDATE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-#endif
-}
-
-void sportUpdatePowerInit()
-{
-  modulePortSetPower(SPORT_MODULE, g_eeGeneral.sportUpdatePower);
-}
+extern TelemetryData telemetryData;
+inline uint8_t TELEMETRY_RSSI() { return telemetryData.rssi.value(); }
