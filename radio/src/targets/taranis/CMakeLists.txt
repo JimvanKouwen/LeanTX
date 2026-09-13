@@ -347,11 +347,9 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/stm32_rgbleds.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)

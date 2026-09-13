@@ -200,11 +200,9 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/battery_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
   drivers/frftl.cpp

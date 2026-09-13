@@ -59,7 +59,7 @@ void displayGaugesTelemetryScreen(TelemetryScreenData & screen)
   // Custom Screen with gauges
   int barHeight = 5;
   for (int i=3; i>=0; i--) {
-    FrSkyBarData & bar = screen.bars[i];
+    TelemetryBarData & bar = screen.bars[i];
     source_t source = bar.source;
     getvalue_t barMin = bar.barMin;
     getvalue_t barMax = bar.barMax;

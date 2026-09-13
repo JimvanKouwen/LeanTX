@@ -86,7 +86,7 @@ int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   if (tim->DMA_TC_CallbackPtr) {
     memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
   }
-  
+
   gpio_init_af(tim->GPIO, tim->GPIO_Alternate, GPIO_PIN_SPEED_MEDIUM);
 
   LL_TIM_InitTypeDef timInit;
@@ -95,7 +95,7 @@ int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   if (!freq) {
     freq = STM32_DEFAULT_TIMER_FREQ;
   }
-  
+
   timInit.Prescaler = __LL_TIM_CALC_PSC(tim->TIM_Freq, freq);
   timInit.Autoreload = STM32_DEFAULT_TIMER_AUTORELOAD;
 
@@ -191,7 +191,7 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
   } else {
     ocInit.OCNPolarity = ll_polarity;
   }
-  
+
   LL_TIM_OC_Init(tim->TIMx, channel, &ocInit);
   LL_TIM_OC_EnablePreload(tim->TIMx, channel);
 
@@ -209,12 +209,6 @@ void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
     ll_polarity = LL_TIM_OCPOLARITY_LOW;
   }
   LL_TIM_OC_SetPolarity(tim->TIMx, tim->TIM_Channel, ll_polarity);  
-}
-
-bool stm32_pulse_get_polarity(const stm32_pulse_timer_t* tim)
-{
-  return LL_TIM_OC_GetPolarity(tim->TIMx, tim->TIM_Channel) ==
-         LL_TIM_OCPOLARITY_HIGH;
 }
 
 // return true if stopped, false otherwise
@@ -288,7 +282,6 @@ void stm32_pulse_wait_for_completed(const stm32_pulse_timer_t* tim)
         LL_TIM_OC_GetMode(tim->TIMx, channel) != LL_TIM_OCMODE_FORCED_INACTIVE);
 }
 
-
 void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
                                const void* pulses, uint16_t length,
                                uint32_t ocmode, uint32_t cmp_val)
@@ -334,7 +327,7 @@ void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
       return;
     }
   }
-  
+
   LL_TIM_ClearFlag_UPDATE(tim->TIMx);
   LL_TIM_EnableIT_UPDATE(tim->TIMx);
 
@@ -354,14 +347,4 @@ void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim)
   // Halt pulses by forcing to inactive level
   set_oc_mode(tim, LL_TIM_OCMODE_FORCED_INACTIVE);
   LL_TIM_DisableCounter(tim->TIMx);
-}
-
-// input mode
-void stm32_pulse_config_input(const stm32_pulse_timer_t* tim)
-{
-  LL_TIM_IC_InitTypeDef icInit;
-  LL_TIM_IC_StructInit(&icInit);
-  icInit.ICActiveInput = LL_TIM_ACTIVEINPUT_DIRECTTI;
-  icInit.ICFilter = LL_TIM_IC_FILTER_FDIV1_N8;
-  LL_TIM_IC_Init(tim->TIMx, tim->TIM_Channel, &icInit);
 }

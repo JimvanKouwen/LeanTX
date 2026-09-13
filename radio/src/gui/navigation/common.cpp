@@ -56,7 +56,6 @@ void repeatLastCursorMove(event_t event)
   }
 }
 
-
 void onSwitchLongEnterPress(const char * result)
 {
   if (result == STR_MENU_SWITCHES) {
@@ -99,8 +98,6 @@ void onSourceLongEnterPress(const char * result)
     checkIncDecSelection = MIXSRC_FIRST_TRIM;
   else if (result == STR_MENU_SWITCHES)
     checkIncDecSelection = MIXSRC_FIRST_SWITCH;
-  else if (result == STR_MENU_TRAINER)
-    checkIncDecSelection = MIXSRC_FIRST_TRAINER;
   else if (result == STR_MENU_CHANNELS)
     checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_CH, MIXSRC_LAST_CH, isSourceAvailable);
   else if (result == STR_MENU_GVARS)

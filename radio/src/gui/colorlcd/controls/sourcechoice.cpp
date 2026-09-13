@@ -71,8 +71,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     if (modelLSEnabled())
       addButton("LS", MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH,
                 nullptr, STR_MENU_LOGICAL_SWITCHES);
-    addButton(CHAR_TRAINER, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER,
-              nullptr, STR_MENU_TRAINER);
     addButton(CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
               STR_MENU_CHANNELS);
 #if defined(GVARS)

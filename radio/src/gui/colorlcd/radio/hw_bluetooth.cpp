@@ -83,7 +83,7 @@ BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& gri
   lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
   new Choice(
-      box, rect_t{}, STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER,
+      box, rect_t{}, STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TELEMETRY,
       GET_DEFAULT(g_eeGeneral.bluetoothMode), [=](int value) {
         g_eeGeneral.bluetoothMode = value;
         settingsBtn->show(g_eeGeneral.bluetoothMode != BLUETOOTH_OFF);

@@ -20,7 +20,6 @@
  */
 
 #include "edgetx.h"
-#include "hal/trainer_driver.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/usb_driver.h"
@@ -69,8 +68,6 @@ const unsigned char icons[]  = {
 #define ICON_SPEAKER3 33, 8
 #define ICON_SD       41, 11
 #define ICON_LOGS     51, 11
-#define ICON_TRAINER  61, 11
-#define ICON_TRAINEE  71, 11
 #define ICON_USB      81, 11
 #define ICON_REBOOT   91, 11
 #define ICON_ALTITUDE 102, 9
@@ -214,7 +211,7 @@ void drawSliders()
     // Skip POT3
     if (i == 2 && !IS_SLIDER(i)) continue;
 #endif
-    
+
     coord_t x = _pot_slots[slot_idx++];
     coord_t y = _pot_slots[slot_idx++];
 
@@ -301,17 +298,6 @@ void displayTopBar()
 
   if (usbPlugged()) {
     LCD_NOTIF_ICON(x, ICON_USB);
-    x -= 12;
-  }
-
-  if (SLAVE_MODE()) {
-    if (is_trainer_dsc_connected()) {
-      LCD_NOTIF_ICON(x, ICON_TRAINEE);
-      x -= 12;
-    }
-  }
-  else if (isTrainerConnected()) {
-    LCD_NOTIF_ICON(x, ICON_TRAINER);
     x -= 12;
   }
 

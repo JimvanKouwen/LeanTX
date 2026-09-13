@@ -37,7 +37,6 @@
 #include "radio_sdmanager.h"
 #include "radio_setup.h"
 #include "radio_tools.h"
-#include "radio_trainer.h"
 #include "radio_version.h"
 #include "screen_setup.h"
 #include "special_functions.h"
@@ -79,7 +78,6 @@ const PageDef radioMenuItems[] = {
   { ICON_RADIO_EDIT_THEME, STR_DEF(STR_QM_THEMES), STR_DEF(STR_MAIN_MENU_THEMES), PAGE_CREATE, QM_UI_THEMES, [](const PageDef& pageDef) { return new ThemeSetupPage(pageDef); }, radioThemesEnabled},
 #endif
   { ICON_RADIO_GLOBAL_FUNCTIONS, STR_DEF(STR_QM_GLOB_FUNC), STR_DEF(STR_MENUSPECIALFUNCS), PAGE_CREATE, QM_RADIO_GF, [](const PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
-  { ICON_RADIO_TRAINER, STR_DEF(STR_QM_TRAINER), STR_DEF(STR_MENUTRAINER), PAGE_CREATE, QM_RADIO_TRAINER, [](const PageDef& pageDef) { return new RadioTrainerPage(pageDef); }, radioTrainerEnabled},
   { ICON_RADIO_HARDWARE, STR_DEF(STR_QM_HARDWARE), STR_DEF(STR_HARDWARE), PAGE_CREATE, QM_RADIO_HARDWARE, [](const PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},
   { ICON_RADIO_VERSION, STR_DEF(STR_QM_ABOUT), STR_DEF(STR_MAIN_MENU_ABOUT_EDGETX), PAGE_CREATE, QM_RADIO_VERSION, [](const PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
   { EDGETX_ICONS_COUNT }

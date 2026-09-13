@@ -10,7 +10,6 @@ set(MINIMAL_BOARD_LIB_SRC
 # Dependencies only used in firmware
 set(BOARD_LIB_SRC
   boards/generic_stm32/module_ports.cpp
-  boards/generic_stm32/trainer_ports.cpp
   boards/generic_stm32/analog_inputs.cpp
   boards/generic_stm32/switches.cpp
   boards/generic_stm32/bor_level.cpp

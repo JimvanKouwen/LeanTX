@@ -43,7 +43,6 @@ enum QMPage {
   // Radio menu
   QM_RADIO_SETUP,
   QM_RADIO_GF,
-  QM_RADIO_TRAINER,
   QM_RADIO_HARDWARE,
   QM_RADIO_VERSION,
   // UI menu

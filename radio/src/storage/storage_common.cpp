@@ -38,7 +38,6 @@
 #include "usb_joystick.h"
 #endif
 
-
 uint8_t   storageDirtyMsk;
 tmr10ms_t storageDirtyTime10ms;
 
@@ -69,8 +68,6 @@ void preModelLoad()
     pulsesStop();
     needDelay = true;
   }
-
-  stopTrainer();
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   turnOffRGBLeds();
@@ -259,7 +256,6 @@ void postModelLoad(bool alarms)
 #endif
 
   LUA_LOAD_MODEL_SCRIPTS();
-
 
   // Reset debug stats for the newly loaded model (after checkAll() warnings)
   maxMixerDuration = 0;

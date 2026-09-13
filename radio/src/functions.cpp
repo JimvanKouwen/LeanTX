@@ -223,18 +223,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-          case FUNC_TRAINER: {
-            uint8_t param = CFN_CH_INDEX(cfn);
-            if (param == 0)
-              for (int i = 0; i < MAX_STICKS; i += 1)
-                newActiveFunctions |= (1u << i);
-            else if (param <= MAX_STICKS)
-              newActiveFunctions |= (1 << (param - 1));
-            else if (param == MAX_STICKS + 1)
-              newActiveFunctions |= (1u << FUNCTION_TRAINER_CHANNELS);
-            break;
-          }
-
           case FUNC_INSTANT_TRIM:
             if (IS_INSTANT_TRIM_ALLOWED()) {
               // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
@@ -276,13 +264,12 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             timerSet(CFN_TIMER_INDEX(cfn), CFN_PARAM(cfn));
             break;
 
-
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
           case FUNC_BIND: {
             unsigned int moduleIndex = CFN_PARAM(cfn);
             if (moduleIndex < NUM_MODULES) {
               moduleState[moduleIndex].mode =
-                  isModuleBindRangeAvailable(moduleIndex) ? MODULE_MODE_BIND : MODULE_MODE_NORMAL;
+                  isModuleBindAvailable(moduleIndex) ? MODULE_MODE_BIND : MODULE_MODE_NORMAL;
             }
             break;
           }
@@ -589,8 +576,6 @@ const char* funcGetLabel(uint8_t func)
   switch(func) {
   case FUNC_OVERRIDE_CHANNEL:
     return STR_SF_SAFETY;
-  case FUNC_TRAINER:
-    return STR_SF_TRAINER;
   case FUNC_INSTANT_TRIM:
     return STR_SF_INST_TRIM;
   case FUNC_RESET:
@@ -603,10 +588,6 @@ const char* funcGetLabel(uint8_t func)
 #endif
   case FUNC_VOLUME:
     return STR_SF_VOLUME;
-  case FUNC_SET_FAILSAFE:
-    return STR_SF_FAILSAFE;
-  case FUNC_RANGECHECK:
-    return STR_SF_RANGE_CHECK;
   case FUNC_BIND:
     return STR_SF_MOD_BIND;
 #if defined(AUDIO)

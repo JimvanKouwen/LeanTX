@@ -69,9 +69,6 @@ void boardOff();
 #define EXTERNAL_MODULE_ON()            EXTERNAL_MODULE_PWR_ON()
 #define EXTERNAL_MODULE_OFF()           EXTERNAL_MODULE_PWR_OFF()
 
-// Trainer driver
-#define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-
 // POTS and SLIDERS default configuration
 #if defined(RADIO_BOXER)
 #define XPOS_CALIB_DEFAULT  {0x5, 0xd, 0x16, 0x1f, 0x28}

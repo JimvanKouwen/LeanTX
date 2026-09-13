@@ -47,8 +47,6 @@
 
 extern uint16_t sessionTimer;
 
-#define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-
 // Board driver
 void boardInit();
 void boardOff();
@@ -150,7 +148,7 @@ bool pwrOffPressed();
   #define pwrForcePressed() false
 #endif
 uint32_t pwrPressedDuration();;
-  
+
 const etx_serial_port_t* auxSerialGetPort(int port_nr);
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL_POWER_OFF()
@@ -236,9 +234,6 @@ void hapticOn(uint32_t pwmPercent);
 //#define AUX_SERIAL
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
-
-extern uint8_t currentTrainerMode;
-void checkTrainerSettings();
 
 // Touch panel driver
 bool touchPanelEventOccured();

@@ -98,7 +98,6 @@ enum MenuRadioIndexes
   MENU_RADIO_SD_MANAGER,
   MENU_RADIO_SETUP,
   MENU_RADIO_SPECIAL_FUNCTIONS,
-  MENU_RADIO_TRAINER,
   MENU_RADIO_HARDWARE,
   MENU_RADIO_VERSION,
   MENU_RADIO_PAGES_COUNT
@@ -127,24 +126,17 @@ enum MenuModelIndexes {
 void menuRadioSetup(event_t event);
 void menuRadioSdManager(event_t event);
 void menuRadioSpecialFunctions(event_t event);
-void menuRadioTrainer(event_t event);
 void menuRadioVersion(event_t event);
 void menuRadioDiagKeys(event_t event);
 void menuRadioDiagAnalogs(event_t event);
 void menuRadioDiagFS(event_t event);
 void menuRadioHardware(event_t event);
 void menuRadioTools(event_t event);
-void menuRadioSpectrumAnalyser(event_t event);
-void menuRadioPowerMeter(event_t event);
 void menuRadioCalibration(event_t event);
-void menuGhostModuleConfig(event_t event);
 void menuServoPwmTool(event_t event);
 
 void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);
-void menuModelFailsafe(event_t event);
-void menuModelModuleOptions(event_t event);
-void menuModelReceiverOptions(event_t event);
 void menuModelFlightModesAll(event_t event);
 void menuModelExpoOne(event_t event);
 void menuModelExposAll(event_t event);

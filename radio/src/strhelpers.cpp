@@ -44,7 +44,7 @@ const char* sanitizeForFilename(const char* name, int len)
         s[i] == '/' || s[i] == '<' || s[i] == '>' ||
         s[i] == '?' || s[i] == '*')
       s[i] = '_';
-  
+
   return _static_str_buffer;
 }
 
@@ -510,8 +510,6 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
     strcpy(s, "Tele");
   } else if (idx == SWSRC_RADIO_ACTIVITY) {
     strcpy(s, "Act");
-  } else if (idx == SWSRC_TRAINER_CONNECTED) {
-    strcpy(s, "Trn");
   }
 #if defined(DEBUG_LATENCY)
   else if (idx == SWSRC_LATENCY_TOGGLE) {
@@ -762,9 +760,6 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
   } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
     idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
     getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
-  } else if (idx <= MIXSRC_LAST_TRAINER) {
-    idx -= MIXSRC_FIRST_TRAINER;
-    strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
   } else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
     if (!defaultOnly && g_model.limitData[ch].name[0] != '\0') {
@@ -1257,9 +1252,6 @@ char *strAppendDate(char *str, bool time)
     return &str[11];
   }
 }
-#endif
-
-#if !defined(BOOT)
 #endif
 
 /** 

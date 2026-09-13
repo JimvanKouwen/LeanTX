@@ -38,7 +38,6 @@
 #include "textedit.h"
 #include "timer_setup.h"
 #include "toggleswitch.h"
-#include "trainer_setup.h"
 
 #if defined(FUNCTION_SWITCHES)
 #include "function_switches.h"
@@ -89,14 +88,7 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
                 g_eeGeneral.radioGFDisabled);
     }
   },
-  {
-    STR_DEF(STR_MENUTRAINER),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_DEFAULT(g_model.radioTrainerDisabled),
-                g_eeGeneral.radioTrainerDisabled);
-    }
-  },
+
   {
     STR_DEF(STR_MODEL_MENU_TABS), nullptr,
   },
@@ -447,7 +439,6 @@ const static PageButtonDef modelSetupButtons[] = {
   // Modules
   {STR_DEF(STR_INTERNALRF), []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; }},
   {STR_DEF(STR_EXTERNALRF), []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
-  {STR_DEF(STR_TRAINER), []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; }},
   // Timer buttons
   {STR_DEF(STR_TIMER_1), []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
   {STR_DEF(STR_TIMER_2), []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},

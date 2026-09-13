@@ -152,3 +152,67 @@ TEST(Model, MissingRfTypeDefaultsOff)
   for (int module = 0; module < NUM_MODULES; ++module)
     EXPECT_EQ(PROTOCOL_CHANNELS_NONE, getRequiredProtocol(module));
 }
+
+TEST(Model, RemovedTrainerSettingsAreIgnored)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("trainerData:\n  mode: MASTER_JACK\n  channelsCount: 8\n"
+                   "radioTrainerDisabled: 1\n"
+                   "header:\n  name: Local\n"
+                   "moduleData:\n  1:\n    type: TYPE_CROSSFIRE\n");
+  EXPECT_STREQ(modelName(), "Local");
+  EXPECT_EQ(MODULE_TYPE_CROSSFIRE, g_model.moduleData[1].type);
+}
+
+TEST(Model, CompactCrsfSettingsRoundTrip)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  for (int module = 0; module < NUM_MODULES; ++module) {
+    auto& md = g_model.moduleData[module];
+    md.type = MODULE_TYPE_CROSSFIRE;
+    md.channelsStart = module + 2;
+    md.channelsCount = 8;
+    md.crsf.telemetryBaudrate = 3;
+    md.crsf.crsfArmingMode = ARMING_MODE_SWITCH;
+    md.crsf.crsfArmingTrigger = SWSRC_ON;
+  }
+  auto& voltage = g_model.telemetrySensors[0];
+  memcpy(voltage.label, "Volt", 4);
+  voltage.id = 8;
+  voltage.instance = TELEMETRY_ENDPOINT_SPORT;
+  voltage.unit = UNIT_VOLTS;
+  voltage.prec = 1;
+  auto& calculated = g_model.telemetrySensors[1];
+  memcpy(calculated.label, "Calc", 4);
+  calculated.type = TELEM_TYPE_CALCULATED;
+  calculated.formula = TELEM_FORMULA_ADD;
+  calculated.calc.sources[0] = 1;
+  g_model.rfAlarms.warning = 45;
+  g_model.rfAlarms.critical = 42;
+
+  std::string yaml;
+  YamlTreeWalker tree;
+  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
+    static_cast<std::string*>(opaque)->append(str, len);
+    return true;
+  }, &yaml));
+
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr(yaml.c_str());
+  for (int module = 0; module < NUM_MODULES; ++module) {
+    const auto& md = g_model.moduleData[module];
+    EXPECT_EQ(MODULE_TYPE_CROSSFIRE, md.type);
+    EXPECT_EQ(module + 2, md.channelsStart);
+    EXPECT_EQ(8, md.channelsCount);
+    EXPECT_EQ(3, md.crsf.telemetryBaudrate);
+    EXPECT_EQ(ARMING_MODE_SWITCH, md.crsf.crsfArmingMode);
+    EXPECT_EQ(SWSRC_ON, md.crsf.crsfArmingTrigger);
+  }
+  EXPECT_EQ(8, g_model.telemetrySensors[0].id);
+  EXPECT_EQ(TELEMETRY_ENDPOINT_SPORT, g_model.telemetrySensors[0].instance);
+  EXPECT_EQ(TELEM_FORMULA_ADD, g_model.telemetrySensors[1].formula);
+  EXPECT_EQ(1, g_model.telemetrySensors[1].calc.sources[0]);
+  EXPECT_EQ(45, g_model.rfAlarms.warning);
+  EXPECT_EQ(42, g_model.rfAlarms.critical);
+}

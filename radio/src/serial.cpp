@@ -37,7 +37,6 @@
 
 #if !defined(BOOT)
   #include "edgetx.h"
-#include "sbus.h"
   #include "lua/lua_api.h"
 #else
   #include "dataconstants.h"
@@ -218,12 +217,6 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     break;
 #endif
 
-  case UART_MODE_SBUS_TRAINER:
-  case UART_MODE_SBUS_TRAINER_INV:
-    // Nothing to do: the trainer claims the port when (and only when) the
-    // trainer mode selects it as input source. See sbusTrainerAcquire().
-    break;
-
   case UART_MODE_TELEMETRY_MIRROR:
     telemetrySetMirrorCb(ctx, sendByte);
     break;
@@ -286,19 +279,6 @@ static void serialSetupPort(int mode, etx_serial_init& params)
 #if !defined(BOOT)
   case UART_MODE_TELEMETRY_MIRROR:
     params.baudrate = CROSSFIRE_TELEM_MIRROR_BAUDRATE;
-    break;
-
-  case UART_MODE_SBUS_TRAINER:
-    params.baudrate = SBUS_BAUDRATE;
-    params.encoding = ETX_Encoding_8E2,
-    params.direction = ETX_Dir_RX;
-    break;
-
-  case UART_MODE_SBUS_TRAINER_INV:
-    params.baudrate = SBUS_BAUDRATE;
-    params.encoding = ETX_Encoding_8E2,
-    params.direction = ETX_Dir_RX;
-    params.polarity = ETX_Pol_Inverted;
     break;
 
 #if defined(LUA)
@@ -404,10 +384,7 @@ void serialInit(uint8_t port_nr, int mode)
   if (!port) return;
 
   if (state->port) {
-#if !defined(BOOT)
-    // Drop the trainer input before the driver context goes away
-    sbusTrainerReleaseCtx(state->usart_ctx);
-#endif
+
     auto drv = state->port->uart;
     if (drv && drv->deinit && state->usart_ctx) {
       drv->deinit(state->usart_ctx);
@@ -470,20 +447,6 @@ void serialInit(uint8_t port_nr, int mode)
 }
 
 #if !defined(BOOT)
-int serialGetSbusTrainerPort()
-{
-  int port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER);
-
-#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
-  // Ports without a hardware inverter rely on the USART inverting RX itself,
-  // which only exists on these families (see stm32_serial_init()). Elsewhere
-  // the mode cannot work, so do not offer such a port as trainer input even
-  // if a configuration written on another radio selects it.
-  if (port_nr < 0) port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER_INV);
-#endif
-
-  return port_nr;
-}
 
 bool serialGetPortCtx(uint8_t port_nr, void** ctx,
                       const etx_serial_driver_t** drv)
@@ -543,10 +506,7 @@ void serialStop(uint8_t port_nr)
   if (!state) return;
 
   if (state->port) {
-#if !defined(BOOT)
-    // Drop the trainer input before the driver context goes away
-    sbusTrainerReleaseCtx(state->usart_ctx);
-#endif
+
     auto port = state->port;
     auto drv = port->uart;
     if (drv && drv->deinit) {

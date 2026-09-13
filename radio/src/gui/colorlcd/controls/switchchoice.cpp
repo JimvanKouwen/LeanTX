@@ -43,14 +43,13 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
 #if defined(DEBUG_LATENCY)
     auto lastSource = SWSRC_LATENCY_TOGGLE;
 #else
-    auto lastSource = SWSRC_TRAINER_CONNECTED;
+    auto lastSource = SWSRC_RADIO_ACTIVITY;
 #endif
     addButton(
         CHAR_FUNCTION, SWSRC_ON, lastSource,
         [=](int16_t index) {
           index = abs(index);
           return index == 0 || index == SWSRC_ON || index == SWSRC_ONE ||
-                 index == SWSRC_TRAINER_CONNECTED ||
                  (index >= SWSRC_TELEMETRY_STREAMING && index <= lastSource &&
                   !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
         },

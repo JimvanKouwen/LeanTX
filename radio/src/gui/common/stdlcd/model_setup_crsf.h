@@ -60,7 +60,7 @@ static void editCrsfReceiver(uint8_t moduleIdx, coord_t y, LcdFlags attr, event_
       modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
     }
   }
-  if (isModuleBindRangeAvailable(moduleIdx)) {
+  if (isModuleBindAvailable(moduleIdx)) {
     lcdDrawText(lcdNextPos + FW, y,
                  TELEMETRY_STREAMING() ? STR_MODULE_UNBIND : STR_MODULE_BIND,
                  menuHorizontalPosition == 1 ? attr : 0);

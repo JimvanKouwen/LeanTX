@@ -35,7 +35,6 @@
 #include "bsp_io.h"
 
 #include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/key_driver.h"
 #include "hal/switch_driver.h"
@@ -152,7 +151,6 @@ void boardBLInit()
   flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
 }
 
-
 void boardInit()
 {
   // enable interrupts
@@ -173,8 +171,6 @@ void boardInit()
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
-  board_trainer_init();
-
   gpio_init(UCHARGER_CHARGE_END_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
 
   usbInit();
@@ -183,7 +179,6 @@ void boardInit()
 
   ledInit();
   rgbLedInit();
-
 
   rgbLedClearAll();
   keysInit();

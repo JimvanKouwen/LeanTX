@@ -45,8 +45,6 @@
 
 extern uint16_t sessionTimer;
 
-#define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-
 // Board driver
 void boardInit();
 void boardOff();
@@ -60,7 +58,7 @@ void getCPUUniqueID(char * s);
     PCBREV_NV14 = 0,
     PCBREV_EL18 = 1,
   };
-  
+
   #define HAS_HARDWARE_OPTIONS
 
   typedef struct {
@@ -167,7 +165,7 @@ bool pwrOffPressed();
   #define pwrForcePressed() false
 #endif
 uint32_t pwrPressedDuration();;
-  
+
 const etx_serial_port_t* auxSerialGetPort(int port_nr);
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL_POWER_OFF()

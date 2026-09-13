@@ -89,13 +89,13 @@ class ModuleWindow : public Window
                       SET_DIRTY();
                     });
     bindButton = new TextButton(box, rect_t{}, STR_MODULE_BIND, [=]() -> uint8_t {
-      if (isModuleBindRangeAvailable(moduleIdx)) {
+      if (isModuleBindAvailable(moduleIdx)) {
         moduleState[moduleIdx].mode = MODULE_MODE_BIND;
         AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP);
       }
       return 0;
     });
-    bindButton->show(isModuleBindRangeAvailable(moduleIdx));
+    bindButton->show(isModuleBindAvailable(moduleIdx));
   }
 
  protected:
@@ -126,7 +126,7 @@ class ModuleWindow : public Window
       else if (isModuleELRS(moduleIdx))
         bindButton->setText(STR_MODULE_BIND);
 
-      bindButton->show(isModuleBindRangeAvailable(moduleIdx));
+      bindButton->show(isModuleBindAvailable(moduleIdx));
     }
     Window::checkEvents();
   }

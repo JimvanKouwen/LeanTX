@@ -48,7 +48,6 @@ TIM5:   PWM_TIMER (stick PWM)
 TIM6:   AUDIO_TIMER
 TIM12:  MIXER_SCHEDULER_TIMER
 TIM14:  MS_TIMER
-TIM15:  TRAINER_TIMER
 TIM17:  ROTARY_ENCODER_TIMER
 
 USART2: EXTMODULE_USART
@@ -158,7 +157,6 @@ UART5:  TELEMETRY_USART
 #define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(20000000)
 #define STORAGE_USE_SDIO
 
-
 // Audio
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOD, 7) // PD.07
 #define AUDIO_MUTE_DELAY              500  // ms
@@ -231,19 +229,6 @@ UART5:  TELEMETRY_USART
 
 #define EXTMODULE_USART_IRQHandler         USART2_IRQHandler
 #define EXTMODULE_USART_IRQn               USART2_IRQn
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOE, 6) // PE.06
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_TIMER                   TIM15
-#define TRAINER_TIMER_IRQn              TIM15_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM15_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_4
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1

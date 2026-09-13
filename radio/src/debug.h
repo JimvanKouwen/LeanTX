@@ -187,7 +187,6 @@ void dumpTraceBuffer();
   #define TRACEI_AUDIO_EVENT(condition, event, data)
 #endif
 
-
 #if defined(JITTER_MEASURE)  && defined(__cplusplus)
 
 template<class T> class JitterMeter {
@@ -218,7 +217,6 @@ public:
 
 #endif  // defined(JITTER_MEASURE)
 
-
 #if defined(DEBUG_INTERRUPTS) && !defined(BOOT)
 
 #if defined(PCBHORUS)
@@ -233,7 +231,6 @@ enum InterruptNames {
   INT_DMA2S7,
   INT_TIM1CC,
   INT_TIM2,
-  INT_TRAINER,
   INT_BLUETOOTH,
   INT_OTG_FS,
 #if defined(DEBUG_USB_INTERRUPTS)
@@ -268,7 +265,6 @@ enum InterruptNames {
   INT_SER2,
   INT_TELEM_DMA,
   INT_TELEM_USART,
-  INT_TRAINER,
   INT_OTG_FS,
 #if defined(DEBUG_USB_INTERRUPTS)
   INT_OTG_FS_SPURIOUS,
@@ -314,8 +310,6 @@ extern struct InterruptCounters interruptCounters;
 #define DEBUG_USB_INTERRUPT(int)
 
 #endif //#if defined(DEBUG_INTERRUPTS)
-
-
 
 #if defined(DEBUG_TIMERS)
 
@@ -405,7 +399,6 @@ extern const char * const debugTimerNames[DEBUG_TIMERS_COUNT];
 #define DEBUG_TIMER_START(timer)  debugTimers[timer].start()
 #define DEBUG_TIMER_STOP(timer)   debugTimers[timer].stop()
 #define DEBUG_TIMER_SAMPLE(timer) debugTimers[timer].sample()
-
 
 #else //#if defined(DEBUG_TIMERS)
 

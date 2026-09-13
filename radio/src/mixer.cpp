@@ -27,7 +27,6 @@
 #include "mixes.h"
 
 #include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/audio_driver.h"
 
@@ -193,8 +192,6 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
       continue;
     if (ed->flightModes & (1<<mixerCurrentFlightMode))
       continue;
-    if (src >= MIXSRC_FIRST_TRAINER && src <= MIXSRC_LAST_TRAINER && !isTrainerValid())
-      continue;
     if (getSwitch(ed->swtch)) {
       int32_t v;
       if (srcRaw == ovwrIdx) {
@@ -268,10 +265,6 @@ int16_t applyLimits(uint8_t channel, int32_t value)
     return calc100toRESX(safetyCh[channel]);
   }
 #endif
-
-  if (isFunctionActive(FUNCTION_TRAINER_CHANNELS) && isTrainerValid()) {
-    return trainerInput[channel] * 2;
-  }
 
   LimitData * lim = limitAddress(channel);
 
@@ -472,12 +465,6 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
   else if (i <= MIXSRC_LAST_LOGICAL_SWITCH) {
     return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;
-  } else if (i <= MIXSRC_LAST_TRAINER) {
-    int16_t x = trainerInput[i - MIXSRC_FIRST_TRAINER];
-    if (i < MIXSRC_FIRST_TRAINER + NUM_CAL_PPM) {
-      x -= g_eeGeneral.trainer.calib[i - MIXSRC_FIRST_TRAINER];
-    }
-    return x * 2;
   } else if (i <= MIXSRC_LAST_CH) {
     return ex_chans[i - MIXSRC_FIRST_CH];
   }
@@ -602,29 +589,6 @@ void evalInputs(uint8_t mode)
         v = 0;
       }
 
-      if (mode <= e_perout_mode_inactive_flight_mode &&
-          isFunctionActive(FUNCTION_TRAINER_STICK1 + ch) &&
-          isTrainerValid()) {
-        // trainer mode
-        TrainerMix* td = &g_eeGeneral.trainer.mix[ch];
-        if (td->mode) {
-          uint8_t chStud = td->srcChn;
-          int32_t vStud =
-              (trainerInput[chStud] - g_eeGeneral.trainer.calib[chStud]);
-          vStud *= td->studWeight;
-          vStud /= 50;
-          switch (td->mode) {
-            case TRAINER_ADD:
-              // add-mode
-              v = limit<int16_t>(-RESX, v + vStud, RESX);
-              break;
-            case TRAINER_REPL:
-              // subst-mode
-              v = vStud;
-              break;
-          }
-        }
-      }
       calibratedAnalogs[i] = v;
     }
   }
@@ -777,12 +741,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       delayval_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
 
       if (mixLineActive) {
-        // disable mixer using trainer channels if not connected
-        if (srcRawAbs >= MIXSRC_FIRST_TRAINER &&
-            srcRawAbs <= MIXSRC_LAST_TRAINER && !isTrainerValid()) {
-          mixCondition = true;
-          mixEnabled = 0;
-        }
 
 #if defined(LUA_MODEL_SCRIPTS)
         // disable mixer if Lua script is used as source and script was killed
@@ -1250,7 +1208,6 @@ void doMixerPeriodicUpdates()
       s_cnt_1s += 1;
 
       logicalSwitchesTimerTick();
-      checkTrainerSignalWarning();
 
       if (s_cnt_1s >= 10) { // 1sec
         s_cnt_1s -= 10;

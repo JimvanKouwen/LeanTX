@@ -76,7 +76,6 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_MEMORY_WARNING,
   ITEM_RADIO_SETUP_ALARM_WARNING,
   ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM,
-  ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM,
   ITEM_RADIO_SETUP_BACKLIGHT_LABEL,
   ITEM_RADIO_SETUP_BACKLIGHT_MODE,
   ITEM_RADIO_SETUP_BACKLIGHT_DELAY,
@@ -106,7 +105,6 @@ enum MenuRadioSetupItems {
   ITEM_VIEW_OPTIONS_LABEL,
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_GF,
-  ITEM_VIEW_OPTIONS_TRAINER,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM) CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
       ITEM_VIEW_OPTIONS_CURVES,
@@ -198,7 +196,6 @@ void menuRadioSetup(event_t event)
           ALARMS_ROW(0),
           ALARMS_ROW(0),
           ALARMS_ROW(0),
-          ALARMS_ROW(0),
           // Backlight
           LABEL(BACKLIGHT),
           0,                           // backlight mode
@@ -233,7 +230,6 @@ void menuRadioSetup(event_t event)
           // View options
           0,
           VIEWOPT_ROW(LABEL(RadioMenuTabs)),
-          VIEWOPT_ROW(0),
           VIEWOPT_ROW(0),
           VIEWOPT_ROW(LABEL(ModelMenuTabs)),
           CASE_FLIGHT_MODES(VIEWOPT_ROW(0)) CASE_GVARS(VIEWOPT_ROW(0))
@@ -491,14 +487,6 @@ void menuRadioSetup(event_t event)
       {
         uint8_t b = 1 - g_eeGeneral.disableRssiPoweroffAlarm;
         g_eeGeneral.disableRssiPoweroffAlarm = 1 - editCheckBox(b, RADIO_SETUP_2ND_COLUMN, y, STR_RSSI_SHUTDOWN_ALARM, attr, event, INDENT_WIDTH);
-        break;
-      }
-
-      case ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM:
-      {
-        lcdDrawText(INDENT_WIDTH, y, STR_TRAINER_SHUTDOWN_ALARM);
-        uint8_t b = 1 - g_eeGeneral.disableTrainerPoweroffAlarm;
-        g_eeGeneral.disableTrainerPoweroffAlarm = 1 - editCheckBox(b, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
         break;
       }
 
@@ -765,9 +753,7 @@ void menuRadioSetup(event_t event)
       case ITEM_VIEW_OPTIONS_GF:
         g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event, g_model.radioGFDisabled);
         break;
-      case ITEM_VIEW_OPTIONS_TRAINER:
-        g_eeGeneral.radioTrainerDisabled = viewOptCheckBox(y, STR_MENUTRAINER, g_eeGeneral.radioTrainerDisabled, attr, event, g_model.radioTrainerDisabled);
-        break;
+
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;

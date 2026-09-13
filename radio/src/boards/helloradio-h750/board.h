@@ -47,8 +47,6 @@
 
 extern uint16_t sessionTimer;
 
-#define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-
 // Board driver
 void boardInit();
 void boardOff();
@@ -158,7 +156,7 @@ bool pwrOffPressed();
   #define pwrForcePressed() false
 #endif
 uint32_t pwrPressedDuration();;
-  
+
 const etx_serial_port_t* auxSerialGetPort(int port_nr);
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL_POWER_OFF()
@@ -211,7 +209,6 @@ bool isBacklightEnabled();
 }
 #endif
 
-
 #define IS_UCHARGER_ACTIVE()              !gpio_read(UCHARGER_GPIO) ? 1 : 0
 #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
 #define ENABLE_UCHARGER()                 bsp_output_set(BSP_CHARGE_EN);
@@ -254,9 +251,6 @@ void hapticOn(uint32_t pwmPercent);
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
 
-extern uint8_t currentTrainerMode;
-void checkTrainerSettings();
-
 // Touch panel driver
 bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
@@ -269,4 +263,3 @@ bool usbChargerLed();
 #endif
 
 #endif // _BOARD_H_
-

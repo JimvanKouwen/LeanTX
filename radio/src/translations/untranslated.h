@@ -70,7 +70,6 @@ constexpr int g_use_plural2 = USE_PLURAL2;
 #define CHAR_INPUT      "\302\216"
 #define CHAR_FUNCTION   "\302\217"
 #define CHAR_CYC        "\302\220"
-#define CHAR_TRAINER    "\302\221"
 #define CHAR_CHANNEL    "\302\222"
 #define CHAR_TELEMETRY  "\302\223"
 #define CHAR_LUA        "\302\224"
@@ -78,8 +77,5 @@ constexpr int g_use_plural2 = USE_PLURAL2;
 #define CHAR_CURVE      "\302\226"
 
 // ACCESS STUFF
-#define STR_SBUSIN      "SBUS in"
-#define STR_SBUSOUT     "SBUS out"
 #define STR_SPORT       "S.PORT"
 #define STR_FBUS        "FBUS"
-#define STR_SBUS24      "SBUS24"

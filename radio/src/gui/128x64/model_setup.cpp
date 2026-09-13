@@ -161,20 +161,9 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_RECEIVER,
 #endif
 
-#if defined(PCBTARANIS)
-  ITEM_MODEL_SETUP_TRAINER_LABEL,
-  ITEM_MODEL_SETUP_TRAINER_MODE,
-  #if defined(BLUETOOTH)
-  ITEM_MODEL_SETUP_TRAINER_BLUETOOTH,
-  #endif
-  ITEM_MODEL_SETUP_TRAINER_CHANNELS,
-  ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS,
-#endif
-
   ITEM_VIEW_OPTIONS_LABEL,
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_GF,
-  ITEM_VIEW_OPTIONS_TRAINER,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
   ITEM_VIEW_OPTIONS_CURVES,
@@ -222,7 +211,6 @@ uint8_t G4_ROW(int8_t value) { return (firstSwitchInGroup(4) >= 0) ? value : HID
 static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
 
 #define MODEL_SETUP_2ND_COLUMN           (LCD_W-11*FW)
-#define MODEL_SETUP_SET_FAILSAFE_OFS     7*FW-2
 #if defined(CROSSFIRE)
 #define IF_MODULE_SYNCED(module, xxx)    (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #if SPORT_MAX_BAUDRATE < 400000
@@ -238,7 +226,6 @@ static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value :
 #define IF_MODULE_ARMED(module, xxx)
 #define IF_MODULE_ARMED_TRIGGER(module, xxx)
 #endif
-
 
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(HARDWARE_EXTERNAL_MODULE)
   #define CURRENT_MODULE_EDITED(k)        (k >= ITEM_MODEL_SETUP_EXTERNAL_MODULE_LABEL ? EXTERNAL_MODULE : INTERNAL_MODULE)
@@ -274,7 +261,6 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
       TIMER_ROW(x,0), TIMER_ROW(x,0),                                  \
       TIMER_ROW(x,g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 : (uint8_t)0)
 
-
 #if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHES_ROWS  0, \
                                   FS_ROW(0), FS_ROW(0), FS_ROW(0), FS_ROW(0), FS_ROW(0),  \
@@ -296,12 +282,6 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 #else
   #define FUNCTION_SWITCHES_ROWS
 #endif
-
-#define TRAINER_CHANNELS_ROW           (IS_SLAVE_TRAINER() ? (IS_BLUETOOTH_TRAINER() ? (uint8_t)0 : (uint8_t)1) : HIDDEN_ROW)
-#define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
-#define TRAINER_BLUETOOTH_M_ROW        ((bluetooth.distantAddr[0] == '\0' || bluetooth.state == BLUETOOTH_STATE_CONNECTED) ? (uint8_t)0 : (uint8_t)1)
-#define TRAINER_BLUETOOTH_S_ROW        (bluetooth.distantAddr[0] == '\0' ? HIDDEN_ROW : LABEL())
-#define IF_BT_TRAINER_ON(x)            (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER ? (uint8_t)(x) : HIDDEN_ROW)
 
 #if defined(EXTERNAL_ANTENNA)
 #if defined(INTMODULE_ANTSEL_GPIO)
@@ -326,36 +306,6 @@ void onModelAntennaSwitchConfirm(const char * result)
 }
 #else
 #define EXTERNAL_ANTENNA_ROW
-#endif
-
-#if defined(PCBX7ACCESS)
-  #define TRAINER_BLUETOOTH_ROW          (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW))
-  #define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
-  #define TRAINER_ROWS                   LABEL(Trainer), 0, IF_BT_TRAINER_ON(TRAINER_BLUETOOTH_ROW), TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
-#elif defined(PCBX7)
-  #if defined(BLUETOOTH)
-    #define TRAINER_BLUETOOTH_ROW        (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW)),
-  #else
-    #define TRAINER_BLUETOOTH_ROW
-  #endif
-  #define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
-  #define TRAINER_ROWS                   LABEL(Trainer), 0, TRAINER_BLUETOOTH_ROW TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
-#else
-  #define TRAINER_ROWS
-#endif
-
-#if defined(BLUETOOTH)
-void onBluetoothConnectMenu(const char * result)
-{
-  if (result != STR_EXIT) {
-    uint8_t index = (result - reusableBuffer.moduleSetup.bt.devices[0]) / sizeof(reusableBuffer.moduleSetup.bt.devices[0]);
-    strncpy(bluetooth.distantAddr, reusableBuffer.moduleSetup.bt.devices[index], LEN_BLUETOOTH_ADDR);
-    bluetooth.state = BLUETOOTH_STATE_BIND_REQUESTED;
-  } else {
-    reusableBuffer.moduleSetup.bt.devicesCount = 0;
-    bluetooth.state = BLUETOOTH_STATE_DISCOVER_END;
-  }
-}
 #endif
 
 void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
@@ -693,20 +643,15 @@ void menuModelSetup(event_t event)
 
     0, // ADC Jitter filter
 
-
     INTERNAL_MODULE_ROWS
 
     EXTERNAL_MODULE_ROWS
-
-
-    TRAINER_ROWS,
 
     // View options
     0,
      VIEWOPT_ROW(LABEL(RadioMenuTabs)),
       VIEWOPT_ROW(0),
-      VIEWOPT_ROW(0),
-     VIEWOPT_ROW(LABEL(ModelMenuTabs)),
+      VIEWOPT_ROW(LABEL(ModelMenuTabs)),
       CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
@@ -731,9 +676,6 @@ void menuModelSetup(event_t event)
 
   if (event == EVT_ENTRY || event == EVT_ENTRY_UP) {
     memclear(&reusableBuffer.moduleSetup, sizeof(reusableBuffer.moduleSetup));
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-#endif
 
 #if defined(EXTERNAL_ANTENNA)
     reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
@@ -1314,98 +1256,6 @@ void menuModelSetup(event_t event)
         break;
 #endif
 
-#if defined(PCBTARANIS)
-      case ITEM_MODEL_SETUP_TRAINER_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_TRAINER);
-        break;
-
-      case ITEM_MODEL_SETUP_TRAINER_MODE:
-        lcdDrawTextIndented(y, STR_MODE);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTRAINERMODES, g_model.trainerData.mode, attr);
-        if (attr) {
-          g_model.trainerData.mode = checkIncDec(event, g_model.trainerData.mode, TRAINER_MODE_MIN(), TRAINER_MODE_MAX(), EE_MODEL, isTrainerModeAvailable);
-#if defined(BLUETOOTH)
-          if (checkIncDec_Ret) {
-            bluetooth.state = BLUETOOTH_STATE_OFF;
-            bluetooth.distantAddr[0] = '\0';
-          }
-#endif
-        }
-        break;
-#endif
-
-#if defined(PCBTARANIS) && defined(BLUETOOTH)
-      case ITEM_MODEL_SETUP_TRAINER_BLUETOOTH:
-        if (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH) {
-          if (attr) {
-            s_editMode = 0;
-          }
-          if (bluetooth.distantAddr[0]) {
-            lcdDrawText(INDENT_WIDTH, y+1, bluetooth.distantAddr, TINSIZE);
-            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_CLEAR_BTN, attr);
-            if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
-              bluetooth.state = BLUETOOTH_STATE_CLEAR_REQUESTED;
-              memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
-            }
-          }
-          else {
-            lcdDrawTextIndented(y, "---");
-            if (bluetooth.state < BLUETOOTH_STATE_IDLE)
-              lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_BUTTON_INIT, attr);
-            else
-              lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_DISCOVER, attr);
-            if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
-              if (bluetooth.state < BLUETOOTH_STATE_IDLE) {
-                bluetooth.state = BLUETOOTH_STATE_OFF;
-              }
-              else {
-                reusableBuffer.moduleSetup.bt.devicesCount = 0;
-                bluetooth.state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
-              }
-            }
-
-            if (bluetooth.state == BLUETOOTH_STATE_DISCOVER_START && reusableBuffer.moduleSetup.bt.devicesCount > 0) {
-              popupMenuItemsCount = min<uint8_t>(reusableBuffer.moduleSetup.bt.devicesCount, MAX_BLUETOOTH_DISTANT_ADDR);
-              for (uint8_t i=0; i<popupMenuItemsCount; i++) {
-                popupMenuItems[i] = reusableBuffer.moduleSetup.bt.devices[i];
-              }
-              POPUP_MENU_TITLE(STR_BT_SELECT_DEVICE);
-              POPUP_MENU_START(onBluetoothConnectMenu);
-            }
-          }
-        }
-        else {
-          if (bluetooth.distantAddr[0])
-            lcdDrawText(INDENT_WIDTH, y+1, bluetooth.distantAddr, TINSIZE);
-          else
-            lcdDrawTextIndented(y, "---");
-          lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, bluetooth.state == BLUETOOTH_STATE_CONNECTED ? STR_CONNECTED : STR_NOT_CONNECTED);
-        }
-        break;
-#endif
-
-#if defined(PCBTARANIS)
-      case ITEM_MODEL_SETUP_TRAINER_CHANNELS:
-        lcdDrawTextIndented(y, STR_CHANNELRANGE);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_CH, menuHorizontalPosition==0 ? attr : 0);
-        lcdDrawNumber(lcdLastRightPos, y, g_model.trainerData.channelsStart+1, LEFT | (menuHorizontalPosition==0 ? attr : 0));
-        lcdDrawChar(lcdLastRightPos, y, '-');
-        lcdDrawNumber(lcdLastRightPos + FW+1, y, g_model.trainerData.channelsStart + 8 + g_model.trainerData.channelsCount, LEFT | (menuHorizontalPosition==1 ? attr : 0));
-        if (attr && s_editMode > 0) {
-          switch (menuHorizontalPosition) {
-            case 0:
-              CHECK_INCDEC_MODELVAR_ZERO(event, g_model.trainerData.channelsStart, 32-8-g_model.trainerData.channelsCount);
-              break;
-            case 1:
-              CHECK_INCDEC_MODELVAR(event, g_model.trainerData.channelsCount, -4, min<int8_t>(MAX_TRAINER_CHANNELS_M8, 32-8-g_model.trainerData.channelsStart));
-              if (checkIncDec_Ret)
-                setDefaultPpmFrameLengthTrainer();
-              break;
-          }
-        }
-        break;
-#endif
-
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_CHANNELS:
 #endif
@@ -1417,30 +1267,6 @@ void menuModelSetup(event_t event)
         editCrsfChannels(moduleIdx, y, attr, event);
         break;
       }
-
-#if defined(PCBX7)
-      case ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS:
-        lcdDrawTextIndented(y, STR_PPMFRAME);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN+3*FW, y, STR_MS);
-        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, (int16_t)g_model.trainerData.frameLength*5 + 225, (menuHorizontalPosition<=0 ? attr : 0) | PREC1|LEFT);
-        lcdDrawChar(MODEL_SETUP_2ND_COLUMN+8*FW+2, y, 'u');
-        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN+8*FW+2, y, (g_model.trainerData.delay*50)+300, RIGHT | ((CURSOR_ON_LINE() || menuHorizontalPosition==1) ? attr : 0));
-        lcdDrawChar(MODEL_SETUP_2ND_COLUMN+10*FW, y, g_model.trainerData.pulsePol ? '+' : '-', (CURSOR_ON_LINE() || menuHorizontalPosition==2) ? attr : 0);
-        if (attr && s_editMode > 0) {
-          switch (menuHorizontalPosition) {
-            case 0:
-              CHECK_INCDEC_MODELVAR(event, g_model.trainerData.frameLength, -20, 35);
-              break;
-            case 1:
-              CHECK_INCDEC_MODELVAR(event, g_model.trainerData.delay, -4, 10);
-              break;
-            case 2:
-              CHECK_INCDEC_MODELVAR_ZERO(event, g_model.trainerData.pulsePol, 1);
-              break;
-          }
-        }
-        break;
-#endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_RECEIVER:
@@ -1482,9 +1308,7 @@ void menuModelSetup(event_t event)
       case ITEM_VIEW_OPTIONS_GF:
         g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event);
         break;
-      case ITEM_VIEW_OPTIONS_TRAINER:
-        g_model.radioTrainerDisabled = viewOptChoice(y, STR_MENUTRAINER, g_model.radioTrainerDisabled, attr, event);
-        break;
+
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, STR_MODEL_MENU_TABS);
         break;

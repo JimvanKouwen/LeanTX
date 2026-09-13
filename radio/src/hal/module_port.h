@@ -23,7 +23,6 @@
 
 #include <stdint.h>
 #include "serial_driver.h"
-#include "timer_driver.h"
 
 //
 // Module ports
@@ -36,12 +35,10 @@
 #define ETX_MOD_FULL_DUPLEX (1 << 2)
 
 #define ETX_MOD_TYPE_NONE   0
-#define ETX_MOD_TYPE_TIMER  (1 << 0)
 #define ETX_MOD_TYPE_SERIAL (1 << 1)
 
 enum ModulePort : uint8_t {
   ETX_MOD_PORT_UART,      // UART on heartbeat pin
-  ETX_MOD_PORT_TIMER,     // PPM or TX on CPPM pin
   ETX_MOD_PORT_SOFT_INV,  // TX soft-serial 
   ETX_MOD_PORT_SPORT,     // UART on S.Port
   ETX_MOD_PORT_SPORT_INV, // RX soft-serial sampled bit-by-bit via timer IRQ on S.PORT
@@ -49,14 +46,14 @@ enum ModulePort : uint8_t {
 };
 
 //
-// A module port is a pin (single UART RX or TX; PPM pin)
+// A module port is a pin (single UART RX or TX; module signal pin)
 // or pin pair (UART RX/TX)
 //
 typedef struct {
 
   // enum ModulePort
   uint8_t port;
-  
+
   // ETX_MOD_TYPE_xx
   uint8_t type;
 
@@ -64,7 +61,6 @@ typedef struct {
   uint8_t dir_flags;
 
   union {
-    const etx_timer_driver_t  *timer;
     const etx_serial_driver_t *serial;
   } drv;
 
@@ -130,8 +126,6 @@ etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
                                          bool softserial_fallback);
 
 // Init module port with params (driver & context stored locally)
-etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
-                                        const etx_timer_config_t* cfg);
 
 // De-init port and clear data
 void modulePortDeInit(etx_module_state_t* st);
@@ -153,17 +147,11 @@ inline const etx_serial_driver_t* modulePortGetSerialDrv(const etx_module_driver
   return d.port->drv.serial;
 }
 
-inline const etx_timer_driver_t* modulePortGetTimerDrv(const etx_module_driver_t& d) {
-  if (d.port == nullptr) return nullptr;
-  return d.port->drv.timer;
-}
-
 inline void* modulePortGetCtx(const etx_module_driver_t& d) {
   return d.ctx;
 }
 
 bool modulePortSerialTxCompleted(void* ctx);
-bool modulePortTimerTxCompleted(void* ctx);
 
 bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port);
 bool modulePortIsPortUsed(uint8_t port);

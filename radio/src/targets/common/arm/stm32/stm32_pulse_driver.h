@@ -53,14 +53,10 @@ struct stm32_pulse_timer_t {
 int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq);
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim);
 
-void stm32_pulse_config_input(const stm32_pulse_timer_t* tim);
-
 void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
                                uint32_t ocmode, uint32_t cmp_val);
 
 void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity);
-
-bool stm32_pulse_get_polarity(const stm32_pulse_timer_t* tim);
 
 void stm32_pulse_set_period(const stm32_pulse_timer_t* tim, uint32_t period);
 

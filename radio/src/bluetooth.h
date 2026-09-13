@@ -24,7 +24,6 @@
 #include <stdint.h>
 #include "popups.h"
 
-
 enum BluetoothStates {
 #if defined(PCBX9E)
   BLUETOOTH_INIT,
@@ -39,23 +38,12 @@ enum BluetoothStates {
   BLUETOOTH_STATE_POWER_SENT,
   BLUETOOTH_STATE_ROLE_SENT,
   BLUETOOTH_STATE_IDLE,
-  BLUETOOTH_STATE_DISCOVER_REQUESTED,
-  BLUETOOTH_STATE_DISCOVER_SENT,
-  BLUETOOTH_STATE_DISCOVER_START,
-  BLUETOOTH_STATE_DISCOVER_END,
-  BLUETOOTH_STATE_BIND_REQUESTED,
-  BLUETOOTH_STATE_CONNECT_SENT,
   BLUETOOTH_STATE_CONNECTED,
-  BLUETOOTH_STATE_DISCONNECTED,
-  BLUETOOTH_STATE_CLEAR_REQUESTED,
   BLUETOOTH_STATE_FLASH_FIRMWARE
 };
 
 #define LEN_BLUETOOTH_ADDR              16
-#define MAX_BLUETOOTH_DISTANT_ADDR      6
-#define BLUETOOTH_PACKET_SIZE           14
 #define BLUETOOTH_LINE_LENGTH           32
-#define BLUETOOTH_TRAINER_CHANNELS      8
 
 #if defined(LOG_BLUETOOTH)
   #define BLUETOOTH_TRACE(...)  \
@@ -92,13 +80,7 @@ class Bluetooth
     char distantAddr[LEN_BLUETOOTH_ADDR+1];
 
   protected:
-    void pushByte(uint8_t byte);
     uint8_t read(uint8_t * data, uint8_t size, uint32_t timeout=1000/*ms*/);
-    void appendTrainerByte(uint8_t data);
-    void processTrainerFrame(const uint8_t * buffer);
-    void processTrainerByte(uint8_t data);
-    void sendTrainer();
-    void receiveTrainer();
 
     uint8_t bootloaderChecksum(uint8_t command, const uint8_t * data, uint8_t size);
     void bootloaderSendCommand(uint8_t command, const void *data = nullptr, uint8_t size = 0);
@@ -117,7 +99,6 @@ class Bluetooth
     uint8_t buffer[BLUETOOTH_LINE_LENGTH+1];
     uint8_t bufferIndex = 0;
     tmr10ms_t wakeupTime = 0;
-    uint8_t crc;
 };
 
 extern Bluetooth bluetooth;

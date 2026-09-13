@@ -203,11 +203,6 @@ if(AUX_SERIAL)
   add_definitions(-DCONFIGURABLE_MODULE_PORT)
 endif()
 
-  option(ALLOW_TRAINER_MULTI "Allow multimodule to be use as trainer input" OFF)
-
-if(ALLOW_TRAINER_MULTI)
-  add_definitions(-DALLOW_TRAINER_MULTI)
-endif()
 
 if(DISK_CACHE)
   add_definitions(-DDISK_CACHE)
@@ -279,12 +274,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   drivers/icm42627.cpp
   drivers/sc7u22.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/sticks_pwm_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/stm32_rgbleds.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)

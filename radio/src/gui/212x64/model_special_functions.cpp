@@ -237,26 +237,18 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
           else
 #endif
-          if (func == FUNC_TRAINER) {
-            maxParam = MAX_STICKS + 1;
-            uint8_t param = CFN_CH_INDEX(cfn);
-            if (param == 0)
-              lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_STICKS, attr);
-            else if (param == MAX_STICKS + 1)
-              lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_CHANS, attr);
-            else
-              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_FIRST_STICK + param - 1, attr);
-          }
+
 #if defined(GVARS)
-          else if (func == FUNC_ADJUST_GVAR) {
+          if (func == FUNC_ADJUST_GVAR) {
             if (validateSFGV(cfn)) storageDirty(eeFlags);
             maxParam = MAX_GVARS-1;
             drawStringWithIndex(lcdNextPos + 2, y, STR_GV, CFN_GVAR_INDEX(cfn)+1, attr);
             if (active) CFN_GVAR_INDEX(cfn) = checkIncDec(event, CFN_GVAR_INDEX(cfn), 0, maxParam, eeFlags);
             break;
           }
+          else
 #endif
-          else if (func == FUNC_SET_TIMER) {
+          if (func == FUNC_SET_TIMER) {
             if (timersSetupCount()> 0) {
               maxParam = TIMERS-1;
               drawStringWithIndex(lcdNextPos, y, STR_TIMER, CFN_TIMER_INDEX(cfn)+1, attr);

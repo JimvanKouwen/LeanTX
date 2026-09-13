@@ -303,18 +303,6 @@ PACK(struct ScriptData {
 });
 #endif
 
-/*
- * Frsky Telemetry structure (legacy read-only)
- */
-PACK(struct RssiAlarmData {
-  // int8_t disabled:1;
-  CUST_ATTR(disabled,r_rssiDisabled,nullptr);
-  // int8_t warning:6; + 45
-  CUST_ATTR(warning,r_rssiWarning,nullptr);
-  // int8_t critical:6; + 42
-  CUST_ATTR(critical,r_rssiCritical,nullptr);
-});
-
 PACK(struct RFAlarmData {
   int8_t warning;
   int8_t critical;
@@ -323,7 +311,7 @@ PACK(struct RFAlarmData {
 typedef int16_t ls_telemetry_value_t;
 
 #if !defined(COLORLCD)
-PACK(struct FrSkyBarData {
+PACK(struct TelemetryBarData {
   source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
   ls_telemetry_value_t barMin;           // minimum for bar display
   ls_telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
@@ -337,12 +325,12 @@ PACK(struct FrSkyBarData {
 PACK(struct LineDataSource {
   source_t val CUST(r_mixSrcRaw,w_mixSrcRaw);
 });
-PACK(struct FrSkyLineData {
+PACK(struct TelemetryLineData {
   LineDataSource sources[NUM_LINE_ITEMS];
 });
 #else
 // This here is the real structure used at run-time
-PACK(struct FrSkyLineData {
+PACK(struct TelemetryLineData {
   source_t sources[NUM_LINE_ITEMS];
 });
 #endif
@@ -356,8 +344,8 @@ PACK(struct TelemetryScriptData {
 
 #if defined(YAML_GENERATOR)
 union TelemetryScreenData_u {
-  FrSkyBarData  bars[4];
-  FrSkyLineData lines[4];
+  TelemetryBarData  bars[4];
+  TelemetryLineData lines[4];
 #if defined(PCBTARANIS)
   TelemetryScriptData script;
 #endif
@@ -368,8 +356,8 @@ PACK(struct TelemetryScreenData {
 });
 #else
 union TelemetryScreenData {
-  FrSkyBarData  bars[4];
-  FrSkyLineData lines[4];
+  TelemetryBarData  bars[4];
+  TelemetryLineData lines[4];
 #if defined(PCBTARANIS)
   TelemetryScriptData script;
 #endif
@@ -396,15 +384,10 @@ PACK(struct VarioData {
 
 PACK(struct TelemetrySensor {
   union {
-    uint16_t id;  // data identifier, for FrSky we can reuse existing ones.
-                  // Source unit is derived from type.
+    uint16_t id;  // Telemetry data identifier; source unit is derived from type.
     NOBACKUP(uint16_t persistentValue);
   } NAME(id1) FUNC(select_id1);
   union {
-    NOBACKUP(PACK(struct {
-      uint8_t physID:5;
-      uint8_t rxIndex:3; // 1 bit for module index, 2 bits for receiver index
-    }) frskyInstance);
     uint8_t instance;
     NOBACKUP(uint8_t formula ENUM(TelemetrySensorFormula));
   } NAME(id2) FUNC(select_id2);
@@ -459,20 +442,6 @@ PACK(struct TelemetrySensor {
 });
 
 /*
- * Trainer module structure
- */
-
-PACK(struct TrainerModuleData {
-  uint8_t mode CUST(r_trainerMode,w_trainerMode);
-  uint8_t channelsStart;
-  int8_t  channelsCount; // 0=8 channels
-  int8_t frameLength;
-  int8_t  delay:6;
-  uint8_t pulsePol:1;
-  uint8_t spare2:1 SKIP;
-});
-
-/*
  * Module structure
  */
 
@@ -483,18 +452,15 @@ PACK(struct ModuleData {
   int8_t  antennaMode:2 ENUM(AntennaModes);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
-  uint8_t reserved SKIP;
 
   union {
-    // Keep backup offsets stable without retaining legacy protocol settings.
-    uint8_t raw[25];
-    NOBACKUP(PACK(struct {
+    PACK(struct {
       uint8_t telemetryBaudrate:3;
       uint8_t crsfArmingMode:1;
       uint8_t spare2:4 SKIP;
       int16_t crsfArmingTrigger:10 CUST(r_swtchSrc,w_swtchSrc);
       int16_t spare3:6;
-    }) crsf);
+    }) crsf;
   } NAME(mod) FUNC(select_mod_type);
 
   NOBACKUP(inline uint8_t getChannelsCount() const
@@ -512,7 +478,6 @@ PACK(struct ModuleData {
 #else
 #define MODEL_HEADER_BITMAP_FIELD
 #endif
-
 
 PACK(struct ModelHeader {
   char      name[LEN_MODEL_NAME]; // must be first for eeLoadModelName
@@ -716,13 +681,9 @@ PACK(struct ModelData {
   GVarData gvars[MAX_GVARS];
 
   NOBACKUP(VarioData varioData);
-  NOBACKUP(uint8_t reservedRssiSource SKIP);
 
   TOPBAR_DATA
 
-#if defined(YAML_GENERATOR)
-  RssiAlarmData rssiAlarms;
-#endif
   NOBACKUP(RFAlarmData rfAlarms);
 
   uint8_t thrTrimSw:3;
@@ -731,8 +692,6 @@ PACK(struct ModelData {
   uint8_t spare1:1 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
-  int16_t reservedFailsafe[MAX_OUTPUT_CHANNELS] SKIP;
-  TrainerModuleData trainerData;
 
   SCRIPT_DATA
 
@@ -767,7 +726,6 @@ PACK(struct ModelData {
   uint8_t view;
 #endif
 
-  uint8_t reservedModelRegistration[8] SKIP;
 
   FUNCTION_SWITCHS_FIELDS
 
@@ -806,7 +764,7 @@ PACK(struct ModelData {
   uint8_t radioThemesDisabled:2 ENUM(ModelOverridableEnable);
 #endif
   uint8_t radioGFDisabled:2 ENUM(ModelOverridableEnable);
-  uint8_t radioTrainerDisabled:2 ENUM(ModelOverridableEnable);
+  uint8_t spareViewOption:2 SKIP;
   // Model level tabs control (model setting)
   uint8_t modelFMDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
@@ -874,17 +832,6 @@ PACK(struct CalibData {
   int16_t mid;
   int16_t spanNeg;
   int16_t spanPos;
-});
-
-PACK(struct TrainerMix {
-  uint8_t srcChn:6; // 0-7 = ch1-8
-  uint8_t mode:2 ENUM(TrainerMultiplex);   // off,add-mode,subst-mode
-  int8_t  studWeight;
-});
-
-PACK(struct TrainerData {
-  int16_t        calib[4];
-  NOBACKUP(TrainerMix mix[4]);
 });
 
 #if defined(COLORLCD)
@@ -956,7 +903,6 @@ PACK(struct RadioData {
   uint8_t keysBacklight:1;
   NOBACKUP(uint8_t dontPlayHello:1);
   uint8_t internalModule ENUM(ModuleType);
-  NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
   NOBACKUP(int8_t buzzerModeSkip:2 SKIP); // 2 bits for alignment
   NOBACKUP(uint8_t fai:1);
@@ -975,7 +921,6 @@ PACK(struct RadioData {
   int8_t switchesDelay;
   NOBACKUP(uint8_t lightAutoOff);
   NOBACKUP(uint8_t templateSetup);   // RETA order for receiver channels
-  NOBACKUP(int8_t PPM_Multiplier);
   NOBACKUP(int8_t hapticLength CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t beepLength:3 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t hapticStrength:3 CUST(r_5pos,w_5pos));
@@ -1027,7 +972,6 @@ PACK(struct RadioData {
 
   EXTRA_GENERAL_FIELDS
 
-  uint8_t reservedOwnerRegistration[8] SKIP;
 
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   NOBACKUP(uint8_t  rotEncMode:3);
@@ -1057,7 +1001,7 @@ PACK(struct RadioData {
   NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
   NOBACKUP(int16_t radioGFDisabled:1);
-  NOBACKUP(int16_t radioTrainerDisabled:1);
+  NOBACKUP(int16_t spareRadioViewOption:1 SKIP);
   NOBACKUP(int16_t modelFMDisabled:1);
   NOBACKUP(int16_t modelCurvesDisabled:1);
   NOBACKUP(int16_t modelGVDisabled:1);
@@ -1068,7 +1012,7 @@ PACK(struct RadioData {
   NOBACKUP(int16_t modelSFDisabled:1);
   NOBACKUP(int16_t modelCustomScriptsDisabled:1);
   NOBACKUP(int16_t modelTelemetryDisabled:1);
-  NOBACKUP(int16_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(int16_t sparePoweroffAlarm:1 SKIP);
   NOBACKUP(int16_t disablePwrOnOffHaptic:1);
 
   NOBACKUP(uint8_t modelQuickSelect:1);

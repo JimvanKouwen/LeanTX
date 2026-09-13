@@ -114,12 +114,6 @@ void WASM_EXPORT(simuLuaReloadPermanentScripts)();
 // LCD: notify firmware that host has consumed the LCD buffer.
 void WASM_EXPORT(simuLcdFlushed)();
 
-// Trainer input: bulk copy values (-512..512) into trainerInput[].
-// Returns the max number of channels.
-uint8_t WASM_EXPORT(simuGetMaxTrainerChannels)();
-void WASM_EXPORT(simuCopyTrainerInput)(const int16_t* buf, uint8_t count);
-void WASM_EXPORT(simuSetTrainerTimeout)(uint16_t ms);
-
 // Output values: polled periodically by host (every ~50ms).
 
 // Bulk copy channel outputs into buf (int16_t[]). Returns channel count.

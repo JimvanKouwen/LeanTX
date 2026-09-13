@@ -33,14 +33,12 @@ Functions cfn_sorted[] = {
   /* 播放声音 */ FUNC_PLAY_SOUND,
   /* 播放数值 */ FUNC_PLAY_VALUE,
   /* 播放音频文件 */ FUNC_PLAY_TRACK,
-  /* 测距模式 */ FUNC_RANGECHECK,
 #if defined(DEBUG)
   /* 测试 */ FUNC_TEST,
 #endif
   /* 复位 */ FUNC_RESET,
   /* 关闭音频功放 */ FUNC_DISABLE_AUDIO_AMP,
   /* 记录日志LOG */ FUNC_LOGS,
-  /* 教练 */ FUNC_TRAINER,
   /* 截屏 */ FUNC_SCREENSHOT,
 #if defined(COLORLCD)
   /* 禁用触摸 */ FUNC_DISABLE_TOUCH,
@@ -54,7 +52,6 @@ Functions cfn_sorted[] = {
   /* 屏幕显示图传 */ FUNC_LCD_TO_VIDEO,
 #endif
   /* 设置 */ FUNC_SET_TIMER,
-  /* 设置失控保护 */ FUNC_SET_FAILSAFE,
   /* 锁定通道值 */ FUNC_OVERRIDE_CHANNEL,
   /* 修改全局变量GV值 */ FUNC_ADJUST_GVAR,
   /* 选择主屏 */ FUNC_SET_SCREEN,
@@ -84,7 +81,6 @@ Functions cfn_sorted[] = {
 #if OLED_SCREEN
   /* Jas */ FUNC_BACKLIGHT,
 #endif
-  /* Kontrola dosahu */ FUNC_RANGECHECK,
 #if defined(VIDEO_SWITCH)
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
@@ -92,7 +88,6 @@ Functions cfn_sorted[] = {
   /* Lua Skript */ FUNC_PLAY_SCRIPT,
   /* Modul bind */ FUNC_BIND,
   /* Nastav */ FUNC_ADJUST_GVAR,
-  /* Nastavit failsafe */ FUNC_SET_FAILSAFE,
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
   /* No Keys */ FUNC_DISABLE_KEYS,
 #endif
@@ -109,7 +104,6 @@ Functions cfn_sorted[] = {
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Trenér */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
   /* Vibrovat */ FUNC_HAPTIC,
   /* Vybrat hlavní obrazovku */ FUNC_SET_SCREEN,
@@ -118,7 +112,6 @@ Functions cfn_sorted[] = {
   /* Závodní režim */ FUNC_RACING_MODE,
   /* Změna */ FUNC_SET_TIMER,
 #elif defined(TRANSLATIONS_DA)
-  /* Afstand kontrol */ FUNC_RANGECHECK,
 #if !OLED_SCREEN
   /* Baggrund lys */ FUNC_BACKLIGHT,
 #endif
@@ -153,14 +146,12 @@ Functions cfn_sorted[] = {
   /* Spil lydfil */ FUNC_PLAY_TRACK,
   /* Spil Værdi */ FUNC_PLAY_VALUE,
   /* Sæt */ FUNC_SET_TIMER,
-  /* Sæt fejlsikring */ FUNC_SET_FAILSAFE,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
 #if defined(FUNCTION_SWITCHES)
   /* Tryk bruger kontakt */ FUNC_PUSH_CUST_SWITCH,
 #endif
-  /* Træner */ FUNC_TRAINER,
   /* Vibration */ FUNC_HAPTIC,
   /* Vælg hoved skærm */ FUNC_SET_SCREEN,
 #elif defined(TRANSLATIONS_DE)
@@ -183,7 +174,6 @@ Functions cfn_sorted[] = {
 #if defined(VIDEO_SWITCH)
   /* LCD zu Video */ FUNC_LCD_TO_VIDEO,
 #endif
-  /* Lehrer */ FUNC_TRAINER,
 #if defined(FUNCTION_SWITCHES)
   /* LS setzen */ FUNC_PUSH_CUST_SWITCH,
 #endif
@@ -193,12 +183,10 @@ Functions cfn_sorted[] = {
   /* No Keys */ FUNC_DISABLE_KEYS,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Range Check */ FUNC_RANGECHECK,
   /* RGB LED */ FUNC_RGB_LED,
   /* Rücksetz. */ FUNC_RESET,
   /* Screenshot */ FUNC_SCREENSHOT,
   /* SD-Aufz. */ FUNC_LOGS,
-  /* Set Failsafe */ FUNC_SET_FAILSAFE,
   /* Setze */ FUNC_SET_TIMER,
   /* Spiel Töne */ FUNC_PLAY_SOUND,
   /* StartMusik */ FUNC_BACKGND_MUSIC,
@@ -219,10 +207,7 @@ Functions cfn_sorted[] = {
   /* Brillo */ FUNC_BACKLIGHT,
 #endif
   /* Captura */ FUNC_SCREENSHOT,
-  /* CheckRango */ FUNC_RANGECHECK,
   /* Enl.módulo */ FUNC_BIND,
-  /* Entrenador */ FUNC_TRAINER,
-  /* Failsafe */ FUNC_SET_FAILSAFE,
   /* Haptic */ FUNC_HAPTIC,
   /* Instant Trim */ FUNC_INSTANT_TRIM,
 #if defined(VIDEO_SWITCH)
@@ -286,19 +271,16 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Range Check */ FUNC_RANGECHECK,
   /* Reset */ FUNC_RESET,
   /* RGB leds */ FUNC_RGB_LED,
   /* Safety */ FUNC_OVERRIDE_CHANNEL,
   /* Screenshot */ FUNC_SCREENSHOT,
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
-  /* Set Failsafe */ FUNC_SET_FAILSAFE,
   /* Set Main Screen */ FUNC_SET_SCREEN,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Trainer */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
   /* Volume */ FUNC_VOLUME,
 #elif defined(TRANSLATIONS_FR)
@@ -307,7 +289,6 @@ Functions cfn_sorted[] = {
   /* Déf. */ FUNC_SET_TIMER,
   /* Définir Écran Princ. */ FUNC_SET_SCREEN,
   /* Désact. Ampli Audio */ FUNC_DISABLE_AUDIO_AMP,
-  /* Écolage */ FUNC_TRAINER,
   /* Instant Trim */ FUNC_INSTANT_TRIM,
   /* Jouer fichier */ FUNC_PLAY_TRACK,
   /* Jouer son */ FUNC_PLAY_SOUND,
@@ -332,7 +313,6 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Règle Failsafe */ FUNC_SET_FAILSAFE,
   /* Remise à 0 */ FUNC_RESET,
   /* Remplace */ FUNC_OVERRIDE_CHANNEL,
 #if !OLED_SCREEN
@@ -343,7 +323,6 @@ Functions cfn_sorted[] = {
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Test Port. */ FUNC_RANGECHECK,
   /* Vario */ FUNC_VARIO,
   /* Vibreur */ FUNC_HAPTIC,
   /* Volume */ FUNC_VOLUME,
@@ -367,11 +346,9 @@ Functions cfn_sorted[] = {
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
-  /* RangeCheck */ FUNC_RANGECHECK,
   /* RGB leds */ FUNC_RGB_LED,
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
-  /* SetFailsafe */ FUNC_SET_FAILSAFE,
   /* Vario */ FUNC_VARIO,
 #if !OLED_SCREEN
   /* אור אחורי */ FUNC_BACKLIGHT,
@@ -389,7 +366,6 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* ללא מסך מגע */ FUNC_DISABLE_TOUCH,
 #endif
-  /* מדריך */ FUNC_TRAINER,
   /* מצב תחרות */ FUNC_RACING_MODE,
   /* עוצמת קול */ FUNC_VOLUME,
   /* צילום מסך */ FUNC_SCREENSHOT,
@@ -411,7 +387,6 @@ Functions cfn_sorted[] = {
 #if OLED_SCREEN
   /* Luminosità */ FUNC_BACKLIGHT,
 #endif
-  /* Maestro */ FUNC_TRAINER,
   /* Modo Racing */ FUNC_RACING_MODE,
   /* Musica Sf */ FUNC_BACKGND_MUSIC,
   /* Musica Sf || */ FUNC_BACKGND_MUSIC_PAUSE,
@@ -421,7 +396,6 @@ Functions cfn_sorted[] = {
 #if defined(FUNCTION_SWITCHES)
   /* Premi CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
-  /* Range Check */ FUNC_RANGECHECK,
   /* Regola */ FUNC_ADJUST_GVAR,
 #if !OLED_SCREEN
   /* Retroillum. */ FUNC_BACKLIGHT,
@@ -429,7 +403,6 @@ Functions cfn_sorted[] = {
   /* Screenshot */ FUNC_SCREENSHOT,
   /* Script Lua */ FUNC_PLAY_SCRIPT,
   /* Set */ FUNC_SET_TIMER,
-  /* Set Failsafe */ FUNC_SET_FAILSAFE,
   /* Setta Schermo Princ. */ FUNC_SET_SCREEN,
   /* Suona */ FUNC_PLAY_SOUND,
   /* Suona Traccia */ FUNC_PLAY_TRACK,
@@ -442,7 +415,6 @@ Functions cfn_sorted[] = {
 #elif defined(TRANSLATIONS_JP)
   /* BGM一時停止 */ FUNC_BACKGND_MUSIC_PAUSE,
   /* BGM再生 */ FUNC_BACKGND_MUSIC,
-  /* Failsafe設定 */ FUNC_SET_FAILSAFE,
   /* G変数修正 */ FUNC_ADJUST_GVAR,
   /* Inst.トリム */ FUNC_INSTANT_TRIM,
 #if defined(VIDEO_SWITCH)
@@ -463,7 +435,6 @@ Functions cfn_sorted[] = {
 #if defined(DEBUG)
   /* テスト */ FUNC_TEST,
 #endif
-  /* トレーナー */ FUNC_TRAINER,
   /* バイブレート */ FUNC_HAPTIC,
 #if !OLED_SCREEN
   /* バックライト */ FUNC_BACKLIGHT,
@@ -473,7 +444,6 @@ Functions cfn_sorted[] = {
   /* モジュールバインド */ FUNC_BIND,
   /* リセット */ FUNC_RESET,
   /* レースモード */ FUNC_RACING_MODE,
-  /* レンジチェック */ FUNC_RANGECHECK,
   /* 音源再生 */ FUNC_PLAY_TRACK,
   /* 画面キャプチャ */ FUNC_SCREENSHOT,
 #if OLED_SCREEN
@@ -496,7 +466,6 @@ Functions cfn_sorted[] = {
   /* RGB LED */ FUNC_RGB_LED,
   /* SD 로그 저장 */ FUNC_LOGS,
   /* 값 재생 */ FUNC_PLAY_VALUE,
-  /* 거리체크 */ FUNC_RANGECHECK,
   /* 레이싱 모드 */ FUNC_RACING_MODE,
   /* 메인 화면 설정 */ FUNC_SET_SCREEN,
   /* 모듈 바인딩 */ FUNC_BIND,
@@ -529,8 +498,6 @@ Functions cfn_sorted[] = {
   /* 테스트 */ FUNC_TEST,
 #endif
   /* 트랙 재생 */ FUNC_PLAY_TRACK,
-  /* 트레이너 */ FUNC_TRAINER,
-  /* 페일세이프 설정 */ FUNC_SET_FAILSAFE,
 #elif defined(TRANSLATIONS_NL)
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
 #if !OLED_SCREEN
@@ -562,18 +529,15 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Range Check */ FUNC_RANGECHECK,
   /* Reset */ FUNC_RESET,
   /* RGB leds */ FUNC_RGB_LED,
   /* Schermafdr */ FUNC_SCREENSHOT,
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
-  /* Set Failsafe */ FUNC_SET_FAILSAFE,
   /* Set Main Screen */ FUNC_SET_SCREEN,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Trainer */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
   /* Volume */ FUNC_VOLUME,
   /* Wijzig */ FUNC_ADJUST_GVAR,
@@ -607,16 +571,13 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Range Check */ FUNC_RANGECHECK,
   /* Resetuj */ FUNC_RESET,
   /* RGB ledy */ FUNC_RGB_LED,
-  /* Set Failsafe */ FUNC_SET_FAILSAFE,
   /* Set Main Screen */ FUNC_SET_SCREEN,
   /* SkryptyLua */ FUNC_PLAY_SCRIPT,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Trener */ FUNC_TRAINER,
   /* Ustaw */ FUNC_ADJUST_GVAR,
   /* Ustaw */ FUNC_SET_TIMER,
   /* Wario */ FUNC_VARIO,
@@ -633,7 +594,6 @@ Functions cfn_sorted[] = {
   /* Brilho */ FUNC_BACKLIGHT,
 #endif
   /* Capt. Tela */ FUNC_SCREENSHOT,
-  /* DefFailsafe */ FUNC_SET_FAILSAFE,
   /* Definir */ FUNC_SET_TIMER,
   /* Def Tela Princ */ FUNC_SET_SCREEN,
 #if defined(VIDEO_SWITCH)
@@ -654,7 +614,6 @@ Functions cfn_sorted[] = {
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
-  /* Range Check */ FUNC_RANGECHECK,
   /* Rep Valor */ FUNC_PLAY_VALUE,
   /* Reset */ FUNC_RESET,
   /* Script Lua */ FUNC_PLAY_SCRIPT,
@@ -664,7 +623,6 @@ Functions cfn_sorted[] = {
 #endif
   /* Tocar Som */ FUNC_PLAY_SOUND,
   /* Tocar Trilha */ FUNC_PLAY_TRACK,
-  /* Trainer */ FUNC_TRAINER,
   /* Trim Inst. */ FUNC_INSTANT_TRIM,
   /* Vario */ FUNC_VARIO,
   /* Vibrar */ FUNC_HAPTIC,
@@ -681,7 +639,6 @@ Functions cfn_sorted[] = {
   /* Play Value */ FUNC_PLAY_VALUE,
   /* RGB подсветка */ FUNC_RGB_LED,
   /* SD логи */ FUNC_LOGS,
-  /* Авар управ */ FUNC_SET_FAILSAFE,
   /* Варио */ FUNC_VARIO,
   /* Вибро */ FUNC_HAPTIC,
   /* Воспр звук */ FUNC_PLAY_SOUND,
@@ -703,14 +660,12 @@ Functions cfn_sorted[] = {
 #if !OLED_SCREEN
   /* Подсветка */ FUNC_BACKLIGHT,
 #endif
-  /* Пров диапаз */ FUNC_RANGECHECK,
   /* Режим гонка */ FUNC_RACING_MODE,
   /* Сброс */ FUNC_RESET,
 #if defined(COLORLCD)
   /* Сенсор вык */ FUNC_DISABLE_TOUCH,
 #endif
   /* Скриншот */ FUNC_SCREENSHOT,
-  /* Таймер */ FUNC_TRAINER,
 #if defined(DEBUG)
   /* Тест */ FUNC_TEST,
 #endif
@@ -734,14 +689,12 @@ Functions cfn_sorted[] = {
   /* Logga data */ FUNC_LOGS,
   /* Lua-skript */ FUNC_PLAY_SCRIPT,
   /* Lås */ FUNC_OVERRIDE_CHANNEL,
-  /* Lärare */ FUNC_TRAINER,
   /* Musik */ FUNC_BACKGND_MUSIC,
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
   /* No Keys */ FUNC_DISABLE_KEYS,
 #endif
   /* Parkoppla modul */ FUNC_BIND,
   /* Pausa musik */ FUNC_BACKGND_MUSIC_PAUSE,
-  /* Range check */ FUNC_RANGECHECK,
   /* RGB ledljus */ FUNC_RGB_LED,
   /* Skärmbild */ FUNC_SCREENSHOT,
   /* Spara trimmar */ FUNC_INSTANT_TRIM,
@@ -749,7 +702,6 @@ Functions cfn_sorted[] = {
   /* Spela upp */ FUNC_PLAY_TRACK,
   /* Säg värde */ FUNC_PLAY_VALUE,
   /* Sätt */ FUNC_SET_TIMER,
-  /* Sätt failsafe */ FUNC_SET_FAILSAFE,
   /* Sätt huvudskärm */ FUNC_SET_SCREEN,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
@@ -785,13 +737,11 @@ Functions cfn_sorted[] = {
   /* 播放聲音 */ FUNC_PLAY_SOUND,
   /* 播放背景音樂 */ FUNC_BACKGND_MUSIC,
   /* 播放音頻文件 */ FUNC_PLAY_TRACK,
-  /* 教練 */ FUNC_TRAINER,
   /* 暫停背景音樂 */ FUNC_BACKGND_MUSIC_PAUSE,
   /* 模塊對頻 */ FUNC_BIND,
 #if defined(DEBUG)
   /* 測試 */ FUNC_TEST,
 #endif
-  /* 測距模式 */ FUNC_RANGECHECK,
 #if defined(COLORLCD)
   /* 禁用觸摸 */ FUNC_DISABLE_TOUCH,
 #endif
@@ -801,14 +751,12 @@ Functions cfn_sorted[] = {
 #endif
   /* 記錄日誌LOG */ FUNC_LOGS,
   /* 設置 */ FUNC_SET_TIMER,
-  /* 設置失控保護 */ FUNC_SET_FAILSAFE,
   /* 選擇主屏 */ FUNC_SET_SCREEN,
   /* 重啟 */ FUNC_RESET,
   /* 鎖定通道值 */ FUNC_OVERRIDE_CHANNEL,
   /* 關閉音頻功放 */ FUNC_DISABLE_AUDIO_AMP,
   /* 音量 */ FUNC_VOLUME,
 #elif defined(TRANSLATIONS_UA)
-  /* АварРежим */ FUNC_SET_FAILSAFE,
   /* Варіо */ FUNC_VARIO,
   /* Вибір гол. екр. */ FUNC_SET_SCREEN,
   /* Вібро */ FUNC_HAPTIC,
@@ -821,7 +769,6 @@ Functions cfn_sorted[] = {
   /* Модуль Bind */ FUNC_BIND,
   /* Налашт. */ FUNC_ADJUST_GVAR,
   /* Перевизнач. */ FUNC_OVERRIDE_CHANNEL,
-  /* ПеревірДіап. */ FUNC_RANGECHECK,
 #if !OLED_SCREEN
   /* Підсвіт. */ FUNC_BACKLIGHT,
 #endif
@@ -835,7 +782,6 @@ Functions cfn_sorted[] = {
 #if defined(DEBUG)
   /* Тест */ FUNC_TEST,
 #endif
-  /* Тренер */ FUNC_TRAINER,
   /* Фон.Муз. */ FUNC_BACKGND_MUSIC,
   /* Фон.Муз. || */ FUNC_BACKGND_MUSIC_PAUSE,
 #if OLED_SCREEN
@@ -885,18 +831,15 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Range Check */ FUNC_RANGECHECK,
   /* Reset */ FUNC_RESET,
   /* RGB leds */ FUNC_RGB_LED,
   /* Screenshot */ FUNC_SCREENSHOT,
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
-  /* Set Failsafe */ FUNC_SET_FAILSAFE,
   /* Set Main Screen */ FUNC_SET_SCREEN,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Trainer */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
   /* Volume */ FUNC_VOLUME,
 #endif

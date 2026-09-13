@@ -50,9 +50,6 @@
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  9
   #define MAX_INPUTS                   32
-  #define MIN_TRAINER_CHANNELS         4
-  #define DEF_TRAINER_CHANNELS         8
-  #define MAX_TRAINER_CHANNELS         16
 #if defined(STM32H7)
   #define MAX_TELEMETRY_SENSORS        99
 #else
@@ -69,9 +66,6 @@
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
-  #define MIN_TRAINER_CHANNELS         4
-  #define DEF_TRAINER_CHANNELS         8
-  #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
@@ -83,16 +77,12 @@
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
-  #define MIN_TRAINER_CHANNELS         4
-  #define DEF_TRAINER_CHANNELS         8
-  #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        40
 #else
   #warning "Unknown board!"
 #endif
 
 #define MAX_TIMERS                     3
-#define NUM_CAL_PPM                    4
 
 enum CurveType {
   CURVE_TYPE_STANDARD,
@@ -194,22 +184,6 @@ enum ArmingMode {
   ARMING_MODE_LAST = ARMING_MODE_SWITCH,
 };
 
-enum TrainerMode {
-  TRAINER_MODE_OFF,
-  TRAINER_MODE_MASTER_TRAINER_JACK,
-  TRAINER_MODE_SLAVE,
-  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE,
-  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE,
-  TRAINER_MODE_MASTER_SERIAL,
-  TRAINER_MODE_MASTER_BLUETOOTH,
-  TRAINER_MODE_SLAVE_BLUETOOTH,
-  TRAINER_MODE_MULTI,
-  TRAINER_MODE_CRSF,
-};
-
-#define TRAINER_MODE_MIN() TRAINER_MODE_OFF
-#define TRAINER_MODE_MAX() TRAINER_MODE_CRSF
-
 enum SerialPort {
     SP_AUX1=0,
     SP_AUX2,
@@ -244,8 +218,8 @@ enum UartModes {
   UART_MODE_NONE,
   UART_MODE_TELEMETRY_MIRROR,
   UART_MODE_RESERVED_TELEMETRY SKIP,
-  UART_MODE_SBUS_TRAINER,
-  UART_MODE_SBUS_TRAINER_INV,
+  UART_MODE_RESERVED_3 SKIP,
+  UART_MODE_RESERVED_4 SKIP,
   UART_MODE_LUA,
   UART_MODE_CLI,
   UART_MODE_GPS,
@@ -357,7 +331,6 @@ enum TelemetryScreenType {
 #define IS_BARS_SCREEN(screenIndex)                                     \
   (TELEMETRY_SCREEN_TYPE(screenIndex) == TELEMETRY_SCREEN_TYPE_BARS)
 
-
 #define LEN_SCRIPT_FILENAME            6
 #define LEN_SCRIPT_NAME                6
 #define MAX_SCRIPT_INPUTS              6
@@ -425,8 +398,6 @@ enum SwitchSources {
   SWSRC_LAST_SENSOR SKIP = SWSRC_FIRST_SENSOR+MAX_TELEMETRY_SENSORS-1,
 
   SWSRC_RADIO_ACTIVITY,
-
-  SWSRC_TRAINER_CONNECTED,
 
 #if defined(DEBUG_LATENCY)
   SWSRC_LATENCY_TOGGLE,
@@ -514,9 +485,6 @@ enum MixSources {
   MIXSRC_FIRST_LOGICAL_SWITCH SKIP,
   MIXSRC_LAST_LOGICAL_SWITCH SKIP = MIXSRC_FIRST_LOGICAL_SWITCH + MAX_LOGICAL_SWITCHES - 1,
 
-  MIXSRC_FIRST_TRAINER SKIP,
-  MIXSRC_LAST_TRAINER SKIP = MIXSRC_FIRST_TRAINER + MAX_TRAINER_CHANNELS - 1,
-
   MIXSRC_FIRST_CH SKIP,
   MIXSRC_LAST_CH SKIP = MIXSRC_FIRST_CH + MAX_OUTPUT_CHANNELS - 1,
 
@@ -560,7 +528,6 @@ enum SrcTypes {
   SRC_SWITCH = 1 << 9,
   SRC_FUNC_SWITCH = 1 << 10,
   SRC_LOGICAL_SWITCH = 1 << 11,
-  SRC_TRAINER = 1 << 12,
   SRC_CHANNEL = 1 << 13,
   SRC_CHANNEL_ALL = 1 << 14,
   SRC_GVAR = 1 << 15,
@@ -628,12 +595,7 @@ enum AdjustGvarFunctionParam {
 enum BluetoothModes {
   BLUETOOTH_OFF,
   BLUETOOTH_TELEMETRY,
-  BLUETOOTH_TRAINER,
-#if defined(PCBX9E)
   BLUETOOTH_MAX SKIP = BLUETOOTH_TELEMETRY
-#else
-  BLUETOOTH_MAX SKIP = BLUETOOTH_TRAINER
-#endif
 };
 
 enum HatsMode {
@@ -651,7 +613,6 @@ enum UartSampleModes {
   UART_SAMPLE_MODE_MAX SKIP = UART_SAMPLE_MODE_ONEBIT
 };
 #endif
-
 
 // A model On/Off setting that can also take a global value
 enum ModelOverridableEnable {
@@ -673,14 +634,11 @@ enum PPMUnit {
 
 enum Functions {
   FUNC_OVERRIDE_CHANNEL,
-  FUNC_TRAINER,
   FUNC_INSTANT_TRIM,
   FUNC_RESET,
   FUNC_SET_TIMER,
   FUNC_ADJUST_GVAR,
   FUNC_VOLUME,
-  FUNC_SET_FAILSAFE,
-  FUNC_RANGECHECK,
   FUNC_BIND,
   FUNC_PLAY_SOUND,
   FUNC_PLAY_TRACK,

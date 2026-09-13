@@ -406,26 +406,6 @@
   #define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 
-// Trainer Port
-  #define TRAINER_IN_GPIO               GPIO_PIN(GPIOC, 8) // PC.08
-  #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH3
-  #define TRAINER_OUT_GPIO              GPIO_PIN(GPIOC, 9) // PC.09
-  #define TRAINER_OUT_TIMER_Channel     LL_TIM_CHANNEL_CH4
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_BUMBLEBEE)
-  #define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOE, 3) // PE.03
-#else
-  #define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOA, 8) // PA.08
-#endif
-#if !defined(RADIO_X9DP2019) && !defined(RADIO_X7ACCESS)
-  #define TRAINER_DETECT_INVERTED
-#endif
-  #define TRAINER_TIMER                 TIM3
-  #define TRAINER_TIMER_IRQn            TIM3_IRQn
-  #define TRAINER_GPIO_AF               LL_GPIO_AF_2
-  #define TRAINER_TIMER_IRQn            TIM3_IRQn
-  #define TRAINER_TIMER_IRQHandler      TIM3_IRQHandler
-  #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
 // Serial Port
 #if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(RADIO_X9DP2019)
 #elif defined(RADIO_GX12)
@@ -494,7 +474,6 @@
 
 // PCBREV
 
-
 // USB Charger
 #if defined(USB_CHARGER)
   #define USB_CHARGER_GPIO              GPIO_PIN(GPIOB, 5)
@@ -509,63 +488,6 @@
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOA, 14) // PA.14
 #else
   #define SPORT_MAX_BAUDRATE            400000
-#endif
-
-// Heartbeat for iXJT / ISRM synchro
-#if !defined(HARDWARE_EXTERNAL_MODULE)
-  // No heartbeat
-#elif defined(RADIO_X7ACCESS)
-  #define TRAINER_BAY_INPUT_GPIO                GPIO_PIN(GPIOA, 7) // PA.07
-  // INTMODULE_HEARTBEAT_EXTI IRQ
-  #if !defined(USE_EXTI9_5_IRQ)
-    #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
-  #endif
-#elif defined(RADIO_X9DP2019)
-  #define TRAINER_BAY_INPUT_GPIO                GPIO_PIN(GPIOB, 1) // PB.01
-  // INTMODULE_HEARTBEAT_EXTI IRQ
-  #if !defined(USE_EXTI1_IRQ)
-    #define USE_EXTI1_IRQ
-    #define EXTI1_IRQ_Priority 5
-  #endif
-#elif defined(MANUFACTURER_FRSKY)
-  #define TRAINER_BAY_INPUT_GPIO                GPIO_PIN(GPIOC, 7) // PC.07
-  // INTMODULE_HEARTBEAT_EXTI IRQ
-  #if !defined(USE_EXTI9_5_IRQ)
-    #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
-  #endif
-#endif
-
-// Trainer / Trainee from the module bay
-#if defined(RADIO_X9DP2019) || \
-  defined(PCBX7ACCESS) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || \
-  defined(RADIO_TX12MK2) || defined(RADIO_BOXER) ||\
-  defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_V14) || defined(RADIO_V14LCD) \
-  || defined(RADIO_GX12)
-  #define TRAINER_MODULE_CPPM_TIMER            TIM3
-  #define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
-  #define TRAINER_MODULE_CPPM_GPIO             EXTMODULE_RX_GPIO
-  #define TRAINER_MODULE_CPPM_TIMER_Channel    LL_TIM_CHANNEL_CH2
-  #define TRAINER_MODULE_CPPM_TIMER_IRQn       TIM3_IRQn
-  #define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
-#elif defined(TRAINER_BAY_INPUT_GPIO) && defined(HARDWARE_EXTERNAL_MODULE)
-  // Trainer CPPM input on heartbeat pin
-  #define TRAINER_MODULE_CPPM_TIMER               TRAINER_TIMER
-  #define TRAINER_MODULE_CPPM_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
-  #define TRAINER_MODULE_CPPM_GPIO                TRAINER_BAY_INPUT_GPIO
-  #define TRAINER_MODULE_CPPM_TIMER_Channel       LL_TIM_CHANNEL_CH2
-  #define TRAINER_MODULE_CPPM_TIMER_IRQn          TRAINER_TIMER_IRQn
-  #define TRAINER_MODULE_CPPM_GPIO_AF             GPIO_AF2
-  // Trainer SBUS input on heartbeat pin
-  #define TRAINER_MODULE_SBUS_USART               USART6
-  #define TRAINER_MODULE_SBUS_USART_IRQn          USART6_IRQn
-  #define TRAINER_MODULE_SBUS_GPIO                TRAINER_BAY_INPUT_GPIO
-  #define TRAINER_MODULE_SBUS_DMA                 DMA2
-  #define TRAINER_MODULE_SBUS_DMA_STREAM_LL       LL_DMA_STREAM_1
-  #define TRAINER_MODULE_SBUS_DMA_CHANNEL         LL_DMA_CHANNEL_5
-#else
-  // TODO: replace SBUS trainer with S.PORT pin
 #endif
 
 // USB
@@ -768,7 +690,6 @@
     #define AUDIO_UNMUTE_DELAY          150  // ms
   #endif
 #endif
-
 
 #if defined(RADIO_BOXER) || defined(RADIO_FAMILY_T20) || defined(RADIO_X9DP2019) || defined (RADIO_V14) || defined(RADIO_V14LCD) || defined(RADIO_GX12)
   // Flysky Hall Stick

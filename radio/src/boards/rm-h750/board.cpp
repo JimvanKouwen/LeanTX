@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
@@ -35,7 +35,6 @@
 
 #include "hal/adc_driver.h"
 #include "hal/flash_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
 #include "hal/abnormal_reboot.h"
@@ -61,7 +60,6 @@
 #if defined(IMU_SC7U22)
 #include "drivers/sc7u22.h"
 #endif
-
 
 #include <string.h>
 
@@ -175,8 +173,6 @@ void boardInit()
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
-  // init_trainer();
-
 #if defined(FLYSKY_GIMBAL)
   auto inittime = flysky_gimbal_init();
   if (inittime)
@@ -237,7 +233,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 

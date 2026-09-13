@@ -27,9 +27,6 @@
   #include "crossfire.h"
 #endif
 
-#if defined(RADIO_NV14_FAMILY)
-#endif
-
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 bool allowNewSensors;
 
@@ -507,13 +504,11 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
   if (index >= 0) {
     switch (protocol) {
 
-
 #if defined(CROSSFIRE)
       case PROTOCOL_TELEMETRY_CROSSFIRE:
         crossfireSetDefault(index, id, instance);
         break;
 #endif
-
 
 #if defined(LUA)
      case PROTOCOL_TELEMETRY_LUA:

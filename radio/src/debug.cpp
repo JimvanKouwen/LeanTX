@@ -59,7 +59,6 @@ void debugPrintf(const char * format, ...)
     "D2S7 ",   // INT_DMA2S7,
     "Tim1 ",   // INT_TIM1CC,
     "Tim2 ",   // INT_TIM2,
-    "Tim3 ",   // INT_TIM3,
     "BlueT",   // INT_BLUETOOTH,
     "USB  ",  // INT_OTG_FS,
 #if defined(DEBUG_USB_INTERRUPTS)
@@ -93,7 +92,6 @@ void debugPrintf(const char * format, ...)
     "Ser2 ",   // INT_SER2,
     "TelDm",   // INT_TELEM_DMA,
     "TelUs",   // INT_TELEM_USART,
-    "Train",   // INT_TRAINER,
     "Usb  ",   // INT_OTG_FS,
 #if defined(DEBUG_USB_INTERRUPTS)
     " spur",  // INT_OTG_FS_SPURIOUS,

@@ -31,7 +31,6 @@
 
 /* Timers Allocation:
  * TIM1 = Haptic
- * TIM4 = Trainer
  * TIM6 = Audio
  * TIM7 = 2 MHz counter
  *
@@ -46,7 +45,6 @@
    2/0/2 ADC3
    2/3/4 SDIO
 */
-
 
 // ADC
 #define ADC_VREF_PREC2 1024 // fake
@@ -252,21 +250,6 @@
 // #define EXTMODULE_TX_INVERTED()            EXTMODULE_TX_INVERT_GPIO->BSRRL = EXTMODULE_TX_INVERT_GPIO_PIN
 // #define EXTMODULE_RX_NORMAL()              EXTMODULE_RX_INVERT_GPIO->BSRRH = EXTMODULE_RX_INVERT_GPIO_PIN
 // #define EXTMODULE_RX_INVERTED()            EXTMODULE_RX_INVERT_GPIO->BSRRL = EXTMODULE_RX_INVERT_GPIO_PIN
-
-// Trainer Port
-// #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
-
-// #define TRAINER_IN_GPIO                 GPIO_PIN(GPIOD, 12) // PD.12
-// #define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-
-// #define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 13) // PD.13
-// #define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-// #define TRAINER_TIMER                   TIM4
-// #define TRAINER_TIMER_IRQn              TIM4_IRQn
-// #define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
-// #define TRAINER_GPIO_AF                 LL_GPIO_AF_2
-// #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 //ROTARY emulation for trims as buttons
 // #define ROTARY_ENCODER_NAVIGATION

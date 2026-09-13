@@ -43,7 +43,6 @@ Stream6:  EXTMODULE_USART_TX_DMA_STREAM
 TIM1:     LED_STRIP_TIMER
 TIM2:     (free)
 TIM3:     EXTMODULE_TIMER
-TIM4:     TRAINER_TIMER
 TIM5:     (free)
 TIM6:     AUDIO_TIMER
 TIM7:     (free)
@@ -253,19 +252,6 @@ USART6: EXTMODULE_USART
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_3
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream3_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream3_IRQHandler
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOD, 13)  // TIM4_CH2
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 12)  // TIM4_CH1
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
-
-#define TRAINER_TIMER                   TIM4
-#define TRAINER_TIMER_IRQn              TIM4_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_2
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
 
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 

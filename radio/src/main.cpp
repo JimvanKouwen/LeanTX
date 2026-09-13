@@ -564,7 +564,6 @@ void perMain()
 
   handleUsbConnection();
 
-  checkTrainerSettings();
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 

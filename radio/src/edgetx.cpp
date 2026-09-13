@@ -44,7 +44,6 @@
 #include "switches.h"
 #include "inactivity_timer.h"
 #include "input_mapping.h"
-#include "trainer.h"
 
 #include "tasks.h"
 #include "tasks/mixer_task.h"
@@ -169,7 +168,6 @@ void per10ms()
 #endif
 
   if (trimsCheckTimer) trimsCheckTimer--;
-  trainerDecTimer();
 
   if (trimsDisplayTimer)
     trimsDisplayTimer--;
@@ -342,13 +340,6 @@ void generalDefault()
   g_eeGeneral.ttsLanguage[1] = 'n';
   g_eeGeneral.wavVolume = 2;
   g_eeGeneral.backgroundVolume = 1;
-
-  auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
-  for (int i = 0; i < controls; ++i) {
-    g_eeGeneral.trainer.mix[i].mode = 2;
-    g_eeGeneral.trainer.mix[i].srcChn = inputMappingChannelOrder(i);
-    g_eeGeneral.trainer.mix[i].studWeight = 100;
-  }
 
 #if defined(PCBX9E)
   const int8_t defaultName[] = { 20, -1, -18, -1, -14, -9, -19 };
@@ -735,7 +726,7 @@ bool isThrottleWarningAlertNeeded()
   }
 
   if (!mixerTaskRunning()) getADC();
-  evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
+  evalInputs(e_perout_mode_preview); // let do evalInputs do the job
 
   int16_t v = getValue(thr_src);
 
@@ -1147,10 +1138,10 @@ void edgeTxResume()
 void instantTrim()
 {
   int16_t anas_0[MAX_INPUTS];
-  evalInputs(e_perout_mode_notrainer | e_perout_mode_nosticks);
+  evalInputs(e_perout_mode_preview | e_perout_mode_nosticks);
   memcpy(anas_0, anas, sizeof(anas_0));
 
-  evalInputs(e_perout_mode_notrainer);
+  evalInputs(e_perout_mode_preview);
 
   auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (uint8_t st = 0; st < controls; st++) {
@@ -1195,7 +1186,7 @@ void copySticksToOffset(uint8_t ch)
   mixerTaskStop();
   int32_t zero = (int32_t)channelOutputs[ch];
 
-  evalFlightModeMixes(e_perout_mode_nosticks+e_perout_mode_notrainer, 0);
+  evalFlightModeMixes(e_perout_mode_nosticks+e_perout_mode_preview, 0);
   int32_t val = chans[ch];
   LimitData *ld = limitAddress(ch);
   limit_min_max_t lim = LIMIT_MIN(ld);
@@ -1683,8 +1674,7 @@ bool pwrOffDueToInactivity()
   tmr10ms_t currentTime = get_tmr10ms();
 
   if (TELEMETRY_STREAMING() ||
-      (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
-      isTrainerValid())
+      (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE))
     lastConnectedTime = currentTime;
 
   bool inactivityShutdown =
@@ -1716,8 +1706,7 @@ uint32_t pwrCheck()
   if (pwrPressed()) {
     bool needConfirm =
         (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) ||
-        (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
-        (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm);
+        (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE);
     if (!needConfirm) {
 #if defined(HAPTIC)
       if (!g_eeGeneral.disablePwrOnOffHaptic &&
@@ -1761,12 +1750,10 @@ uint32_t pwrCheck()
 #if defined(COLORLCD)
         bool usbConfirmed = !usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE;
         bool modelConnectedConfirmed = !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
-        bool trainerConfirmed = !isTrainerConnected();
 #endif
         while (
             (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
-            (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) ||
-            (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm))
+            (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm))
         {
 
 #if !defined(COLORLCD)
@@ -1782,10 +1769,7 @@ uint32_t pwrCheck()
             msg = STR_USB_STILL_CONNECTED;
             msg_len = strlen(STR_USB_STILL_CONNECTED);
           }
-          else if (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm) {
-            msg = STR_TRAINER_STILL_CONNECTED;
-            msg_len = strlen(STR_TRAINER_STILL_CONNECTED);
-          }
+
           event_t evt = getEvent();
           SET_WARNING_INFO(msg, msg_len, 0);
           DISPLAY_WARNING(evt);
@@ -1824,12 +1808,6 @@ uint32_t pwrCheck()
                 if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
               }
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
-            };
-          }
-          else if (!trainerConfirmed && !g_eeGeneral.disableTrainerPoweroffAlarm) {
-            message = STR_TRAINER_STILL_CONNECTED;
-            closeCondition = [](){
-              return !isTrainerConnected();
             };
           }
 
@@ -1941,9 +1919,6 @@ bool radioThemesEnabled() {
 #endif
 bool radioGFEnabled() {
   return FEATURE_ENABLED(radioGFDisabled);
-}
-bool radioTrainerEnabled() {
-  return FEATURE_ENABLED(radioTrainerDisabled);
 }
 
 // Model menu tab state

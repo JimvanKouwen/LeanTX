@@ -42,7 +42,6 @@
   #include "standalone_lua.h"
 #endif
 
-
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
 #endif
@@ -399,7 +398,6 @@ const LuaMultipleField luaMultipleFields[] = {
     {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
     {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
     {MIXSRC_FIRST_LOGICAL_SWITCH, "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
-    {MIXSRC_FIRST_TRAINER, "trn", "Trainer input %d", MAX_TRAINER_CHANNELS},
     {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
     {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
@@ -1879,19 +1877,6 @@ static int luaResetGlobalTimer(lua_State * L)
 }
 
 /*luadoc
-@function multiBuffer(address[,value])
-
-This function reads/writes the Multi protocol buffer to interact with a protocol.
-
-@param address to read/write in the buffer
-@param (optional): value to write in the buffer
-
-@retval buffer value (number)
-
-@status current Introduced in 2.3.2
-*/
-
-/*luadoc
 @function setSerialBaudrate(baudrate)
 @param baudrate Desired baurate
 
@@ -2463,24 +2448,6 @@ static int luaGetOutputValue(lua_State * L)
   return 1;
 }
 
-/*luadoc
-@function getTrainerStatus()
-
-@retval value current output value (number).
- 0 - Not Connected
- 1 - Connected
- 2 - Disconnected
- 3 - Reconnected
-
-@status current Introduced in 2.9.0
-*/
-static int luaGetTrainerStatus(lua_State * L)
-{
-  extern uint8_t trainerStatus;
-  lua_pushinteger(L, trainerStatus);
-  return 1;
-}
-
 // To simplify code below
 #if !defined(BLING_LED_STRIP_LENGTH)
   #define BLING_LED_STRIP_START 0
@@ -2711,7 +2678,6 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getValue, luaGetValue )
   LROT_FUNCENTRY( getOutputValue, luaGetOutputValue )
   LROT_FUNCENTRY( getSourceValue, luaGetSourceValue )
-  LROT_FUNCENTRY( getTrainerStatus, luaGetTrainerStatus )
   LROT_FUNCENTRY( getTxGPS, luaGetTxGPS )
   LROT_FUNCENTRY( getFieldInfo, luaGetFieldInfo )
   LROT_FUNCENTRY( getSourceInfo, luaGetFieldInfo )
@@ -2844,14 +2810,11 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( LS_FUNC_STICKY, LS_FUNC_STICKY )
 
   LROT_NUMENTRY( FUNC_OVERRIDE_CHANNEL, FUNC_OVERRIDE_CHANNEL )
-  LROT_NUMENTRY( FUNC_TRAINER, FUNC_TRAINER )
   LROT_NUMENTRY( FUNC_INSTANT_TRIM, FUNC_INSTANT_TRIM )
   LROT_NUMENTRY( FUNC_RESET, FUNC_RESET )
   LROT_NUMENTRY( FUNC_SET_TIMER, FUNC_SET_TIMER )
   LROT_NUMENTRY( FUNC_ADJUST_GVAR, FUNC_ADJUST_GVAR )
   LROT_NUMENTRY( FUNC_VOLUME, FUNC_VOLUME )
-  LROT_NUMENTRY( FUNC_SET_FAILSAFE, FUNC_SET_FAILSAFE )
-  LROT_NUMENTRY( FUNC_RANGECHECK, FUNC_RANGECHECK )
   LROT_NUMENTRY( FUNC_BIND, FUNC_BIND )
   LROT_NUMENTRY( FUNC_PLAY_SOUND, FUNC_PLAY_SOUND )
   LROT_NUMENTRY( FUNC_PLAY_TRACK, FUNC_PLAY_TRACK )
@@ -2988,7 +2951,6 @@ LROT_BEGIN(etxstr, NULL, 0)
   LROT_LUDENTRY( CHAR_INPUT, CHAR_INPUT )
   LROT_LUDENTRY( CHAR_FUNCTION, CHAR_FUNCTION )
   LROT_LUDENTRY( CHAR_CYC, CHAR_CYC )
-  LROT_LUDENTRY( CHAR_TRAINER, CHAR_TRAINER )
   LROT_LUDENTRY( CHAR_CHANNEL, CHAR_CHANNEL )
   LROT_LUDENTRY( CHAR_TELEMETRY, CHAR_TELEMETRY )
   LROT_LUDENTRY( CHAR_LUA, CHAR_LUA )

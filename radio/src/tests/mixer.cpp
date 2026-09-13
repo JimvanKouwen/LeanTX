@@ -85,7 +85,6 @@ class MixerTest : public EdgeTxTest {};
 #define ELE_TRIM_SOURCE   (-1 -ELE_CHAN)
 #define THR_TRIM_SOURCE   (-1 -THR_CHAN)
 
-
 TEST_F(MixerTest, throttleInvert)
 {
   // Mode 1 / reversed
@@ -544,8 +543,6 @@ TEST(Curves, LinearIntpol)
   EXPECT_EQ(applyCustomCurve(-192, 0), -192);
 }
 
-
-
 TEST_F(MixerTest, InfiniteRecursiveChannels)
 {
   g_model.mixData[0].destCh = 0;
@@ -595,7 +592,7 @@ TEST_F(MixerTest, RecursiveAddChannel)
 TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 {
   if (switchGetMaxAllSwitches() < 4) return;
-  
+
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH + 1;
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
@@ -619,7 +616,6 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
   EXPECT_EQ(chans[0], CHANNEL_MAX/2);
   EXPECT_EQ(chans[1], CHANNEL_MAX);
 }
-
 
 TEST_F(MixerTest, SlowOnPhase)
 {
@@ -859,23 +855,6 @@ TEST_F(TrimsTest, throttleTrimEle) {
   setModelDefaults();
   g_eeGeneral.templateSetup = 0;
   applyDefaultTemplate();
-}
-
-TEST(Trainer, UnpluggedTest)
-{
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_FIRST_TRAINER;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
-  g_model.mixData[0].delayUp = 50;
-  g_model.mixData[0].delayDown = 50;
-  trainerSetTimer(0);
-  trainerInput[0] = 1024;
-  CHECK_DELAY(0, 5000);
 }
 
 TEST_F(MixerTest, flightModeTransition)

@@ -29,8 +29,6 @@
   typedef uint16_t pulse_duration_t;
 #endif
 
-typedef uint16_t trainer_pulse_duration_t;
-
 enum ModuleSettingsMode {
   MODULE_MODE_NORMAL,
   MODULE_MODE_BIND,

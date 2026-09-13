@@ -28,7 +28,6 @@
 #include "telemetry/crossfire.h"
 
 constexpr int CROSSFIRE_CHANNELS_COUNT = 16;
-constexpr int8_t MAX_TRAINER_CHANNELS_M8 = MAX_TRAINER_CHANNELS - 8;
 constexpr uint8_t MAX_RXNUM = 63;
 
 inline bool isModuleCrossfire(uint8_t idx)
@@ -66,14 +65,9 @@ inline int8_t defaultModuleChannels_M8(uint8_t idx) { return maxModuleChannels_M
 inline int8_t sentModuleChannels(uint8_t idx) { return maxModuleChannels(idx); }
 inline uint8_t getMaxRxNum(uint8_t) { return MAX_RXNUM; }
 
-inline bool isModuleBindRangeAvailable(uint8_t idx)
+inline bool isModuleBindAvailable(uint8_t idx)
 {
   return isModuleELRS(idx) && CRSF_ELRS_MIN_VER(idx, 3, 4);
-}
-
-inline void setDefaultPpmFrameLengthTrainer()
-{
-  g_model.trainerData.frameLength = 4 * max<int>(0, g_model.trainerData.channelsCount);
 }
 
 void setModuleType(uint8_t moduleIdx, int moduleType);

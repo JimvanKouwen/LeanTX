@@ -23,16 +23,8 @@
 #include <stdio.h>
 #include "edgetx.h"
 
-// Bluetooth trainer framing is independent of the RF protocol.
-enum BluetoothDataState { STATE_DATA_IDLE, STATE_DATA_START, STATE_DATA_IN_FRAME, STATE_DATA_XOR };
-constexpr uint8_t START_STOP = 0x7E;
-constexpr uint8_t BYTE_STUFF = 0x7D;
-constexpr uint8_t STUFF_MASK = 0x20;
-constexpr uint8_t TRAINER_FRAME = 0x80;
-
 #include "bluetooth_driver.h"
 #include "os/sleep.h"
-#include "trainer.h"
 
 #if defined(LOG_BLUETOOTH)
 extern FIL g_bluetoothFile;
@@ -141,177 +133,6 @@ char * Bluetooth::readline(bool error_reset)
   }
 }
 
-void Bluetooth::processTrainerFrame(const uint8_t * buffer)
-{
-  for (uint8_t channel=0, i=1; channel<BLUETOOTH_TRAINER_CHANNELS; channel+=2, i+=3) {
-    // +-500 != 512, but close enough.
-    trainerInput[channel] = buffer[i] + ((buffer[i+1] & 0xf0) << 4) - 1500;
-    trainerInput[channel+1] = ((buffer[i+1] & 0x0f) << 4) + ((buffer[i+2] & 0xf0) >> 4) + ((buffer[i+2] & 0x0f) << 8) - 1500;
-  }
-
-  trainerResetTimer();
-}
-
-void Bluetooth::appendTrainerByte(uint8_t data)
-{
-  if (bufferIndex < BLUETOOTH_LINE_LENGTH) {
-    buffer[bufferIndex++] = data;
-    // we check for "DisConnected", but the first byte could be altered (if received in state STATE_DATA_XOR)
-    if (data == '\n') {
-      if (bufferIndex >= 13) {      
-        if (!strncmp((char *)&buffer[bufferIndex-13], "isConnected", 11)) {
-          BLUETOOTH_TRACE("BT< DisConnected" CRLF);
-          state = BLUETOOTH_STATE_DISCONNECTED;
-          bufferIndex = 0;
-          wakeupTime += 200; // 1s
-        }
-      }
-    }
-  }
-}
-
-void Bluetooth::processTrainerByte(uint8_t data)
-{
-  static uint8_t dataState = STATE_DATA_IDLE;
-
-  switch (dataState) {
-    case STATE_DATA_START:
-      if (data == START_STOP) {
-        dataState = STATE_DATA_IN_FRAME;
-        bufferIndex = 0;
-      }
-      else {
-        appendTrainerByte(data);
-      }
-      break;
-
-    case STATE_DATA_IN_FRAME:
-      if (data == BYTE_STUFF) {
-        dataState = STATE_DATA_XOR; // XOR next byte
-      }
-      else if (data == START_STOP) {
-        dataState = STATE_DATA_IN_FRAME;
-        bufferIndex = 0;
-      }
-      else {
-        appendTrainerByte(data);
-      }
-      break;
-
-    case STATE_DATA_XOR:
-      switch (data) {
-        case BYTE_STUFF ^ STUFF_MASK:
-        case START_STOP ^ STUFF_MASK:
-          // Expected content, save the data
-          appendTrainerByte(data ^ STUFF_MASK);
-          dataState = STATE_DATA_IN_FRAME;
-          break;
-        case START_STOP:  // Illegal situation, as we have START_STOP, try to start from the beginning
-          bufferIndex = 0;
-          dataState = STATE_DATA_IN_FRAME;
-          break;
-        default:  
-          // Illegal situation, start looking for a new START_STOP byte
-          dataState = STATE_DATA_START;
-          break;
-      }
-      break;
-
-    case STATE_DATA_IDLE:
-      if (data == START_STOP) {
-        bufferIndex = 0;
-        dataState = STATE_DATA_START;
-      }
-      else {
-        appendTrainerByte(data);
-      }
-      break;
-  }
-
-  if (bufferIndex >= BLUETOOTH_PACKET_SIZE) {
-    uint8_t crc = 0x00;
-    for (int i = 0; i < BLUETOOTH_PACKET_SIZE - 1; i++) {
-      crc ^= buffer[i];
-    }
-    if (crc == buffer[BLUETOOTH_PACKET_SIZE - 1]) {
-      if (buffer[0] == TRAINER_FRAME) {
-        processTrainerFrame(buffer);
-      }
-    }
-    dataState = STATE_DATA_IDLE;
-  }
-}
-
-void Bluetooth::pushByte(uint8_t byte)
-{
-  crc ^= byte;
-  if (byte == START_STOP || byte == BYTE_STUFF) {
-    buffer[bufferIndex++] = BYTE_STUFF;
-    byte ^= STUFF_MASK;
-  }
-  buffer[bufferIndex++] = byte;
-}
-
-void Bluetooth::sendTrainer()
-{
-  int16_t PPM_range = g_model.extendedLimits ? 640*2 : 512*2;
-
-  int firstCh = g_model.trainerData.channelsStart;
-  int lastCh = firstCh + BLUETOOTH_TRAINER_CHANNELS;
-
-  uint8_t * cur = buffer;
-  bufferIndex = 0;
-  crc = 0x00;
-
-  buffer[bufferIndex++] = START_STOP; // start byte
-  pushByte(TRAINER_FRAME);
-  for (int channel=firstCh; channel<lastCh; channel+=2, cur+=3) {
-    uint16_t channelValue1 = PPM_CH_CENTER(channel) + limit((int16_t)-PPM_range, channelOutputs[channel], (int16_t)PPM_range) / 2;
-    uint16_t channelValue2 = PPM_CH_CENTER(channel+1) + limit((int16_t)-PPM_range, channelOutputs[channel+1], (int16_t)PPM_range) / 2;
-    pushByte(channelValue1 & 0x00ff);
-    pushByte(((channelValue1 & 0x0f00) >> 4) + ((channelValue2 & 0x00f0) >> 4));
-    pushByte(((channelValue2 & 0x000f) << 4) + ((channelValue2 & 0x0f00) >> 8));
-  }
-  pushByte(crc);
-  buffer[bufferIndex++] = START_STOP; // end byte
-
-  write(buffer, bufferIndex);
-
-  // If not in verbose mode output one buffer per line
-  #if defined(DEBUG_BLUETOOTH) && !defined(DEBUG_BLUETOOTH_VERBOSE)
-    BLUETOOTH_TRACE_TIMESTAMP();
-    for(int i=0; i < bufferIndex; i++) {
-      BLUETOOTH_TRACE(" %02X", buffer[i]);
-    }
-    BLUETOOTH_TRACE(CRLF);
-  #endif
-
-  bufferIndex = 0;
-}
-
-void Bluetooth::receiveTrainer()
-{
-  uint8_t byte;
-
-  while (true) {
-    if (!bluetoothRead(&byte)) {
-      return;
-    }
-
-#if defined(DEBUG_BLUETOOTH)
-    static uint8_t lastb=0;
-    BLUETOOTH_TRACE("%02X ", byte);
-    if(byte == START_STOP && lastb != START_STOP) {
-      BLUETOOTH_TRACE(CRLF);
-      BLUETOOTH_TRACE_TIMESTAMP();
-    }
-    lastb = byte;
-#endif
-
-    processTrainerByte(byte);
-  }
-}
-
 #if defined(PCBX9E)
 void Bluetooth::wakeup(void)
 {
@@ -363,10 +184,7 @@ void Bluetooth::wakeup(void)
         }
       }
     }
-    else if (IS_BLUETOOTH_TRAINER()){
-      state = BLUETOOTH_STATE_CONNECTED;
-      sendTrainer();
-    }
+
   }
 #endif
 }
@@ -399,9 +217,7 @@ void Bluetooth::wakeup()
   }
 #endif
 
-  if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF ||
-      (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER &&
-       !IS_BLUETOOTH_TRAINER())) {
+  if (g_eeGeneral.bluetoothMode != BLUETOOTH_TELEMETRY) {
 
     if (state != BLUETOOTH_STATE_OFF) {
       bluetoothDisable();
@@ -426,16 +242,7 @@ void Bluetooth::wakeup()
     wakeupTime = now + 10; /* 100ms */
   }
   else if (state == BLUETOOTH_STATE_CONNECTED) {
-    if (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER && g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH) {
-      receiveTrainer();
-    }
-    else {
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER && g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH) {
-        sendTrainer();
-        wakeupTime = now + 2; /* 20ms */
-      }
-      readline(); // to deal with "ERROR"
-    }
+    readline(); // Handle connection errors while forwarding CRSF telemetry.
   }
   else {
     char * line = readline();
@@ -463,65 +270,18 @@ void Bluetooth::wakeup()
                (line != nullptr) &&
                (!strncmp(line, "Central:", 8) ||
                 !strncmp(line, "Peripheral:", 11))) {
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER &&
-          g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH)
-        writeString("AT+ROLE1");
-      else
-        writeString("AT+ROLE0");
+      writeString("AT+ROLE0");
       state = BLUETOOTH_STATE_ROLE_SENT;
     } else if (state == BLUETOOTH_STATE_ROLE_SENT &&
                (line != nullptr) &&
                (!strncmp(line, "Central:", 8) ||
                 !strncmp(line, "Peripheral:", 11))) {
       state = BLUETOOTH_STATE_IDLE;
-    } else if (state == BLUETOOTH_STATE_DISCOVER_REQUESTED) {
-      writeString("AT+DISC?");
-      state = BLUETOOTH_STATE_DISCOVER_SENT;
-    } else if (state == BLUETOOTH_STATE_DISCOVER_SENT &&
-               (line != nullptr) &&
-               !strcmp(line, "OK+DISCS")) {
-      state = BLUETOOTH_STATE_DISCOVER_START;
-    } else if (state == BLUETOOTH_STATE_DISCOVER_START &&
-               (line != nullptr) &&
-               !strncmp(line, "OK+DISC:", 8)) {
-      if (strlen(line) < 8 + LEN_BLUETOOTH_ADDR &&
-          reusableBuffer.moduleSetup.bt.devicesCount <
-              MAX_BLUETOOTH_DISTANT_ADDR) {
-        strncpy(reusableBuffer.moduleSetup.bt
-                    .devices[reusableBuffer.moduleSetup.bt.devicesCount],
-                &line[8], LEN_BLUETOOTH_ADDR);
-        ++reusableBuffer.moduleSetup.bt.devicesCount;
-      }
-    }
-#if defined(PCBHORUS)
-    else if (state == BLUETOOTH_STATE_DISCOVER_START &&
-             (line != nullptr) && !strcmp(line, "OK+DISCE")) {
-      state = BLUETOOTH_STATE_DISCOVER_END;
-    }
-#endif
-    else if (state == BLUETOOTH_STATE_CLEAR_REQUESTED) {
-      char command[] = "AT+CLEAR";
-      writeString(command);
-      state = BLUETOOTH_STATE_IDLE;
-    } else if (state == BLUETOOTH_STATE_BIND_REQUESTED) {
-      char command[32];
-      strAppend(strAppend(command, "AT+CON"), distantAddr);
-      writeString(command);
-      state = BLUETOOTH_STATE_CONNECT_SENT;
-    } else if ((state == BLUETOOTH_STATE_IDLE ||
-                state == BLUETOOTH_STATE_DISCONNECTED ||
-                state == BLUETOOTH_STATE_CONNECT_SENT) &&
+    } else if (state == BLUETOOTH_STATE_IDLE &&
                (line != nullptr) && !strncmp(line, "Connected:", 10)) {
       strcpy(distantAddr, &line[10]); // TODO quick & dirty
       state = BLUETOOTH_STATE_CONNECTED;
-      if (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH) {
-        wakeupTime += 500; // it seems a 5s delay is needed before sending the 1st frame
-      }
-    } else if (state == BLUETOOTH_STATE_DISCONNECTED && !line) {
-      char command[32];
-      strAppend(strAppend(command, "AT+CON"), distantAddr);
-      writeString(command);
-      wakeupTime = now + 200; /* 2s */
+
     }
   }
 }

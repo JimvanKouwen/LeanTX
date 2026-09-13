@@ -46,8 +46,6 @@ void serialInit(uint8_t port_nr, int mode);
 void serialStop(uint8_t port_nr);
 
 #if !defined(BOOT)
-// Serial port configured as SBUS trainer input (inverted or not), or -1
-int serialGetSbusTrainerPort();
 
 // Fetch the driver instance backing a serial port. False if not initialised.
 bool serialGetPortCtx(uint8_t port_nr, void** ctx,

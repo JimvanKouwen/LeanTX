@@ -26,7 +26,6 @@
 
 /* Timers Allocation:
  * TIM3  = Haptic / Backlight
- * TIM15 = Trainer
  *
  * TIM14 = 5 ms counter
  */
@@ -176,7 +175,6 @@
 #define LED_CHARGING_START                0
 #define LED_CHARGING_END                  13
 
-
 // Internal Module
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOA, 0) // PA.00
 #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOA, 1) // PA.01
@@ -204,7 +202,6 @@
 #define EXTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_2
 
-
 //USART
 #define EXTMODULE_USART                    USART6
 #define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOC, 7)  // PC.07
@@ -225,21 +222,6 @@
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_1
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream1_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream1_IRQHandler
-
-// Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOA, 10) // PA.10
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH3
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOA,  9) // PA.09
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_TIMER                   TIM1
-#define TRAINER_TIMER_IRQn              TIM1_CC_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM1_CC_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_1
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 #define TOUCH_I2C_BUS                   I2C_Bus_1
 #define TOUCH_I2C_CLK_RATE              100000

@@ -571,45 +571,6 @@
   #define EXTMODULE_TIMER_DMA_IRQHandler   DMA1_Stream7_IRQHandler
 #endif
 
-// Heartbeat
-#if !defined(RADIO_V16)
-  #define TRAINER_BAY_INPUT_GPIO                GPIO_PIN(GPIOD, 12) // PD.12 / TIM4_CH1
-#endif
-
-// INTMODULE_HEARTBEAT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority 5
-#endif
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOC, 6) // PC.06
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOC, 7) // PC.07
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_DETECT_GPIO             GPIO_PIN(GPIOB, 4) // PB.04
-#if !defined(PCBX10) || defined(RADIO_FAMILY_T16)
-  #define TRAINER_DETECT_INVERTED
-#endif
-
-#define TRAINER_TIMER                   TIM3
-#define TRAINER_TIMER_IRQn              TIM3_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM3_IRQHandler
-#define TRAINER_GPIO_AF                 GPIO_AF2
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
-// Trainer CPPM input on heartbeat pin
-#if !defined(RADIO_V16)
-  #define TRAINER_MODULE_CPPM_TIMER            TIM4
-  #define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
-  #define TRAINER_MODULE_CPPM_GPIO             TRAINER_BAY_INPUT_GPIO
-  #define TRAINER_MODULE_CPPM_TIMER_Channel    LL_TIM_CHANNEL_CH1
-  #define TRAINER_MODULE_CPPM_TIMER_IRQn       TIM4_IRQn
-  #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM4_IRQHandler
-  #define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
-#endif
-
 // Bluetooth
 #define STORAGE_BLUETOOTH
 #if defined(BLUETOOTH)

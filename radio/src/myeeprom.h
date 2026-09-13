@@ -27,12 +27,6 @@
 #include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 
-#define GET_MODULE_PPM_POLARITY(idx)             g_model.moduleData[idx].ppm.pulsePol
-#define GET_TRAINER_PPM_POLARITY()               g_model.trainerData.pulsePol
-#define GET_SBUS_POLARITY(idx)                   g_model.moduleData[idx].sbus.noninverted
-#define GET_MODULE_PPM_DELAY(idx)                (g_model.moduleData[idx].ppm.delay * 50 + 300)
-#define GET_TRAINER_PPM_DELAY()                  (g_model.trainerData.delay * 50 + 300)
-
 #define IS_PLAY_FUNC(func)             ((func) >= FUNC_PLAY_SOUND && func <= FUNC_PLAY_VALUE)
 
 #if defined(GVARS)
@@ -140,12 +134,6 @@ enum MixerMultiplex {
   MLTPX_ADD  = 0,
   MLTPX_MUL  = 1,
   MLTPX_REPL = 2,
-};
-
-enum TrainerMultiplex {
-  TRAINER_OFF  = 0,
-  TRAINER_ADD  = 1,
-  TRAINER_REPL = 2,
 };
 
 #define DELAY_MAX       250 /* 25 seconds */

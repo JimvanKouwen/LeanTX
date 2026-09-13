@@ -38,12 +38,10 @@ class ChannelRange : public Window
   void updateEnd();
 
   virtual int8_t getChannelsCount() = 0;
-  void setPpmFrameLenEditObject(NumberEdit* ppmFrameLenEditObject);
 
  protected:
   NumberEdit* chStart;
   NumberEdit* chEnd;
-  NumberEdit* ppmFrameLenEditObject = nullptr;
 
   void build();
 
@@ -74,23 +72,6 @@ class ModuleChannelRange : public ChannelRange
 
  public:
   ModuleChannelRange(Window* parent, uint8_t moduleIdx);
-
-  int8_t getChannelsCount() override;
-};
-
-class TrainerChannelRange : public ChannelRange
-{
-  uint8_t getChannelsStart() override;
-  void setChannelsStart(uint8_t val) override;
-
-  void setChannelsCount(int8_t val) override;
-
-  uint8_t getChannelsUsed() override;
-  uint8_t getChannelsMin() override;
-  uint8_t getChannelsMax() override;
-
- public:
-  TrainerChannelRange(Window* parent);
 
   int8_t getChannelsCount() override;
 };

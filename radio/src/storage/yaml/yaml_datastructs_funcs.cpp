@@ -48,8 +48,8 @@
 //
 static inline void check_yaml_funcs()
 {
-  static_assert(offsetof(ModuleData, crsf) == 4,"");
-  check_size<ModuleData, 29>();
+  static_assert(offsetof(ModuleData, crsf) == 3,"");
+  check_size<ModuleData, 6>();
 #if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   static_assert(MAX_GVARS == 15,"");
 #else
@@ -159,7 +159,6 @@ uint8_t find_sep(const char* val, uint8_t val_len)
 // sources: parse/output
 //  - lua(script#,n): LUA mix outputs
 //  - ls(n): logical switches
-//  - tr(n): trainer input
 //  - ch(n): channels
 //  - gv(n): gvars
 //  - tele(n): telemetry
@@ -195,16 +194,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_LOGICAL_SWITCH - 1;
 
-    } else if (val_len > 3 &&
-               val[0] == 't' &&
-               val[1] == 'r' &&
-               val[2] == '(') {
-
-      val += 3; val_len -= 3;
-      // parse int and ignore closing ')'
-      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_TRAINER;
-
-    } else if (val_len > 3 &&
+    }  else if (val_len > 3 &&
                val[0] == 'c' &&
                val[1] == 'h' &&
                val[2] == '(') {
@@ -367,14 +357,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
           return false;
         str = closing_parenthesis;
     }
-    else if (val >= MIXSRC_FIRST_TRAINER
-             && val <= MIXSRC_LAST_TRAINER) {
 
-        val -= MIXSRC_FIRST_TRAINER;
-        if (!output_source_1_param("tr(", 3, val, wf, opaque))
-          return false;
-        str = closing_parenthesis;
-    }
     else if (val >= MIXSRC_FIRST_CH
              && val <= MIXSRC_LAST_CH) {
 
@@ -489,30 +472,11 @@ bool w_sourceNumVal(const YamlNode* node, uint32_t val, yaml_writer_func wf,
   return wf(opaque, s, strlen(s));
 }
 
-static void r_rssiDisabled(void* user, uint8_t* data, uint32_t bitoffs,
-                           const char* val, uint8_t val_len)
-{
-  data += bitoffs >> 3UL;
-  data -= offsetof(ModelData, rfAlarms);
-  auto md = reinterpret_cast<ModelData*>(data);
-  md->disableTelemetryWarning = yaml_str2int(val, val_len);
-}
 
-static void r_rssiWarning(void* user, uint8_t* data, uint32_t bitoffs,
-                          const char* val, uint8_t val_len)
-{
-  data += bitoffs >> 3UL;
-  auto rf_alarm = reinterpret_cast<RFAlarmData*>(data);
-  rf_alarm->warning = yaml_str2int(val, val_len) + 45;
-}
 
-static void r_rssiCritical(void* user, uint8_t* data, uint32_t bitoffs,
-                           const char* val, uint8_t val_len)
-{
-  data += bitoffs >> 3UL;
-  auto rf_alarm = reinterpret_cast<RFAlarmData*>(data);
-  rf_alarm->critical = yaml_str2int(val, val_len) + 42;
-}
+
+
+
 
 static uint32_t r_vbat_min(const YamlNode* node, const char* val, uint8_t val_len)
 {
@@ -982,7 +946,7 @@ bool w_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
 
 static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return 1; // CRSF settings are the only module payload.
+  return 0; // CRSF settings are the only module payload.
 }
 
 static uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
@@ -1010,9 +974,9 @@ static uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs)
   const TelemetrySensor* sensor = (const TelemetrySensor*)data;
 
   if (sensor->type == TELEM_TYPE_CALCULATED)
-    return 2; // formula
+    return 1; // formula
 
-  return 1; // instance
+  return 0; // instance
 }
 
 static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
@@ -1621,39 +1585,6 @@ static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
   return wf(opaque, s, strlen(s));
 }
 
-static const struct YamlIdStr enum_TrainerMode[] = {
-  {  TRAINER_MODE_OFF, "OFF"  },
-  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MASTER_TRAINER_JACK"  },
-  {  TRAINER_MODE_SLAVE, "SLAVE"  },
-  {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
-  {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
-  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_SERIAL"  },
-  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_BATT_COMP"  },
-  {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
-  {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
-  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
-  {  TRAINER_MODE_CRSF, "MASTER_CRSF"  },
-  {  0, NULL  }
-};
-
-static uint32_t r_trainerMode(const YamlNode* node, const char* val, uint8_t val_len)
-{
-  return yaml_parse_enum(enum_TrainerMode, val, val_len);
-}
-
-static bool w_trainerMode(const YamlNode* node, uint32_t val,
-                          yaml_writer_func wf, void* opaque)
-{
-  const char* str = nullptr;
-  str = yaml_output_enum(val, enum_TrainerMode);
-
-  if (str) {
-    return wf(opaque, str, strlen(str));
-  }
-
-  return true;
-}
-
 #if !defined(COLORLCD)
 
 const char* const _tele_screen_type_lookup[] = {
@@ -1763,9 +1694,7 @@ static const char* const _func_reset_param_lookup[] = {
   "Tmr1","Tmr2","Tmr3","All","Tele","Trims"
 };
 
-static const char* const _func_failsafe_lookup[] = {
-  "Int","Ext"
-};
+
 
 static const char* const _func_sound_lookup[] = {
   "Bp1","Bp2","Bp3","Wrn1","Wrn2",
@@ -1804,30 +1733,6 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   switch (func) {
 
   case FUNC_OVERRIDE_CHANNEL:
-    break;
-
-  case FUNC_TRAINER:
-    if (l_sep == 6
-        && val[0] == 's'
-        && val[1] == 't'
-        && val[2] == 'i'
-        && val[3] == 'c'
-        && val[4] == 'k'
-        && val[5] == 's') {
-      CFN_CH_INDEX(cfn) = 0;
-    } else if (l_sep == 5
-               && val[0] == 'c'
-               && val[1] == 'h'
-               && val[2] == 'a'
-               && val[3] == 'n'
-               && val[4] == 's') {
-      CFN_CH_INDEX(cfn) = MAX_STICKS + 1;
-    } else {
-      auto stick = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, l_sep);
-      if (stick >= 0) {
-        CFN_CH_INDEX(cfn) = stick + 1;
-      }
-    }
     break;
 
   case FUNC_RESET:
@@ -1905,21 +1810,6 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       l_sep = 0;
     } else {
       return;
-    }
-    break;
-
-  case FUNC_SET_FAILSAFE:
-    // Int,Ext
-    if (l_sep == 3) {
-      if (val[0] == 'I'
-          && val[1] == 'n'
-          && val[2] == 't') {
-        CFN_PARAM(cfn) = 0;
-      } else if (val[0] == 'E'
-                 && val[1] == 'x'
-                 && val[2] == 't') {
-        CFN_PARAM(cfn) = 1;
-      }
     }
     break;
 
@@ -2066,23 +1956,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
-  case FUNC_TRAINER: {
-    int16_t value = CFN_CH_INDEX(cfn);
-    switch(value) {
-    case 0:
-      if (!wf(opaque, "sticks", 6)) return false;
-      break;
-    case MAX_STICKS + 1:
-      if (!wf(opaque, "chans", 5)) return false;
-      break;
-    default:
-      if (value > 0 && value <= MAX_STICKS) {
-        str = analogGetCanonicalName(ADC_INPUT_MAIN, value - 1);
-        if (str && !wf(opaque, str, strlen(str))) return false;
-      }
-    }
-  } break;
-
   case FUNC_RESET:
     if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
       // Tmr1,Tmr2,Tmr3,All,Tele, Trims
@@ -2120,12 +1993,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque,",",1)) return false;
     str = yaml_unsigned2str(CFN_PARAM(cfn));
-    if (!wf(opaque, str, strlen(str))) return false;
-    break;
-
-  case FUNC_SET_FAILSAFE:
-    // Int,Ext
-    str = _func_failsafe_lookup[CFN_PARAM(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
@@ -2438,7 +2305,6 @@ static const struct YamlIdStr enum_SerialPort[] = {
 const struct YamlIdStr _old_enum_UartModes[] = {
   {  UART_MODE_NONE, "MODE_NONE"  },
   {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
-  {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
   {  UART_MODE_LUA, "MODE_LUA"  },
   {  0, NULL  }
 };
@@ -2446,8 +2312,6 @@ const struct YamlIdStr _old_enum_UartModes[] = {
 static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_NONE, "NONE"  },
   {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
-  {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
-{    UART_MODE_SBUS_TRAINER_INV, "SBUS_TRAINER_INV"  },
   {  UART_MODE_LUA, "LUA"  },
   {  UART_MODE_CLI, "CLI"  },
   {  UART_MODE_GPS, "GPS"  },

@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
@@ -35,7 +35,6 @@
 #include "bsp_io.h"
 
 #include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
 #include "hal/abnormal_reboot.h"
@@ -105,7 +104,6 @@ void boardBLEarlyInit()
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 }
 
-
 void boardBLPreJump()
 {
   ExtFLASH_Init();
@@ -149,7 +147,7 @@ bool pwrPressedDebounced()
     debouncedState = state;
   else
     lastState = state;
-  
+
   return debouncedState;
 }
 
@@ -177,12 +175,11 @@ void boardInit()
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
-  board_trainer_init();
   battery_charge_init();
 
   adcInit(&_adc_driver);
   getADC();
-  
+
   flysky_gimbal_init();
   usbInit();
   rgbChargeInit(); // RTOS was not running, timer_create will prevent the ADC from reading.
@@ -204,7 +201,7 @@ void boardInit()
   // Init debounce
   pwrPressedDebounced();
   pwrPressedDebounced();
-  
+
   // Handle charging state if charger is active
   if (isChargerActive()) {
     static uint32_t adc_sample_time = 0; // Hardware ADC sample tick
@@ -247,7 +244,7 @@ void boardInit()
       }
     }
   }
-  
+
   // Second stage: Detect secondary long-press sequence
   while (1)
   {
@@ -437,7 +434,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 
@@ -456,7 +453,7 @@ int usbPlugged()
     debouncedState = state;
   else
     lastState = state;
-  
+
   return debouncedState;
 }
 */

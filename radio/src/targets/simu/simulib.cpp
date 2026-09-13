@@ -38,7 +38,6 @@
 #if defined(GVARS)
 #include "gvars.h"
 #endif
-#include "trainer.h"
 #include "telemetry/crossfire.h"
 #if defined(LUA)
 #include "lua/lua_api.h"
@@ -71,7 +70,6 @@ char * main_thread_error = nullptr;
 bool simu_shutdown = false;
 bool simu_running = false;
 bool simuCreateDefaultSettings = false;
-
 
 volatile rotenc_t rotencValue = 0;
 volatile uint32_t rotencDt = 0;
@@ -398,7 +396,6 @@ uint32_t isBootloaderStart(const uint8_t * block)
   return 1;
 }
 
-
 void serialPrintf(const char * format, ...) { }
 void serialCrlf() { }
 void serialPutc(char c) { }
@@ -429,8 +426,6 @@ void calcConsumption()
 }
 
 void handleJackConnection() {}
-
-int trainerModuleSbusGetByte(unsigned char*) { return 0; }
 
 void rtcInit()
 {
@@ -751,28 +746,6 @@ void simuLcdFlushed()
 {
   if (simu_running)
     lcdFlushed();
-}
-
-uint8_t simuGetMaxTrainerChannels()
-{
-  return MAX_TRAINER_CHANNELS;
-}
-
-void simuCopyTrainerInput(const int16_t* buf, uint8_t count)
-{
-  if (count > MAX_TRAINER_CHANNELS)
-    count = MAX_TRAINER_CHANNELS;
-  for (uint8_t i = 0; i < count; i++) {
-    int16_t v = buf[i];
-    if (v < -512) v = -512;
-    if (v > 512) v = 512;
-    trainerInput[i] = v;
-  }
-}
-
-void simuSetTrainerTimeout(uint16_t ms)
-{
-  trainerSetTimer(ms / 10);
 }
 
 // -- Output values --

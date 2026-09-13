@@ -168,6 +168,5 @@ set(FIRMWARE_TARGET_SRC
 set(PULSES_SRC
   ${PULSES_SRC}
   pulses.cpp
-  ppm.cpp
   modules_helpers.cpp
   )

@@ -36,12 +36,12 @@ TEST(Crossfire, createCrossfireChannelsFrame)
 {
   MODEL_RESET();
 
-  int16_t pulsesStart[MAX_TRAINER_CHANNELS];
+  int16_t pulsesStart[CROSSFIRE_CHANNELS_COUNT];
   uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
 
   memset(crossfire, 0, sizeof(crossfire));
-  for (int i=0; i<MAX_TRAINER_CHANNELS; i++) {
-    pulsesStart[i] = -1024 + (2048 / MAX_TRAINER_CHANNELS) * i;
+  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+    pulsesStart[i] = -1024 + (2048 / CROSSFIRE_CHANNELS_COUNT) * i;
   }
 
   createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart);
@@ -64,12 +64,12 @@ TEST(Crossfire, ExpressLRSArmingExtension_CH5Mode)
 {
   MODEL_RESET();
 
-  int16_t pulsesStart[MAX_TRAINER_CHANNELS];
+  int16_t pulsesStart[CROSSFIRE_CHANNELS_COUNT];
   uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
 
   memset(crossfire, 0, sizeof(crossfire));
-  for (int i=0; i<MAX_TRAINER_CHANNELS; i++) {
-    pulsesStart[i] = -1024 + (2048 / MAX_TRAINER_CHANNELS) * i;
+  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+    pulsesStart[i] = -1024 + (2048 / CROSSFIRE_CHANNELS_COUNT) * i;
   }
 
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_CH5;
@@ -90,12 +90,12 @@ TEST(Crossfire, ExpressLRSArmingExtension_SwitchMode)
 {
   MODEL_RESET();
 
-  int16_t pulsesStart[MAX_TRAINER_CHANNELS];
+  int16_t pulsesStart[CROSSFIRE_CHANNELS_COUNT];
   uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
 
   memset(crossfire, 0, sizeof(crossfire));
-  for (int i=0; i<MAX_TRAINER_CHANNELS; i++) {
-    pulsesStart[i] = -1024 + (2048 / MAX_TRAINER_CHANNELS) * i;
+  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+    pulsesStart[i] = -1024 + (2048 / CROSSFIRE_CHANNELS_COUNT) * i;
   }
 
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_SWITCH;
@@ -178,7 +178,7 @@ TEST(Crossfire, frameParser_incompleteFrames)
 {
   crsf_frame_test ft;
   if (!ft.ctx) return;
-  
+
   ft.process(incomplete_frame);
   EXPECT_EQ(ft.len, 7);
   EXPECT_EQ(ft.buffer[0], 0xEA);
@@ -195,7 +195,7 @@ TEST(Crossfire, frameParser_incompleteFrames)
   unsigned offset = 0;
   EXPECT_EQ(lua_buffer[offset], 0x14);
   offset += 0x14;
-  
+
   EXPECT_EQ(lua_buffer[offset], 0x21);
   offset += 0x21;
 
@@ -222,7 +222,6 @@ static uint8_t length_error3[] = {
     // 2nd valid frame
     0xEA, 0x09, 0xFF, 0x11, 0xFD, 0x05, 0x00, 0x00, 0x13, 0x01, 0x8C,
 };
-
 
 TEST(Crossfire, frameParser_length)
 {
@@ -293,7 +292,7 @@ TEST(Crossfire, frameParser_badFrames)
   unsigned offset = 0;
   EXPECT_EQ(lua_buffer[offset], 0x14);
   offset += 0x14;
-  
+
   EXPECT_EQ(lua_buffer[offset], 0x21);
   offset += 0x21;
 
@@ -344,10 +343,9 @@ TEST(Crossfire, frameParser_multipleJumboFrames)
 
   EXPECT_EQ(lua_buffer[offset], 0x3E);
   offset += 0x3E;
-  
+
   EXPECT_EQ(lua_buffer[offset], 0x3D);
   EXPECT_EQ(lua_buffer[offset + 0x3D - 1], 0xF0);
 }
 #endif // HARDWARE_EXTERNAL_MODULE
 #endif
-

@@ -503,13 +503,9 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_VARIO(fq, t, p, f) audioQueue.playTone(fq, t, p, f)
 #define AUDIO_RSSI_ORANGE()      audioEvent(AU_RSSI_ORANGE)
 #define AUDIO_RSSI_RED()         audioEvent(AU_RSSI_RED)
-#define AUDIO_RAS_RED()          audioEvent(AU_RAS_RED)
 #define AUDIO_TELEMETRY_CONNECTED() audioEvent(AU_TELEMETRY_CONNECTED)
 #define AUDIO_TELEMETRY_LOST()   audioEvent(AU_TELEMETRY_LOST)
 #define AUDIO_TELEMETRY_BACK()   audioEvent(AU_TELEMETRY_BACK)
-#define AUDIO_TRAINER_CONNECTED() audioEvent(AU_TRAINER_CONNECTED)
-#define AUDIO_TRAINER_LOST()     audioEvent(AU_TRAINER_LOST)
-#define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
 
 #else // AUDIO
 
@@ -521,13 +517,9 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_VARIO(fq, t, p, f) 
 #define AUDIO_RSSI_ORANGE()
 #define AUDIO_RSSI_RED()
-#define AUDIO_RAS_RED()
 #define AUDIO_TELEMETRY_CONNECTED()
 #define AUDIO_TELEMETRY_LOST()
 #define AUDIO_TELEMETRY_BACK()
-#define AUDIO_TRAINER_CONNECTED()
-#define AUDIO_TRAINER_LOST()
-#define AUDIO_TRAINER_BACK()
 
 #endif
 

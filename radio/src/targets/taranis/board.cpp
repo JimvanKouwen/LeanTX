@@ -23,7 +23,6 @@
 #include "stm32_gpio.h"
 
 #include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 #include "hal/abnormal_reboot.h"
@@ -42,7 +41,6 @@
 
 #include "timers_driver.h"
 #include "dataconstants.h"
-#include "trainer.h"
 
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
@@ -135,8 +133,6 @@ void boardInit()
   void board_set_bor_level();
   board_set_bor_level();
 #endif
-
-  board_trainer_init();
 
   // Sets 'hardwareOption.pcbrev' as well
   pwrInit();

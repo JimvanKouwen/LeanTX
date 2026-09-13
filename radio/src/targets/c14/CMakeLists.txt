@@ -157,14 +157,12 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/battery_driver.cpp
   drivers/icm42607C.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/stm32_rgbleds.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/sticks_pwm_driver.cpp
 )
 add_dependencies(board board_lib)

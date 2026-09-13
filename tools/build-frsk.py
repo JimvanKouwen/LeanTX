@@ -54,50 +54,8 @@ class FrSkyFirmwareInformation:
     fourcc = "FRSK"
     header_version = 1
 
-    product_family_list = {
-        "INTERNAL_MODULE": 0,
-        "EXTERNAL_MODULE": 1,
-        "RECEIVER": 2,
-        "SENSOR": 3,
-        "BLUETOOTH_CHIP": 4,
-        "POWER_CONTROL_CHIP": 5
-    }
-
-    product_id_list = {
-        # None
-        "None": 0x00,
-
-        # Modules
-        "XJT": 0x01,
-        "ISRM": 0x02,
-        # TODO missing modules
-
-        # Receivers
-        "X8R": 0x01,
-        "RX8R": 0x02,
-        "RX8R-PRO": 0x03,
-        "RX6R": 0x04,
-        "RX4R": 0x05,
-        "G-RX8": 0x06,
-        'G-RX6': 0x07,
-        "X6R": 0x08,
-        "X4R": 0x09,
-        "X4R-SB": 0x0A,
-        "XSR": 0x0B,
-        "XSR-M": 0x0C,
-        "RXSR": 0x0D,
-        "S6R": 0x0E,
-        "S8R": 0x0F,
-        "XM": 0x10,
-        "XM+": 0x11,
-        "XMR": 0x12,
-        "R9": 0x13,
-        "R9-SLIM": 0x14,
-        "R9-SLIM+": 0x15,
-        "R9MINI": 0x16,
-        "R9MM": 0x17,
-        "R9-STAB": 0x18
-    }
+    product_family_list = {"BLUETOOTH_CHIP": 4}
+    product_id_list = {"None": 0x00}
 
     def __init__(self, data, args):
         self.data = data

@@ -161,7 +161,6 @@
 #define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(20000000)
 #define STORAGE_USE_SDIO
 
-
 // Audio
 #define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOG, 12) // PG.12
 #define AUDIO_CS_GPIO                 GPIO_PIN(GPIOG, 10) // PG.10
@@ -206,7 +205,6 @@
 
 #define LED_CHARGING_START                12
 #define LED_CHARGING_END                  23
-
 
 // Internal Module
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
@@ -256,21 +254,6 @@
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_6
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream6_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream6_IRQHandler
-
-// Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOE, 6) // PE.06
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_TIMER                   TIM15
-#define TRAINER_TIMER_IRQn              TIM15_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM15_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_4
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 #define TOUCH_I2C_BUS                   I2C_Bus_1
 #define TOUCH_I2C_CLK_RATE              100000

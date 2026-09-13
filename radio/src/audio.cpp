@@ -157,16 +157,10 @@ const char * const audioFilenames[] = {
   "inactiv",
   "rssi_org",
   "rssi_red",
-  "swr_red",
   "telemco",
   "telemko",
   "telemok",
-  "trainco",
-  "trainko",
-  "trainok",
   "sensorko",
-  "servoko",
-  "rxko",
   "modelpwr",
   "error",
   "warning1",
@@ -403,7 +397,6 @@ AudioQueue::AudioQueue()
 }
 
 #define CODEC_ID_PCM_S16LE  1
-
 
 static void _audio_lock()
 {
@@ -1026,9 +1019,6 @@ void audioEvent(unsigned int index)
         break;
       case AU_RSSI_RED:
         audioQueue.playTone(BEEP_DEFAULT_FREQ + 1800, 800, 20, PLAY_REPEAT(1) | PLAY_NOW);
-        break;
-      case AU_RAS_RED:
-        audioQueue.playTone(450, 160, 40, PLAY_REPEAT(2), 1);
         break;
       case AU_SPECIAL_SOUND_BEEP1:
         audioQueue.playTone(BEEP_DEFAULT_FREQ, 60, 20);

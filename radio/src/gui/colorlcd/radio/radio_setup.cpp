@@ -435,14 +435,7 @@ const static SetupLineDef alarmsPageSetupLines[] = {
                        GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
     }
   },
-  {
-    // Trainer shutdown alarm
-    STR_DEF(STR_TRAINER_SHUTDOWN_ALARM),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0},
-                       GET_SET_INVERTED(g_eeGeneral.disableTrainerPoweroffAlarm));
-    }
-  },
+
   {nullptr, nullptr},
 };
 
@@ -634,12 +627,7 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
        viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled),
                   g_model.radioGFDisabled);
      }},
-    {STR_DEF(STR_MENUTRAINER),
-     [](Window* parent, coord_t x, coord_t y) {
-       viewOption(parent, x, y,
-                  GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled),
-                  g_model.radioTrainerDisabled);
-     }},
+
     {
         STR_DEF(STR_MODEL_MENU_TABS),
         nullptr,

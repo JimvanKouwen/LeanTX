@@ -27,17 +27,7 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-inline int16_t ppmFrameLen(int8_t chCount)
-{
-#define PPM_PULSE_LEN_MAX \
-  (4 * PPM_STEP_SIZE)  // let's assume roughly 2ms max pulse length
 
-  if (chCount > 0)
-    return ((PPM_PULSE_LEN_MAX * chCount) +
-            PPM_DEF_PERIOD);  // for more than 8 channels update frame length
-  else
-    return (PPM_DEF_PERIOD);  // else leave frame Length at default (22.5ms)
-}
 
 ChannelRange::ChannelRange(Window* parent) : Window(parent, rect_t{})
 {
@@ -60,8 +50,6 @@ void ChannelRange::build()
   chEnd->setSetValueHandler([=](int newValue) {
     setEnd(newValue);
 
-    if (ppmFrameLenEditObject)
-      ppmFrameLenEditObject->setValue(ppmFrameLen(getChannelsCount()));
   });
 }
 
@@ -104,10 +92,7 @@ void ChannelRange::update()
   updateEnd();
 }
 
-void ChannelRange::setPpmFrameLenEditObject(NumberEdit* ppmFrameLenEditObject)
-{
-  this->ppmFrameLenEditObject = ppmFrameLenEditObject;
-}
+
 
 ModuleChannelRange::ModuleChannelRange(Window* parent, uint8_t moduleIdx) :
     ChannelRange(parent), moduleIdx(moduleIdx)
@@ -167,38 +152,3 @@ uint8_t ModuleChannelRange::getChannelsMax()
 {
   return maxModuleChannels(moduleIdx);
 }
-
-TrainerChannelRange::TrainerChannelRange(Window* parent) : ChannelRange(parent)
-{
-  build();
-  update();
-}
-
-uint8_t TrainerChannelRange::getChannelsStart()
-{
-  return g_model.trainerData.channelsStart;
-}
-
-void TrainerChannelRange::setChannelsStart(uint8_t val)
-{
-  g_model.trainerData.channelsStart = val;
-}
-
-int8_t TrainerChannelRange::getChannelsCount()
-{
-  return g_model.trainerData.channelsCount;
-}
-
-void TrainerChannelRange::setChannelsCount(int8_t val)
-{
-  g_model.trainerData.channelsCount = val;
-}
-
-uint8_t TrainerChannelRange::getChannelsUsed()
-{
-  return 8 + getChannelsCount();
-}
-
-uint8_t TrainerChannelRange::getChannelsMin() { return MIN_TRAINER_CHANNELS; }
-
-uint8_t TrainerChannelRange::getChannelsMax() { return MAX_TRAINER_CHANNELS; }

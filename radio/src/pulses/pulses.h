@@ -44,24 +44,7 @@ inline bool isModuleBeeping(uint8_t moduleIndex)
   return moduleState[moduleIndex].mode == MODULE_MODE_BIND;
 }
 
-template<class T> struct PpmPulsesData {
-  T pulses[20];
-  T * ptr;
-};
-
-#define PPM_DEF_PERIOD               225 /* 22.5ms */
-#define PPM_STEP_SIZE                5 /*0.5ms*/
-#define PPM_PERIOD_FL_TO_HALF_US(fl) (((fl)*PPM_STEP_SIZE+PPM_DEF_PERIOD)*200) /* half us*/
-#define PPM_TRAINER_PERIOD_HALF_US() PPM_PERIOD_FL_TO_HALF_US(g_model.trainerData.frameLength) /*half us*/
-#define SBUS_BAUDRATE                100000
-
-#define CROSSFIRE_FRAME_MAXLEN         64
-
-union TrainerPulsesData {
-  PpmPulsesData<trainer_pulse_duration_t> ppm;
-};
-
-extern TrainerPulsesData trainerPulsesData;
+#define CROSSFIRE_FRAME_MAXLEN 64
 
   #define MODULE_BUFFER_SIZE 64
 
@@ -99,10 +82,6 @@ void pulsesRestartModuleUnsafe(uint8_t module);
 
 void pulsesModuleSettingsUpdate(uint8_t module);
 
-void setupPulsesPPMTrainer();
-
-void getModuleStatusString(uint8_t moduleIdx, char * statusText);
-void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText);
 
 void pulsesInit();
 void pulsesStart();

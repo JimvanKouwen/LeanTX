@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-
 /*
 
 STM32H750
@@ -52,7 +51,6 @@ TIM3:	HAPTIC_GPIO_TIMER
 TIM4:
 TIM5:	EXTMODULE_TIMER
 TIM7:
-TIM8:	TRAINER_TIMER
 TIM12:	MIXER_SCHEDULER_TIMER
 TIM14:	MS_TIMER
 TIM15:  PDM_CAPTURE_TIMER
@@ -149,7 +147,6 @@ USART6: INTMODULE_USART
 #define QSPI_HOLD_GPIO_AF               GPIO_AF9
 #define QSPI_FLASH_SIZE                 0x1000000
 
-
 // SD
 #define SD_SDIO                         SDMMC1
 #define SD_SDIO_CLK_DIV(fq)             (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
@@ -172,7 +169,6 @@ USART6: INTMODULE_USART
 #define SD2_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(24000000)    // Hz
 
 #define STORAGE_USE_SDIO
-
 
 // AUDIO
 #define AUDIO_I2C                       I2C_Bus_2
@@ -257,7 +253,6 @@ USART6: INTMODULE_USART
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_2
 
-
 //USART
 #define EXTMODULE_USART                    USART2
 #define EXTMODULE_USART_TX_DMA             DMA2
@@ -274,23 +269,6 @@ USART6: INTMODULE_USART
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_6
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream6_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream6_IRQHandler
-
-// Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA)
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOI, 6)
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOI, 5)
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
-
-#define TRAINER_TIMER                   TIM8
-#define TRAINER_TIMER_IRQn              TIM8_CC_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM8_CC_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_3
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-
-#define TRAINER_DETECT_GPIO             GPIO_PIN(GPIOH, 4)
 
 // AUX ports
 #define AUX_SERIAL_TX_GPIO                  GPIO_PIN(GPIOB, 6) // PB.06

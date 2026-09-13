@@ -31,7 +31,6 @@ option(ASTERISK "Enable asterisk icon (test only firmware)" OFF)
 option(LUA "Enable LUA support" ON)
 option(SIMU_DISKIO "Enable disk IO simulation in simulator. Simulator will use FatFs module and simulated IO layer that  uses \"./sdcard.image\" file as image of SD card. This file must contain whole SD card from first to last sector" OFF)
 option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
-option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(TRACE_AUDIO "Traces audio enabled" OFF)
@@ -247,9 +246,6 @@ elseif(FAI STREQUAL CHOICE)
   add_definitions(-DFAI_CHOICE)
 endif()
 
-if(NOT RAS)
-  add_definitions(-DNO_RAS)
-endif()
 
 if(AUTOSOURCE)
   add_definitions(-DAUTOSOURCE)
@@ -372,7 +368,6 @@ if(TEST_BUILD_WARNING)
 endif()
 
 
-
 if(RADIOMASTER_RELEASE)
   add_definitions(-DRADIOMASTER_RELEASE)
 endif()
@@ -424,13 +419,11 @@ set(SRC
   mixer_scheduler.cpp
   stamp.cpp
   timers.cpp
-  trainer.cpp
   model_init.cpp
   serial.cpp
   audio.cpp
   model_audio.cpp
   pdm_wav_recorder.cpp
-  sbus.cpp
   input_mapping.cpp
   inactivity_timer.cpp
   tasks/mixer_task.cpp

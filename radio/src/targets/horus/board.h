@@ -43,7 +43,6 @@
 
 PACK(typedef struct {
   uint8_t pcbrev:2;
-  uint8_t pxx2Enabled:1;
 }) HardwareOptions;
 
 extern HardwareOptions hardwareOptions;
@@ -61,8 +60,6 @@ extern HardwareOptions hardwareOptions;
 #define LUA_MEM_MAX                    (6 MB)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
 extern uint16_t sessionTimer;
-
-#define SLAVE_MODE()                   (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
 // Board driver
 void boardInit();

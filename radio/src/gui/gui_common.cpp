@@ -22,7 +22,6 @@
 #include "hal/module_port.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "hal/trainer_driver.h"
 
 #include "edgetx.h"
 #include "switches.h"
@@ -201,10 +200,6 @@ static bool isSourceLSAvailable(int source) {
   return (cs->func != LS_FUNC_NONE);
 }
 
-static bool isSourceTrainerAvailable(int source) {
-  return g_model.trainerData.mode > 0;
-}
-
 static bool isSourceGvarAvailable(int source) {
 #if defined(GVARS)
   return modelGVEnabled();
@@ -256,7 +251,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SRC_FUNC_SWITCH, isSourceFuncSwitchAvailable },
 #endif
   { MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SRC_LOGICAL_SWITCH, isSourceLSAvailable },
-  { MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SRC_TRAINER, isSourceTrainerAvailable },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
   { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
@@ -282,7 +276,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 
 #define SRC_COMMON \
             SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
-            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
+            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_GVAR
 
 bool isSourceAvailable(int source)
 {
@@ -442,7 +436,7 @@ static bool isSwitchOtherAvailable(int swtch, bool invert) {
   if (invert && (swtch == SWSRC_ON || swtch == SWSRC_ONE))
     return false;
   if (swtch == SWSRC_ON || swtch == SWSRC_ONE || swtch == SWSRC_TELEMETRY_STREAMING ||
-      swtch == SWSRC_RADIO_ACTIVITY || swtch == SWSRC_TRAINER_CONNECTED)
+      swtch == SWSRC_RADIO_ACTIVITY)
     return true;
 #if defined(DEBUG_LATENCY)
   if (swtch == SWSRC_LATENCY_TOGGLE)
@@ -487,7 +481,8 @@ bool checkSwitchAvailable(int swtch, uint32_t swtchTypes)
 
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
-  if (mode == UART_MODE_RESERVED_TELEMETRY) return false;
+  if (mode == UART_MODE_RESERVED_TELEMETRY || mode == UART_MODE_RESERVED_3 ||
+      mode == UART_MODE_RESERVED_4) return false;
 #if defined(USB_SERIAL)
   // Do not list OFF on VCP if internal RF module is set to CROSSFIRE to allow pass-through flashing
   if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
@@ -536,19 +531,8 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
-#if defined(STM32F4)
-  if (mode == UART_MODE_SBUS_TRAINER_INV)
-    return false;
-#endif
-
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
-    return false;
-#endif
-
-#if defined(USB_SERIAL)
-  // SBUS trainer on VCP is not supported.
-  if (port_nr == SP_VCP && mode == UART_MODE_SBUS_TRAINER)
     return false;
 #endif
 
@@ -609,9 +593,6 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_HAPTIC:
       return false;
 #endif
-    case FUNC_SET_FAILSAFE:
-    case FUNC_RANGECHECK:
-      return false;
 #if !defined(DANGEROUS_MODULE_FUNCTIONS)
     case FUNC_BIND:
       return false;
@@ -832,16 +813,6 @@ void setAntennaModeWithConfirm(int8_t newMode, uint8_t storageId,
 
 #endif // defined(EXTERNAL_ANTENNA)
 
-bool isTrainerUsingModuleBay()
-{
-  if (g_model.trainerData.mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
-      g_model.trainerData.mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) {
-    return true;
-  }
-
-  return false;
-}
-
 bool isInternalModuleSupported(int moduleType)
 {
   if (moduleType == MODULE_TYPE_NONE) return true;
@@ -873,91 +844,10 @@ bool isExternalModuleAvailable(int moduleType)
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
   if (isModuleCrossfire(INTERNAL_MODULE)) return false;
 #endif
-  return moduleType == MODULE_TYPE_CROSSFIRE && !isTrainerUsingModuleBay();
+  return moduleType == MODULE_TYPE_CROSSFIRE;
 #else
   return false;
 #endif
-}
-
-bool isTrainerModeAvailable(int mode)
-{
-#if defined(PCBX9E)
-  if (g_eeGeneral.bluetoothMode &&
-      mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
-    // bluetooth uses the same USART than SBUS
-    return false;
-  }
-#endif
-
-  if (mode == TRAINER_MODE_MASTER_SERIAL) {
-    return serialGetSbusTrainerPort() >= 0;
-  }
-
-  if ((mode == TRAINER_MODE_MASTER_BLUETOOTH ||
-       mode == TRAINER_MODE_SLAVE_BLUETOOTH)
-#if defined(BLUETOOTH) && !defined(PCBX9E)
-      && g_eeGeneral.bluetoothMode != BLUETOOTH_TRAINER
-#endif
-  )
-    return false;
-
-  if ((mode == TRAINER_MODE_MASTER_TRAINER_JACK ||
-       mode == TRAINER_MODE_SLAVE) &&
-      !trainer_dsc_available())
-    return false;
-
-  if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
-      mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) {
-
-    // no external module or is enabled
-    if (!modulePortGetModuleDescription(EXTERNAL_MODULE) ||
-        IS_EXTERNAL_MODULE_ENABLED()) {
-      return false;
-    }
-
-    if (mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) {
-      auto port =  modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_TIMER,
-                                  ETX_MOD_PORT_TIMER, ETX_Pol_Normal,
-                                  ETX_MOD_DIR_RX);
-      return port != nullptr;      
-    }
-
-    if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
-      const etx_module_port_t *port = nullptr;
-
-      // check if UART with inverter on heartbeat pin is available
-      port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-                            ETX_MOD_PORT_UART, ETX_Pol_Normal,
-                            ETX_MOD_DIR_RX);
-      if (!port) {
-        // otherwise fall back to S.Port pin
-        port =
-            modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-                           ETX_MOD_PORT_SPORT, ETX_Pol_Normal, ETX_MOD_DIR_RX);
-      }
-
-      return port != nullptr;
-    }
-  }
-
-  if (mode == TRAINER_MODE_MULTI) {
-
-    return false;
-  }
-
-  if (mode == TRAINER_MODE_CRSF) {
-
-#if !defined(CROSSFIRE)
-    return false;
-#else
-    if ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
-         (!(isModuleELRS(INTERNAL_MODULE) && CRSF_ELRS_MIN_VER(INTERNAL_MODULE, 4, 0)) &&
-          !(isModuleELRS(EXTERNAL_MODULE) && CRSF_ELRS_MIN_VER(EXTERNAL_MODULE, 4, 0))))
-      return false;
-#endif
-  }
-
-  return true;
 }
 
 bool modelHasNotes()
@@ -1098,7 +988,7 @@ void setPotType(int index, int value)
 uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
   if (!isModuleCrossfire(moduleIdx)) return HIDDEN_ROW;
-  return isModuleBindRangeAvailable(moduleIdx) ? 1 : 0;
+  return isModuleBindAvailable(moduleIdx) ? 1 : 0;
 }
 
 uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)

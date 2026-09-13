@@ -36,7 +36,6 @@
 
 //-----------------------------------------------------------------------------
 
-
 static const lv_style_const_prop_t sf_enable_state_style_props[] = {
     LV_STYLE_CONST_OUTLINE_WIDTH(3),
     LV_STYLE_CONST_OUTLINE_OPA(LV_OPA_COVER),
@@ -140,17 +139,6 @@ void FunctionLineButton::refresh()
               getSourceString(MIXSRC_FIRST_CH + CFN_CH_INDEX(cfn)),
               formatNumberAsString(CFN_PARAM(cfn)).c_str());
       break;
-
-    case FUNC_TRAINER: {
-      int16_t value = CFN_CH_INDEX(cfn);
-      if (value == 0)
-        strcat(s, STR_STICKS);
-      else if (value == MAX_STICKS + 1)
-        strcat(s, STR_CHANS);
-      else
-        strcat(s, getMainControlLabel(value - 1));
-      break;
-    }
 
     case FUNC_RESET:
       if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
@@ -359,22 +347,6 @@ class FunctionEditPage : public Page
         int limit =
             (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT);
         addNumberEdit(line, STR_VALUE, cfn, -limit, limit);
-        break;
-      }
-
-      case FUNC_TRAINER: {
-        new StaticText(line, rect_t{}, STR_VALUE);
-        auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
-        auto choice = new Choice(line, rect_t{}, 0, max_sticks + 1,
-                                GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
-        choice->setTextHandler([=](int32_t value) {
-          if (value == 0)
-            return std::string(STR_STICKS);
-          else if (value == max_sticks + 1)
-            return std::string(STR_CHANS);
-
-          return std::string(getMainControlLabel(value - 1));
-        });
         break;
       }
 

@@ -569,7 +569,6 @@ bool getLogicalSwitch(uint8_t idx)
 
         y = convertLswTelemValue(ls);
 
-
       }
       else if (v1 >= MIXSRC_FIRST_GVAR) {
         y = ls->v2;
@@ -741,9 +740,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   else if (cs_idx == SWSRC_RADIO_ACTIVITY) {
     result = (inactivity.counter < 2);
   }
-  else if (cs_idx == SWSRC_TRAINER_CONNECTED) {
-    result = isTrainerConnected();
-  }
+
   else if (cs_idx >= SWSRC_FIRST_SENSOR) {
     result = !telemetryItems[cs_idx-SWSRC_FIRST_SENSOR].isOld();
   }
@@ -774,7 +771,6 @@ uint8_t getXPotPosition(uint8_t idx)
   if (idx >= MAX_POTS || !IS_POT_MULTIPOS(idx)) return 0;
   return potsPos[idx] & 0x0F;
 }
-
 
 /**
   @brief Calculates new state of logical switches for mixerCurrentFlightMode

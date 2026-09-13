@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
@@ -35,7 +35,6 @@
 #include "stm32_switch_driver.h"
 #include "hal/adc_driver.h"
 #include "hal/flash_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
 #include "hal/abnormal_reboot.h"
@@ -53,7 +52,6 @@
 
 #include "bitmapbuffer.h"
 #include "colors.h"
-
 
 // #include "touch_driver.h"
 
@@ -364,7 +362,6 @@ void boardInit()
 
 extern void rtcDisableBackupReg();
 
-
 void boardOff()
 {
   lcdOff();
@@ -411,7 +408,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 

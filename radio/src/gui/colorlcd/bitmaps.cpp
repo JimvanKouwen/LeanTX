@@ -99,7 +99,6 @@ static const uint8_t mask_edgetx[] __FLASH = {
 #include "mask_icon_edgetx.lbm"
 };
 
-
 // gfx model setup from model group
 
 static const uint8_t mask_model_curves[] __FLASH = {
@@ -164,9 +163,6 @@ static const uint8_t mask_radio_global_functions[] __FLASH = {
 };
 static const uint8_t mask_radio_hardware[] __FLASH = {
 #include "mask_icon_radio_hardware.lbm"
-};
-static const uint8_t mask_radio_trainer[] __FLASH = {
-#include "mask_icon_radio_trainer.lbm"
 };
 
 // gfx for tools group
@@ -289,7 +285,6 @@ static const uint8_t mask_info_usb_plugged[] __FLASH = {
 #include "mask_info_usb_plugged.lbm"
 };
 
-
 // gfx for ui elements
 const uint8_t mask_topleft_bg[] __FLASH = {
 #include "mask_ui_bg_topbar_left.lbm"
@@ -401,7 +396,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_RADIO_SD_MANAGER, mask_tools_storage),
     BI(ICON_RADIO_TOOLS, mask_menu_tools),
     BI(ICON_RADIO_GLOBAL_FUNCTIONS, mask_radio_global_functions),
-    BI(ICON_RADIO_TRAINER, mask_radio_trainer),
     BI(ICON_RADIO_HARDWARE, mask_radio_hardware),
     BI(ICON_RADIO_CALIBRATION, mask_radio_calibration),
     BI(ICON_RADIO_EDIT_THEME, mask_ui_themes),

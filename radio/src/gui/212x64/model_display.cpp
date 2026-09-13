@@ -215,7 +215,7 @@ void menuModelDisplay(event_t event)
         }
 
         if (IS_BARS_SCREEN(screenIndex)) {
-          FrSkyBarData & bar = g_model.screens[screenIndex].bars[lineIndex];
+          TelemetryBarData & bar = g_model.screens[screenIndex].bars[lineIndex];
           drawSource(DISPLAY_COL1, y, bar.source, menuHorizontalPosition == 0 ? attr : 0);
           int16_t barMax, barMin;
           LcdFlags lf = LEFT;

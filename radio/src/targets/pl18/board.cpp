@@ -18,13 +18,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_spi.h"
 
 #include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/watchdog_driver.h"
@@ -144,7 +143,6 @@ void ledStripOff()
 }
 #endif
 
-
 void boardBLEarlyInit()
 {
 #if defined(RADIO_PL18U)
@@ -215,7 +213,6 @@ void boardInit()
   gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
 #endif
 
-  board_trainer_init();
   battery_charge_init();
 
   gimbalsDetect();  
@@ -271,7 +268,6 @@ void boardInit()
   adcInit(&_adc_driver);
   hapticInit();
 
-
  #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
@@ -325,7 +321,7 @@ void boardOff()
 
   // Set SLEEPDEEP bit of Cortex System Control Register
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 
@@ -344,7 +340,7 @@ int usbPlugged()
     debouncedState = state;
   else
     lastState = state;
-  
+
   return debouncedState;
 }
 #endif

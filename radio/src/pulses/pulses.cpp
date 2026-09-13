@@ -51,7 +51,6 @@ uint8_t* pulsesGetModuleBuffer(uint8_t module)
 }
 
 ModuleState moduleState[NUM_MODULES];
-TrainerPulsesData trainerPulsesData __DMA_NO_CACHE;
 
 void pulsesStart()
 {
@@ -129,16 +128,8 @@ void pulsesModuleSettingsUpdate(uint8_t module)
 }
 
 
-void getModuleStatusString(uint8_t moduleIdx, char * statusText)
-{
-  *statusText = 0;
 
-}
 
-void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText)
-{
-  *statusText = 0;
-}
 
 ModuleSettingsMode getModuleMode(int moduleIndex)
 {
@@ -340,8 +331,6 @@ void pulsesSendChannels()
     pulsesSendNextFrame(i);
   }
 }
-
-// set the failsafe channel values to the current output values
 
 
 int32_t getChannelValue(uint8_t channel)

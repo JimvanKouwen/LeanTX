@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "bootloader/boot.h"
 #include "flash_driver.h"
 #include "hal/flash_driver.h"
@@ -29,7 +29,6 @@
 #include "boards/generic_stm32/module_ports.h"
 
 #include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/watchdog_driver.h"
@@ -160,7 +159,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
   }
@@ -169,4 +168,3 @@ void boardOff()
 #if !defined(BOOT)
 void per5ms() {}
 #endif
-

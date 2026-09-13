@@ -310,7 +310,6 @@ TEST(Lcd, Dblsize)
 #define TEST_CHAR_INPUT     "\302\216"
 #define TEST_CHAR_FUNCTION  "\302\217"
 #define TEST_CHAR_CYC       "\302\220"
-#define TEST_CHAR_TRAINER   "\302\221"
 #define TEST_CHAR_CHANNEL   "\302\222"
 #define TEST_CHAR_TELEMETRY "\302\223"
 #define TEST_CHAR_LUA       "\302\224"

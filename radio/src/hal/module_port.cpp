@@ -85,31 +85,13 @@ static bool _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t*
   return true;
 }
 
-static bool _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* port,
-                               const etx_timer_config_t* cfg)
-{
-  auto drv = port->drv.timer;
-  auto ctx = drv->init(port->hw_def, cfg);
-  if (!ctx) return false;
-
-  d->ctx = ctx;
-  d->port = port;
-
-  // setup polarity
-  if (port->set_inverted) {
-    port->set_inverted(false);
-  }
-
-  return true;
-}
-
 static bool _match_port(const etx_module_port_t* p, uint8_t type, uint8_t port,
                         uint8_t polarity, uint8_t direction, bool softserial_fallback)
 {
   if ((p->dir_flags & direction) != direction) {
     return false;
   }
-  
+
   if (p->type == type && p->port == port) {
     // either polarity matches or can be set
     if (polarity != ETX_Pol_Inverted ||
@@ -130,7 +112,7 @@ static bool _match_port(const etx_module_port_t* p, uint8_t type, uint8_t port,
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -238,29 +220,13 @@ etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
   return init_ok ? state : nullptr;
 }
 
-etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
-                                        const etx_timer_config_t* cfg)
-{
-  const etx_module_port_t* found_port = _find_port(
-      module, ETX_MOD_TYPE_TIMER, port, ETX_Pol_Normal, ETX_MOD_DIR_TX, false);
-  if (!found_port) return nullptr;
-
-  auto state = &(_module_states[module]);
-  bool init_ok = _init_timer_driver(&state->tx, found_port, cfg);
-
-  return init_ok ? state : nullptr;
-}
-
 static void _deinit_driver(etx_module_driver_t* d)
 {
   auto p = d->port;
   auto ctx = d->ctx;
-    
+
   if (p->type == ETX_MOD_TYPE_SERIAL) {
     auto drv = p->drv.serial;
-    drv->deinit(ctx);
-  } else if (p->type == ETX_MOD_TYPE_TIMER) {
-    auto drv = p->drv.timer;
     drv->deinit(ctx);
   }
 }
@@ -301,14 +267,6 @@ bool modulePortSerialTxCompleted(void* ctx)
 {
   auto st = (etx_module_state_t*)ctx;
   auto drv = modulePortGetSerialDrv(st->tx);
-  auto drv_ctx = modulePortGetCtx(st->tx);
-  return drv->txCompleted(drv_ctx);
-}
-
-bool modulePortTimerTxCompleted(void* ctx)
-{
-  auto st = (etx_module_state_t*)ctx;
-  auto drv = modulePortGetTimerDrv(st->tx);
   auto drv_ctx = modulePortGetCtx(st->tx);
   return drv->txCompleted(drv_ctx);
 }

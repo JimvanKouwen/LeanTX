@@ -47,7 +47,6 @@ TIM4:	  (no pins)
 TIM5:     (free)
 TIM6:     AUDIO_TIMER
 TIM7:	  (no pins)
-TIM8:	  TRAINER_TIMER
 TIM12:	  MIXER_SCHEDULER_TIMER
 TIM13:
 TIM14:    MS_TIMER
@@ -69,7 +68,6 @@ TIM17:	  ROTARY_ENCODER_TIMER
 
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 
 // Telemetry
 #define TELEMETRY_SET_INPUT             0
@@ -234,19 +232,6 @@ TIM17:	  ROTARY_ENCODER_TIMER
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_3
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream3_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream3_IRQHandler
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOI, 6)  // TIM8_CH2
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOI, 7)  // TIM8_CH3
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH3
-
-#define TRAINER_TIMER                   TIM8
-#define TRAINER_TIMER_IRQn              TIM8_CC_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM8_CC_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_3
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
 
 // Touch
 #define TOUCH_I2C_BUS                 I2C_Bus_2

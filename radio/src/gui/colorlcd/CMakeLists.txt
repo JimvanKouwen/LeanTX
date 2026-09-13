@@ -75,10 +75,8 @@ set(GUI_SRC
   model/preflight_checks.cpp
   model/special_functions.cpp
   model/timer_setup.cpp
-  model/trainer_setup.cpp
 
   module/module_setup.cpp
-  module/ppm_settings.cpp
 
   radio/hw_extmodule.cpp
   radio/hw_inputs.cpp
@@ -93,7 +91,6 @@ set(GUI_SRC
   radio/radio_setup.cpp
   radio/radio_theme.cpp
   radio/radio_tools.cpp
-  radio/radio_trainer.cpp
   radio/radio_version.cpp
   radio/radio_gps_tool.cpp
   radio/radio_mic_recorder.cpp
@@ -139,7 +136,6 @@ if(EXTERNAL_ANTENNA)
 endif()
 
 if(BLUETOOTH)
-  add_gui_src(model/trainer_bluetooth.cpp)
   add_gui_src(radio/hw_bluetooth.cpp)
 endif()
 

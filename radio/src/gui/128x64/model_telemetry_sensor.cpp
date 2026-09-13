@@ -26,7 +26,6 @@ enum SensorFields {
   SENSOR_FIELD_TYPE,
   SENSOR_FIELD_ID,
   SENSOR_FIELD_FORMULA = SENSOR_FIELD_ID,
-  // SENSOR_FIELD_RECEIVER_NAME,
   SENSOR_FIELD_UNIT,
   SENSOR_FIELD_PRECISION,
   SENSOR_FIELD_PARAM1,
@@ -144,25 +143,6 @@ void menuModelSensor(event_t event)
           }
         }
         break;
-
-      // TODO: this needs to be known from the sensor data alone!
-//       case SENSOR_FIELD_RECEIVER_NAME:
-//         lcdDrawTextAlignedLeft(y, STR_SOURCE);
-//         if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT &&
-//             sensor->frskyInstance.rxIndex != TELEMETRY_ENDPOINT_SPORT) {
-//           drawReceiverName(SENSOR_2ND_COLUMN, y, sensor->frskyInstance.rxIndex >> 2,
-//                            sensor->frskyInstance.rxIndex & 0x03, 0);
-//         }
-// #if defined(HARDWARE_INTERNAL_MODULE)
-//         else if (isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)) {
-//           // far from perfect
-//           lcdDrawText(SENSOR_2ND_COLUMN, y, STR_INTERNAL_MODULE);
-//         }
-// #endif
-//         else {
-//           lcdDrawText(SENSOR_2ND_COLUMN, y, STR_EXTERNAL_MODULE);
-//         }
-//         break;
 
       case SENSOR_FIELD_UNIT:
         lcdDrawTextAlignedLeft(y, STR_UNIT);

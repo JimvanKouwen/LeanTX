@@ -50,19 +50,6 @@
 
 #define IS_FAI_FORBIDDEN(idx) (IS_FAI_ENABLED() && isFaiForbidden(idx))
 
-#if defined(BLUETOOTH)
-  #if defined(X9E)
-    #define IS_BLUETOOTH_TRAINER()       (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH)
-    #define IS_SLAVE_TRAINER()           (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-  #else
-    #define IS_BLUETOOTH_TRAINER()       (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH || g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH)
-    #define IS_SLAVE_TRAINER()           (g_model.trainerData.mode == TRAINER_MODE_SLAVE || g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH)
-  #endif
-#else
-  #define IS_BLUETOOTH_TRAINER()       false
-  #define IS_SLAVE_TRAINER()           (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-#endif
-
 #if defined(LUA)
   #define RADIO_TOOLS
 #endif
@@ -251,10 +238,10 @@ inline void ALERT(const char *title, const char *msg, uint8_t sound)
 enum PerOutMode {
   e_perout_mode_normal = 0,
   e_perout_mode_inactive_flight_mode = 1,
-  e_perout_mode_notrainer = 2,
+  e_perout_mode_preview = 2,
   e_perout_mode_notrims = 4,
   e_perout_mode_nosticks = 8,
-  e_perout_mode_noinput = e_perout_mode_notrainer+e_perout_mode_notrims+e_perout_mode_nosticks
+  e_perout_mode_noinput = e_perout_mode_preview+e_perout_mode_notrims+e_perout_mode_nosticks
 };
 
 extern uint8_t mixerCurrentFlightMode;
@@ -371,8 +358,6 @@ inline int calcRESXto100(int x)
 
 #define g_blinkTmr10ms    (*(uint8_t*)&g_tmr10ms)
 
-#include "trainer.h"
-
 int expo(int x, int k);
 
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
@@ -412,8 +397,6 @@ inline bool isMixActive(uint8_t mix)
 }
 
 enum FunctionsActive {
-  FUNCTION_TRAINER_STICK1,
-  FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + MAX_STICKS,
   FUNCTION_VARIO,
   FUNCTION_LOGS,
   FUNCTION_BACKGND_MUSIC,
@@ -467,16 +450,10 @@ enum AUDIO_SOUNDS {
   AU_INACTIVITY,
   AU_RSSI_ORANGE,
   AU_RSSI_RED,
-  AU_RAS_RED,
   AU_TELEMETRY_CONNECTED,
   AU_TELEMETRY_LOST,
   AU_TELEMETRY_BACK,
-  AU_TRAINER_CONNECTED,
-  AU_TRAINER_LOST,
-  AU_TRAINER_BACK,
   AU_SENSOR_LOST,
-  AU_SERVO_KO,
-  AU_RX_OVERLOAD,
   AU_MODEL_STILL_POWERED,
   AU_ERROR,
   AU_WARNING1,
@@ -624,16 +601,7 @@ union ReusableBuffer
   struct {
     char msg[64];
 #if !defined(COLORLCD)
-    uint8_t r9mPower;
     int8_t antennaMode;
-    uint8_t previousType;
-    uint8_t newType;
-#endif
-#if defined(BLUETOOTH)
-    struct {
-      char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
-      uint8_t devicesCount;
-    } bt;
 #endif
   } moduleSetup;
 
@@ -683,34 +651,11 @@ union ReusableBuffer
 #endif
   } radioTools;
 
-  struct {
-    uint8_t bars[LCD_W];
-    uint8_t max[LCD_W];
-    uint8_t peak[LCD_W];
-    uint32_t freq;
-    uint32_t span;
-    uint32_t step;
-    uint32_t track;
-    uint8_t spanDefault;
-    uint8_t spanMax;
-    uint16_t freqDefault;
-    uint16_t freqMax;
-    uint16_t freqMin;
-    uint8_t dirty;
-    uint8_t moduleOFF;
-  } spectrumAnalyser;
 
-  struct {
-    uint32_t freq;
-    int16_t power;
-    int16_t peak;
-    uint8_t attn;
-    uint8_t dirty;
-  } powerMeter;
 
-  struct {
-    uint8_t maxNameLen;
-  } modelFailsafe;
+
+
+
 };
 
 extern ReusableBuffer reusableBuffer;
@@ -807,7 +752,6 @@ extern Clipboard clipboard;
 extern uint8_t latencyToggleSwitch;
 #endif
 
-#include "module.h"
 
 extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 
@@ -816,7 +760,6 @@ extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 extern bool radioThemesEnabled();
 #endif
 extern bool radioGFEnabled();
-extern bool radioTrainerEnabled();
 extern bool modelFMEnabled();
 extern bool modelCurvesEnabled();
 extern bool modelGVEnabled();
