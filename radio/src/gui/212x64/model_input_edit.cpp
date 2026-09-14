@@ -42,7 +42,6 @@ enum ExposFields {
   CASE_FLIGHT_MODES(EXPO_FIELD_FLIGHT_MODES)
   EXPO_FIELD_SWITCH,
   EXPO_FIELD_SIDE,
-  EXPO_FIELD_TRIM,
   EXPO_FIELD_MAX
 };
 
@@ -66,7 +65,7 @@ void menuModelExpoOne(event_t event)
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   uint8_t old_editMode = s_editMode;
-  
+
   SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
           {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, CURVE_ROWS,
            CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
@@ -148,22 +147,6 @@ void menuModelExpoOne(event_t event)
         ed->mode = 4 - editChoice(EXPO_ONE_2ND_COLUMN, y, STR_SIDE, STR_VCURVEFUNC, 4-ed->mode, 1, 3, attr, event);
         break;
 
-      case EXPO_FIELD_TRIM:
-        lcdDrawTextAlignedLeft(y, STR_TRIM);
-        {
-          const char* trim_str = getTrimSourceLabel(abs(ed->srcRaw), ed->trimSource);
-          LcdFlags flags = RIGHT | (menuHorizontalPosition==0 ? attr : 0);
-          lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
-
-          if (attr) {
-            int8_t min = TRIM_ON;
-            if (abs(ed->srcRaw) >= MIXSRC_FIRST_STICK && abs(ed->srcRaw) <= MIXSRC_LAST_STICK) {
-              min = -TRIM_OFF;
-            }
-            ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());
-          }
-        }
-        break;
     }
     y += FH;
   }

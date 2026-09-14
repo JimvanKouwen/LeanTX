@@ -145,12 +145,11 @@ void ScreenSetupPage::build(Window* window)
         auto layoutData = g_model.getScreenLayoutData(customScreenIndex);
         auto layout = (Layout*)customScreens[customScreenIndex];
         bool restoreOptions = false;
-        bool hasTopbar = true, hasFM = true, hasSliders = true, hasTrims = true, isMirrored = false;
+        bool hasTopbar = true, hasFM = true, hasSliders = true, isMirrored = false;
         if (!layout->isAppMode()) {
           hasTopbar = layoutData->options[LAYOUT_OPTION_TOPBAR].value.boolValue;
           hasFM = layoutData->options[LAYOUT_OPTION_FM].value.boolValue;
           hasSliders = layoutData->options[LAYOUT_OPTION_SLIDERS].value.boolValue;
-          hasTrims = layoutData->options[LAYOUT_OPTION_TRIMS].value.boolValue;
           isMirrored = layoutData->options[LAYOUT_OPTION_MIRRORED].value.boolValue;
           restoreOptions = true;
         }
@@ -163,7 +162,6 @@ void ScreenSetupPage::build(Window* window)
           layoutData->options[LAYOUT_OPTION_TOPBAR].value.boolValue = hasTopbar;
           layoutData->options[LAYOUT_OPTION_FM].value.boolValue = hasFM;
           layoutData->options[LAYOUT_OPTION_SLIDERS].value.boolValue = hasSliders;
-          layoutData->options[LAYOUT_OPTION_TRIMS].value.boolValue = hasTrims;
           layoutData->options[LAYOUT_OPTION_MIRRORED].value.boolValue = isMirrored;
         }
 
@@ -242,6 +240,7 @@ void ScreenSetupPage::buildLayoutOptions()
 
   int index = 0;
   for (auto* option = factory->getLayoutOptions(); option->name; option++, index++) {
+    if (option->type == LayoutOption::Reserved) continue;
     auto layoutData = g_model.getScreenLayoutData(customScreenIndex);
     LayoutOptionValue* value = &layoutData->options[index].value;
 

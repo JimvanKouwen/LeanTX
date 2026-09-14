@@ -282,26 +282,6 @@ const static SetupLineDef throttleParamsSetupLines[] = {
       sc->setAvailableHandler(isThrottleSourceAvailable);
     }
   },
-  {
-    // Throttle trim
-    STR_DEF(STR_TTRIM),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.thrTrim));
-    }
-  },
-  {
-    // Throttle trim source
-    STR_DEF(STR_TTRIM_SW),
-    [](Window* parent, coord_t x, coord_t y) {
-      new SourceChoice(
-          parent, {x, y, 0, 0}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-          []() { return g_model.getThrottleStickTrimSource(); },
-          [](int16_t src) {
-            g_model.setThrottleStickTrimSource(src);
-            SET_DIRTY();
-          });
-    }
-  },
   {nullptr, nullptr},
 };
 
@@ -309,19 +289,7 @@ const static SetupLineDef throttleParamsSetupLines[] = {
 static LAYOUT_VAL_SCALED(HATSMODE_W, 120)
 #endif
 
-const static SetupLineDef trimsSetupLines[] = {
-  {
-    // Reset trims
-    nullptr,
-    [](Window* parent, coord_t x, coord_t y) {
-      new TextButton(parent, {PAD_TINY, y, LCD_W - PAD_MEDIUM * 2, 0}, STR_RESET_BTN, []() -> uint8_t {
-        for (auto &fm : g_model.flightModeData) memclear(&fm.trim, sizeof(fm.trim));
-        SET_DIRTY();
-        AUDIO_WARNING1();
-        return 0;
-      });
-    }
-  },
+const static SetupLineDef buttonsSetupLines[] = {
 #if defined(USE_HATS_AS_KEYS)
   {
     // Hats mode for NV14/EL18
@@ -337,30 +305,6 @@ const static SetupLineDef trimsSetupLines[] = {
     }
   },
 #endif
-  {
-    // Trim step
-    STR_DEF(STR_TRIMINC),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_VTRIMINC, -2, 2,
-                GET_SET_DEFAULT(g_model.trimInc));
-    }
-  },
-  {
-    // Extended trims
-    STR_DEF(STR_ETRIMS),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.extendedTrims));
-    }
-  },
-  {
-    // Display trims
-    // TODO: move to "Screen setup" ?
-    STR_DEF(STR_DISPLAY_TRIMS),
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_VDISPLAYTRIMS, 0, 2,
-                GET_SET_DEFAULT(g_model.displayTrims));
-    }
-  },
   {nullptr, nullptr},
 };
 
@@ -445,7 +389,9 @@ const static PageButtonDef modelSetupButtons[] = {
   {STR_DEF(STR_TIMER_3), []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
 
   {STR_DEF(STR_PREFLIGHT), []() { new PreflightChecks(); }},
-  {STR_DEF(STR_TRIMS), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_TRIMS, trimsSetupLines); }},
+#if defined(USE_HATS_AS_KEYS)
+  {STR_DEF(STR_HATSMODE), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_HATSMODE, buttonsSetupLines); }},
+#endif
   {STR_DEF(STR_THROTTLE_LABEL), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_THROTTLE_LABEL, throttleParamsSetupLines); }},
   {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
 #if defined(USBJ_EX)

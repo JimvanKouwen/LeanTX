@@ -31,7 +31,7 @@ uint8_t getExposCount()
 {
   uint8_t count = 0;
   uint8_t ch;
-  
+
   for (int i=MAX_EXPOS-1 ; i>=0; i--) {
     ch = EXPO_VALID(expoAddress(i));
     if (ch != 0) {
@@ -89,23 +89,23 @@ bool swapExpos(uint8_t & idx, uint8_t up)
 {
   ExpoData * x, * y;
   int8_t tgt_idx = (up ? idx-1 : idx+1);
-  
+
   x = expoAddress(idx);
-  
+
   if (tgt_idx < 0) {
     if (x->chn == 0)
       return false;
     x->chn--;
     return true;
   }
-  
+
   if (tgt_idx == MAX_EXPOS) {
     if (x->chn == MAX_INPUTS-1)
       return false;
     x->chn++;
     return true;
   }
-  
+
   y = expoAddress(tgt_idx);
   if (x->chn != y->chn || !EXPO_VALID(y)) {
     if (up) {
@@ -118,11 +118,11 @@ bool swapExpos(uint8_t & idx, uint8_t up)
     }
     return true;
   }
-  
+
   mixerTaskStop();
   memswap(x, y, sizeof(ExpoData));
   mixerTaskStart();
-  
+
   idx = tgt_idx;
   return true;
 }
@@ -150,7 +150,7 @@ void onDeleteExpoConfirm(const char * result)
 void onExposMenu(const char * result)
 {
   uint8_t chn = expoAddress(s_currIdx)->chn + 1;
-  
+
   if (result == STR_EDIT) {
     pushMenu(menuModelExpoOne);
   }
@@ -177,7 +177,6 @@ void onExposMenu(const char * result)
 #define EXPO_LINE_WEIGHT_POS           8*FW+8
 #define EXPO_LINE_SRC_POS              9*FW+3
 #define EXPO_LINE_CURVE_POS            12*FW+11
-#define EXPO_LINE_TRIM_POS             19*FW-2
 #define EXPO_LINE_SWITCH_POS           20*FW
 #define EXPO_LINE_SIDE_POS             25*FW
 #define EXPO_LINE_FM_POS               12*FW+11
@@ -194,15 +193,6 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
   drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
 
-  if (ed->trimSource != TRIM_ON) {
-    if (ed->trimSource > 0) {
-      lcdDrawChar(EXPO_LINE_TRIM_POS, y, '-', attr);
-    } else {
-      const char* short_label = getAnalogShortLabel(-ed->trimSource - 1);
-      lcdDrawChar(EXPO_LINE_TRIM_POS, y, short_label ? short_label[0] : ' ', attr);
-    }
-  }
-
   if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
     displayExpoInfos(y, ed);
   else
@@ -211,7 +201,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
   if (ed->name[0]) {
     lcdDrawSizedText(EXPO_LINE_NAME_POS, y, ed->name, sizeof(ed->name), attr);
   }
-  
+
 #if LCD_DEPTH > 1
   if (ed->mode!=3) {
     lcdDrawChar(EXPO_LINE_SIDE_POS, y, ed->mode == 2 ? 126 : 127);
@@ -239,7 +229,7 @@ void displayExpoInfos(coord_t y, ExpoData * ed)
 void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
   drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
-  
+
   if (ed->name[0])
     lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, attr);
   else if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
@@ -252,13 +242,13 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 void menuModelExposAll(event_t event)
 {
   int8_t sub = menuVerticalPosition - HEADER_LINE;
-  
+
   if (s_editMode > 0) {
     s_editMode = 0;
   }
-  
+
   uint8_t chn = expoAddress(s_currIdx)->chn + 1;
-  
+
   switch (event) {
     case EVT_ENTRY:
     case EVT_ENTRY_UP:
@@ -343,7 +333,7 @@ void menuModelExposAll(event_t event)
       (IS_NEXT_EVENT(event) || IS_PREVIOUS_EVENT(event))) {
 
     uint8_t next_ofs = (IS_PREVIOUS_EVENT(event) ? s_copyTgtOfs - 1 : s_copyTgtOfs + 1);
-        
+
     if (s_copyTgtOfs==0 && s_copyMode==COPY_MODE) {
       // insert a mix on the same channel (just above / just below)
       if (!reachExposLimit()) {
@@ -366,10 +356,10 @@ void menuModelExposAll(event_t event)
         storageDirty(EE_MODEL);
       }
     }
-    
+
     s_copyTgtOfs = next_ofs;
   }
-  
+
   lcdDrawNumber(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, getExposCount(), RIGHT);
   lcdDrawText(FW*strlen(STR_MENUINPUTS)+FW+FW/2, 0, STRING_MAX(MAX_EXPOS));
 
@@ -380,7 +370,7 @@ void menuModelExposAll(event_t event)
     lcdDrawNumber(127, 2, calcRESXto1000(anas[index]), PREC1|TINSIZE|RIGHT);
   }
 #endif
-  
+
   SIMPLE_MENU(STR_MENUINPUTS, menuTabModel, MENU_MODEL_INPUTS, HEADER_LINE + s_maxLines);
 
 #if LCD_DEPTH > 1
@@ -389,12 +379,12 @@ void menuModelExposAll(event_t event)
     drawGauge(127, 1, 58, 6, anas[index], 1024);
   }
 #endif
-  
+
   sub = menuVerticalPosition - HEADER_LINE;
   s_currCh = 0;
   int cur = 0;
   int i = 0;
-  
+
   for (int ch=1; ch<=MAX_INPUTS; ch++) {
     ExpoData * ed;
     coord_t y = MENU_HEADER_HEIGHT+1+(cur-menuVerticalOffset)*FH;
@@ -423,7 +413,7 @@ void menuModelExposAll(event_t event)
                         -100, 100, RIGHT | (isExpoActive(i) ? BOLD : 0),
                         0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
           displayExpoLine(y, ed, 0);
-          
+
           if (s_copyMode) {
             if ((s_copyMode==COPY_MODE || s_copyTgtOfs == 0) && s_copySrcCh == ch && i == (s_copySrcIdx + (s_copyTgtOfs<0))) {
               /* draw a border around the raw on selection mode (copy/move) */

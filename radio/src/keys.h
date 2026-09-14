@@ -179,10 +179,6 @@ bool waitKeysReleased();
 bool isEvent();
 bool keyDown();
 
-event_t getTrimEvent();
-void pauseTrimEvents(event_t event);
-void killTrimEvents(event_t event);
-
 bool keysGetState(uint8_t key);
 uint8_t keysGetTrimState(uint8_t trim);
 

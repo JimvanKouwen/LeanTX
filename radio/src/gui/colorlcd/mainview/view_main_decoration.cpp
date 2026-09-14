@@ -26,7 +26,7 @@
 
 // these 2 need things from edgetx.h
 #include "sliders.h"
-#include "trims.h"
+#include "static.h"
 
 #include "hal/adc_driver.h"
 
@@ -42,10 +42,9 @@ ViewMainDecoration::ViewMainDecoration(Window* parent, bool calibration) :
   lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
   if (!calibration) {
-    createTrims(w_ml, w_mr, w_bl, w_br);
     createFlightMode(w_bc);
   } else {
-    showTrims = showFM = false;
+    showFM = false;
   }
   createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
 }
@@ -77,35 +76,11 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
   }
 }
 
-void ViewMainDecoration::setTrimsVisible(bool visible)
-{
-  showTrims = visible;
-  for (int i=0; i < TRIMS_MAX; i++) {
-    if (trims[i]) {
-      trims[i]->setVisible(visible);
-    }
-  }
-}
-
 void ViewMainDecoration::setFlightModeVisible(bool visible)
 {
   showFM = visible;
   if (flightMode)
     flightMode->show(visible);
-}
-
-// Check if trim may be visible in one or more flight modes
-static bool canTrimShow(int idx)
-{
-  idx = inputMappingConvertMode(idx);
-  for (int i = 0; i < MAX_FLIGHT_MODES; i += 1) {
-    if (i == 0 || g_model.flightModeData[i].swtch != SWITCH_NONE) {
-      trim_t v = getRawTrimValue(i, idx);
-      if (v.mode != TRIM_MODE_NONE && v.mode != TRIM_MODE_3POS)
-        return true;
-    }
-  }
-  return false;
 }
 
 rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
@@ -126,25 +101,13 @@ rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
     bh += MainViewSlider::SLIDER_BAR_SIZE;
   }
 
-  if (showTrims) {
-    if (canTrimShow(TRIMS_LV)) {
-      x += MainViewSlider::SLIDER_BAR_SIZE;
-      w -= MainViewSlider::SLIDER_BAR_SIZE;
-    }
-    if (canTrimShow(TRIMS_RV)) {
-      w -= MainViewSlider::SLIDER_BAR_SIZE;
-    }
-    if (showFM && (has6POS || !showSliders))
-      bh += EdgeTxStyles::STD_FONT_HEIGHT;
-    else if (canTrimShow(TRIMS_LH) || canTrimShow(TRIMS_RH))
-      bh += MainViewSlider::SLIDER_BAR_SIZE;
-  } else if (showFM) {
+  if (showFM) {
     bh += EdgeTxStyles::STD_FONT_HEIGHT;
     if (!has6POS && showSliders)
       bh -= MainViewSlider::SLIDER_BAR_SIZE;
   }
 
-  if (showSliders || showTrims || showFM) {
+  if (showSliders || showFM) {
     x += PAD_LARGE;
     y += PAD_LARGE;
     w -= PAD_LARGE * 2;
@@ -236,15 +199,6 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
       sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, pot);
     }
   }
-}
-
-void ViewMainDecoration::createTrims(Window* ml, Window* mr, Window* bl, Window* br)
-{
-  // Trim order TRIM_LH, TRIM_LV, TRIM_RV, TRIM_RH
-  trims[TRIMS_LH] = new MainViewHorizontalTrim(bl, TRIMS_LH);
-  trims[TRIMS_RH] = new MainViewHorizontalTrim(br, TRIMS_RH);
-  trims[TRIMS_LV] = new MainViewVerticalTrim(ml, TRIMS_LV);
-  trims[TRIMS_RV] = new MainViewVerticalTrim(mr, TRIMS_RV);
 }
 
 void ViewMainDecoration::createFlightMode(Window* bc)

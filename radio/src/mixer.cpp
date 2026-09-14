@@ -41,9 +41,7 @@
 
 uint8_t s_mixer_first_run_done = false;
 
-int8_t  virtualInputsTrims[MAX_INPUTS];
 int16_t anas [MAX_INPUTS] = {0};
-int16_t trims[MAX_TRIMS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
 BeepANACenter bpanaCenter = 0;
 
@@ -221,15 +219,6 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
         int32_t offset = getSourceNumFieldValue(ed->offset, -100, 100);
         if (offset) v += divRoundClosest(calc100toRESX(offset), 10);
 
-        //========== TRIMS ================
-        if (ed->trimSource < TRIM_ON)
-          virtualInputsTrims[cur_chn] = -ed->trimSource - 1;
-        else if (ed->trimSource == TRIM_ON && src >= MIXSRC_FIRST_STICK &&
-                 src <= MIXSRC_LAST_STICK)
-          virtualInputsTrims[cur_chn] = src - MIXSRC_FIRST_STICK;
-        else
-          virtualInputsTrims[cur_chn] = -1;
-        // if (srcRaw < 0) v = -v;
         anas[cur_chn] = v;
       } else {
         anas[ed->chn] = 0;
@@ -324,13 +313,13 @@ int16_t applyLimits(uint8_t channel, int32_t value)
 static const getvalue_t _switch_2pos_lookup[] = {
   -1024, // SWITCH_HW_UP
   +1024, // SWITCH_HW_MID
-  +1024, // SWITCH_HW_DOWN 
+  +1024, // SWITCH_HW_DOWN
 };
 
 static const getvalue_t _switch_3pos_lookup[] = {
   -1024, // SWITCH_HW_UP
   0,     // SWITCH_HW_MID
-  +1024, // SWITCH_HW_DOWN 
+  +1024, // SWITCH_HW_DOWN
 };
 
 // TODO same naming convention than the drawSource
@@ -405,16 +394,9 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-  else if (i <= MIXSRC_LAST_TRIM) {
-    i -= MIXSRC_FIRST_TRIM;
-    if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
-      // Trim set as 3POS toggle switch in FM
-      uint8_t tidx = inputMappingConvertMode(i) * 2;
-      if (trimDown(tidx)) return -RESX;
-      else if (trimDown(tidx + 1)) return RESX;
-      return 0;
-    }
-    return 8 * getTrimValue(mixerCurrentFlightMode, i);
+  else if (i >= MIXSRC_FIRST_RESERVED_TRIM && i <= MIXSRC_LAST_RESERVED_TRIM) {
+    if (valid != nullptr) *valid = false;
+    return 0; // Reserved source IDs from the removed trim-value system.
   }
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
     auto sw_idx = (uint8_t)(i - MIXSRC_FIRST_SWITCH);
@@ -514,20 +496,6 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   return 0;
 }
 
-void evalTrims()
-{
-  uint8_t phase = mixerCurrentFlightMode;
-  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
-    // do trim -> throttle trim if applicable
-    int16_t trim = getTrimValue(phase, i);
-    if (trimsCheckTimer > 0) {
-      trim = 0;
-    }
-
-    trims[i] = trim * 2;
-  }
-}
-
 // TODO: move to analogs.cpp
 void evalInputs(uint8_t mode)
 {
@@ -596,11 +564,6 @@ void evalInputs(uint8_t mode)
   // EXPOs
   applyExpos(anas, mode);
 
-  // TRIMs
-  // when no virtual inputs, the trims need the anas array calculated above
-  // (when throttle trim enabled)
-  evalTrims();
-
   if (mode == e_perout_mode_normal) {
     bpanaCenter = anaCenter;
   }
@@ -616,50 +579,6 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   getvalue_t v = _getValue(i, valid);
   if (invert) v = -v;
   return v;
-}  
-
-  constexpr int IDLE_TRIM_SCALE = 2;
-
-int getStickTrimValue(int stick, int stickValue)
-{
-  if (stick < 0)
-    return 0;
-
-  int trim = trims[stick];
-  uint8_t thrTrimSw = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
-  if (stick == thrTrimSw) {  // trim for throttle
-    if (g_model.throttleReversed) trim = -trim;
-    if (g_model.thrTrim) {   // throttle idle ON
-      // evalTrims() store 2 * trim value in trims[]
-      // so here, trim values range from -256 to 256
-      // and extended trim values range from -1024 to 1024
-      trim = (g_model.extendedTrims) ? 2 * TRIM_EXTENDED_MAX + trim
-                                     : 2 * TRIM_MAX + trim;
-      trim = trim * (1024 - stickValue) / (IDLE_TRIM_SCALE * RESX);
-    }
-  }
-  return trim;
-}
-
-int getSourceTrimOrigin(int source)
-{
-  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK)
-    return source - MIXSRC_FIRST_STICK;
-  else if (source >= MIXSRC_FIRST_INPUT && source <= MIXSRC_LAST_INPUT)
-    return virtualInputsTrims[source - MIXSRC_FIRST_INPUT];
-  else
-    return -1;
-}
-
-int getSourceTrimValue(int source, int stickValue=0)
-{
-  auto origin = getSourceTrimOrigin(source);
-  if (origin >= 0) {
-    return getStickTrimValue(origin, stickValue);
-  }
-  else {
-    return 0;
-  }
 }
 
 constexpr bitfield_channels_t all_channels_dirty = (bitfield_channels_t)-1;
@@ -836,19 +755,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (mode == e_perout_mode_normal && (!mixCondition || mixEnabled || mixState[i].delay)) {
         if (md->mixWarn) lv_mixWarning |= 1 << (md->mixWarn - 1);
         activeMixes[i] = true;
-      }
-
-      if (applyOffsetAndCurve) {
-        bool applyTrims = !(mode & e_perout_mode_notrims);
-        if (!applyTrims && g_model.thrTrim) {
-          auto origin = getSourceTrimOrigin(srcRaw);
-          if (origin == g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) {
-            applyTrims = true;
-          }
-        }
-        if (applyTrims && md->carryTrim == 0) {
-          v += getSourceTrimValue(srcRaw, v);
-        }
       }
 
       int32_t weight = getSourceNumFieldValue(md->weight, -RESX, RESX);
@@ -1250,7 +1156,6 @@ void doMixerPeriodicUpdates()
       }
     }
 
-    checkTrims();
   }
 
   DEBUG_TIMER_STOP(debugTimerMixes10ms);

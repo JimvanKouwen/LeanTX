@@ -30,7 +30,6 @@
 #include <filesystem>
 
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
-#define MIXSRC_TRIMTHR (MIXSRC_FIRST_TRIM + inputMappingGetThrottle())
 
 ::testing::AssertionResult __luaExecStr(const char * str)
 {
@@ -141,7 +140,6 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3u, g_model.expoData[1].offset);
   EXPECT_EQ(2, g_model.expoData[1].swtch);
 
-
   // add another line after existing lines on Input4
   luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
   EXPECT_EQ(3u, g_model.expoData[0].chn);
@@ -175,7 +173,7 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
-  luaExecStr("if getSwitchIndex('Rud-') == nil then error('failed') end");
+  luaExecStr("if getSwitchIndex('T1-') == nil then error('failed') end");
 }
 
 TEST(Lua, testFloatIntegerEquality)

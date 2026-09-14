@@ -343,7 +343,7 @@ void luaGetValueAndPush(lua_State* L, int src)
      lua_pushnumber(L, float(value) * 0.1f);    // prec "0.0"
   else
      lua_pushinteger(L, value);                 // prec "0.-"
-  } 
+  }
   #endif
   else {
     lua_pushinteger(L, value);
@@ -1070,7 +1070,7 @@ to the path (example: for English language: `/SOUNDS/en` is appended)
  - (1..5) override radio settings Wav volume for the duration of file
  - omitting the parameter uses radio settings Wav volume
 
-@retval none 
+@retval none
 
 @status current Introduced in 2.0.0, changed in 2.1.0, changed in 2.10
 
@@ -1121,7 +1121,7 @@ Play a numerical value (text to speech)
  - (1..5) override radio settings Wav volume for the duration of file
  - omitting the parameter uses radio settings Wav volume
 
-@retval none 
+@retval none
 
 @status current Introduced in 2.0.0, changed in 2.10
 
@@ -1157,12 +1157,12 @@ Play a time value (text to speech)
 @param hourFormat (number):
  * `0 or not present` play format: minutes and seconds.
  * `!= 0` play format: hours, minutes and seconds.
- * 
+ *
 @param volume (number):
  - (1..5) override radio settings Wav volume for the duration of file
  - omitting the parameter uses radio settings Wav volume
 
-@retval none 
+@retval none
 
 @status current Introduced in 2.1.0, changed in 2.10
 
@@ -1211,7 +1211,7 @@ The valid range is from -127 to 127.
  - (1..5) override radio settings Beep volume for the duration of file
  - omitting the parameter uses radio settings Beep volume
 
-@retval none 
+@retval none
 
 @status current Introduced in 2.1.0, changed in 2.10
 
@@ -1247,7 +1247,7 @@ static int luaPlayTone(lua_State * L)
 
 @return none
 
-@notes This command is currently not rate limited, so repeated frequent calls will slow down the UI and can even freeze the entire radio, so should be used with care. 
+@notes This command is currently not rate limited, so repeated frequent calls will slow down the UI and can even freeze the entire radio, so should be used with care.
 
 @target [BW]
 @target [GS]
@@ -2810,7 +2810,6 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( LS_FUNC_STICKY, LS_FUNC_STICKY )
 
   LROT_NUMENTRY( FUNC_OVERRIDE_CHANNEL, FUNC_OVERRIDE_CHANNEL )
-  LROT_NUMENTRY( FUNC_INSTANT_TRIM, FUNC_INSTANT_TRIM )
   LROT_NUMENTRY( FUNC_RESET, FUNC_RESET )
   LROT_NUMENTRY( FUNC_SET_TIMER, FUNC_SET_TIMER )
   LROT_NUMENTRY( FUNC_ADJUST_GVAR, FUNC_ADJUST_GVAR )

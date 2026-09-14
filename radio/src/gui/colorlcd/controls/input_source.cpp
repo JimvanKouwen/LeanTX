@@ -126,9 +126,6 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
 
 void InputSource::update()
 {
-  if (input->srcRaw > MIXSRC_LAST_STICK && input->trimSource == TRIM_ON) {
-    input->trimSource = TRIM_OFF;
-  }
 
   if (sensor_form)
     sensor_form->show(input->srcRaw >= MIXSRC_FIRST_TELEM &&

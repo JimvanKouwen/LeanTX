@@ -284,7 +284,7 @@ void LayoutFactory::initPersistentData(int screenNum, bool setDefault) const
       // TODO compiler bug? The CPU freezes ... persistentData->options[i++]
       // = option->deflt;
       auto optVal = &layoutData->options[i];
-      if (setDefault)
+      if (setDefault || option->type == LayoutOption::Reserved)
         optVal->value.unsignedValue = option->deflt.unsignedValue;
       optVal->type = layoutValueEnumFromType(option->type);
     }
@@ -326,7 +326,6 @@ void Layout::updateDecorations()
 {
   // Set visible decoration
   decoration->setSlidersVisible(hasSliders());
-  decoration->setTrimsVisible(hasTrims());
   decoration->setFlightModeVisible(hasFlightMode());
   zoneUpdateRequired = true;
 }
@@ -445,10 +444,6 @@ bool Layout::hasFlightMode() const {
 
 bool Layout::hasSliders() const {
   return getOptionValue(LAYOUT_OPTION_SLIDERS)->boolValue;
-}
-
-bool Layout::hasTrims() const {
-  return getOptionValue(LAYOUT_OPTION_TRIMS)->boolValue;
 }
 
 bool Layout::isMirrored() const {

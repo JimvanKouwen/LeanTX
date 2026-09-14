@@ -51,9 +51,7 @@ for i, s in enumerate(["point zero", "point one", "point two", "point three",
                        "point four", "point five", "point six",
                        "point seven", "point eight", "point nine"]):
     systemSounds.append((s, filename(167 + i)))
-for s, f in [("trim center", "midtrim"),
-             ("maximum trim reached", "maxtrim"),
-             ("minimum trim reached", "mintrim"),
+for s, f in [             ("maximum trim reached", "maxtrim"),
              ("timer 1 elapsed", "timovr1"),
              ("timer 2 elapsed", "timovr2"),
              ("timer 3 elapsed", "timovr3"),

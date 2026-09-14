@@ -108,7 +108,6 @@ static const popupCheckDef popupChecks[] = {
   { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, STR_MENU_POTS },
   { MIXSRC_MIN, MIXSRC_MIN, STR_MENU_MIN },
   { MIXSRC_MAX, MIXSRC_MAX, STR_MENU_MAX },
-  { MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, STR_MENU_TRIMS },
   { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, STR_MENU_SWITCHES },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, STR_MENU_CHANNELS },
   { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, STR_MENU_GVARS },
@@ -212,7 +211,7 @@ int checkMovedInput(int newval, unsigned int i_flags, bool isSource)
 #if defined(AUTOSWITCH)
     else {
       uint8_t swtch = abs(getMovedSwitch());
-      if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
+      if (swtch && swtch <= SWSRC_LAST_SWITCH) {
         newval = switchToMix(swtch);
       }
     }

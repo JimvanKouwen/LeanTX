@@ -106,14 +106,6 @@ bool confirmModelChange();
 bool isSwitch2POSWarningStateAvailable(int state);
 #endif
 
-#if defined(COLORLCD)
-#define IS_INSTANT_TRIM_ALLOWED()     true
-#elif defined(GUI)
-#define IS_INSTANT_TRIM_ALLOWED()      (IS_MAIN_VIEW_DISPLAYED() || IS_TELEMETRY_VIEW_DISPLAYED() || IS_OTHER_VIEW_DISPLAYED())
-#else
-#define IS_INSTANT_TRIM_ALLOWED()      true
-#endif
-
 swsrc_t checkIncDecMovedSwitch(swsrc_t val);
 
 // TODO move this to stdlcd/draw_functions.h ?

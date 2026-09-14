@@ -719,13 +719,6 @@ int32_t simuGetCapability(uint8_t cap)
   }
 }
 
-void simuSetTrimValue(uint8_t idx, int32_t value)
-{
-  unsigned i = inputMappingConvertMode(idx);
-  uint8_t phase = getTrimFlightMode(getFlightMode(), i);
-  setTrimValue(phase, i, value);
-}
-
 void simuSendTelemetry(uint8_t module, uint8_t protocol,
                        const uint8_t* data, uint32_t len)
 {
@@ -795,18 +788,6 @@ uint8_t simuCopyLogicalSwitches(uint8_t* buf, uint8_t maxCount)
   for (uint8_t i = 0; i < n; i++)
     buf[i] = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i, 0) ? 1 : 0;
   return n;
-}
-
-int32_t simuGetTrimValue(uint8_t idx)
-{
-  uint8_t phase = getFlightMode();
-  uint8_t mapped = inputMappingConvertMode(idx);
-  return getTrimValue(getTrimFlightMode(phase, mapped), mapped);
-}
-
-int16_t simuGetTrimRange()
-{
-  return g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
 }
 
 int32_t simuGetFlightMode()

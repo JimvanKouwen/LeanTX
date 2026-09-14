@@ -267,7 +267,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
                val[1] >= '1' &&
                val[1] <= ('0' + MAX_TRIMS)) {
 
-      return MIXSRC_FIRST_TRIM + (val[1] - '1');
+      return MIXSRC_NONE; // Removed accumulated trim source.
     }
 
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
@@ -334,10 +334,8 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     else if (val <= MIXSRC_LAST_POT) {
         str = analogGetCanonicalName(ADC_INPUT_FLEX, val - MIXSRC_FIRST_POT);
     }
-    else if (val >= MIXSRC_FIRST_TRIM
-             && val <= MIXSRC_LAST_TRIM) {
-        if (!wf(opaque, "T", 1)) return false;
-        str = yaml_unsigned2str(val - MIXSRC_FIRST_TRIM + 1);
+    else if (val >= MIXSRC_FIRST_RESERVED_TRIM && val <= MIXSRC_LAST_RESERVED_TRIM) {
+        str = "---";
     }
     else if (val >= MIXSRC_FIRST_SWITCH
              && val <= MIXSRC_LAST_SWITCH) {
@@ -471,12 +469,6 @@ bool w_sourceNumVal(const YamlNode* node, uint32_t val, yaml_writer_func wf,
   char* s = yaml_signed2str(v.value);
   return wf(opaque, s, strlen(s));
 }
-
-
-
-
-
-
 
 static uint32_t r_vbat_min(const YamlNode* node, const char* val, uint8_t val_len)
 {
@@ -1268,10 +1260,10 @@ extern const struct YamlIdStr enum_SwitchSources[];
 
 // Trim switch names
 static const char* trimSwitchNames[] = {
-  "TrimRudLeft", "TrimRudRight",
-  "TrimEleDown", "TrimEleUp",
-  "TrimThrDown", "TrimThrUp",
-  "TrimAilLeft", "TrimAilRight",
+  "TrimT1Down", "TrimT1Up",
+  "TrimT2Down", "TrimT2Up",
+  "TrimT3Down", "TrimT3Up",
+  "TrimT4Down", "TrimT4Up",
   "TrimT5Down", "TrimT5Up",
   "TrimT6Down", "TrimT6Up",
   "TrimT7Down", "TrimT7Up",
@@ -1430,6 +1422,25 @@ bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* o
     return false;
 
   return true;
+}
+
+// Unknown or removed actions must never become channel overrides (enum zero).
+extern const struct YamlIdStr enum_Functions[];
+static uint32_t r_function(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  for (auto entry = enum_Functions; entry->str; ++entry) {
+    if (strlen(entry->str) == val_len && !strncmp(entry->str, val, val_len))
+      return entry->id;
+  }
+  return FUNC_RESERVED_TRIM;
+}
+
+static bool w_function(const YamlNode* node, uint32_t value,
+                       yaml_writer_func wf, void* opaque)
+{
+  const char* str = yaml_output_enum(value, enum_Functions);
+  if (!str) str = "NONE";
+  return wf(opaque, str, strlen(str));
 }
 
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
@@ -1663,7 +1674,7 @@ static bool w_tele_sensor(const YamlNode* node, uint32_t val,
     return wf(opaque, "none", 4);
   }
 
-  const char* str = yaml_unsigned2str(val-1);  
+  const char* str = yaml_unsigned2str(val-1);
   return wf(opaque, str, strlen(str));
 }
 
@@ -1691,10 +1702,8 @@ static bool w_flightModes(const YamlNode* node, uint32_t val,
 }
 
 static const char* const _func_reset_param_lookup[] = {
-  "Tmr1","Tmr2","Tmr3","All","Tele","Trims"
+  "Tmr1","Tmr2","Tmr3","All","Tele",""
 };
-
-
 
 static const char* const _func_sound_lookup[] = {
   "Bp1","Bp2","Bp3","Wrn1","Wrn2",
@@ -1760,7 +1769,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
              && val[2] == 'i'
              && val[3] == 'm'
              && val[4] == 's') {
-      CFN_PARAM(cfn) = FUNC_RESET_TRIMS;
+      CFN_FUNC(cfn) = FUNC_RESERVED_TRIM; // Removed action: do not reinterpret as a sensor reset.
     } else {
       uint32_t sensor = yaml_str2uint(val, l_sep);
       CFN_PARAM(cfn) = sensor + FUNC_RESET_PARAM_FIRST_TELEM;
@@ -2021,7 +2030,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // output CFN_GVAR_MODE
     str = _adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
-    if (!wf(opaque,",",1)) return false;    
+    if (!wf(opaque,",",1)) return false;
 
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
@@ -2261,7 +2270,7 @@ static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t v
 bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
   // offset 8
-  int32_t sval = yaml_to_signed(val, node->size) + 8;  
+  int32_t sval = yaml_to_signed(val, node->size) + 8;
   const char* str = yaml_signed2str(sval);
   return wf(opaque,str,strlen(str));
 }
@@ -2271,13 +2280,6 @@ static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
 {
   uint32_t i = yaml_str2uint(val, val_len);
   yaml_put_bits(data, i, bitoffs, 1);
-}
-
-static void r_carryTrim(void* user, uint8_t* data, uint32_t bitoffs,
-                           const char* val, uint8_t val_len)
-{
-  int32_t i = yaml_str2int(val, val_len);
-  yaml_put_bits(data, i, bitoffs, 6);
 }
 
 static void r_rotEncDirection(void* user, uint8_t* data, uint32_t bitoffs,

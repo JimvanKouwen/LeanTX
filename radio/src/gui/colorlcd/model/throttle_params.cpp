@@ -53,26 +53,6 @@ static SetupLineDef setupLines[] = {
       sc->setAvailableHandler(isThrottleSourceAvailable);
     }
   },
-  {
-    // Throttle trim
-    STR_DEF(STR_TTRIM),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.thrTrim));
-    }
-  },
-  {
-    // Throttle trim source
-    STR_DEF(STR_TTRIM_SW),
-    [](Window* parent, coord_t x, coord_t y) {
-      new SourceChoice(
-          parent, {x, y, 0, 0}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-          []() { return g_model.getThrottleStickTrimSource(); },
-          [](int16_t src) {
-            g_model.setThrottleStickTrimSource(src);
-            SET_DIRTY();
-          });
-    }
-  },
 };
 
 ThrottleParams::ThrottleParams() : SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_THROTTLE_LABEL, setupLines, DIM(setupLines))

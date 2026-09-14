@@ -216,3 +216,65 @@ TEST(Model, CompactCrsfSettingsRoundTrip)
   EXPECT_EQ(45, g_model.rfAlarms.warning);
   EXPECT_EQ(42, g_model.rfAlarms.critical);
 }
+
+TEST(Model, RemovedTrimSettingsAreIgnored)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr(
+      "thrTrim: 1\ndisplayTrims: 2\ntrimInc: 2\nextendedTrims: 1\nthrTrimSw: 3\n"
+      "flightModeData:\n  0:\n    name: Main\n    trim:\n      0:\n"
+      "        value: 512\n        mode: 3\n    fadeIn: 7\n"
+      "header:\n  name: Buttons\n");
+  EXPECT_STREQ(modelName(), "Buttons");
+  EXPECT_EQ(7, g_model.flightModeData[0].fadeIn);
+  EXPECT_EQ(0, g_model.reservedThrTrim);
+  EXPECT_EQ(0, g_model.reservedExtendedTrims);
+  for (const auto& fm : g_model.flightModeData)
+    for (auto value : fm.reservedTrims) EXPECT_EQ(0, value);
+
+  std::string yaml;
+  YamlTreeWalker tree;
+  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
+    static_cast<std::string*>(opaque)->append(str, len);
+    return true;
+  }, &yaml));
+  for (const char* field : {"thrTrim:", "displayTrims:", "trimInc:",
+                            "extendedTrims:", "thrTrimSw:", "trim:",
+                            "reservedTrims:", "trimSource:", "carryTrim:"})
+    EXPECT_EQ(std::string::npos, yaml.find(field)) << field;
+}
+
+TEST(Model, RemovedTrimActionsLoadDisabled)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("customFn:\n  0:\n    swtch: ON\n    func: INSTANT_TRIM\n"
+                   "    def: 0,1\n  1:\n    swtch: ON\n    func: RESET\n"
+                   "    def: Trims,1\n");
+  EXPECT_EQ(FUNC_RESERVED_TRIM, g_model.customFn[0].func);
+  EXPECT_EQ(FUNC_RESERVED_TRIM, g_model.customFn[1].func);
+  EXPECT_FALSE(isAssignableFunctionAvailable(FUNC_RESERVED_TRIM, true));
+  EXPECT_FALSE(isSourceAvailableInResetSpecialFunction(FUNC_RESET_RESERVED_TRIMS));
+}
+
+TEST(Model, PhysicalTrimSwitchesRoundTrip)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
+    g_model.customFn[i].swtch = SWSRC_FIRST_TRIM + i;
+    g_model.customFn[i].func = FUNC_PLAY_SOUND;
+  }
+  std::string yaml;
+  YamlTreeWalker tree;
+  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
+    static_cast<std::string*>(opaque)->append(str, len);
+    return true;
+  }, &yaml));
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr(yaml.c_str());
+  for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
+    EXPECT_EQ(SWSRC_FIRST_TRIM + i, g_model.customFn[i].swtch);
+    EXPECT_EQ(FUNC_PLAY_SOUND, g_model.customFn[i].func);
+  }
+}

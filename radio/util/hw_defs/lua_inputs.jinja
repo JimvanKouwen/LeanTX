@@ -28,15 +28,5 @@ static const LuaSingleField _lua_inputs[] = {
     {% set sw = switches[loop.index0] %}
   { MIXSRC_FIRST_SWITCH + {{ loop.index0 }}, "{{ sw.name }}", "{{ sw.name }}" },
   {% endfor %}
-  // trims
-  {% set trims_count =  trims | count %}
-  {% for n in range(trims_count) %}
-    {% if n < (main_inputs | length) %}
-      {% set input = main_inputs[loop.index0] %}
-      {% set li = legacy_inputs[input.name] %}
-  { MIXSRC_FIRST_TRIM + {{ loop.index0 }}, "trim-{{ li.lua }}", "{{ li.description}} trim" },
-    {% else %}
-  { MIXSRC_FIRST_TRIM + {{ loop.index0 }}, "trim-t{{ loop.index }}", "Aux trim T{{ loop.index }}" },
-    {% endif %}
-  {% endfor %}
+
 };

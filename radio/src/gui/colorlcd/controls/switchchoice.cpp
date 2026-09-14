@@ -138,7 +138,7 @@ void SwitchChoice::openMenu()
     swsrc_t swtch = getMovedSwitch();
     if (swtch) {
       div_t info = switchInfo(swtch);
-      if (IS_CONFIG_TOGGLE(info.quot)) {
+      if (swtch <= SWSRC_LAST_SWITCH && IS_CONFIG_TOGGLE(info.quot)) {
         if (info.rem != 0) {
           val = (val == swtch ? swtch - 2 : swtch);
         }

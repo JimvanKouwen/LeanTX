@@ -54,7 +54,6 @@ export interface SimulatorExports {
   simuSetKey: (key: number, state: number) => void;
   simuSetTrim: (trim: number, state: number) => void;
   simuSetSwitch: (swtch: number, state: number) => void;
-  simuSetTrimValue: (idx: number, value: number) => void;
   simuTouchDown: (x: number, y: number) => void;
   simuTouchUp: () => void;
   simuRotaryEncoderEvent: (steps: number) => void;

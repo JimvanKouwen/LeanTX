@@ -31,7 +31,7 @@ file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
 file(GLOB LIBUI_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
   ${RADIO_SRC_DIR}/gui/colorlcd/libui/*.cpp)
 
-file(GLOB MAINVIEW_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
+file(GLOB MAINVIEW_SRC CONFIGURE_DEPENDS RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
   ${RADIO_SRC_DIR}/gui/colorlcd/mainview/*.cpp)
 
 file(GLOB MENUS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd

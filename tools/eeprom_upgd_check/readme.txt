@@ -12,7 +12,6 @@ OK 	speedDown	5	5
 OK 	curveValue	50	50
 OK 	speedUp	2	2
 OK 	delayDown	5	5
-OK 	carryTrim	true	true
 OK 	mixWarn	1	1
 OK 	flightModes	3	3
 OK 	offset	10	10

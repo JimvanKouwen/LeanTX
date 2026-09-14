@@ -609,26 +609,10 @@ const char *getMainControlLabel(uint8_t idx, bool defaultOnly)
 
 const char *getTrimLabel(uint8_t idx, bool defaultOnly)
 {
-  if (idx < adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    return getMainControlLabel(idx, defaultOnly);
-  }
-
-  // TODO: replace with string from HW def
-  static char _trim_buffer[4];
-  strAppendStringWithIndex(_trim_buffer, "T", idx + 1);
-  return _trim_buffer;
-}
-
-const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src)
-{
-  if (trim_src < TRIM_ON) {
-    return getTrimLabel(-trim_src - 1);
-  } else if (trim_src == TRIM_ON && src_raw >= MIXSRC_FIRST_STICK &&
-             src_raw <= MIXSRC_LAST_STICK) {
-    return STR_OFFON[1];
-  } else {
-    return STR_OFFON[0];
-  }
+  // Stable physical labels, independent of stick mapping and flight mode.
+  static char label[4];
+  strAppendStringWithIndex(label, "T", idx + 1);
+  return label;
 }
 
 const char *getPotLabel(uint8_t idx, bool defaultOnly)
@@ -743,10 +727,8 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
   }
 #endif
-  else if (idx <= MIXSRC_LAST_TRIM) {
-    idx -= MIXSRC_FIRST_TRIM;
-    char *pos = strAppend(dest, CHAR_TRIM, sizeof(CHAR_TRIM) - 1);
-    strAppend(pos, getTrimLabel(idx, defaultOnly));
+  else if (idx >= MIXSRC_FIRST_RESERVED_TRIM && idx <= MIXSRC_LAST_RESERVED_TRIM) {
+    strAppend(dest, STR_EMPTY);
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
     char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
@@ -813,7 +795,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     *++pos = '\0';
   }
   destRef[L - 1] = '\0'; // assert the termination
-  return destRef; 
+  return destRef;
 }
 
 bool sourceCanHaveCustomName(mixsrc_t idx)
@@ -821,7 +803,7 @@ bool sourceCanHaveCustomName(mixsrc_t idx)
   return (idx >= MIXSRC_FIRST_INPUT && idx <= MIXSRC_LAST_INPUT) ||
          (idx >= MIXSRC_FIRST_STICK && idx <= MIXSRC_LAST_STICK) ||
          (idx >= MIXSRC_FIRST_POT && idx <= MIXSRC_LAST_POT) ||
-         (idx >= MIXSRC_FIRST_TRIM && idx <= MIXSRC_LAST_TRIM) ||
+         (idx >= MIXSRC_FIRST_RESERVED_TRIM && idx <= MIXSRC_LAST_RESERVED_TRIM) ||
          (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) ||
          (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH) ||
          (idx >= MIXSRC_FIRST_GVAR && idx <= MIXSRC_LAST_GVAR) ||
@@ -1254,7 +1236,7 @@ char *strAppendDate(char *str, bool time)
 }
 #endif
 
-/** 
+/**
  * @brief Count the number of digits in a string.
  * Works with negative numbers, and zero is considered to have 1 digit.
  * @param number Integer whose digits are to be counted.

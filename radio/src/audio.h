@@ -109,7 +109,7 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
   #define AUDIO_DATA_SILENCE 0
 #elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
   typedef uint16_t audio_data_t;
-  #define AUDIO_DATA_SILENCE 0x8000 
+  #define AUDIO_DATA_SILENCE 0x8000
 #else
   #error "Unknown audio sample format"
 #endif
@@ -473,7 +473,6 @@ void onKeyError();
 
 void audioKeyPress();
 void audioKeyError();
-void audioTrimPress(int value);
 void audioTimerCountdown(uint8_t timer, int value);
 
 #if defined(AUDIO)
@@ -495,10 +494,6 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_INACTIVITY()       audioEvent(AU_INACTIVITY)
 #define AUDIO_MIX_WARNING(x)     audioEvent(AU_MIX_WARNING_1+x-1)
 #define AUDIO_POT_MIDDLE(x)      audioEvent(AU_STICK1_MIDDLE+x)
-#define AUDIO_TRIM_MIDDLE()      audioEvent(AU_TRIM_MIDDLE)
-#define AUDIO_TRIM_MIN()         audioEvent(AU_TRIM_MIN)
-#define AUDIO_TRIM_MAX()         audioEvent(AU_TRIM_MAX)
-#define AUDIO_TRIM_PRESS(val)    audioTrimPress(val)
 #define AUDIO_PLAY(p)            audioEvent(p)
 #define AUDIO_VARIO(fq, t, p, f) audioQueue.playTone(fq, t, p, f)
 #define AUDIO_RSSI_ORANGE()      audioEvent(AU_RSSI_ORANGE)
@@ -509,12 +504,9 @@ void audioTimerCountdown(uint8_t timer, int value);
 
 #else // AUDIO
 
-#define AUDIO_TIMER_COUNTDOWN(idx, val) 
-#define AUDIO_TIMER_ELAPSED(idx) 
-#define AUDIO_TRIM_MIN()
-#define AUDIO_TRIM_MAX()
-#define AUDIO_TRIM_PRESS(val)
-#define AUDIO_VARIO(fq, t, p, f) 
+#define AUDIO_TIMER_COUNTDOWN(idx, val)
+#define AUDIO_TIMER_ELAPSED(idx)
+#define AUDIO_VARIO(fq, t, p, f)
 #define AUDIO_RSSI_ORANGE()
 #define AUDIO_RSSI_RED()
 #define AUDIO_TELEMETRY_CONNECTED()

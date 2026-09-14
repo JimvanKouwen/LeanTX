@@ -200,10 +200,7 @@ void onLimitsMenu(const char *result)
     copySticksToOffset(s_currIdx);
     storageDirty(EE_MODEL);
   }
-  else if (result == STR_COPY_TRIMS_TO_OFS) {
-    copyTrimsToOffset(s_currIdx);
-    storageDirty(EE_MODEL);
-  }
+
   else if (result == STR_EDIT) {
     pushMenu(menuModelLimitsOne);
   }
@@ -221,7 +218,7 @@ void menuModelLimits(event_t event)
     lcdDrawText(13*FW, 0, STR_US);
   }
 
-  SIMPLE_MENU(STR_MENULIMITS, menuTabModel, MENU_MODEL_OUTPUTS, HEADER_LINE+MAX_OUTPUT_CHANNELS+1);
+  SIMPLE_MENU(STR_MENULIMITS, menuTabModel, MENU_MODEL_OUTPUTS, HEADER_LINE+MAX_OUTPUT_CHANNELS);
 
   for (uint8_t i=0; i<LCD_LINES-1; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
@@ -232,24 +229,12 @@ void menuModelLimits(event_t event)
         (event == EVT_KEY_BREAK(KEY_ENTER)) &&
         (k != MAX_OUTPUT_CHANNELS)) {
       s_editMode = 0;
-      POPUP_MENU_START(onLimitsMenu, 5, STR_EDIT, STR_RESET,
-                       STR_COPY_TRIMS_TO_OFS, STR_COPY_STICKS_TO_OFS,
+      POPUP_MENU_START(onLimitsMenu, 4, STR_EDIT, STR_RESET,
+                       STR_COPY_STICKS_TO_OFS,
                        STR_COPY_MIN_MAX_TO_OUTPUTS);
     }
 
-    if (k == MAX_OUTPUT_CHANNELS) {
-      // last line available - add the "copy trim menu" line
-      lcdDrawText(CENTER_OFS, y, STR_TRIMS2OFFSETS, NO_HIGHLIGHT() ? 0 : attr);
-      if (attr) {
-        s_editMode = 0;
-        if (event == EVT_KEY_LONG(KEY_ENTER)) {
-          killEvents(event);
-          START_NO_HIGHLIGHT();
-          moveTrimsToOffsets(); // if highlighted and menu pressed - move trims to offsets
-        }
-      }
-      return;
-    }
+    if (k >= MAX_OUTPUT_CHANNELS) break;
 
     LimitData * ld = limitAddress(k);
 
@@ -261,7 +246,7 @@ void menuModelLimits(event_t event)
 
     int16_t v = (ld->revert) ? -LIMIT_OFS(ld) : LIMIT_OFS(ld);
     char swVal = ' ';  // ' ', '<', '>'
-    if ((channelOutputs[k] - v) > 50) swVal = (ld->revert ? 127 : 126); // Switch to raw inputs?  - remove trim!
+    if ((channelOutputs[k] - v) > 50) swVal = (ld->revert ? 127 : 126);
     if ((channelOutputs[k] - v) < -50) swVal = (ld->revert ? 126 : 127);
     lcdDrawChar(71, y, swVal);
 

@@ -283,7 +283,7 @@ static int luaModelSetTimer(lua_State *L)
       }
       else if (!strcmp(key, "showElapsed")) {
         timer.showElapsed = lua_toboolean(L, -1);
-      } 
+      }
       else if (!strcmp(key, "switch")) {
         timer.swtch = luaL_checkinteger(L, -1);
       }
@@ -390,12 +390,6 @@ Return input data for given input and line number
  * `switch` (number) input switch index
  * `fadeIn` (number) fade in value (in 0.1s)
  * `fadeOut` (number) fade out value (in 0.1s)
- * `trimsValues` (table) table of trim values:
-   * `key` is trim number (zero based)
-   * `value` is trim value
- * `trimsModes` (table) table of trim mode:
-   * `key` is trim number (zero based)
-   * `value` is trim mode
 
 @status current Introduced in 2.3.10
 */
@@ -409,22 +403,7 @@ static int luaModelGetFlightMode(lua_State * L)
     lua_pushtableinteger(L, "switch", fm->swtch);
     lua_pushtableinteger(L, "fadeIn", fm->fadeIn);
     lua_pushtableinteger(L, "fadeOut", fm->fadeOut);
-    lua_pushstring(L, "trimsValues");
-    lua_newtable(L);
-    for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
-      lua_pushinteger(L, i + 1);
-      lua_pushinteger(L, fm->trim[i].value);
-      lua_settable(L, -3);
-    }
-    lua_settable(L, -3);
-    lua_pushstring(L, "trimsModes");
-    lua_newtable(L);
-    for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
-      lua_pushinteger(L, i + 1);
-      lua_pushinteger(L, fm->trim[i].mode);
-      lua_settable(L, -3);
-    }
-    lua_settable(L, -3);
+
   }
   else {
     lua_pushnil(L);
@@ -453,7 +432,6 @@ static int luaModelSetFlightMode(lua_State * L)
   }
   FlightModeData * fm = flightModeAddress(flightMode);
   luaL_checktype(L, -1, LUA_TTABLE);
-  auto max_trims = keysGetMaxTrims();
   for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
     luaL_checktype(L, -2, LUA_TSTRING); // key is string
     const char * key = luaL_checkstring(L, -2);
@@ -470,30 +448,7 @@ static int luaModelSetFlightMode(lua_State * L)
     else if (!strcmp(key, "fadeOut")) {
       fm->fadeOut = luaL_checkinteger(L, -1);
     }
-    else if (!strcmp(key, "trimsValues")) {
-      luaL_checktype(L, -1, LUA_TTABLE);
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
-        if (idx < 0 || idx >= max_trims) continue;
-        int16_t val = luaL_checkinteger(L, -1);
-        if (g_model.extendedTrims)
-          val = limit<int16_t>(TRIM_EXTENDED_MIN, val, TRIM_EXTENDED_MAX);
-        else
-          val = limit<int16_t>(TRIM_MIN, val, TRIM_MAX);
-        if (idx < max_trims)
-          fm->trim[idx].value = val;
-      }
-    }
-    else if (!strcmp(key, "trimsModes")) {
-      luaL_checktype(L, -1, LUA_TTABLE);
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
-        if (idx < 0 || idx >= max_trims) continue;
-        uint16_t val = luaL_checkinteger(L, -1);
-        if (idx < max_trims)
-          fm->trim[idx].mode = (val & 0x1F);
-      }
-    }
+
   }
   storageDirty(EE_MODEL);
   lua_pushinteger(L, 0);
@@ -521,12 +476,10 @@ Return input data for given input and line number
  * `switch` (number) input switch index
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
- * `carryTrim` deprecated, please use trimSource instead. WARNING: carryTrim was getting negative values (carryTrim = - trimSource)
- * 'trimSource' (number) a positive number representing trim source
  * 'side' (number) input side (positive, negative or all)
  * 'flightModes' (number) bit-mask of active flight modes
 
-@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10, side added in 2.11
+@status current Introduced in 2.0.0, curveType/curveValue added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, scale added in 2.10, side added in 2.11
 */
 static int luaModelGetInput(lua_State *L)
 {
@@ -546,7 +499,6 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtableinteger(L, "switch", expo->swtch);
     lua_pushtableinteger(L, "curveType", expo->curve.type);
     lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(expo->curve.value));
-    lua_pushtableinteger(L, "trimSource", - expo->trimSource);
     lua_pushtableinteger(L, "side", expo->mode);
     lua_pushtableinteger(L, "flightModes", expo->flightModes);
   }
@@ -567,7 +519,7 @@ Insert an Input at specified line
 
 @param value (table) input data, see model.getInput()
 
-@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, broken carryTrim replaced by trimSource in EdgeTX 2.8.1, scale added in 2.10
+@status current Introduced in 2.0.0, curveType/curveValue added in 2.3, inputName added 2.3.10, scale added in 2.10
 */
 static int luaModelInsertInput(lua_State *L)
 {
@@ -622,9 +574,7 @@ static int luaModelInsertInput(lua_State *L)
       else if (!strcmp(key, "curveValue")) {
         expo->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
-      else if (!strcmp(key, "trimSource")) {
-        expo->trimSource = - luaL_checkinteger(L, -1);
-      }
+
       else if (!strcmp(key, "flightModes")) {
         expo->flightModes = luaL_checkinteger(L, -1);
       }
@@ -754,7 +704,6 @@ Get configuration for specified Mix
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
  * `flightModes` (number) bit-mask of active flight modes
- * `carryTrim` (boolean) carry trim
  * `mixWarn` (number) warning (0 = off, 1 = 1 beep, .. 3 = 3 beeps)
  * `delayPrec` precision of delay up/down (1 or 10)
  * `delayUp` (number) delay up (time in 1/10 s)
@@ -783,7 +732,6 @@ static int luaModelGetMix(lua_State *L)
     lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(mix->curve.value));
     lua_pushtableinteger(L, "multiplex", mix->mltpx);
     lua_pushtableinteger(L, "flightModes", mix->flightModes);
-    lua_pushtableboolean(L, "carryTrim", mix->carryTrim);
     lua_pushtableinteger(L, "mixWarn", mix->mixWarn);
     lua_pushtableinteger(L, "delayPrec", mix->delayPrec);
     lua_pushtableinteger(L, "delayUp", mix->delayUp);
@@ -855,9 +803,7 @@ static int luaModelInsertMix(lua_State *L)
       else if (!strcmp(key, "flightModes")) {
         mix->flightModes = luaL_checkinteger(L, -1);
       }
-      else if (!strcmp(key, "carryTrim")) {
-        mix->carryTrim = lua_toboolean(L, -1);
-      }
+
       else if (!strcmp(key, "mixWarn")) {
         mix->mixWarn = luaL_checkinteger(L, -1);
       }
@@ -1046,7 +992,7 @@ static int luaModelGetLogicalSwitch(lua_State *L)
     lua_pushtableinteger(L, "v3", sw->v3);
     lua_pushtableinteger(L, "and", sw->andsw);
     lua_pushtableinteger(L, "delay", sw->delay);
-    lua_pushtableinteger(L, "duration", sw->duration); 
+    lua_pushtableinteger(L, "duration", sw->duration);
     lua_pushtableboolean(L, "state", sw->lsState);
     lua_pushtableboolean(L, "persistent", sw->lsPersist);
   }

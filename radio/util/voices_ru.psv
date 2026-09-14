@@ -229,9 +229,6 @@ SYSTEM|eebad|Ошибка памяти
 SYSTEM|hello|Таки здравствуйте!
 SYSTEM|inactiv|Я тут! Про меня забыли!
 SYSTEM|lowbatt|Аккумулятор разряжен
-SYSTEM|maxtrim|Триммер максимум
-SYSTEM|midtrim|Триммер по центру
-SYSTEM|mintrim|Триммер минимум
 SYSTEM|rssi_org|Слабый сигнал!
 SYSTEM|rssi_red|Очень слабый сигнал!
 SYSTEM|sensorko|Сенсор отключен

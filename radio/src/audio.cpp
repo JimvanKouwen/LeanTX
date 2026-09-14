@@ -166,9 +166,6 @@ const char * const audioFilenames[] = {
   "warning1",
   "warning2",
   "warning3",
-  "midtrim",
-  "mintrim",
-  "maxtrim",
   "midstck1",
   "midstck2",
   "midstck3",
@@ -862,14 +859,6 @@ void audioKeyError()
 #endif
 }
 
-void audioTrimPress(int value)
-{
-  if (g_eeGeneral.beepMode >= e_mode_nokeys) {
-    value = limit(TRIM_MIN, value, TRIM_MAX) * 8 + 120*16;
-    audioQueue.playTone(value, 40, 20, PLAY_NOW);
-  }
-}
-
 void audioTimerCountdown(uint8_t timer, int value)
 {
   if (g_model.timers[timer].countdownBeep == COUNTDOWN_VOICE) {
@@ -956,15 +945,6 @@ void audioEvent(unsigned int index)
       case AU_SWITCH_ALERT:
       case AU_ERROR:
         audioQueue.playTone(BEEP_DEFAULT_FREQ, 200, 20, PLAY_NOW);
-        break;
-      case AU_TRIM_MIDDLE:
-        audioQueue.playTone(120*16, 80, 20, PLAY_NOW);
-        break;
-      case AU_TRIM_MIN:
-        audioQueue.playTone(TRIM_MIN*8 + 120*16, 80, 20, PLAY_NOW);
-        break;
-      case AU_TRIM_MAX:
-        audioQueue.playTone(TRIM_MAX*8 + 120*16, 80, 20, PLAY_NOW);
         break;
       case AU_WARNING1:
         audioQueue.playTone(BEEP_DEFAULT_FREQ, 80, 20, PLAY_NOW);

@@ -59,8 +59,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
                  (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
         },
         STR_MENU_OTHER);
-    addButton(CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, nullptr,
-              STR_MENU_TRIMS);
 #if defined(FUNCTION_SWITCHES)
     addButton(CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_CUSTOMSWITCH_GROUP, nullptr,
               STR_MENU_SWITCHES);
@@ -181,7 +179,7 @@ void SourceChoice::openMenu()
 #if defined(AUTOSWITCH)
     else {
       swsrc_t swtch = abs(getMovedSwitch());
-      if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
+      if (swtch && swtch <= SWSRC_LAST_SWITCH) {
         val = switchToMix(swtch);
         if (val && (val >= vmin) && (val <= vmax)) {
           tb->resetFilter();

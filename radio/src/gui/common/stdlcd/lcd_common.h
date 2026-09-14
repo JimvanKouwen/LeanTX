@@ -21,7 +21,6 @@
 
 #pragma once
 
-#define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define INDENT_WIDTH                   (FW/2)
 
 #define FW                             6

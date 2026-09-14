@@ -29,6 +29,7 @@
 swsrc_t checkIncDecMovedSwitch(swsrc_t val)
 {
   swsrc_t swtch = getMovedSwitch();
+  if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) return swtch;
   if (swtch) {
     div_t info = switchInfo(swtch);
     if (IS_CONFIG_TOGGLE(info.quot)) {
@@ -94,8 +95,6 @@ void onSourceLongEnterPress(const char * result)
     checkIncDecSelection = MIXSRC_MIN;
   else if (result == STR_MENU_MAX)
     checkIncDecSelection = MIXSRC_MAX;
-  else if (result == STR_MENU_TRIMS)
-    checkIncDecSelection = MIXSRC_FIRST_TRIM;
   else if (result == STR_MENU_SWITCHES)
     checkIncDecSelection = MIXSRC_FIRST_SWITCH;
   else if (result == STR_MENU_CHANNELS)

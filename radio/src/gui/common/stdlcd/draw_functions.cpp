@@ -37,25 +37,6 @@ void drawStringWithIndex(coord_t x, coord_t y, const char * str, uint8_t idx, Lc
   }
 }
 
-void drawTrimMode(coord_t x, coord_t y, uint8_t flightMode, uint8_t idx, LcdFlags att)
-{
-  trim_t v = getRawTrimValue(flightMode, idx);
-  unsigned int mode = v.mode;
-  unsigned int p = mode >> 1;
-
-  if (mode == TRIM_MODE_NONE) {
-    lcdDrawText(x, y, "--", att);
-  } else if (mode == TRIM_MODE_3POS) {
-    lcdDrawText(x, y, "3P", att);
-  } else {
-    if (mode % 2 == 0)
-      lcdDrawChar(x, y, ':', att|FIXEDWIDTH);
-    else
-      lcdDrawChar(x, y, '+', att|FIXEDWIDTH);
-    lcdDrawChar(lcdNextPos, y, '0'+p, att);
-  }
-}
-
 void drawValueWithUnit(coord_t x, coord_t y, int32_t val, uint8_t unit, LcdFlags att)
 {
   // convertUnit(val, unit);

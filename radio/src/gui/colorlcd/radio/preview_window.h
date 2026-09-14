@@ -46,7 +46,6 @@ class PreviewWindow : public Window
   static LAYOUT_VAL_SCALED(BTN1_Y, 48)
   static LAYOUT_VAL_SCALED(BTN2_Y, 82)
   static LAYOUT_VAL_SCALED(BTN_W, 100)
-  static LAYOUT_VAL_SCALED(TRIM_Y, 89)
   static LAYOUT_VAL_SCALED(SLIDER_Y, 111)
   static LAYOUT_VAL_SCALED(TXT1_Y, 132)
   static LAYOUT_VAL_SCALED(TXT2_Y, 154)

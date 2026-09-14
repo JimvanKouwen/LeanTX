@@ -127,9 +127,6 @@ enum CurveRefType {
 
 #define LIMITS_MIN_MAX_OFFSET LIMIT_STD_MAX
 
-#define TRIM_OFF    (1)
-#define TRIM_ON     (0)
-
 enum MixerMultiplex {
   MLTPX_ADD  = 0,
   MLTPX_MUL  = 1,
@@ -194,27 +191,11 @@ enum TelemetrySensorFormula
   TELEM_FORMULA_LAST SKIP = TELEM_FORMULA_DIST
 };
 
-#define TRIM_EXTENDED_MAX 512
-#define TRIM_EXTENDED_MIN (-TRIM_EXTENDED_MAX)
-#define TRIM_MAX 128
-#define TRIM_MIN (-TRIM_MAX)
-
-#define TRIMS_ARRAY_SIZE  8
-#define TRIM_MODE_NONE  0x1F  // 0b11111
-#define TRIM_MODE_3POS  (2 * MAX_FLIGHT_MODES)
-
 #define IS_MANUAL_RESET_TIMER(idx)     (g_model.timers[idx].persistent == 2)
 
 #define TIMER_COUNTDOWN_START(x)       (g_model.timers[x].countdownStart == 0 ? 20 : (g_model.timers[x].countdownStart == 1 ? 30 : (g_model.timers[x].countdownStart == -1 ? 10 : 5)))
 
 #include "pulses/modules_constants.h"
-
-enum DisplayTrims
-{
-  DISPLAY_TRIMS_NEVER,
-  DISPLAY_TRIMS_CHANGE,
-  DISPLAY_TRIMS_ALWAYS
-};
 
 #if !defined(BOOT)
 extern RadioData g_eeGeneral;

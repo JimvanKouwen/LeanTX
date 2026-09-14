@@ -78,11 +78,7 @@ void MixEditAdvanced::buildBody(Window* form)
     new FMMatrix<MixData>(line, rect_t{}, mix);
   }
 
-  // Trim
   line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_TRIM);
-  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(mix->carryTrim));
-
   // Warning
   new StaticText(line, rect_t{}, STR_MIXWARNING);
   auto edit = new NumberEdit(line, rect_t{}, 0, 3,

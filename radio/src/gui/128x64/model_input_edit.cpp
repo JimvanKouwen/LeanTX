@@ -44,7 +44,6 @@ enum ExposFields {
   CASE_FLIGHT_MODES(EXPO_FIELD_FLIGHT_MODES)
   EXPO_FIELD_SWITCH,
   EXPO_FIELD_SIDE,
-  EXPO_FIELD_TRIM,
   EXPO_FIELD_MAX
 };
 
@@ -146,22 +145,6 @@ void menuModelExpoOne(event_t event)
         ed->mode = 4 - editChoice(EXPO_ONE_2ND_COLUMN, y, STR_SIDE, STR_VCURVEFUNC, 4-ed->mode, 1, 3, attr, event);
         break;
 
-      case EXPO_FIELD_TRIM:
-        lcdDrawTextAlignedLeft(y, STR_TRIM);
-        {
-          const char* trim_str = getTrimSourceLabel(abs(ed->srcRaw), ed->trimSource);
-          LcdFlags flags = (menuHorizontalPosition==0 ? attr : 0);
-          lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
-
-          if (attr) {
-            int8_t min = TRIM_ON;
-            if (abs(ed->srcRaw) >= MIXSRC_FIRST_STICK && abs(ed->srcRaw) <= MIXSRC_LAST_STICK) {
-              min = -TRIM_OFF;
-            }
-            ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());
-          }
-        }
-        break;
     }
     y += FH;
   }

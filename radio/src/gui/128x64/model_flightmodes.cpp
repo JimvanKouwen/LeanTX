@@ -35,8 +35,6 @@ void displayFlightModes(coord_t x, coord_t y, FlightModesType value)
 enum MenuModelFlightModeItems {
   ITEM_MODEL_FLIGHT_MODE_NAME,
   ITEM_MODEL_FLIGHT_MODE_SWITCH,
-  ITEM_MODEL_FLIGHT_MODE_TRIMS,
-  ITEM_MODEL_FLIGHT_MODE_TRIMS2,
   ITEM_MODEL_FLIGHT_MODE_FADE_IN,
   ITEM_MODEL_FLIGHT_MODE_FADE_OUT,
 #if MAX_GVARS > 0
@@ -62,29 +60,6 @@ enum MenuModelFlightModeItems {
   ITEM_MODEL_FLIGHT_MODE_MAX
 };
 
-bool isTrimModeAvailable(int mode)
-{
-  if (mode < 0 || mode == TRIM_MODE_3POS) return true;
-  if (s_currIdx == 0) return mode == 0;
-  return (mode%2) == 0 || (mode/2) != s_currIdx;
-}
-
-static void showTrims(uint8_t cnt, uint8_t first, coord_t y, LcdFlags attr, event_t event, FlightModeData *fm)
-{
-  for (uint8_t t = 0; t < cnt; t += 1) {
-    drawTrimMode(MIXES_2ND_COLUMN + (t * 2 * FW), y, s_currIdx, t + first,
-                  menuHorizontalPosition == t ? attr : 0);
-    if (attr && menuHorizontalPosition == t)
-      drawSource(LCD_W, 0, t + first + MIXSRC_FIRST_TRIM, RIGHT);
-    if (s_editMode > 0 && attr && menuHorizontalPosition == t) {
-      trim_t& v = fm->trim[t + first];
-      v.mode = checkIncDec(event, v.mode == TRIM_MODE_NONE ? -1 : v.mode,
-                            -1, 2 * MAX_FLIGHT_MODES,
-                            EE_MODEL, isTrimModeAvailable);
-    }
-  }
-}
-
 void menuModelFlightModeOne(event_t event)
 {
   FlightModeData * fm = flightModeAddress(s_currIdx);
@@ -92,14 +67,9 @@ void menuModelFlightModeOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  uint8_t trim_count = keysGetMaxTrims();
-  uint8_t trim_lines = (trim_count <= 6) ? 1 : 2;
-
   SUBMENU(STR_MENUFLIGHTMODE, ITEM_MODEL_FLIGHT_MODE_MAX, {
     0,
     (uint8_t)(s_currIdx == 0 ? HIDDEN_ROW : 0),
-    (uint8_t)((trim_lines == 1) ? trim_count - 1 : 3),
-    (uint8_t)((trim_lines == 2) ? trim_count - 5 : HIDDEN_ROW),
     0, 0,
 #if defined(GVARS)
     READONLY_ROW,
@@ -129,16 +99,6 @@ void menuModelFlightModeOne(event_t event)
 
       case ITEM_MODEL_FLIGHT_MODE_SWITCH:
         fm->swtch = editSwitch(MIXES_2ND_COLUMN, y, fm->swtch, attr, event);
-        break;
-
-      case ITEM_MODEL_FLIGHT_MODE_TRIMS:
-        lcdDrawTextAlignedLeft(y, STR_TRIMS);
-        showTrims(trim_lines == 1 ? trim_count : 4, 0, y, attr, event, fm);
-        break;
-
-      case ITEM_MODEL_FLIGHT_MODE_TRIMS2:
-        if (trim_lines == 2) 
-          showTrims(trim_count - 4, 4, y, attr, event, fm);
         break;
 
       case ITEM_MODEL_FLIGHT_MODE_FADE_IN:
@@ -196,20 +156,13 @@ void menuModelFlightModeOne(event_t event)
 
 #define NAME_POS    11
 #define SWITCH_POS  49
-#define TRIMS_POS   74
 
 void menuModelFlightModesAll(event_t event)
 {
   SIMPLE_MENU(STR_MENUFLIGHTMODES, menuTabModel, MENU_MODEL_FLIGHT_MODES,
-              HEADER_LINE+MAX_FLIGHT_MODES+1);
+              HEADER_LINE+MAX_FLIGHT_MODES);
 
   int8_t sub = menuVerticalPosition - HEADER_LINE;
-
-  // "Check trims" button
-  if (sub == MAX_FLIGHT_MODES && event == EVT_KEY_BREAK(KEY_ENTER)) {
-    s_editMode = 0;
-    trimsCheckTimer = 200;  // 2 seconds
-  }
 
   // Flight mode lines
   if (sub >= 0 && sub < MAX_FLIGHT_MODES &&
@@ -227,11 +180,7 @@ void menuModelFlightModesAll(event_t event)
     lcdDrawChar(0, y, ' ', att);
     lcdDrawChar(3, y, '0' + i, att | (getFlightMode() == i ? BOLD : 0));
     lcdDrawSizedText(NAME_POS, y, p->name, sizeof(p->name), 0);
-    auto trims = min(keysGetMaxTrims(), (uint8_t)MAX_STICKS);
     if (i > 0) drawSwitch(SWITCH_POS, y, p->swtch, 0);
-    for (uint8_t t = 0; t < trims; t++) {
-      drawTrimMode(TRIMS_POS + t * FW * 2, y, i, t, 0);
-    }
 
     if (p->fadeIn || p->fadeOut) {
       lcdDrawChar(LCD_W - FW + ((p->fadeIn && !p->fadeOut) ? 1 : 0), y,
@@ -239,11 +188,4 @@ void menuModelFlightModesAll(event_t event)
     }
   }
 
-  if (menuVerticalOffset != MAX_FLIGHT_MODES-(LCD_LINES-2)) return;
-
-  lcdDrawText(CENTER_OFS, (LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
-  drawFlightMode(OFS_CHECKTRIMS, (LCD_LINES-1)*FH+1, mixerCurrentFlightMode+1);
-  if (sub==MAX_FLIGHT_MODES && !trimsCheckTimer) {
-    lcdInvertLastLine();
-  }
 }

@@ -231,24 +231,14 @@ void ModelOutputsPage::build(Window* window)
   window->padAll(PAD_ZERO);
   window->padBottom(PAD_LARGE);
 
-  new TextButton(window, {ADD_TRIMS_X, ADD_TRIMS_Y, ADD_TRIMS_W, ADD_TRIMS_H}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
-    new ConfirmDialog(
-        STR_TRIMS2OFFSETS, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
-        [=] {
-          moveTrimsToOffsets();
-          Messaging::send(Messaging::REFRESH);
-        });
-    return 0;
-  });
-
   new StaticText(window, {EXLIM_X, EXLIM_Y, EXLIM_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_ELIMITS, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
   new ToggleSwitch(window, {EXLIMCB_X, EXLIMCB_Y, EXLIMCB_W, EXLIMCB_H}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
     // Channel settings
     auto btn = new OutputLineButton(window, ch);
-    lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (OutputLineButton::CH_LINE_H + PAD_TINY)));
-    btn->setWidth(TRIMB_W);
+    lv_obj_set_pos(btn->getLvObj(), OUTPUTS_X, OUTPUTS_Y + (ch * (OutputLineButton::CH_LINE_H + PAD_TINY)));
+    btn->setWidth(OUTPUTS_W);
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
@@ -270,11 +260,7 @@ void ModelOutputsPage::build(Window* window)
         storageDirty(EE_MODEL);
         btn->refresh();
       });
-      menu->addLine(STR_COPY_TRIMS_TO_OFS, [=]() {
-        copyTrimsToOffset(ch);
-        storageDirty(EE_MODEL);
-        btn->refresh();
-      });
+
       menu->addLine(STR_COPY_MIN_MAX_TO_OUTPUTS, [=]() {
         copyMinMaxToOutputs(ch);
         storageDirty(EE_MODEL);

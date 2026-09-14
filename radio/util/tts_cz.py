@@ -45,9 +45,7 @@ for i, (s, f) in enumerate([("volt", "volt0"), ("volty", "volt1"), ("voltů", "v
                             ("sekunda", "second0"), ("sekundy", "second1"), ("sekund", "second2"), ("sekundy", "second3"),
                             ]):
     systemSounds.append((s, filename(f)))
-for s, f in [("střed trimu", "midtrim"),
-             ("maximum trimu", "maxtrim"),
-             ("minimum trimu", "mintrim"),
+for s, f in [             ("maximum trimu", "maxtrim"),
              ("stopky 1 doběhly", "timovr1"),
              ("stopky 2 doběhly", "timovr2"),
              ("stopky 3 doběhly", "timovr3"),

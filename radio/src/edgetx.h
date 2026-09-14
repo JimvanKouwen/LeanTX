@@ -239,9 +239,8 @@ enum PerOutMode {
   e_perout_mode_normal = 0,
   e_perout_mode_inactive_flight_mode = 1,
   e_perout_mode_preview = 2,
-  e_perout_mode_notrims = 4,
   e_perout_mode_nosticks = 8,
-  e_perout_mode_noinput = e_perout_mode_preview+e_perout_mode_notrims+e_perout_mode_nosticks
+  e_perout_mode_noinput = e_perout_mode_preview+e_perout_mode_nosticks
 };
 
 extern uint8_t mixerCurrentFlightMode;
@@ -255,7 +254,6 @@ void evalMixes(uint8_t tick10ms);
 void doMixerCalculations();
 void doMixerPeriodicUpdates();
 
-void checkTrims();
 extern uint8_t currentBacklightBright;
 void perMain();
 
@@ -268,20 +266,6 @@ int8_t getMovedSource(uint8_t min);
 #else
   #define getFlightMode() 0
 #endif
-
-#define getTrimFlightMode(phase, idx) (phase)
-
-#if defined(GVARS)
-  extern int8_t trimGvar[MAX_TRIMS];
-  #define TRIM_REUSED(idx) trimGvar[idx] >= 0
-#else
-  #define TRIM_REUSED(idx) 0
-#endif
-
-trim_t getRawTrimValue(uint8_t phase, uint8_t idx);
-int getTrimValue(uint8_t phase, uint8_t idx);
-
-bool setTrimValue(uint8_t phase, uint8_t idx, int trim);
 
 #include "gvars.h"
 
@@ -379,12 +363,8 @@ LogicalSwitchData * lswAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 
 void applyDefaultTemplate();
-void instantTrim();
-void evalTrims();
-void copyTrimsToOffset(uint8_t ch);
 void copySticksToOffset(uint8_t ch);
 void copyMinMaxToOutputs(uint8_t ch);
-void moveTrimsToOffsets();
 
 inline bool isExpoActive(uint8_t expo)
 {
@@ -459,9 +439,6 @@ enum AUDIO_SOUNDS {
   AU_WARNING1,
   AU_WARNING2,
   AU_WARNING3,
-  AU_TRIM_MIDDLE,
-  AU_TRIM_MIN,
-  AU_TRIM_MAX,
   AU_STICK1_MIDDLE,
   AU_STICK2_MIDDLE,
   AU_STICK3_MIDDLE,
@@ -651,11 +628,6 @@ union ReusableBuffer
 #endif
   } radioTools;
 
-
-
-
-
-
 };
 
 extern ReusableBuffer reusableBuffer;
@@ -751,7 +723,6 @@ extern Clipboard clipboard;
 #if defined(DEBUG_LATENCY)
 extern uint8_t latencyToggleSwitch;
 #endif
-
 
 extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 

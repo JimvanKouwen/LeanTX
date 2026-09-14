@@ -192,12 +192,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   }
 #endif
 
-#if defined(GVARS)
-  for (uint8_t i=0; i<MAX_TRIMS; i++) {
-    trimGvar[i] = -1;
-  }
-#endif
-
 #if defined(VIDEO_SWITCH)
   bool videoEnabled = false;
 #endif
@@ -223,15 +217,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-          case FUNC_INSTANT_TRIM:
-            if (IS_INSTANT_TRIM_ALLOWED()) {
-              // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
-              if (isRepeatDelayElapsed(functions, functionsContext, i)) {
-                instantTrim();
-              }
-            }
-            break;
-
           case FUNC_RESET:
             switch (CFN_PARAM(cfn)) {
               case FUNC_RESET_TIMER1:
@@ -245,12 +230,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
               case FUNC_RESET_TELEMETRY:
                 telemetryReset();
                 break;
-              case FUNC_RESET_TRIMS: {
-                for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
-                  setTrimValue(mixerCurrentFlightMode, i, 0);
-                }
-                break;
-              }
+
             }
             if (CFN_PARAM(cfn) >= FUNC_RESET_PARAM_FIRST_TELEM) {
               uint8_t item = CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM;
@@ -298,10 +278,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                                         MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
                          mixerCurrentFlightMode);
               }
-            } else if (CFN_PARAM(cfn) >= MIXSRC_FIRST_TRIM &&
-                       CFN_PARAM(cfn) <= MIXSRC_LAST_TRIM) {
-              trimGvar[CFN_PARAM(cfn) - MIXSRC_FIRST_TRIM] =
-                  CFN_GVAR_INDEX(cfn);
             } else {
               if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_SOURCE)
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
@@ -576,8 +552,6 @@ const char* funcGetLabel(uint8_t func)
   switch(func) {
   case FUNC_OVERRIDE_CHANNEL:
     return STR_SF_SAFETY;
-  case FUNC_INSTANT_TRIM:
-    return STR_SF_INST_TRIM;
   case FUNC_RESET:
     return STR_SF_RESET;
   case FUNC_SET_TIMER:

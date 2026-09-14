@@ -36,6 +36,7 @@ class LayoutFactory;
 struct LayoutOption
 {
   enum Type {
+    Reserved,
     Integer,
     Bool,
     Color,
@@ -51,7 +52,7 @@ enum {
   LAYOUT_OPTION_TOPBAR = 0,
   LAYOUT_OPTION_FM,
   LAYOUT_OPTION_SLIDERS,
-  LAYOUT_OPTION_TRIMS,
+  LAYOUT_OPTION_RESERVED_TRIMS,
   LAYOUT_OPTION_MIRRORED,
 
   LAYOUT_OPTION_LAST_DEFAULT=LAYOUT_OPTION_MIRRORED
@@ -61,7 +62,7 @@ enum {
   {STR_DEF(STR_TOP_BAR), LayoutOption::Bool, true},     \
   {STR_DEF(STR_FLIGHT_MODE), LayoutOption::Bool, true}, \
   {STR_DEF(STR_SLIDERS), LayoutOption::Bool, true},     \
-  {STR_DEF(STR_TRIMS), LayoutOption::Bool, true},       \
+  {STR_DEF(STR_EMPTY), LayoutOption::Reserved, false}, \
   {STR_DEF(STR_MIRROR), LayoutOption::Bool, false}
 
 #define LAYOUT_OPTIONS_END \
@@ -116,10 +117,9 @@ class Layout: public WidgetsContainer
   virtual bool hasTopbar() const;
   virtual bool hasFlightMode() const;
   virtual bool hasSliders() const;
-  virtual bool hasTrims() const;
   virtual bool isMirrored() const;
 
-  // Updates settings for trims, sliders, pots, etc...
+  // Updates settings for sliders, pots, etc...
   virtual void updateDecorations();
   void show(bool visible = true) override;
 

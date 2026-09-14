@@ -121,7 +121,7 @@ PACK(struct CurveRef {
 PACK(struct MixData {
   uint16_t destCh:5;
   int16_t  srcRaw:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx); // srcRaw=0 means not used
-  uint16_t carryTrim:1;
+  uint16_t reservedTrimCarry:1 SKIP;
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t delayPrec:1;
@@ -146,8 +146,7 @@ PACK(struct MixData {
 PACK(struct ExpoData {
   uint16_t mode:2;
   uint16_t scale:14;
-  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
-  int16_t  trimSource:6;
+  int16_t  reservedTrimSource:6 SKIP;
   int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
   uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
   uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
@@ -198,7 +197,7 @@ PACK(struct LogicalSwitchData {
 
 PACK(struct CustomFunctionData {
   int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint16_t func:6 ENUM(Functions); // TODO: 6 bits for Functions?
+  uint16_t func:6 ENUM(Functions) CUST(r_function,w_function); // TODO: 6 bits for Functions?
   CUST_ATTR(def,r_customFn,w_customFn);
   PACK(union {
     NOBACKUP(PACK(struct {
@@ -230,13 +229,8 @@ PACK(struct CustomFunctionData {
  * FlightMode structure
  */
 
-PACK(struct trim_t {
-  int16_t  value:11;
-  uint16_t mode:5;
-});
-
 PACK(struct FlightModeData {
-  trim_t trim[MAX_TRIMS];
+  uint16_t reservedTrims[MAX_TRIMS] SKIP; // Preserve packed layout; never serialized or used.
   NOBACKUP(char name[LEN_FLIGHT_MODE_NAME]);
   // swtch of phase[0] is not used
   int16_t swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
@@ -641,15 +635,15 @@ PACK(struct ModelData {
 
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
-  uint8_t   thrTrim:1;            // Enable Throttle Trim
+  uint8_t   reservedThrTrim:1 SKIP;
   uint8_t   noGlobalFunctions:1;
-  uint8_t   displayTrims:2;
+  uint8_t   reservedDisplayTrims:2 SKIP;
   uint8_t   ignoreSensorIds:1;
-  int8_t    trimInc:3;            // Trim Increments
+  int8_t    reservedTrimInc:3 SKIP;
   uint8_t   disableThrottleWarning:1;
   uint8_t   displayChecklist:1;
   uint8_t   extendedLimits:1;
-  uint8_t   extendedTrims:1;
+  uint8_t   reservedExtendedTrims:1 SKIP;
   uint8_t   throttleReversed:1;
   uint8_t   enableCustomThrottleWarning:1;
   uint8_t   disableTelemetryWarning:1;
@@ -686,7 +680,7 @@ PACK(struct ModelData {
 
   NOBACKUP(RFAlarmData rfAlarms);
 
-  uint8_t thrTrimSw:3;
+  uint8_t reservedThrTrimSw:3 SKIP;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
   NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
   uint8_t spare1:1 SKIP;
@@ -726,33 +720,7 @@ PACK(struct ModelData {
   uint8_t view;
 #endif
 
-
   FUNCTION_SWITCHS_FIELDS
-
-  uint8_t getThrottleStickTrimSource() const
-  {
-    // Makes Throttle the default (=0)
-    auto thr = inputMappingGetThrottle();
-    if (thrTrimSw == 0) {
-      return MIXSRC_FIRST_TRIM + thr;
-    } else if (thrTrimSw == thr) {
-      return MIXSRC_FIRST_TRIM;
-    } else {
-      return MIXSRC_FIRST_TRIM + thrTrimSw;
-    }
-  }
-
-  void setThrottleStickTrimSource(int16_t src)
-  {
-    auto thr = inputMappingGetThrottle();
-    if (src == MIXSRC_FIRST_TRIM + thr) {
-      thrTrimSw = 0;
-    } else if (src == MIXSRC_FIRST_TRIM) {
-      thrTrimSw = thr;
-    } else {
-      thrTrimSw = src - MIXSRC_FIRST_TRIM;
-    }
-  }
 
   NOBACKUP(uint8_t usbJoystickExtMode:1);
   NOBACKUP(uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode));
@@ -971,7 +939,6 @@ PACK(struct RadioData {
   CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
 
   EXTRA_GENERAL_FIELDS
-
 
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   NOBACKUP(uint8_t  rotEncMode:3);

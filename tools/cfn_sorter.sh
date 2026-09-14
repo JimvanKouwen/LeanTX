@@ -119,7 +119,11 @@ compile_and_append "LNG_EN" "TRANSLATIONS_EN" "else"
 # End of cfn_sort.cpp
 cat <<EOF >> "${OUTPUT_FILE}"
 #endif
+  // Keep the reserved action ID represented, but never offer it in the UI.
+  FUNC_RESERVED_TRIM,
 };
+static_assert(sizeof(cfn_sorted) / sizeof(cfn_sorted[0]) >= FUNC_MAX,
+              "Special-function selection table is incomplete");
 
 uint8_t getFuncSortIdx(uint8_t func)
 {

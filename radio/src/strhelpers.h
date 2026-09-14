@@ -134,7 +134,6 @@ const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly = false);
 const char *getAnalogShortLabel(uint8_t idx);
 const char *getMainControlLabel(uint8_t idx, bool defaultOnly = false);
 const char *getTrimLabel(uint8_t idx, bool defaultOnly = false);
-const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src);
 const char *getPotLabel(uint8_t idx, bool defaultOnly = false);
 char *getCustomSwitchesGroupName(char *dest, uint8_t idx);
 

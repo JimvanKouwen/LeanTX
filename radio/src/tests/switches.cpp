@@ -153,26 +153,6 @@ TEST(getSwitch, nullSW)
   EXPECT_TRUE(getSwitch(0));
 }
 
-
-TEST(getSwitch, inputWithTrim)
-{
-  MODEL_RESET();
-  setModelDefaults();
-  MIXER_RESET();
-
-  setLogicalSwitch(0, LS_FUNC_VPOS, MIXSRC_FIRST_INPUT, 0, 0);
-  anaSetFiltered(0, 0);
-
-  evalMixes(1);
-  evalLogicalSwitches();
-  EXPECT_FALSE(getSwitch(SWSRC_SW1));
-
-  setTrimValue(0, 0, 32);
-  evalMixes(1);
-  evalLogicalSwitches();
-  EXPECT_TRUE(getSwitch(SWSRC_SW1));
-}
-
 TEST(evalLogicalSwitches, playFile)
 {
   SYSTEM_RESET();
@@ -212,7 +192,7 @@ TEST(getSwitch, edgeInstant)
   if (sw1 < 0 || sw2 < 0) return;  // needs two distinct 3-pos switches
   int sw1Pos = (sw1 * 3) + SWSRC_FIRST_SWITCH;
   int sw2Pos = (sw2 * 3) + SWSRC_FIRST_SWITCH;
-  
+
   MODEL_RESET();
   MIXER_RESET();
   // LS1 setup: EDGE SD down (0:instant)
@@ -330,7 +310,7 @@ TEST(getSwitch, edgeRelease)
   if (sw1 < 0 || sw2 < 0) return;  // needs two distinct 3-pos switches
   int sw1Pos = (sw1 * 3) + SWSRC_FIRST_SWITCH;
   int sw2Pos = (sw2 * 3) + SWSRC_FIRST_SWITCH;
-  
+
   MODEL_RESET();
   MIXER_RESET();
   // test for issue #2728
@@ -357,7 +337,6 @@ TEST(getSwitch, edgeRelease)
   evalLogicalSwitches();
   EXPECT_TRUE(getSwitch(SWSRC_SW1));
   EXPECT_FALSE(getSwitch(SWSRC_SW2));
-
 
   // second part with SAup
   simuSetSwitch(sw1, 1);   //SA up
@@ -400,7 +379,7 @@ TEST(FlexSwitches, switchGetPosition)
   auto sw_name = switchGetDefaultName(sw_idx);
   EXPECT_STREQ("FL1", sw_name);
   EXPECT_FALSE(switchIsFlexValid(sw_idx));
-  
+
   // Configure 1st FLEX input as switch
   g_eeGeneral.potsConfig = FLEX_SWITCH;
   switchConfigFlex(sw_idx, 0);

@@ -181,10 +181,6 @@ static bool isSourceSpacemouseAvailable(int source) {
 }
 #endif
 
-static bool isSourceTrimAvailable(int source) {
-  return source < keysGetMaxTrims();
-}
-
 static bool isSourceSwitchAvailable(int source) {
   return SWITCH_EXISTS(source);
 }
@@ -245,7 +241,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
 #endif
   { MIXSRC_MIN, MIXSRC_MAX, SRC_MINMAX, sourceIsAvailable },
-  { MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SRC_TRIM, isSourceTrimAvailable },
   { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SRC_SWITCH, isSourceSwitchAvailable },
 #if defined(FUNCTION_SWITCHES)
   { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SRC_FUNC_SWITCH, isSourceFuncSwitchAvailable },
@@ -275,7 +270,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 }
 
 #define SRC_COMMON \
-            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | \
             SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_GVAR
 
 bool isSourceAvailable(int source)
@@ -577,6 +572,8 @@ bool isThrottleSourceAvailable(int src)
 bool isAssignableFunctionAvailable(int function, bool modelFunctions)
 {
   switch (function) {
+    case FUNC_RESERVED_TRIM:
+      return false;
     case FUNC_OVERRIDE_CHANNEL:
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
       return modelFunctions;
@@ -617,9 +614,11 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_PUSH_CUST_SWITCH:
       return modelFunctions;
 #endif
-#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
     case FUNC_DISABLE_KEYS:
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
       return g_eeGeneral.keyLockEnabled;
+#else
+      return false;
 #endif
 
     default:
@@ -659,6 +658,7 @@ bool isSourceAvailableInGlobalResetSpecialFunction(int index)
 
 bool isSourceAvailableInResetSpecialFunction(int index)
 {
+  if (index == FUNC_RESET_RESERVED_TRIMS) return false;
   if (index >= FUNC_RESET_PARAM_FIRST_TELEM) {
     TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index-FUNC_RESET_PARAM_FIRST_TELEM];
     return telemetrySensor.isAvailable();

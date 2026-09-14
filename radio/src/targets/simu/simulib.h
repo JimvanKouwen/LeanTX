@@ -101,7 +101,6 @@ uint32_t WASM_EXPORT(simuGetCustomSwitchColor)(uint8_t idx);
 uint32_t WASM_EXPORT(simuGetHaptic)();
 
 // Value-based trim setting: idx is mapped through inputMappingConvertMode.
-void WASM_EXPORT(simuSetTrimValue)(uint8_t idx, int32_t value);
 
 // Telemetry injection: protocol matches SIMU_TELEMETRY_PROTOCOL_* enum.
 // module: 0=internal, 1=external.
@@ -132,8 +131,6 @@ uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
 
 // Trim values. idx 0..TRIM_AXIS_COUNT-1 (typically 8).
 // Returns the trim value for the current flight mode.
-int32_t  WASM_EXPORT(simuGetTrimValue)(uint8_t idx);
-int16_t  WASM_EXPORT(simuGetTrimRange)();
 
 // Flight mode: returns current flight mode index (0-based).
 int32_t  WASM_EXPORT(simuGetFlightMode)();

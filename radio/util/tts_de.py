@@ -50,9 +50,7 @@ for i, (s, f) in enumerate([("Wolt", "volt0"),
                             ]):
     systemSounds.append((s, filename(f)))
     
-for s, f in [("Trimmung zentriert", "midtrim"),
-             ("Obere Trimmungsgrenze erreicht", "maxtrim"),
-             ("Untere Trimmungsgrenze erreicht", "mintrim"),
+for s, f in [             ("Obere Trimmungsgrenze erreicht", "maxtrim"),
              ("timer eins abgelaufen", "timovr1"),
              ("timer zwei abgelaufen", "timovr2"),
              ("timer drei abgelaufen", "timovr3"),

@@ -64,7 +64,6 @@
 
 // global last event
 event_t s_evt;
-event_t s_trim_evt;
 
 InactivityData inactivity = {0};
 
@@ -214,7 +213,7 @@ void setKeyLockedState(bool state) {}
 
 /**
  * @brief returns true if there is an event waiting.
- * 
+ *
  */
 bool isEvent()
 {
@@ -233,29 +232,11 @@ event_t getEvent()
   return event;
 }
 
-void pushTrimEvent(event_t evt)
-{
-  s_trim_evt = evt;
-}
-
-event_t getTrimEvent()
-{
-  auto event = s_trim_evt;
-  s_trim_evt = 0;
-  return event;
-}
-
 // Introduce a slight delay in the key repeat sequence
 void pauseEvents(event_t event)
 {
   event = EVT_KEY_MASK(event);
   if (event < (int)DIM(keys)) keys[event].pauseEvents();
-}
-
-void pauseTrimEvents(event_t event)
-{
-  event = EVT_KEY_MASK(event);
-  if (event < (int)DIM(trim_keys)) trim_keys[event].pauseEvents();
 }
 
 // Disables any further event generation (BREAK and REPEAT) for this key,
@@ -265,14 +246,6 @@ void killEvents(event_t event)
   event = EVT_KEY_MASK(event);
   if (event < (int)DIM(keys)) {
     keys[event].killEvents();
-  }
-}
-
-void killTrimEvents(event_t event)
-{
-  event = EVT_KEY_MASK(event);
-  if (event < (int)DIM(trim_keys)) {
-    trim_keys[event].killEvents();
   }
 }
 
@@ -548,8 +521,7 @@ uint8_t keysPollingCycle()
 
   auto trim_switches = keysGetMaxTrims() * 2;
   for (int i = 0; i < trim_switches; i++) {
-    event_t evt = trim_keys[i].input(trims_input & (1 << i));
-    if (evt) pushTrimEvent(evt | i);
+    trim_keys[i].input(trims_input & (1 << i));
   }
 
   // Report trims separately so they count as controls, not keys, for the

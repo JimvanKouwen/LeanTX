@@ -43,15 +43,6 @@
 #define VBATTUNIT_Y   (3*FH)
 #define REBOOT_X      (2)
 #define BAR_HEIGHT    (BOX_WIDTH-1l) // don't remove the l here to force 16bits maths on 9X
-#define TRIM_LEN      21
-#define TRIM_LH_X     (TRIM_LEN+4)
-#define TRIM_LV_X     3
-#define TRIM_RV_X     (LCD_W-4)
-#define TRIM_RH_X     (LCD_W-TRIM_LEN-5)
-#define TRIM_LH_NEG   (TRIM_LH_X+3*FW+1)
-#define TRIM_LH_POS   (TRIM_LH_X-4*FW+3)
-#define TRIM_RH_NEG   (TRIM_RH_X+3*FW+1)
-#define TRIM_RH_POS   (TRIM_RH_X-4*FW+3)
 #define RSSSI_X       (30)
 #define RSSSI_Y       (31)
 #define RSSI_MAX      105
@@ -139,125 +130,6 @@ void doMainScreenGraphics()
   drawStick(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_RH], calibStickVert);
 
   drawPotsBars();
-}
-
-void displayTrims(uint8_t phase)
-{
-  static uint8_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
-  static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
-
-  bool squareMarker = (keysGetMaxTrims() <= 4);
-
-  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
-
-    if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
-      continue;
-
-    coord_t ym;
-    uint8_t stickIndex = inputMappingConvertMode(i);
-    coord_t xm = x[stickIndex];
-    uint8_t att = ROUND;
-    int16_t val = getTrimValue(phase, i);
-
-    int16_t dir = val;
-    bool exttrim = false;
-    if (val < TRIM_MIN || val > TRIM_MAX) {
-      exttrim = true;
-    }
-    val = (val * TRIM_LEN) / TRIM_MAX;
-    if (val < -TRIM_LEN) {
-      val = -TRIM_LEN;
-    }
-    else if (val > TRIM_LEN) {
-      val = TRIM_LEN;
-    }
-
-    uint8_t nx, ny;
-    LcdFlags nFlg = TINSIZE;
-
-    if (vert[i]) {
-      ym = 31;
-      if (!getPixel(xm, ym))
-        lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
-      if (squareMarker) {
-        if (i != 2 || !g_model.thrTrim) {
-          lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
-          lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
-        }
-        ym -= val;
-        lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
-        if (dir >= 0) {
-          lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
-        }
-        if (dir <= 0) {
-          lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
-        }
-        if (exttrim) {
-          lcdDrawSolidHorizontalLine(xm - 1, ym, 3);
-        }
-      }
-      else {
-        ym -= val;
-        if ((i > 3 && xm < LCD_W / 2) || (i < 4 && xm > LCD_W / 2) ) {
-          lcdDrawSolidVerticalLine(xm - 1, ym, 1);
-          lcdDrawSolidVerticalLine(xm - 2, ym - 1, 3);
-          lcdDrawSolidVerticalLine(xm - 3, ym - 2, 5);
-        }
-        else {
-          lcdDrawSolidVerticalLine(xm + 1, ym, 1);
-          lcdDrawSolidVerticalLine(xm + 2, ym - 1, 3);
-          lcdDrawSolidVerticalLine(xm + 3, ym - 2, 5);
-        }
-      }
-      nx = dir > 0 ? 12 : 52;
-      ny = xm - 2;
-      nFlg |= VERTICAL;
-    }
-    else {
-      ym = 60;
-      if (!getPixel(xm, ym))
-        lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2 + 1);
-      if (squareMarker) {
-        lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
-        lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
-        xm += val;
-        lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
-        if (dir >= 0) {
-          lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
-        }
-        if (dir <= 0) {
-          lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
-        }
-        if (exttrim) {
-          lcdDrawSolidVerticalLine(xm, ym - 1, 3);
-        }
-      }
-      else {
-        xm += val;
-        if (i > 3) {
-          lcdDrawSolidHorizontalLine(xm, ym + 1, 1);
-          lcdDrawSolidHorizontalLine(xm - 1, ym + 2, 3);
-          lcdDrawSolidHorizontalLine(xm - 2, ym + 3, 5);
-        }
-        else {
-          lcdDrawSolidHorizontalLine(xm, ym - 1, 1);
-          lcdDrawSolidHorizontalLine(xm - 1, ym - 2, 3);
-          lcdDrawSolidHorizontalLine(xm - 2, ym - 3, 5);
-        }
-      }
-      nx = xm < LCD_W / 2 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG)
-                          : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG);
-      ny = ym - 2;
-    }
-    if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0 && i < 4) {
-      if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
-          (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-        lcdDrawNumber(nx, ny, -abs(dir), nFlg | (dir < 0 ? RIGHT : 0));
-      }
-    }
-    if (squareMarker)
-      lcdDrawSquare(xm - 3, ym - 3, 7, att);
-  }
 }
 
 void displayBattVoltage()
@@ -580,9 +452,6 @@ void menuMainView(event_t event)
 
     // Timer 1
     drawTimerWithMode(125, 2 * FH, 0, RIGHT | DBLSIZE);
-
-    // Trims sliders
-    displayTrims(mode);
 
     // RSSI gauge / external antenna
     drawExternalAntennaAndRSSI();

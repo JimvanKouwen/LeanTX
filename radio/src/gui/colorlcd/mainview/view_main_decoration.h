@@ -23,15 +23,12 @@
 
 #include "window.h"
 
-class MainViewTrim;
-
 class ViewMainDecoration : public Window
 {
  public:
   ViewMainDecoration(Window* parent, bool calibration = false);
 
   // Set decoration visibility
-  void setTrimsVisible(bool visible);
   void setSlidersVisible(bool visible);
   void setFlightModeVisible(bool visible);
 
@@ -51,26 +48,16 @@ class ViewMainDecoration : public Window
     SLIDERS_MAX
   };
 
-  enum {
-    TRIMS_LH = 0,
-    TRIMS_LV,
-    TRIMS_RV,
-    TRIMS_RH,
-    TRIMS_MAX
-  };
-
   Window* parent;
   Window* w_ml;
   Window* w_mr;
   Window* w_bl;
   Window* w_bc;
   Window* w_br;
-  bool showTrims = true;
   bool showSliders = true;
   bool showFM = true;
 
   Window* sliders[SLIDERS_MAX] = { 0 };
-  MainViewTrim* trims[TRIMS_MAX] = { 0 };
   Window* flightMode = nullptr;
   bool hasVerticalSliders = false;
   bool has6POS = false;
@@ -78,6 +65,5 @@ class ViewMainDecoration : public Window
   Window* layoutBox(Window* parent, lv_align_t align, lv_flex_flow_t flow);
 
   void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
-  void createTrims(Window* ml, Window* mr, Window* bl, Window* br);
   void createFlightMode(Window* bc);
 };

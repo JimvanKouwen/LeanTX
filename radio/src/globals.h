@@ -44,9 +44,6 @@ extern uint16_t s_timeCum16ThrP;
 extern safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
 #endif
 
-extern uint8_t trimsCheckTimer;
-extern uint8_t trimsDisplayTimer;
-extern uint8_t trimsDisplayMask;
 extern uint32_t maxMixerDuration;
 
 #if defined(AUDIO)
@@ -68,10 +65,8 @@ extern int32_t act[MAX_MIXERS];
 
 // static variables used in evalFlightModeMixes - moved here so they don't interfere with the stack
 // It's also easier to initialize them here.
-extern int8_t  virtualInputsTrims[MAX_INPUTS];
 
 extern int16_t anas [MAX_INPUTS];
-extern int16_t trims[MAX_TRIMS];
 extern int32_t chans[MAX_OUTPUT_CHANNELS];
 extern int16_t ex_chans[MAX_OUTPUT_CHANNELS]; // Outputs (before LIMITS) of the last perMain
 extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];

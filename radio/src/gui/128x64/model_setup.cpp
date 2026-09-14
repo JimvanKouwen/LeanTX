@@ -107,14 +107,9 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_GROUP4_START,
 #endif
   ITEM_MODEL_SETUP_EXTENDED_LIMITS,
-  ITEM_MODEL_SETUP_EXTENDED_TRIMS,
-  ITEM_MODEL_SETUP_DISPLAY_TRIMS,
-  ITEM_MODEL_SETUP_TRIM_INC,
   ITEM_MODEL_SETUP_THROTTLE_LABEL,
   ITEM_MODEL_SETUP_THROTTLE_REVERSED,
   ITEM_MODEL_SETUP_THROTTLE_TRACE,
-  ITEM_MODEL_SETUP_THROTTLE_TRIM,
-  ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
   ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE,
@@ -321,7 +316,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   }
   if (attr && s_editMode > 0) {
     switch (menuHorizontalPosition) {
-      case 0: 
+      case 0:
       {
         value = timer.countdownBeep;
         if (timer.extraHaptic) value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
@@ -622,14 +617,9 @@ void menuModelSetup(event_t event)
     TIMER_ROWS(2),
     FUNCTION_SWITCHES_ROWS
     0, // Extended limits
-    1, // Extended trims
-    0, // Show trims
-    0, // Trims step
     0, // Throttle section
     THROTTLE_ROW(0), // Throttle reverse
     THROTTLE_ROW(0), // Throttle trace source
-    THROTTLE_ROW(0), // Throttle trim
-    THROTTLE_ROW(0), // Throttle trim switch
 
     0,   // Preflight section
       PREFLIGHT_ROW(0), // Checklist
@@ -941,31 +931,6 @@ void menuModelSetup(event_t event)
         g_model.extendedLimits = editCheckBox(g_model.extendedLimits, MODEL_SETUP_2ND_COLUMN, y, STR_ELIMITS, attr, event);
         break;
 
-      case ITEM_MODEL_SETUP_EXTENDED_TRIMS:
-        g_model.extendedTrims = editCheckBox(g_model.extendedTrims, MODEL_SETUP_2ND_COLUMN, y, STR_ETRIMS, menuHorizontalPosition<=0 ? attr : 0, event==EVT_KEY_BREAK(KEY_ENTER) ? event : 0);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN+4*FW, y, STR_RESET_BTN, (menuHorizontalPosition>0  && !NO_HIGHLIGHT()) ? attr : 0);
-        if (attr && menuHorizontalPosition>0) {
-          s_editMode = 0;
-          if (event==EVT_KEY_LONG(KEY_ENTER)) {
-            killEvents(event);
-            START_NO_HIGHLIGHT();
-            for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
-              memclear(&g_model.flightModeData[i], TRIMS_ARRAY_SIZE);
-            }
-            storageDirty(EE_MODEL);
-            AUDIO_WARNING1();
-          }
-        }
-        break;
-
-      case ITEM_MODEL_SETUP_DISPLAY_TRIMS:
-        g_model.displayTrims = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_DISPLAY_TRIMS, STR_VDISPLAYTRIMS, g_model.displayTrims, 0, 2, attr, event);
-        break;
-
-      case ITEM_MODEL_SETUP_TRIM_INC:
-        g_model.trimInc = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_TRIMINC, STR_VTRIMINC, g_model.trimInc, -2, 2, attr, event);
-        break;
-
       case ITEM_MODEL_SETUP_THROTTLE_LABEL:
         expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);
         break;
@@ -987,17 +952,6 @@ void menuModelSetup(event_t event)
         drawSource(MODEL_SETUP_2ND_COLUMN+20, y, idx, attr);
         break;
       }
-
-      case ITEM_MODEL_SETUP_THROTTLE_TRIM:
-        g_model.thrTrim = editCheckBox(g_model.thrTrim, MODEL_SETUP_2ND_COLUMN+20, y, STR_TTRIM, attr, event, INDENT_WIDTH);
-        break;
-
-      case ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH:
-        lcdDrawTextIndented(y, STR_TTRIM_SW);
-        if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
-        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, g_model.getThrottleStickTrimSource(), attr);
-        break;
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
         expandState.preflight = expandableSection(y, STR_PREFLIGHT, expandState.preflight, attr, event);
@@ -1237,9 +1191,9 @@ void menuModelSetup(event_t event)
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_MODE:
-#endif 
-        g_model.moduleData[moduleIdx].crsf.crsfArmingMode = 
-          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_ARMING_MODE, STR_CRSF_ARMING_MODES, 
+#endif
+        g_model.moduleData[moduleIdx].crsf.crsfArmingMode =
+          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_ARMING_MODE, STR_CRSF_ARMING_MODES,
           g_model.moduleData[moduleIdx].crsf.crsfArmingMode, ARMING_MODE_FIRST, ARMING_MODE_LAST, attr, event, INDENT_WIDTH);
         break;
 

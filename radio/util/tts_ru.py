@@ -91,9 +91,6 @@ for i, (s, f) in enumerate([(u"вольт", "volt0"), (u"вольт", "volt1"),
     systemSounds.append((s, filename(f)))
 
 for s, f in [
-    (u"Триммер по центру", "midtrim"),
-    (u"Триммер максимум", "maxtrim"),
-    (u"Триммер минимум", "mintrim"),
     (u"Таймер 1. Время вышло", "timovr1"),
     (u"Таймер 2. Время вышло", "timovr2"),
     (u"Таймер 3. Время вышло", "timovr3"),

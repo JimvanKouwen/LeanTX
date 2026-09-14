@@ -38,7 +38,6 @@ const struct YamlIdStr enum_BluetoothModes[] = {
 };
 const struct YamlIdStr enum_Functions[] = {
   {  FUNC_OVERRIDE_CHANNEL, "OVERRIDE_CHANNEL"  },
-  {  FUNC_INSTANT_TRIM, "INSTANT_TRIM"  },
   {  FUNC_RESET, "RESET"  },
   {  FUNC_SET_TIMER, "SET_TIMER"  },
   {  FUNC_ADJUST_GVAR, "ADJUST_GVAR"  },
@@ -207,7 +206,7 @@ static const struct YamlNode union_anonymous_0_elmts[] = {
 static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_IDX,
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_ENUM("func", 6, enum_Functions, NULL),
+  YAML_UNSIGNED_CUST( "func", 6, r_function, w_function ),
   YAML_CUSTOM("def",r_customFn,w_customFn),
   YAML_PADDING( 64 ),
   YAML_PADDING( 1 ),
@@ -361,7 +360,7 @@ static const struct YamlNode struct_CurveRef[] = {
 static const struct YamlNode struct_MixData[] = {
   YAML_UNSIGNED( "destCh", 5 ),
   YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_UNSIGNED( "carryTrim", 1 ),
+  YAML_PADDING( 1 ),
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex, NULL),
   YAML_UNSIGNED( "delayPrec", 1 ),
@@ -395,8 +394,7 @@ static const struct YamlNode struct_LimitData[] = {
 static const struct YamlNode struct_ExpoData[] = {
   YAML_UNSIGNED( "mode", 2 ),
   YAML_UNSIGNED( "scale", 14 ),
-  YAML_CUSTOM("carryTrim",r_carryTrim,nullptr),
-  YAML_SIGNED( "trimSource", 6 ),
+  YAML_PADDING( 6 ),
   YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
   YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
@@ -435,10 +433,9 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_UNSIGNED( "duration", 8 ),
   YAML_END
 };
-static const struct YamlNode struct_trim_t[] = {
+static const struct YamlNode struct_unsigned_16[] = {
   YAML_IDX,
-  YAML_SIGNED( "value", 11 ),
-  YAML_UNSIGNED( "mode", 5 ),
+  YAML_UNSIGNED( "val", 16 ),
   YAML_END
 };
 static const struct YamlNode struct_signed_16[] = {
@@ -448,7 +445,7 @@ static const struct YamlNode struct_signed_16[] = {
 };
 static const struct YamlNode struct_FlightModeData[] = {
   YAML_IDX,
-  YAML_ARRAY("trim", 16, 6, struct_trim_t, NULL),
+  YAML_PADDING( 96 ),
   YAML_STRING("name", 10),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_PADDING( 6 ),
@@ -637,15 +634,15 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("header", 192, struct_ModelHeader, NULL),
   YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
-  YAML_UNSIGNED( "thrTrim", 1 ),
+  YAML_PADDING( 1 ),
   YAML_UNSIGNED( "noGlobalFunctions", 1 ),
-  YAML_UNSIGNED( "displayTrims", 2 ),
+  YAML_PADDING( 2 ),
   YAML_UNSIGNED( "ignoreSensorIds", 1 ),
-  YAML_SIGNED( "trimInc", 3 ),
+  YAML_PADDING( 3 ),
   YAML_UNSIGNED( "disableThrottleWarning", 1 ),
   YAML_UNSIGNED( "displayChecklist", 1 ),
   YAML_UNSIGNED( "extendedLimits", 1 ),
-  YAML_UNSIGNED( "extendedTrims", 1 ),
+  YAML_PADDING( 1 ),
   YAML_UNSIGNED( "throttleReversed", 1 ),
   YAML_UNSIGNED( "enableCustomThrottleWarning", 1 ),
   YAML_UNSIGNED( "disableTelemetryWarning", 1 ),
@@ -670,7 +667,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED_CUST( "voltsSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_UNSIGNED_CUST( "altitudeSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_STRUCT("rfAlarms", 16, struct_RFAlarmData, NULL),
-  YAML_UNSIGNED( "thrTrimSw", 3 ),
+  YAML_PADDING( 3 ),
   YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode, NULL),
   YAML_ENUM("jitterFilter", 2, enum_ModelOverridableEnable, NULL),
   YAML_PADDING( 1 ),
@@ -726,4 +723,3 @@ const YamlNode* get_partialmodel_nodes()
 {
    return &__PartialModel_root_node;
 }
-

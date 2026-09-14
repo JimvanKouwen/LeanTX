@@ -46,12 +46,9 @@
 #define REBOOT_X      (LCD_W-FW)
 #define VSWITCH_X(i)  (((i>=MAX_LOGICAL_SWITCHES*3/4) ? BITMAP_X+28 : ((i>=MAX_LOGICAL_SWITCHES/2) ? BITMAP_X+25 : ((i>=MAX_LOGICAL_SWITCHES/4) ? 21 : 18))) + 3*i)
 #define VSWITCH_Y     (LCD_H-9)
-#define TRIM_LH_X     (32+9)
-#define TRIM_LV_X     10
-#define TRIM_RV_X     (LCD_W-11)
-#define TRIM_RH_X     (LCD_W-32-9)
+#define LOGICAL_SWITCHES_X     (LCD_W-32-9)
 
-#define TRIM_LEN 27
+#define LOGICAL_SWITCHES_HALF_WIDTH 27
 
 const unsigned char logo_taranis[]  = {
 #include "logo.lbm"
@@ -83,7 +80,7 @@ static bool isAsteriskDisplayed() {
 
 #include "hal/abnormal_reboot.h"
 
-static bool isAsteriskDisplayed() {  
+static bool isAsteriskDisplayed() {
   return UNEXPECTED_SHUTDOWN();
 }
 #endif
@@ -103,85 +100,6 @@ void doMainScreenGraphics()
     calibStickVert = -calibStickVert;
   }
   drawStick(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_RH], calibStickVert);
-}
-
-void displayTrims(uint8_t phase)
-{
-  static uint8_t x[] = { TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X };
-  static uint8_t vert[] = { 0, 1, 1, 0 };
-
-  for (unsigned int i = 0; i < MAX_STICKS; i++) {
-    if(getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
-      continue;
-
-    coord_t ym;
-    unsigned int stickIndex = inputMappingConvertMode(i);
-    coord_t xm = x[stickIndex];
-
-    uint32_t att = ROUND;
-    int32_t trim = getTrimValue(phase, i);
-    int32_t val = trim;
-    bool exttrim = false;
-
-    if (val < TRIM_MIN || val > TRIM_MAX) {
-      exttrim = true;
-    }
-    val = (val * TRIM_LEN) / TRIM_MAX;
-    if (val < -TRIM_LEN) {
-      val = -TRIM_LEN;
-    }
-    else if (val > TRIM_LEN) {
-      val = TRIM_LEN;
-    }
-
-    if (vert[i]) {
-      ym = 31;
-      lcdDrawSolidVerticalLine(xm, ym-TRIM_LEN, TRIM_LEN*2);
-      if (i!=2 || !g_model.thrTrim) {
-        lcdDrawSolidVerticalLine(xm-1, ym-1,  3);
-        lcdDrawSolidVerticalLine(xm+1, ym-1,  3);
-      }
-      ym -= val;
-      lcdDrawFilledRect(xm-3, ym-3, 7, 7, SOLID, att|ERASE);
-      if (trim >= 0) {
-        lcdDrawSolidHorizontalLine(xm-1, ym-1,  3);
-      }
-      if (trim <= 0) {
-        lcdDrawSolidHorizontalLine(xm-1, ym+1,  3);
-      }
-      if (exttrim) {
-        lcdDrawSolidHorizontalLine(xm-1, ym,  3);
-      }
-      if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && trim != 0) {
-        if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS || (trimsDisplayTimer > 0 && (trimsDisplayMask & (1<<i)))) {
-          lcdDrawNumber(trim>0 ? 22 : 54, xm-2, -abs(trim), RIGHT|TINSIZE|VERTICAL);
-        }
-      }
-    }
-    else {
-      ym = 60;
-      lcdDrawSolidHorizontalLine(xm-TRIM_LEN, ym, TRIM_LEN*2);
-      lcdDrawSolidHorizontalLine(xm-1, ym-1,  3);
-      lcdDrawSolidHorizontalLine(xm-1, ym+1,  3);
-      xm += val;
-      lcdDrawFilledRect(xm-3, ym-3, 7, 7, SOLID, att|ERASE);
-      if (trim >= 0) {
-        lcdDrawSolidVerticalLine(xm+1, ym-1,  3);
-      }
-      if (trim <= 0) {
-        lcdDrawSolidVerticalLine(xm-1, ym-1,  3);
-      }
-      if (exttrim) {
-        lcdDrawSolidVerticalLine(xm, ym-1,  3);
-      }
-      if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && trim != 0) {
-        if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS || (trimsDisplayTimer > 0 && (trimsDisplayMask & (1<<i)))) {
-          lcdDrawNumber((stickIndex==0 ? TRIM_LH_X : TRIM_RH_X)+(trim>0 ? -11 : 20), ym-2, -abs(trim), RIGHT|TINSIZE);
-        }
-      }
-    }
-    lcdDrawSquare(xm-3, ym-3, 7, att);
-  }
 }
 
 // Pots & sliders
@@ -508,9 +426,6 @@ void menuMainView(event_t event)
   // Model Name
   drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
 
-  // Trims sliders
-  displayTrims(mode);
-
   // Top bar
   displayTopBar();
 
@@ -577,13 +492,13 @@ void menuMainView(event_t event)
     int sw = (secondPage && MAX_LOGICAL_SWITCHES > 32 ? 32 : 0);
     const int end = sw + 32;
     uint8_t y = 6*FH-1;
-    lcdDrawText(TRIM_RH_X - TRIM_LEN/2 + 1, y, "LS");
+    lcdDrawText(LOGICAL_SWITCHES_X - LOGICAL_SWITCHES_HALF_WIDTH/2 + 1, y, "LS");
     lcdDrawNumber(lcdLastRightPos + 1, y, sw + 1, LEFT|LEADING0, 2);
     lcdDrawText(lcdLastRightPos, y, "-");
     lcdDrawNumber(lcdLastRightPos, y, end, LEFT);
     for ( ; sw < end; ++sw) {
       const div_t qr = div(sw + 32 - end, 10);
-      const uint8_t x = TRIM_RH_X - TRIM_LEN + qr.rem*5 + (qr.rem >= 5 ? 3 : 0);
+      const uint8_t x = LOGICAL_SWITCHES_X - LOGICAL_SWITCHES_HALF_WIDTH + qr.rem*5 + (qr.rem >= 5 ? 3 : 0);
       y = 13 + 11 * qr.quot;
       LogicalSwitchData * cs = lswAddress(sw);
       if (cs->func == LS_FUNC_NONE) {

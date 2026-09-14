@@ -33,8 +33,4 @@ class ModelFlightModesPage : public PageGroupItem
 
   void build(Window* window) override;
 
- protected:
-  TextButton* trimCheck = nullptr;
-
-  void checkEvents() override;
 };

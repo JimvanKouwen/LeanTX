@@ -29,7 +29,6 @@
 #include "textedit.h"
 #include "toggleswitch.h"
 #include "topbar.h"
-#include "trims.h"
 
 // class to hold a color list and apply / restore it while drawing standard
 // controls
@@ -143,7 +142,6 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   (new ThemedButton(this, {BTN_X, BTN1_Y, BTN_W, 0}, STR_THEME_ACTIVE, true))
       ->check(true);
   new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, 0}, STR_THEME_REGULAR, false);
-  new MainViewTrim(this, {CBT_X, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
   new MainViewSlider(this, {CBT_X, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
   new StaticText(this, {CBT_X, TXT1_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_WARNING,
                  COLOR_THEME_WARNING_INDEX);

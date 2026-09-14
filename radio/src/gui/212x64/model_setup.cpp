@@ -78,14 +78,9 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TOP_LCD_TIMER,
 #endif
   ITEM_MODEL_SETUP_EXTENDED_LIMITS,
-  ITEM_MODEL_SETUP_EXTENDED_TRIMS,
-  ITEM_MODEL_SETUP_DISPLAY_TRIMS,
-  ITEM_MODEL_SETUP_TRIM_INC,
   ITEM_MODEL_SETUP_THROTTLE_LABEL,
   ITEM_MODEL_SETUP_THROTTLE_REVERSED,
   ITEM_MODEL_SETUP_THROTTLE_TRACE,
-  ITEM_MODEL_SETUP_THROTTLE_TRIM,
-  ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
   ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE,
@@ -287,8 +282,8 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
         } else {
           timer.extraHaptic = 0;
           timer.countdownBeep = value;
-        } 
-      } 
+        }
+      }
       break;
       case 1:
         timer.countdownStart = -checkIncDecModel(event, -timer.countdownStart, -1, +2);
@@ -345,7 +340,7 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #endif
 #define IF_MODULE_ARMED(module, xxx) (CRSF_ELRS_MIN_VER(module, 4, 0) ? (uint8_t)(xxx) : HIDDEN_ROW)
-#define IF_MODULE_ARMED_TRIGGER(module, xxx) ((CRSF_ELRS_MIN_VER(module, 4, 0) && g_model.moduleData[module].crsf.crsfArmingMode) ? (uint8_t)(xxx) : HIDDEN_ROW)  
+#define IF_MODULE_ARMED_TRIGGER(module, xxx) ((CRSF_ELRS_MIN_VER(module, 4, 0) && g_model.moduleData[module].crsf.crsfArmingMode) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #else
 #define IF_MODULE_SYNCED(module, xxx)
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx)
@@ -403,15 +398,10 @@ void menuModelSetup(event_t event)
     TOPLCD_ROWS
 
     0, // ITEM_MODEL_SETUP_EXTENDED_LIMITS
-    1, // ITEM_MODEL_SETUP_EXTENDED_TRIMS
-    0, // ITEM_MODEL_SETUP_DISPLAY_TRIMS
-    0, // ITEM_MODEL_SETUP_TRIM_INC
 
     0, // ITEM_MODEL_SETUP_THROTTLE_LABEL
     THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_REVERSED
     THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_TRACE
-    THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_TRIM
-    THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH
 
     0,   // ITEM_MODEL_SETUP_PREFLIGHT_LABEL
       PREFLIGHT_ROW(0), // ITEM_MODEL_SETUP_CHECKLIST_DISPLAY
@@ -603,31 +593,6 @@ void menuModelSetup(event_t event)
         g_model.extendedLimits = editCheckBox(g_model.extendedLimits, MODEL_SETUP_2ND_COLUMN, y, STR_ELIMITS, attr, event);
         break;
 
-      case ITEM_MODEL_SETUP_EXTENDED_TRIMS:
-        g_model.extendedTrims = editCheckBox(g_model.extendedTrims, MODEL_SETUP_2ND_COLUMN, y, STR_ETRIMS, menuHorizontalPosition<=0 ? attr : 0, event==EVT_KEY_BREAK(KEY_ENTER) ? event : 0);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN+3*FW, y, STR_RESET_BTN, (menuHorizontalPosition>0  && !NO_HIGHLIGHT()) ? attr : 0);
-        if (attr && menuHorizontalPosition>0) {
-          s_editMode = 0;
-          if (event==EVT_KEY_LONG(KEY_ENTER)) {
-            killEvents(event);
-            START_NO_HIGHLIGHT();
-            for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
-              memclear(&g_model.flightModeData[i], TRIMS_ARRAY_SIZE);
-            }
-            storageDirty(EE_MODEL);
-            AUDIO_WARNING1();
-          }
-        }
-        break;
-
-      case ITEM_MODEL_SETUP_DISPLAY_TRIMS:
-        g_model.displayTrims = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_DISPLAY_TRIMS, STR_VDISPLAYTRIMS, g_model.displayTrims, 0, 2, attr, event);
-        break;
-
-      case ITEM_MODEL_SETUP_TRIM_INC:
-        g_model.trimInc = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_TRIMINC, STR_VTRIMINC, g_model.trimInc, -2, 2, attr, event);
-        break;
-
       case ITEM_MODEL_SETUP_THROTTLE_LABEL:
         expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);
         break;
@@ -649,17 +614,6 @@ void menuModelSetup(event_t event)
         drawSource(MODEL_SETUP_2ND_COLUMN, y, idx, attr);
         break;
       }
-
-      case ITEM_MODEL_SETUP_THROTTLE_TRIM:
-        g_model.thrTrim = editCheckBox(g_model.thrTrim, MODEL_SETUP_2ND_COLUMN, y, STR_TTRIM, attr, event, INDENT_WIDTH);
-        break;
-
-      case ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH:
-        lcdDrawTextIndented(y, STR_TTRIM_SW);
-        if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSource(), attr);
-        break;
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
         expandState.preflight = expandableSection(y, STR_PREFLIGHT, expandState.preflight, attr, event);
@@ -914,7 +868,7 @@ void menuModelSetup(event_t event)
 
 #if defined(CROSSFIRE)
       case ITEM_MODEL_SETUP_ARMING_MODE:
-        g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = 
+        g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode =
           editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_ARMING_MODE, STR_CRSF_ARMING_MODES,
           g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode, ARMING_MODE_FIRST, ARMING_MODE_LAST, attr, event, INDENT_WIDTH);
         break;

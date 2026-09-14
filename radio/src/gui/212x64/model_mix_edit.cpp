@@ -27,7 +27,6 @@ enum MixFields {
   MIX_FIELD_SOURCE,
   MIX_FIELD_WEIGHT,
   MIX_FIELD_OFFSET,
-  MIX_FIELD_TRIM,
   MIX_FIELD_CURVE,
   CASE_FLIGHT_MODES(MIX_FIELD_FLIGHT_MODE)
   MIX_FIELD_SWITCH,
@@ -104,7 +103,7 @@ void menuModelMixOne(event_t event)
   uint8_t old_editMode = s_editMode;
 
   SUBMENU(STR_MIXES, MIX_FIELD_COUNT,
-          {0, 0, 0, 0, 0, 1, CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0, 0,
+          {0, 0, 0, 0, 1, CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0, 0,
            (uint8_t)((s_currIdx > 0 && mixAddress(s_currIdx - 1)->destCh == md2->destCh) ? 0 : HIDDEN_ROW),
            0 /*, ...*/
           });
@@ -136,7 +135,7 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_WEIGHT:
-        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight, 
+        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight,
                         MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
         break;
 
@@ -144,14 +143,6 @@ void menuModelMixOne(event_t event)
         md2->offset = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
                         MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
         drawOffsetBar(MIXES_2ND_COLUMN+35, y, md2);
-        break;
-
-      case MIX_FIELD_TRIM:
-        lcdDrawTextAlignedLeft(y, STR_TRIM);
-        drawCheckBox(MIXES_2ND_COLUMN, y, !md2->carryTrim, attr);
-        if (attr) {
-          md2->carryTrim = !checkIncDecModel(event, !md2->carryTrim, 0, 1);
-        }
         break;
 
       case MIX_FIELD_CURVE:

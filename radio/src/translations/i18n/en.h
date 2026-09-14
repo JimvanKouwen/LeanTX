@@ -158,14 +158,6 @@
 #define TR_USBMODES_3                  TR("SDCard","Storage")
 #define TR_USBMODES_4                  "Serial"
 
-#define TR_VTRIMINC_1                  TR("Expo","Exponential")
-#define TR_VTRIMINC_2                  TR("ExFine","Extra Fine")
-#define TR_VTRIMINC_3                  "Fine"
-#define TR_VTRIMINC_4                  "Medium"
-#define TR_VTRIMINC_5                  "Coarse"
-#define TR_VDISPLAYTRIMS_1             "No"
-#define TR_VDISPLAYTRIMS_2             "Change"
-#define TR_VDISPLAYTRIMS_3             "Yes"
 #define TR_VBEEPCOUNTDOWN_1            "Silent"
 #define TR_VBEEPCOUNTDOWN_2            "Beeps"
 #define TR_VBEEPCOUNTDOWN_3            "Voice"
@@ -197,7 +189,6 @@
 #define TR_CSWSTICKY                   TR("Stky", "Sticky")
 #define TR_CSWSTAY                     "Edge"
 
-#define TR_SF_INST_TRIM                "Instant Trim"
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Set"
 #define TR_SF_VOLUME                   "Volume"
@@ -229,7 +220,6 @@
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetry")
-#define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS_1          "Tmr1"
 #define TR_FSW_RESET_TIMERS_2          "Tmr2"
 #define TR_FSW_RESET_TIMERS_3          "Tmr3"
@@ -239,7 +229,7 @@
 #define TR_VFSWRESET_3                 TR_FSW_RESET_TIMERS_3
 #define TR_VFSWRESET_4                 TR("All","Flight")
 #define TR_VFSWRESET_5                 TR_FSW_RESET_TELEM
-#define TR_VFSWRESET_6                 TR_FSW_RESET_TRIMS
+#define TR_VFSWRESET_6                 "---"
 
 #define TR_FUNCSOUNDS_1                TR("Bp1","Beep1")
 #define TR_FUNCSOUNDS_2                TR("Bp2","Beep2")
@@ -307,11 +297,11 @@
 #define TR_ON_ONE_SWITCHES_2           "One"
 
 #define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT_1                   "Trims only"
+#define TR_HATSOPT_1                   "Buttons only"
 #define TR_HATSOPT_2                   "Keys only"
 #define TR_HATSOPT_3                   "Switchable"
 #define TR_HATSOPT_4                   "Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
+#define TR_HATSMODE_TRIMS              "Hats mode: Buttons"
 #define TR_HATSMODE_KEYS               "Hats mode: Keys"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
                                        "   Right = MDL\n"\
@@ -408,12 +398,7 @@
 #define TR_START                       "Start"
 #define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("E.Limits", "Extended limits")
-#define TR_ETRIMS                      TR("E.Trims", "Extended trims")
-#define TR_TRIMINC                     "Trim Step"
-#define TR_DISPLAY_TRIMS               TR("Show Trims", "Display trims")
 #define TR_TTRACE                      TR("T-Source", "Source")
-#define TR_TTRIM                       TR("T-Trim-Idle", "Trim idle only")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Beep when centered")
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
   #define TR_REFRESHRATE               TR("Refresh", "Refresh rate")
@@ -442,7 +427,6 @@
 #define TR_TRIMS                       "Trims"
 #define TR_FADEIN                      "Fade in"
 #define TR_FADEOUT                     "Fade out"
-#define TR_CHECKTRIMS                  TR("\006Check\012trims", "Check FM Trims")
 #define TR_MODE                        "Mode"
 #define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     "Subtype"
@@ -452,7 +436,6 @@
 #define TR_WEIGHT                      "Weight"
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
-#define TR_TRIM                        "Trim"
 #define TR_CURVE                       "Curve"
 #define TR_FLMODE                      TR("Mode", "Modes")
 #define TR_MIXWARNING                  "Warning"
@@ -588,7 +571,6 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "CALIBRATED ANALOGS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
 #define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
-#define TR_TRIMS2OFFSETS TR_BW_COL("\006Trims => Subtrims", "Trims => Subtrims")
 #define TR_MENUMODELSEL                TR("MODELSEL", "MODEL SELECTION")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
 
@@ -948,7 +930,6 @@
 #define TR_SMOOTH                      "Smooth"
 #define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy axis to subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "Copy min/max/center to all outputs")
-#define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "Copy trims to subtrim")
 #define TR_INCDEC                      "Inc/Decrement"
 #define TR_GLOBALVAR                   "Global var"
 #define TR_MIXSOURCE                   "Source (%)"
@@ -974,12 +955,6 @@
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"
 #define TR_PHASES_HEADERS_SW           "Switch"
-#define TR_PHASES_HEADERS_RUD_TRIM     "Rudder Trim"
-#define TR_PHASES_HEADERS_ELE_TRIM     "Elevator Trim"
-#define TR_PHASES_HEADERS_THT_TRIM     "Throttle Trim"
-#define TR_PHASES_HEADERS_AIL_TRIM     "Aileron Trim"
-#define TR_PHASES_HEADERS_CH5_TRIM     "Trim 5"
-#define TR_PHASES_HEADERS_CH6_TRIM     "Trim 6"
 #define TR_PHASES_HEADERS_FAD_IN       "Fade In"
 #define TR_PHASES_HEADERS_FAD_OUT      "Fade Out"
 
@@ -1099,7 +1074,6 @@
 
 #define TR_USE_THEME_COLOR              "Use theme color"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"
 #define TR_COLOR_PICKER                 "Color Picker"

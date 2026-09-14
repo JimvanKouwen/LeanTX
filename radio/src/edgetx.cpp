@@ -167,13 +167,6 @@ void per10ms()
 #endif
 #endif
 
-  if (trimsCheckTimer) trimsCheckTimer--;
-
-  if (trimsDisplayTimer)
-    trimsDisplayTimer--;
-  else
-    trimsDisplayMask = 0;
-
 #if defined(DEBUG_LATENCY_END_TO_END)
   static tmr10ms_t lastLatencyToggle = 0;
   if (g_tmr10ms - lastLatencyToggle == 10) {
@@ -432,16 +425,6 @@ int8_t getMovedSource(uint8_t min)
     }
   }
 
-  static int16_t trimStates[MAX_TRIMS];
-  if (result == 0) {
-    for (uint8_t i = 0; i < MAX_TRIMS; i++) {
-      if (abs(getTrimValue(mixerCurrentFlightMode, i) - trimStates[i]) > 0) {
-        result = MIXSRC_FIRST_TRIM + i;
-        break;
-      }
-    }
-  }
-
   static int16_t sourcesStates[MAX_ANALOG_INPUTS];
   if (result == 0) {
     for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
@@ -465,7 +448,6 @@ int8_t getMovedSource(uint8_t min)
   if (result || recent) {
     memcpy(inputsStates, anas, sizeof(inputsStates));
     memcpy(sourcesStates, calibratedAnalogs, sizeof(sourcesStates));
-	for (uint8_t i = 0; i < MAX_TRIMS; i++) trimStates[i] = getTrimValue(mixerCurrentFlightMode, i);
   }
 
   s_move_last_time = get_tmr10ms();
@@ -486,59 +468,6 @@ uint8_t getFlightMode()
   return 0;
 }
 #endif
-
-trim_t getRawTrimValue(uint8_t phase, uint8_t idx)
-{
-  FlightModeData * p = flightModeAddress(phase);
-  return p->trim[idx];
-}
-
-int getTrimValue(uint8_t phase, uint8_t idx)
-{
-  int result = 0;
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
-    trim_t v = getRawTrimValue(phase, idx);
-    if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
-      return result;
-    }
-    else {
-      unsigned int p = v.mode >> 1;
-      if (p == phase || phase == 0) {
-        return result + v.value;
-      }
-      else {
-        phase = p;
-        if (v.mode % 2 != 0) {
-          result += v.value;
-        }
-      }
-    }
-  }
-  return 0;
-}
-
-bool setTrimValue(uint8_t phase, uint8_t idx, int trim)
-{
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
-    trim_t & v = flightModeAddress(phase)->trim[idx];
-    if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS)
-      return false;
-    unsigned int p = v.mode >> 1;
-    if (p == phase || phase == 0) {
-      v.value = trim;
-      break;
-    }
-    else if (v.mode % 2 == 0) {
-      phase = p;
-    }
-    else {
-      v.value = limit<int>(TRIM_EXTENDED_MIN, trim - getTrimValue(p, idx), TRIM_EXTENDED_MAX);
-      break;
-    }
-  }
-  storageDirty(EE_MODEL);
-  return true;
-}
 
 getvalue_t convert16bitsTelemValue(source_t channel, ls_telemetry_value_t value)
 {
@@ -875,126 +804,6 @@ void alert(const char * title, const char * msg , uint8_t sound)
 }
 #endif
 
-#if defined(GVARS)
-#if MAX_TRIMS == 8
-  int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-#elif MAX_TRIMS == 6
-  int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1 };
-#elif MAX_TRIMS == 4
-  int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1 };
-#elif MAX_TRIMS == 2
-  int8_t trimGvar[MAX_TRIMS] = { -1, -1 };
-#endif
-#endif
-
-void checkTrims()
-{
-  event_t event = getTrimEvent();
-  // Only use press and repeat trim events
-  if (event && (IS_KEY_FIRST(event) || IS_KEY_REPT(event))) {
-    int8_t k = EVT_KEY_MASK(event);
-    uint8_t idx = inputMappingConvertMode(uint8_t(k / 2));
-    uint8_t phase;
-    int before;
-    bool thro;
-    trim_t tmode = getRawTrimValue(mixerCurrentFlightMode, idx);
-
-    trimsDisplayTimer = 200; // 2 seconds
-    trimsDisplayMask |= (1<<idx);
-
-#if defined(GVARS)
-    if (TRIM_REUSED(idx)) {
-      phase = getGVarFlightMode(mixerCurrentFlightMode, trimGvar[idx]);
-      before = GVAR_VALUE(trimGvar[idx], phase);
-      thro = false;
-    }
-    else {
-      phase = getTrimFlightMode(mixerCurrentFlightMode, idx);
-      before = getTrimValue(phase, idx);
-      thro = (idx == (g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) && g_model.thrTrim);
-    }
-#else
-    phase = getTrimFlightMode(mixerCurrentFlightMode, idx);
-    before = getTrimValue(phase, idx);
-    thro = (idx==inputMappingConvertMode(inputMappingGetThrottle()) && g_model.thrTrim);
-#endif
-    int8_t trimInc = g_model.trimInc + 1;
-    int16_t v = (trimInc==-1) ? min(32, abs(before)/4+1) : (1 << trimInc); // TODO flash saving if (trimInc < 0)
-    if (thro) v = 4; // if throttle trim and trim throttle then step=4
-#if defined(GVARS)
-    if (TRIM_REUSED(idx)) v = tmode.mode == TRIM_MODE_3POS ? RESX : 1;
-#endif
-    int16_t after = (k&1) ? before + v : before - v;   // positive = k&1
-    bool beepTrim = true;
-
-    if (!thro && before!=0 && tmode.mode != TRIM_MODE_3POS &&
-        ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centered trim when changing sides
-      after = 0;
-      AUDIO_TRIM_MIDDLE();
-      pauseTrimEvents(event);
-    }
-
-#if defined(GVARS)
-    if (TRIM_REUSED(idx)) {
-      int8_t gvar = trimGvar[idx];
-      int16_t vmin = GVAR_MIN + g_model.gvars[gvar].min;
-      int16_t vmax = GVAR_MAX - g_model.gvars[gvar].max;
-      if (after < vmin) {
-        after = vmin;
-        beepTrim = false;
-        AUDIO_TRIM_MIN();
-        killTrimEvents(event);
-      }
-      else if (after > vmax) {
-        after = vmax;
-        beepTrim = false;
-        AUDIO_TRIM_MAX();
-        killTrimEvents(event);
-      }
-
-      setGVarValue(gvar, after, mixerCurrentFlightMode);
-    }
-    else
-#endif
-    {
-      // Determine Max and Min trim values based on Extended Trim setting
-      int16_t tMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
-      int16_t tMin = g_model.extendedTrims ? TRIM_EXTENDED_MIN : TRIM_MIN;
-
-      // Play warning whe going past limits and remove any buffered trim moves
-      if (before >= tMin && after <= tMin) {
-        beepTrim = false;
-        AUDIO_TRIM_MIN();
-        killTrimEvents(event);
-      }
-      else if (before <= tMax && after >= tMax) {
-        beepTrim = false;
-        AUDIO_TRIM_MAX();
-        killTrimEvents(event);
-      }
-
-      // If the new value is outside the limit, set it to the limit. This could have
-      // been done while playing the warning above but this way it catches any other
-      // scenarios
-      if (after < tMin) {
-        after = tMin;
-      }
-      else if (after > tMax) {
-        after = tMax;
-      }
-
-      if (!setTrimValue(phase, idx, after)) {
-        // we don't play a beep, so we exit now the function
-        return;
-      }
-    }
-
-    if (beepTrim) {
-      AUDIO_TRIM_PRESS(after);
-    }
-  }
-}
-
 uint8_t g_vbat100mV = 0;
 uint16_t lightOffCounter;
 uint8_t flashCounter = 0;
@@ -1002,10 +811,6 @@ uint8_t flashCounter = 0;
 uint16_t sessionTimer;
 uint16_t s_timeCumThr;    // THR in 1/16 sec
 uint16_t s_timeCum16ThrP; // THR% in 1/16 sec
-
-uint8_t trimsCheckTimer = 0;
-uint8_t trimsDisplayTimer = 0;
-uint8_t trimsDisplayMask = 0;
 
 void flightReset(uint8_t check)
 {
@@ -1133,54 +938,6 @@ void edgeTxResume()
   referenceSystemAudioFiles();
 }
 
-#define INSTANT_TRIM_MARGIN 10 /* around 1% */
-
-void instantTrim()
-{
-  int16_t anas_0[MAX_INPUTS];
-  evalInputs(e_perout_mode_preview | e_perout_mode_nosticks);
-  memcpy(anas_0, anas, sizeof(anas_0));
-
-  evalInputs(e_perout_mode_preview);
-
-  auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
-  for (uint8_t st = 0; st < controls; st++) {
-    uint8_t stick = inputMappingConvertMode(st);
-    if (stick != inputMappingGetThrottle()) { // don't instant trim the throttle stick
-      bool addTrim = false;
-      int16_t delta = 0;
-      uint8_t trimFlightMode = getTrimFlightMode(mixerCurrentFlightMode, stick);
-      for (uint8_t i = 0; i < MAX_EXPOS; i++) {
-        ExpoData * expo = expoAddress(i);
-        if (!EXPO_VALID(expo))
-          break; // end of list
-        if (stick == expo->srcRaw - MIXSRC_FIRST_STICK) {
-          if (expo->trimSource < 0) {
-            // only default trims will be taken into account
-            continue;
-          }
-          auto newDelta = anas[expo->chn] - anas_0[expo->chn];
-          if (addTrim && delta != newDelta) {
-            // avoid 2 different delta values
-            addTrim = false;
-            break;
-          }
-          addTrim = true;
-          delta = newDelta;
-        }
-      }
-      if (addTrim && abs(delta) >= INSTANT_TRIM_MARGIN) {
-        int16_t trim = limit<int16_t>(
-            TRIM_EXTENDED_MIN, (delta + trims[stick]) / 2, TRIM_EXTENDED_MAX);
-        setTrimValue(trimFlightMode, stick, trim);
-      }
-    }
-  }
-
-  storageDirty(EE_MODEL);
-  AUDIO_WARNING2();
-}
-
 void copySticksToOffset(uint8_t ch)
 {
   mixerTaskStop();
@@ -1196,28 +953,6 @@ void copySticksToOffset(uint8_t ch)
   }
   zero = (zero*256000 - val*lim) / (1024*256-val);
   ld->offset = (ld->revert ? -zero : zero);
-
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-void copyTrimsToOffset(uint8_t ch)
-{
-  int16_t zero;
-
-  mixerTaskStop();
-
-  evalFlightModeMixes(e_perout_mode_noinput, 0); // do output loop - zero input sticks and trims
-  zero = applyLimits(ch, chans[ch]);
-
-  evalFlightModeMixes(e_perout_mode_noinput-e_perout_mode_notrims, 0); // do output loop - only trims
-
-  int16_t output = applyLimits(ch, chans[ch]) - zero;
-  int16_t v = g_model.limitData[ch].offset;
-  if (g_model.limitData[ch].revert)
-    output = -output;
-  v += (output * 125) / 128;
-  g_model.limitData[ch].offset = limit((int16_t)-1000, (int16_t)v, (int16_t)1000); // make sure the offset doesn't go haywire
 
   mixerTaskStart();
   storageDirty(EE_MODEL);
@@ -1303,49 +1038,6 @@ void runStartupAnimation()
   }
 }
 #endif
-
-void moveTrimsToOffsets() // copy state of 3 primary to subtrim
-{
-  int16_t zeros[MAX_OUTPUT_CHANNELS];
-
-  mixerTaskStop();
-
-  evalFlightModeMixes(e_perout_mode_noinput, 0); // do output loop - zero input sticks and trims
-
-  for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
-    zeros[i] = applyLimits(i, chans[i]);
-  }
-
-  evalFlightModeMixes(e_perout_mode_noinput-e_perout_mode_notrims, 0); // do output loop - only trims
-
-  for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
-    int16_t diff = applyLimits(i, chans[i]) - zeros[i];
-    int16_t v = g_model.limitData[i].offset;
-    if (g_model.limitData[i].revert)
-      diff = -diff;
-    v += (diff * 125) / 128;
-
-    g_model.limitData[i].offset = limit((int16_t) -1000, (int16_t) v, (int16_t) 1000); // make sure the offset doesn't go haywire
-  }
-
-  // reset all trims, except throttle (if throttle trim)
-  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
-    auto thrStick = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
-    if (i != thrStick || !g_model.thrTrim) {
-      int16_t original_trim = getTrimValue(mixerCurrentFlightMode, i);
-      for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
-        trim_t trim = getRawTrimValue(fm, i);
-        if (trim.mode / 2 == fm)
-          setTrimValue(fm, i, trim.value - original_trim);
-      }
-    }
-  }
-
-  mixerTaskStart();
-
-  storageDirty(EE_MODEL);
-  AUDIO_WARNING2();
-}
 
 // Overridden by simulator startup
 uint8_t startOptions = 0;
@@ -1948,17 +1640,13 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
 {
   int asrc = abs(source);
 
-  if (asrc >= MIXSRC_FIRST_TRIM && asrc <= MIXSRC_LAST_TRIM) {
-    valMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
-    valMin = -valMax;
-  }
 #if defined(LUA_INPUTS)
-  else if (asrc >= MIXSRC_FIRST_LUA && asrc <= MIXSRC_LAST_LUA) {
+  if (asrc >= MIXSRC_FIRST_LUA && asrc <= MIXSRC_LAST_LUA) {
     valMax = MIXSRC_MAX_VALUE;
     valMin = -valMax;
-  }
+  } else
 #endif
-  else if (asrc < MIXSRC_FIRST_CH) {
+  if (asrc < MIXSRC_FIRST_CH) {
     valMax = 100;
     valMin = -valMax;
   }
