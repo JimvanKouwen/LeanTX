@@ -60,8 +60,6 @@ uint8_t zlen(const char *str, uint8_t size);
 bool zexist(const char *str, uint8_t size);
 char * strcat_zchar(char *dest, const char *name, uint8_t size, const char spaceSym = 0, const char *defaultName=nullptr, uint8_t defaultNameSize=0, uint8_t defaultIdx=0);
 
-#define strcatFlightmodeName(dest, idx) strcat_zchar(dest, g_model.flightModeData[idx].name, LEN_FLIGHT_MODE_NAME, 0, STR_FM, strlen(STR_FM), idx+1)
-
 #if !defined(STORAGE_MODELSLIST)
 
 #define strcat_modelname(dest, idx, spaceSym)                                     \
@@ -146,8 +144,6 @@ char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags);
 char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
 
-char *getFlightModeString(char *dest, int8_t idx);
-
 #endif
 
 void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
@@ -196,7 +192,7 @@ int strncasecmp(char (&s1)[L1], const char *const s2)
 }
 
 std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags);
-std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags);
+std::string formatGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags);
 std::string getGPSCoord(int32_t value, const char *direction,
                         bool seconds = true);
 std::string getGPSSensorValue(int32_t longitude, int32_t latitude,

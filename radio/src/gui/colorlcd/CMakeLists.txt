@@ -37,7 +37,7 @@ file(GLOB MAINVIEW_SRC CONFIGURE_DEPENDS RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
 file(GLOB MENUS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
   ${RADIO_SRC_DIR}/gui/colorlcd/setup_menus/*.cpp)
 
-file(GLOB CONTROLS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
+file(GLOB CONTROLS_SRC CONFIGURE_DEPENDS RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
   ${RADIO_SRC_DIR}/gui/colorlcd/controls/*.cpp)
 
 set(GUI_SRC
@@ -61,7 +61,6 @@ set(GUI_SRC
   model/mixer_edit_adv.cpp
   model/mixer_edit.cpp
   model/model_curves.cpp
-  model/model_flightmodes.cpp
   model/model_gvars.cpp
   model/model_inputs.cpp
   model/model_logical_switches.cpp

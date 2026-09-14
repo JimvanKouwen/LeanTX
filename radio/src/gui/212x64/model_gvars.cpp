@@ -21,8 +21,6 @@
 
 #include "edgetx.h"
 
-static int numFlightModes() { return modelFMEnabled() ? MAX_FLIGHT_MODES : 1; }
-
 enum GVarFields {
   GVAR_FIELD_NAME,
   GVAR_FIELD_UNIT,
@@ -30,8 +28,8 @@ enum GVarFields {
   GVAR_FIELD_MIN,
   GVAR_FIELD_MAX,
   GVAR_FIELD_POPUP,
-  GVAR_FIELD_FM0,
-  GVAR_FIELD_LAST=GVAR_FIELD_FM0+MAX_FLIGHT_MODES
+  GVAR_FIELD_VALUE,
+  GVAR_FIELD_LAST
 };
 
 #define GVAR_2ND_COLUMN                (12*FW)
@@ -43,12 +41,12 @@ void menuModelGVarOne(event_t event)
   GVarData * gvar = &g_model.gvars[s_currIdx];
 
   drawStringWithIndex(strlen(STR_GVARS)*FW+FW, 0, STR_GV, s_currIdx+1, 0);
-  drawGVarValue(32*FW, 0, s_currIdx, getGVarValue(s_currIdx, getFlightMode()));
+  drawGVarValue(32*FW, 0, s_currIdx, getGVarValue(s_currIdx));
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   uint8_t old_editMode = s_editMode;
-  
-  SIMPLE_SUBMENU(STR_GVARS, modelFMEnabled() ? GVAR_FIELD_LAST : GVAR_FIELD_FM0+1);
+
+  SIMPLE_SUBMENU(STR_GVARS, GVAR_FIELD_LAST);
 
   for (int i=0; i<NUM_BODY_LINES; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + i * FH;
@@ -84,12 +82,9 @@ void menuModelGVarOne(event_t event)
         gvar->popup = editCheckBox(gvar->popup, GVAR_2ND_COLUMN, y, STR_POPUP, attr, event);
         break;
 
-      default:
-        if (modelFMEnabled())
-          drawStringWithIndex(0, y, STR_FM, k-GVAR_FIELD_FM0);
-        else
-          lcdDrawText(0, y, STR_VALUE);
-        editGVarValue(GVAR_2ND_COLUMN, y, event, s_currIdx, k-GVAR_FIELD_FM0, LEFT|attr);
+      case GVAR_FIELD_VALUE:
+        lcdDrawText(0, y, STR_VALUE);
+        editGVarValue(GVAR_2ND_COLUMN, y, event, s_currIdx, LEFT|attr);
         break;
     }
   }
@@ -104,70 +99,22 @@ void onGVARSMenu(const char * result)
     pushMenu(menuModelGVarOne);
   }
   else if (result == STR_CLEAR) {
-    for (int i=0; i<MAX_FLIGHT_MODES; i++) {
-      g_model.flightModeData[i].gvars[sub] = 0;
-    }
-    storageDirty(EE_MODEL);
+    setGVarValue(sub, 0);
+        storageDirty(EE_MODEL);
   }
-}
-
-#define GVARS_FM_COLUMN(p)             (7*FW - 7 + (p)*20)
-
-uint8_t colCount() {
-  if (modelFMEnabled())
-    return NAVIGATION_LINE_BY_LINE | (MAX_FLIGHT_MODES - 1);
-  return 0;
 }
 
 void menuModelGVars(event_t event)
 {
-  tmr10ms_t tmr10ms = get_tmr10ms();
-  const char * menuTitle;
-  bool after2seconds = modelFMEnabled() && (tmr10ms - menuEntryTime > 200); /*2 seconds*/
-
-  if (after2seconds) {
-    menuTitle = STR_GVARS;
-    for (int i=0; i<MAX_GVARS; i++) {
-      drawStringWithIndex(GVARS_FM_COLUMN(i), 1, STR_FM, i, SMLSIZE|(getFlightMode()==i ? INVERS : 0));
-    }
-  }
-  else {
-    menuTitle = STR_MENU_GLOBAL_VARS;
-  }
-
- MENU_FLAGS(menuTitle, menuTabModel, MENU_MODEL_GVARS, after2seconds ? CHECK_FLAG_NO_SCREEN_INDEX : 0, MAX_GVARS,
-           { colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount() });
-
-  int sub = menuVerticalPosition;
-
-  for (int l=0; l<NUM_BODY_LINES; l++) {
+  SIMPLE_MENU(STR_MENU_GLOBAL_VARS, menuTabModel, MENU_MODEL_GVARS, MAX_GVARS);
+  for (int l = 0; l < NUM_BODY_LINES; l++) {
     int i = l + menuVerticalOffset;
-    coord_t y = MENU_HEADER_HEIGHT + 1 + l*FH;
-
-    drawGVarName(0, y, i, (sub==i && menuHorizontalPosition<0) ? INVERS : 0);
-
-    for (int j=0; j<numFlightModes(); j++) {
-      FlightModeData * fm = &g_model.flightModeData[j];
-      gvar_t v = fm->gvars[i];
-
-      LcdFlags attr = ((sub == i && menuHorizontalPosition == j) ? (s_editMode > 0 ? BLINK | INVERS : INVERS) : 0);
-      coord_t x = GVARS_FM_COLUMN(j);
-      coord_t yval = y;
-      if (v > GVAR_MAX) {
-        attr |= SMLSIZE;
-      }
-      else if (g_model.gvars[i].prec > 0 || abs(v) >= 100) {
-        attr |= TINSIZE | NO_UNIT;
-        ++yval;
-      }
-      else {
-        attr |= SMLSIZE | NO_UNIT;
-      }
-      editGVarValue(x, yval, event, i, j, attr);
-    }
+    if (i >= MAX_GVARS) break;
+    coord_t y = MENU_HEADER_HEIGHT + 1 + l * FH;
+    LcdFlags attr = menuVerticalPosition == i ? INVERS : 0;
+    drawGVarName(0, y, i, attr);
+    editGVarValue(GVAR_2ND_COLUMN, y, event, i, LEFT | attr);
   }
-
-  if ((menuHorizontalPosition<0 || !modelFMEnabled()) && event==EVT_KEY_LONG(KEY_ENTER)) {
+  if (event == EVT_KEY_LONG(KEY_ENTER))
     POPUP_MENU_START(onGVARSMenu, 2, STR_EDIT, STR_CLEAR);
-  }
 }

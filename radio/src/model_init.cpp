@@ -71,17 +71,6 @@ void setDefaultModelRegistrationID()
 {
 }
 
-void setDefaultGVars()
-{
-#if defined(FLIGHT_MODES) && defined(GVARS)
-  for (int fmIdx = 1; fmIdx < MAX_FLIGHT_MODES; fmIdx++) {
-    for (int gvarIdx = 0; gvarIdx < MAX_GVARS; gvarIdx++) {
-      g_model.flightModeData[fmIdx].gvars[gvarIdx] = GVAR_MAX + 1;
-    }
-  }
-#endif
-}
-
 void setDefaultRSSIValues()
 {
   // Set to legacy FrSky values until
@@ -125,7 +114,6 @@ void applyDefaultTemplate()
 {
   setDefaultInputs();
   setDefaultMixes();
-  setDefaultGVars();
   setDefaultRSSIValues();
 
   setDefaultModelRegistrationID();

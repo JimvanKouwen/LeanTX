@@ -24,7 +24,6 @@
 #include "choice.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
-#include "fm_matrix.h"
 #include "getset_helpers.h"
 #include "mixes.h"
 #include "numberedit.h"
@@ -69,13 +68,6 @@ void MixEditAdvanced::buildBody(Window* form)
     line = form->newLine(grid);
     new StaticText(line, rect_t{}, STR_MULTPX);
     new Choice(line, rect_t{}, STR_VMLTPX, 0, 2, GET_SET_DEFAULT(mix->mltpx));
-  }
-
-  // Flight modes
-  if (modelFMEnabled()) {
-    line = form->newLine(grid);
-    new StaticText(line, rect_t{}, STR_FLMODE);
-    new FMMatrix<MixData>(line, rect_t{}, mix);
   }
 
   line = form->newLine(grid);

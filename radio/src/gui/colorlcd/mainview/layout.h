@@ -50,7 +50,7 @@ struct LayoutOption
 // Common 'LayoutOptionValue's among all layouts
 enum {
   LAYOUT_OPTION_TOPBAR = 0,
-  LAYOUT_OPTION_FM,
+  LAYOUT_OPTION_RESERVED,
   LAYOUT_OPTION_SLIDERS,
   LAYOUT_OPTION_RESERVED_TRIMS,
   LAYOUT_OPTION_MIRRORED,
@@ -60,7 +60,7 @@ enum {
 
 #define LAYOUT_COMMON_OPTIONS                           \
   {STR_DEF(STR_TOP_BAR), LayoutOption::Bool, true},     \
-  {STR_DEF(STR_FLIGHT_MODE), LayoutOption::Bool, true}, \
+  {STR_DEF(STR_EMPTY), LayoutOption::Reserved, false}, \
   {STR_DEF(STR_SLIDERS), LayoutOption::Bool, true},     \
   {STR_DEF(STR_EMPTY), LayoutOption::Reserved, false}, \
   {STR_DEF(STR_MIRROR), LayoutOption::Bool, false}
@@ -115,7 +115,6 @@ class Layout: public WidgetsContainer
   }
 
   virtual bool hasTopbar() const;
-  virtual bool hasFlightMode() const;
   virtual bool hasSliders() const;
   virtual bool isMirrored() const;
 

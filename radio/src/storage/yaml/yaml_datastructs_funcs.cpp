@@ -1331,13 +1331,6 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
       ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
     }
-    else if (val_len == 3
-             && val[0] == 'F'
-             && val[1] == 'M'
-             && (val[2] >= '0' && val[2] <= '9')) {
-
-        ival = SWSRC_FIRST_FLIGHT_MODE + (val[2] - '0');
-    }
     else if (val_len >= 2
              && val[0] == 'T'
              && (val[1] >= '0' && val[1] <= '9')) {
@@ -1398,12 +1391,6 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
       str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
       return wf(opaque,str, strlen(str));
     }
-    else if (sval <= SWSRC_LAST_FLIGHT_MODE) {
-
-      wf(opaque, "FM", 2);
-      str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE);
-      return wf(opaque,str, strlen(str));
-    }
     else if (sval <= SWSRC_LAST_SENSOR) {
 
       wf(opaque, "T", 1);
@@ -1447,35 +1434,6 @@ bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
   data += bitoffs >> 3UL;
   return ((CustomFunctionData*)data)->swtch;
-}
-
-static bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs)
-{
-  // TODO: no need to output 0 values for FM0
-  gvar_t* gvar = (gvar_t*)(data + (bitoffs>>3UL));
-  return *gvar != GVAR_MAX+1;
-}
-
-static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts();
-
-  // FM0 defaults to all 0
-  if (idx == 0) {
-    return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
-  }
-
-  // assumes gvars array is last
-  bool is_active = !yaml_is_zero(data, bitoffs, offsetof(FlightModeData, gvars) << 3UL);
-
-  data += bitoffs >> 3UL;
-  FlightModeData* fmd = (FlightModeData*)(data);
-  for (uint8_t i = 0; i < MAX_GVARS; i++) {
-    is_active |= fmd->gvars[i] != GVAR_MAX + 1; // FM0 -> default
-  }
-
-  return is_active;
 }
 
 static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1676,29 +1634,6 @@ static bool w_tele_sensor(const YamlNode* node, uint32_t val,
 
   const char* str = yaml_unsigned2str(val-1);
   return wf(opaque, str, strlen(str));
-}
-
-static uint32_t r_flightModes(const YamlNode* node, const char* val, uint8_t val_len)
-{
-  uint32_t bits = 0;
-  uint32_t mask = 1;
-
-  for (uint32_t i = 0; i < val_len; i++) {
-    if (val[i] == '1') bits |= mask;
-    mask <<= 1;
-  }
-
-  return bits;
-}
-
-static bool w_flightModes(const YamlNode* node, uint32_t val,
-                          yaml_writer_func wf, void* opaque)
-{
-  for (uint32_t i = 0; i < node->size; i++) {
-    uint32_t bit = (val >> i) & 1;
-    if (!wf(opaque, bit ? "1" : "0", 1)) return false;
-  }
-  return true;
 }
 
 static const char* const _func_reset_param_lookup[] = {

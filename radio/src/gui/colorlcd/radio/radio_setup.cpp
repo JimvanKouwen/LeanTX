@@ -632,13 +632,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
         STR_DEF(STR_MODEL_MENU_TABS),
         nullptr,
     },
-#if defined(FLIGHT_MODES)
-    {STR_DEF(STR_MENUFLIGHTMODES),
-     [](Window* parent, coord_t x, coord_t y) {
-       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled),
-                  g_model.modelFMDisabled);
-     }},
-#endif
 #if defined(GVARS)
     {STR_DEF(STR_MENU_GLOBAL_VARS),
      [](Window* parent, coord_t x, coord_t y) {

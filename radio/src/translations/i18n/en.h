@@ -37,7 +37,6 @@
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_MODEL_SETTINGS            "Model\nSettings"
 #define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -84,8 +83,6 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENUFLIGHTMODES              TR_BW_COL("FLIGHT MODES", "Flight Modes")
-#define TR_MENUFLIGHTMODE               "FLIGHT MODE"
 #define TR_MENUINPUTS                   TR_BW_COL("INPUTS", "Inputs")
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
@@ -425,8 +422,6 @@
 #define TR_SWITCH_GROUP                "Group"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trims"
-#define TR_FADEIN                      "Fade in"
-#define TR_FADEOUT                     "Fade out"
 #define TR_MODE                        "Mode"
 #define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     "Subtype"
@@ -437,7 +432,6 @@
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
 #define TR_CURVE                       "Curve"
-#define TR_FLMODE                      TR("Mode", "Modes")
 #define TR_MIXWARNING                  "Warning"
 #define TR_OFF                         "OFF"
 #define TR_ANTENNA                     "Antenna"
@@ -557,7 +551,6 @@
 #define TR_MENUTORESET                 TR_ENTER " to reset"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
-#define TR_FM                          "FM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Press any key to skip"
 #define TR_THROTTLE_NOT_IDLE           "Throttle not idle"
 #define TR_ALARMSDISABLED              "Alarms disabled"
@@ -974,7 +967,6 @@
 #define TR_FILL_BACKGROUND           "Fill background?"
 #define TR_BG_COLOR                  "BG Color"
 #define TR_SLIDERS                   "Sliders"
-#define TR_FLIGHT_MODE               "Flight mode"
 #define TR_TIMER_SOURCE              "Timer source"
 #define TR_SIZE                      "Size"
 #define TR_SHADOW                    "Shadow"

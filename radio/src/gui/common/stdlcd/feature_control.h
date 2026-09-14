@@ -89,12 +89,6 @@
   #define CASE_BLUETOOTH(x)
 #endif
 
-#if defined(FLIGHT_MODES)
-  #define CASE_FLIGHT_MODES(x) x,
-#else
-  #define CASE_FLIGHT_MODES(x)
-#endif
-
 #if defined(GVARS)
   #define CASE_GVARS(x) x,
 #else

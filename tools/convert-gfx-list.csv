@@ -12,7 +12,6 @@ mask_icon_menu_radio_setup,30,30,2026-01-13 11:36:16
 mask_icon_menu_tools,30,30,2026-01-13 11:36:16
 mask_icon_menu_ui_setup,30,30,2026-01-13 11:36:16
 mask_icon_model_curves,30,30,2026-01-13 11:36:16
-mask_icon_model_flight_modes,30,30,2026-01-13 11:36:16
 mask_icon_model_general,30,30,2026-01-13 11:36:16
 mask_icon_model_gvars,30,30,2026-01-13 11:36:16
 mask_icon_model_heli,30,30,2026-01-13 11:36:16
@@ -63,7 +62,6 @@ mask_info_usb_plugged,211,110,2026-01-13 11:36:16
 mask_inline_add,17,17,2026-01-13 11:36:16
 mask_inline_curve,17,17,2026-01-13 11:36:16
 mask_inline_dot,13,13,2026-01-13 11:36:16
-mask_inline_fm,17,17,2026-01-13 11:36:16
 mask_inline_inverted,11,16,2026-01-13 11:36:16
 mask_inline_locked,11,16,2026-01-13 11:36:16
 mask_inline_multiply,17,17,2026-01-13 11:36:16

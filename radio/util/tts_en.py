@@ -4,7 +4,6 @@
 
 from tts_common import filename
 
-
 systemSounds = []
 sounds = []
 
@@ -94,35 +93,13 @@ for i, (s, f) in enumerate([("armed", "armed"),
                             ("normal. mode!, on", "nrmmod"),
                             ("landing. mode!, on", "lnding"),
                             ("acro. mode!, on", "acro"),
-                            ("flight mode one", "fm-1"),
-                            ("flight mode two", "fm-2"),
-                            ("flight mode three", "fm-3"),
-                            ("flight mode four", "fm-4"),
-                            ("flight mode five", "fm-5"),
-                            ("flight mode six", "fm-6"),
-                            ("flight mode seven", "fm-7"),
-                            ("flight mode eight", "fm-8"),
                             ("vario!, on", "vrion"),
                             ("vario!, off", "vrioff"),
-                            ("flight mode power", "fm-pwr"),
-                            ("flight mode land", "fm-lnd"),
-                            ("flight mode float", "fm-flt"),
-                            ("flight mode speed", "fm-spd"),
-                            ("flight mode fast", "fm-fst"),
-                            ("flight mode normal", "fm-nrm"),
-                            ("flight mode cruise", "fm-crs"),
                             ("flight mode acro", "fm-acr"),
                             ("flight mode race", "fm-rce"),
-                            ("flight mode launch", "fm-lch"),
-                            ("flight mode ping", "fm-png"),
-                            ("flight mode thermal", "fm-thm"),
-                            ("flight mode thermal left", "fm-thl"),
-                            ("flight mode thermal right", "fm-thr"),
                             ("flight mode stabilize", "fm-stb"),
                             ("flight mode horizon", "fm-hor"),
                             ("flight mode angle", "fm-ang"),
-                            ("flight mode idle up 1", "fm-id1"),
-                            ("flight mode idle up 2", "fm-id2"),
                             ("low rate", "ratlow"),
                             ("medium rate", "ratmed"),
                             ("high rate", "rathi"),

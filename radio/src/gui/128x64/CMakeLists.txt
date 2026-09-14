@@ -17,12 +17,6 @@ set(GUI_SRC
   view_statistics.cpp
 )
 
-if(FLIGHT_MODES)
-  set(GUI_SRC ${GUI_SRC}
-    model_flightmodes.cpp
-  )
-endif()
-
 if(GVARS)
   set(GUI_SRC ${GUI_SRC}
     model_gvars.cpp

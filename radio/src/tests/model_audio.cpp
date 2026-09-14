@@ -23,41 +23,6 @@
 
 #include "gtests.h"
 
-TEST(ModelAudio, flightModes)
-{
-  strncpy(g_model.flightModeData[0].name, "One", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[1].name, "Two", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[2].name, "Three", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[3].name, "Four", LEN_FLIGHT_MODE_NAME);
-  strncpy(g_model.flightModeData[4].name, "Five", LEN_FLIGHT_MODE_NAME);
-
-  int idx, event;
-  EXPECT_TRUE(matchModeAudioFile("one-on.wav", idx, event));
-  EXPECT_EQ(0, idx);
-  EXPECT_EQ(1, event);
-
-  EXPECT_TRUE(matchModeAudioFile("one-off.wav", idx, event));
-  EXPECT_EQ(0, idx);
-  EXPECT_EQ(0, event);
-
-  EXPECT_TRUE(matchModeAudioFile("tWo-ON.wav", idx, event));
-  EXPECT_EQ(1, idx);
-  EXPECT_EQ(1, event);
-
-  EXPECT_TRUE(matchModeAudioFile("five-OFF.wav", idx, event));
-  EXPECT_EQ(4, idx);
-  EXPECT_EQ(0, event);
-
-  EXPECT_FALSE(matchModeAudioFile("abc-off.wav", idx, event));
-  EXPECT_FALSE(matchModeAudioFile("abc-on.wav", idx, event));
-
-  EXPECT_FALSE(matchModeAudioFile("", idx, event));
-  EXPECT_FALSE(matchModeAudioFile("O", idx, event));
-  EXPECT_FALSE(matchModeAudioFile("On", idx, event));
-  EXPECT_FALSE(matchModeAudioFile("One", idx, event));
-  EXPECT_FALSE(matchModeAudioFile("One.", idx, event));
-}
-
 TEST(ModelAudio, switches)
 {
   int sw_pos;

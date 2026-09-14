@@ -119,7 +119,7 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_GF,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
-  CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
+
   CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
   ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
@@ -432,7 +432,7 @@ void menuModelSetup(event_t event)
      VIEWOPT_ROW(LABEL(RadioMenuTabs)),
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(LABEL(ModelMenuTabs)),
-      CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
+
       CASE_GVARS(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
@@ -910,11 +910,6 @@ void menuModelSetup(event_t event)
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;
-#if defined(FLIGHT_MODES)
-      case ITEM_VIEW_OPTIONS_FM:
-        g_model.modelFMDisabled = viewOptChoice(y, STR_MENUFLIGHTMODES, g_model.modelFMDisabled, attr, event, g_eeGeneral.modelFMDisabled);
-        break;
-#endif
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event, g_eeGeneral.modelCurvesDisabled);
         break;

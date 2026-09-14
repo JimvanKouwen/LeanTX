@@ -24,14 +24,11 @@
 const MenuHandler menuTabModel[] = {
     {menuModelSelect, nullptr},
     {menuModelSetup, nullptr},
-#if defined(FLIGHT_MODES)
-    {menuModelFlightModesAll, modelFMEnabled},
-#endif
     {menuModelExposAll, nullptr},
     {menuModelMixAll, nullptr},
     {menuModelLimits, nullptr},
     {menuModelCurvesAll, modelCurvesEnabled},
-#if defined(GVARS) && defined(FLIGHT_MODES) && (LCD_W >= 212)
+#if defined(GVARS)
     {menuModelGVars, modelGVEnabled},
 #endif
     {menuModelLogicalSwitches, modelLSEnabled},

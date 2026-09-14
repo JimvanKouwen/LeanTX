@@ -69,11 +69,6 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   padAll(PAD_ZERO);
 }
 
-InputMixButtonBase::~InputMixButtonBase()
-{
-  if (fm_buffer) free(fm_buffer);
-}
-
 void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 {
   if (!weight) {
@@ -128,96 +123,7 @@ void InputMixButtonBase::setOpts(const char* s)
   lv_label_set_text(opts, s);
 }
 
-void InputMixButtonBase::setFlightModes(uint16_t modes)
-{
-  if (!modelFMEnabled()) return;
-  if (modes == fm_modes) return;
-  fm_modes = modes;
 
-  if (!fm_modes) {
-    if (!fm_canvas) return;
-    lv_obj_del(fm_canvas);
-    free(fm_buffer);
-    fm_canvas = nullptr;
-    fm_buffer = nullptr;
-    updateHeight();
-    return;
-  }
-
-  if (!fm_canvas) {
-    fm_canvas = lv_canvas_create(lvobj);
-    fm_buffer = malloc(FM_CANVAS_WIDTH * FM_CANVAS_HEIGHT);
-    lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
-                         FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
-    lv_obj_set_pos(fm_canvas, FM_X, FM_Y);
-
-    lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
-    lv_obj_set_style_img_recolor_opa(fm_canvas, LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_PRIMARY1), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_img_recolor_opa(fm_canvas, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_CHECKED);
-  }
-
-  lv_canvas_fill_bg(fm_canvas, lv_color_black(), LV_OPA_TRANSP);
-
-  const MaskBitmap* mask = getBuiltinIcon(ICON_TEXTLINE_FM);
-  lv_coord_t w = mask->width;
-  lv_coord_t h = mask->height;
-
-  coord_t x = 0;
-  lv_canvas_copy_buf(fm_canvas, mask->data, x, 0, w, h);
-  x += (w + PAD_TINY);
-
-  lv_draw_label_dsc_t label_dsc;
-  lv_draw_label_dsc_init(&label_dsc);
-
-  lv_draw_rect_dsc_t rect_dsc;
-  lv_draw_rect_dsc_init(&rect_dsc);
-  rect_dsc.bg_opa = LV_OPA_COVER;
-
-  const lv_font_t* font = getFont(FONT(XS));
-  label_dsc.font = font;
-
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
-    char s[] = " ";
-    s[0] = '0' + i;
-    if (fm_modes & (1 << i)) {
-      label_dsc.color = lv_color_make(0x7f, 0x7f, 0x7f);
-    } else {
-      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, PAD_THREE, &rect_dsc);
-      label_dsc.color = lv_color_white();
-    }
-    lv_canvas_draw_text(fm_canvas, x, 0, FM_W, &label_dsc, s);
-    x += FM_W;
-  }
-
-  updateHeight();
-}
-
-void InputMixButtonBase::checkEvents()
-{
-  ListLineButton::checkEvents();
-  if (!_deleted) {
-    if (fm_canvas) {
-      bool chkd = lv_obj_get_state(fm_canvas) & LV_STATE_CHECKED;
-      if (chkd != this->checked()) {
-        if (chkd)
-          lv_obj_clear_state(fm_canvas, LV_STATE_CHECKED);
-        else
-          lv_obj_add_state(fm_canvas, LV_STATE_CHECKED);
-      }
-    }
-  }
-}
-
-void InputMixButtonBase::updateHeight()
-{
-#if NARROW_LAYOUT
-  coord_t h = ListLineButton::BTN_H;
-  if (fm_canvas)
-    h += FM_CANVAS_HEIGHT + PAD_TINY;
-  setHeight(h);
-#endif
-}
 
 static void group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
@@ -257,7 +163,6 @@ void InputMixGroupBase::_adjustHeight(coord_t y)
 
   for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
     auto line = *it;
-    line->updateHeight();
     line->updatePos(InputMixButtonBase::LN_X, y);
     y += line->height() + PAD_OUTLINE;
   }

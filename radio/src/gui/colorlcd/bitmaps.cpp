@@ -104,9 +104,6 @@ static const uint8_t mask_edgetx[] __FLASH = {
 static const uint8_t mask_model_curves[] __FLASH = {
 #include "mask_icon_model_curves.lbm"
 };
-static const uint8_t mask_model_flight_modes[] __FLASH = {
-#include "mask_icon_model_flight_modes.lbm"
-};
 static const uint8_t mask_model_general[] __FLASH = {
 #include "mask_icon_model_general.lbm"
 };
@@ -241,9 +238,6 @@ static const uint8_t mask_inline_curve[] __FLASH = {
 };
 static const uint8_t mask_inline_dot[] __FLASH = {
 #include "mask_inline_dot.lbm"
-};
-static const uint8_t mask_inline_fm[] __FLASH = {
-#include "mask_inline_fm.lbm"
 };
 static const uint8_t mask_inline_inverted[] __FLASH = {
 #include "mask_inline_inverted.lbm"
@@ -402,7 +396,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_RADIO_VERSION, mask_radio_about),
     BI(ICON_MODEL, mask_menu_model_setup),
     BI(ICON_MODEL_SETUP, mask_model_general),
-    BI(ICON_MODEL_FLIGHT_MODES, mask_model_flight_modes),
     BI(ICON_MODEL_INPUTS, mask_model_inputs),
     BI(ICON_MODEL_MIXER, mask_model_mixer),
     BI(ICON_MODEL_NOTES, mask_model_notes),
@@ -479,7 +472,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_TIMER, mask_widget_timer),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
-    BI(ICON_TEXTLINE_FM, mask_inline_fm),
 
     BI(ICON_MPLEX_ADD, mask_inline_add),
     BI(ICON_MPLEX_MULTIPLY, mask_inline_multiply),

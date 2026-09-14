@@ -46,34 +46,6 @@ void drawValueWithUnit(coord_t x, coord_t y, int32_t val, uint8_t unit, LcdFlags
   }
 }
 
-FlightModesType editFlightModes(coord_t x, coord_t y, event_t event, FlightModesType value, uint8_t attr)
-{
-  int posHorz = menuHorizontalPosition;
-
-  for (uint8_t p=0; p<MAX_FLIGHT_MODES; p++) {
-    LcdFlags flags = 0;
-    if (attr) {
-      flags |= INVERS;
-      if (posHorz==p) flags |= BLINK;
-    }
-    if (value & (1<<p))
-      lcdDrawChar(x, y, ' ', flags|FIXEDWIDTH);
-    else
-      lcdDrawChar(x, y, '0'+p, flags);
-    x += FW;
-  }
-
-  if (attr) {
-    if (s_editMode && event==EVT_KEY_BREAK(KEY_ENTER)) {
-      s_editMode = 0;
-      value ^= (1<<posHorz);
-      storageDirty(EE_MODEL);
-    }
-  }
-
-  return value;
-}
-
 char getNextChar(char c, uint8_t position)
 {
   if (c == ' ')
@@ -284,28 +256,6 @@ void lcdDrawMMM(coord_t x, coord_t y, LcdFlags flags)
 {
   lcdDrawTextAtIndex(x, y, STR_MMMINV, 0, flags);
 }
-
-#if defined(FLIGHT_MODES)
-void drawFlightMode(coord_t x, coord_t y, int8_t idx, LcdFlags att)
-{
-  if (idx==0) {
-    lcdDrawMMM(x, y, att);
-    return;
-  }
-  // TODO this code was not included in Taranis! and used with abs(...) on Horus
-  if (idx < 0) {
-    lcdDrawChar(x-2, y, '!', att);
-    idx = -idx;
-  }
-#if defined(CONDENSED)
-  if (att & CONDENSED) {
-    lcdDrawNumber(x+FW*1, y, idx-1, (att & ~CONDENSED), 1);
-    return;
-  }
-#endif
-  drawStringWithIndex(x, y, STR_FM, idx-1, att);
-}
-#endif
 
 void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
 {

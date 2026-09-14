@@ -158,7 +158,6 @@ class InputLineButton : public InputMixButtonBase
 
     setOpts(tmp_str);
 
-    setFlightModes(line.flightModes);
   }
 
   void updatePos(coord_t x, coord_t y) override

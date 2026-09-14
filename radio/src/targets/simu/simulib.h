@@ -129,16 +129,9 @@ uint8_t  WASM_EXPORT(simuGetMixCount)();
 uint8_t  WASM_EXPORT(simuGetNumLogicalSwitches)();
 uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
 
-// Trim values. idx 0..TRIM_AXIS_COUNT-1 (typically 8).
-// Returns the trim value for the current flight mode.
-
-// Flight mode: returns current flight mode index (0-based).
-int32_t  WASM_EXPORT(simuGetFlightMode)();
-
-// GVars: gv 0..N-1, fm 0..M-1. Returns encoded gVarMode_t.
+// GVars: one value per variable, with precision and unit in the upper bits.
 uint8_t  WASM_EXPORT(simuGetNumGVars)();
-uint8_t  WASM_EXPORT(simuGetNumFlightModes)();
-int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv, uint8_t fm);
+int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv);
 
 // Aux serial: push bytes received from a host serial port into the firmware's
 // rx queue for the matching aux port (port_nr is 0 for AUX1, 1 for AUX2).

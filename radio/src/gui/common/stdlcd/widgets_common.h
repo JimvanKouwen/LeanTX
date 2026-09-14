@@ -55,7 +55,7 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
 
 #if defined(GVARS)
 void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar,
-                   uint8_t flightMode, LcdFlags flags);
+                   LcdFlags flags);
 #endif
 
 void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,

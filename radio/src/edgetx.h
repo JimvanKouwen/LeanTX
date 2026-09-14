@@ -237,19 +237,14 @@ inline void ALERT(const char *title, const char *msg, uint8_t sound)
 
 enum PerOutMode {
   e_perout_mode_normal = 0,
-  e_perout_mode_inactive_flight_mode = 1,
   e_perout_mode_preview = 2,
   e_perout_mode_nosticks = 8,
   e_perout_mode_noinput = e_perout_mode_preview+e_perout_mode_nosticks
 };
 
-extern uint8_t mixerCurrentFlightMode;
-extern uint8_t lastFlightMode;
-extern uint8_t flightModeTransitionLast;
-
 extern uint32_t availableMemory();
 
-void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms);
+void evalChannelMixes(uint8_t mode, uint8_t tick10ms);
 void evalMixes(uint8_t tick10ms);
 void doMixerCalculations();
 void doMixerPeriodicUpdates();
@@ -260,12 +255,6 @@ void perMain();
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
 int8_t getMovedSource(uint8_t min);
-
-#if defined(FLIGHT_MODES)
-  extern uint8_t getFlightMode();
-#else
-  #define getFlightMode() 0
-#endif
 
 #include "gvars.h"
 
@@ -356,7 +345,6 @@ uint16_t anaIn(uint8_t chan);
 
 #define FLASH_DURATION 20 /*200ms*/
 
-FlightModeData * flightModeAddress(uint8_t idx);
 ExpoData * expoAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 LogicalSwitchData * lswAddress(uint8_t idx);
@@ -731,7 +719,6 @@ extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 extern bool radioThemesEnabled();
 #endif
 extern bool radioGFEnabled();
-extern bool modelFMEnabled();
 extern bool modelCurvesEnabled();
 extern bool modelGVEnabled();
 extern bool modelLSEnabled();

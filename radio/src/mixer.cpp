@@ -188,8 +188,6 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
     if (!EXPO_VALID(ed)) break; // end of list
     if (ed->chn == cur_chn)
       continue;
-    if (ed->flightModes & (1<<mixerCurrentFlightMode))
-      continue;
     if (getSwitch(ed->swtch)) {
       int32_t v;
       if (srcRaw == ovwrIdx) {
@@ -453,7 +451,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
   else if (i <= MIXSRC_LAST_GVAR) {
 #if defined(GVARS)
-    return GVAR_VALUE(i - MIXSRC_FIRST_GVAR, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_FIRST_GVAR));
+    return GVAR_VALUE(i - MIXSRC_FIRST_GVAR);
 #else
     if (valid != nullptr) *valid = false;
     return 0;
@@ -606,9 +604,7 @@ static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
   return ~(channel_bit(ch)) + 1;
 }
 
-uint8_t mixerCurrentFlightMode;
-
-void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
+void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
 
@@ -653,10 +649,9 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (i == 0 || md->destCh != (md - 1)->destCh)
         chans[md->destCh] = 0;
 
-      //========== FLIGHT MODE && SWITCH =====
-      bool mixCondition = (md->flightModes != 0 || md->swtch);
-      bool fmEnabled = (md->flightModes & (1 << mixerCurrentFlightMode)) == 0;
-      bool mixLineActive = fmEnabled && getSwitch(md->swtch);
+      //========== SWITCH =====
+      bool mixCondition = (md->swtch != SWSRC_NONE);
+      bool mixLineActive = getSwitch(md->swtch);
       delayval_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
 
       if (mixLineActive) {
@@ -678,7 +673,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       //========== VALUE ===============
       getvalue_t v = 0;
 
-      if (mode > e_perout_mode_inactive_flight_mode) {
+      if (mode != e_perout_mode_normal) {
         if (mixEnabled)
           v = getValue(srcRaw);
         else
@@ -763,7 +758,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       // now its on input side, but without weight compensation. More like other remote controls
       // lower weight causes slower movement
 
-      if (mode <= e_perout_mode_inactive_flight_mode && (md->speedUp || md->speedDown)) { // there are delay values
+      if (mode == e_perout_mode_normal && (md->speedUp || md->speedDown)) { // there are delay values
 #define DEL_MULT_SHIFT 8
         // we recale to a mult 256 higher value for calculation
         int32_t tact = act[i];
@@ -899,79 +894,13 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
   mixWarning = lv_mixWarning;
 }
 
-#define MAX_ACT 0xffff
-uint8_t lastFlightMode = 255; // TODO reinit everything here when the model changes, no???
-
-tmr10ms_t flightModeTransitionTime;
-uint8_t   flightModeTransitionLast = 255;
-
 void evalMixes(uint8_t tick10ms)
 {
-  int32_t sum_chans512[MAX_OUTPUT_CHANNELS];
-
-  static uint16_t fp_act[MAX_FLIGHT_MODES] = {0};
-  static uint16_t delta = 0;
-  static uint16_t flightModesFade = 0;
-
 #if defined(RADIO_GX12)
   // see #6159
   _poll_switches();
 #endif
-
-  uint8_t fm = getFlightMode();
-
-  if (lastFlightMode != fm) {
-    flightModeTransitionTime = get_tmr10ms();
-
-    if (lastFlightMode == 255) {
-      fp_act[fm] = MAX_ACT;
-    }
-    else {
-      uint8_t fadeTime = max(g_model.flightModeData[lastFlightMode].fadeOut, g_model.flightModeData[fm].fadeIn);
-      uint16_t transitionMask = (0x01u << lastFlightMode) + (0x01u << fm);
-      if (fadeTime) {
-        flightModesFade |= transitionMask;
-        delta = (MAX_ACT / 10) / fadeTime;
-      }
-      else {
-        flightModesFade &= ~transitionMask;
-        fp_act[lastFlightMode] = 0;
-        fp_act[fm] = MAX_ACT;
-      }
-      logicalSwitchesCopyState(lastFlightMode, fm); // push last logical switches state from old to new flight mode
-    }
-    lastFlightMode = fm;
-  }
-
-  if (flightModeTransitionTime && get_tmr10ms() > flightModeTransitionTime+SWITCHES_DELAY()) {
-    flightModeTransitionTime = 0;
-    if (fm != flightModeTransitionLast) {
-      if (flightModeTransitionLast != 255) {
-        PLAY_PHASE_OFF(flightModeTransitionLast);
-      }
-      PLAY_PHASE_ON(fm);
-      flightModeTransitionLast = fm;
-    }
-  }
-
-  int32_t weight = 0;
-  if (flightModesFade) {
-    memclear(sum_chans512, sizeof(sum_chans512));
-    for (uint8_t p=0; p<MAX_FLIGHT_MODES; p++) {
-      if (flightModesFade & (0x01 << p)) {
-        mixerCurrentFlightMode = p;
-        evalFlightModeMixes(p==fm ? e_perout_mode_normal : e_perout_mode_inactive_flight_mode, p==fm ? tick10ms : 0);
-        for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS; i++)
-          sum_chans512[i] += limit<int32_t>(-0x6fff, chans[i] >> 4, 0x6fff) * fp_act[p];
-        weight += fp_act[p];
-      }
-    }
-    mixerCurrentFlightMode = fm;
-  }
-  else {
-    mixerCurrentFlightMode = fm;
-    evalFlightModeMixes(e_perout_mode_normal, tick10ms);
-  }
+  evalChannelMixes(e_perout_mode_normal, tick10ms);
 
   //========== FUNCTIONS ===============
   // must be done after mixing because some functions use the inputs/channels values
@@ -1003,7 +932,7 @@ void evalMixes(uint8_t tick10ms)
     // at the end chans[i] = chans[i]/256 =>  -1024..1024
     // interpolate value with min/max so we get smooth motion from center to stop
     // this limits based on v original values and min=-1024, max=1024  RESX=1024
-    int32_t q = (flightModesFade ? (sum_chans512[i] / weight) << 4 : chans[i]);
+    int32_t q = chans[i];
 
     ex_chans[i] = q / 256;
 
@@ -1012,30 +941,6 @@ void evalMixes(uint8_t tick10ms)
     channelOutputs[i] = value;  // copy consistent word to int-level
   }
 
-  if (tick10ms && flightModesFade) {
-    uint16_t tick_delta = delta * tick10ms;
-    for (uint8_t p=0; p<MAX_FLIGHT_MODES; p++) {
-      uint16_t flightModeMask = (0x01 << p);
-      if (flightModesFade & flightModeMask) {
-        if (p == fm) {
-          if (MAX_ACT - fp_act[p] > tick_delta)
-            fp_act[p] += tick_delta;
-          else {
-            fp_act[p] = MAX_ACT;
-            flightModesFade -= flightModeMask;
-          }
-        }
-        else {
-          if (fp_act[p] > tick_delta)
-            fp_act[p] -= tick_delta;
-          else {
-            fp_act[p] = 0;
-            flightModesFade -= flightModeMask;
-          }
-        }
-      }
-    }
-  }
 }
 
 #if defined(THRTRACE)

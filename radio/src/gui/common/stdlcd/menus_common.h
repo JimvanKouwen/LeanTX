@@ -106,13 +106,11 @@ enum MenuRadioIndexes
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
   MENU_MODEL_SETUP,
-  CASE_FLIGHT_MODES(MENU_MODEL_FLIGHT_MODES) MENU_MODEL_INPUTS,
+   MENU_MODEL_INPUTS,
   MENU_MODEL_MIXES,
   MENU_MODEL_OUTPUTS,
   MENU_MODEL_CURVES,
-#if LCD_W >= 212
   CASE_GVARS(MENU_MODEL_GVARS)
-#endif
       MENU_MODEL_LOGICAL_SWITCHES,
   MENU_MODEL_SPECIAL_FUNCTIONS,
 #if defined(LUA_MODEL_SCRIPTS)
@@ -137,7 +135,7 @@ void menuServoPwmTool(event_t event);
 
 void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);
-void menuModelFlightModesAll(event_t event);
+void menuModelGVars(event_t event);
 void menuModelExpoOne(event_t event);
 void menuModelExposAll(event_t event);
 void menuModelMixOne(event_t event);
@@ -191,13 +189,6 @@ uint8_t switchToMix(uint8_t source);
 void drawSplash();
 void doMainScreenGraphics();
 void drawAlertBox(const char * title, const char * text, const char * action);
-
-#if defined(FLIGHT_MODES)
-void displayFlightModes(coord_t x, coord_t y, FlightModesType value);
-FlightModesType editFlightModes(coord_t x, coord_t y, event_t event, FlightModesType value, uint8_t attr);
-#else
-#define displayFlightModes(...)
-#endif
 
 #define IS_MAIN_VIEW_DISPLAYED()       menuHandlers[0] == menuMainView
 #define IS_TELEMETRY_VIEW_DISPLAYED()  menuHandlers[0] == menuViewTelemetry

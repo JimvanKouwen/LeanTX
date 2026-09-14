@@ -76,8 +76,8 @@ void GVarNumberEdit::switchGVarMode()
     setValue(
         GV_IS_GV_VALUE(value)
             ? ((textFlags & PREC1)
-                   ? GET_GVAR_PREC1(value, vmin, vmax, mixerCurrentFlightMode)
-                   : GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode))
+                   ? GET_GVAR_PREC1(value, vmin, vmax)
+                   : GET_GVAR(value, vmin, vmax))
             : GV_VALUE_FROM_INDEX(0));
 
     m_gvBtn->check(GV_IS_GV_VALUE(value));

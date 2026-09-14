@@ -96,9 +96,9 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
     killEvents(event);
     s_editMode = !s_editMode;
     if (attr & PREC1)
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : GV_VALUE_FROM_INDEX(0));
+      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max)*10 : GV_VALUE_FROM_INDEX(0));
     else
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode) : GV_VALUE_FROM_INDEX(0));
+      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max) : GV_VALUE_FROM_INDEX(0));
     storageDirty(EE_MODEL);
   }
 
@@ -123,41 +123,18 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
 }
 
 #if defined(GVARS)
-void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t flightMode, LcdFlags flags)
+void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, LcdFlags flags)
 {
-  FlightModeData * fm = &g_model.flightModeData[flightMode];
-  gvar_t * v = &fm->gvars[gvar];
-  int16_t vmin, vmax;
-  if (*v > GVAR_MAX) {
-    uint8_t fm = *v - GVAR_MAX - 1;
-    if (fm >= flightMode) fm++;
-    drawFlightMode(x, y, fm + 1, flags&(~LEFT));
-    vmin = GVAR_MAX + 1;
-    vmax = GVAR_MAX + MAX_FLIGHT_MODES - 1;
-  }
-  else {
-    vmin = GVAR_MIN + g_model.gvars[gvar].min;
-    vmax = GVAR_MAX - g_model.gvars[gvar].max;
-    if (*v < vmin) {
-      *v = vmin;
-      storageDirty(EE_MODEL);
-    } else if (*v > vmax) {
-      *v = vmax;
-      storageDirty(EE_MODEL);
-    }
-    drawGVarValue(x, y, gvar, *v, flags);
-  }
 
-  if (flags & INVERS) {
-    if (event == EVT_KEY_LONG(KEY_ENTER) && flightMode > 0) {
-      killEvents(event);
-      *v = (*v > GVAR_MAX ? 0 : GVAR_MAX+1);
-      storageDirty(EE_MODEL);
-    }
-    else if (s_editMode > 0) {
-      *v = checkIncDec(event, *v, vmin, vmax, EE_MODEL);
-    }
-  }
+  auto& data = g_model.gvars[gvar];
+  const int16_t vmin = GVAR_MIN + data.min;
+  const int16_t vmax = GVAR_MAX - data.max;
+  const int16_t value = limit(vmin, data.value, vmax);
+  if (value != data.value) setGVarValue(gvar, value);
+  drawGVarValue(x, y, gvar, value, flags);
+  if ((flags & INVERS) && s_editMode > 0)
+    setGVarValue(gvar, checkIncDec(event, value, vmin, vmax, EE_MODEL));
+
 }
 #endif
 

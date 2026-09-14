@@ -24,44 +24,31 @@
 uint8_t gvarDisplayTimer = 0;
 uint8_t gvarLastChanged = 0;
 
-uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv) // TODO change params order to be consistent!
-{
-  for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
-    if (fm == 0) return 0;
-    int16_t val = GVAR_VALUE(gv, fm);
-    if (val <= GVAR_MAX) return fm;
-    uint8_t result = val-GVAR_MAX-1;
-    if (result >= fm) result++;
-    fm = result;
-  }
-  return 0;
-}
-
-int16_t getGVarValue(int8_t gv, int8_t fm)
+int16_t getGVarValue(int8_t gv)
 {
   int8_t mul = 1;
   if (gv < 0) {
     gv = -1-gv;
     mul = -1;
   }
-  return GVAR_VALUE(gv, getGVarFlightMode(fm, gv)) * mul;
+  return GVAR_VALUE(gv) * mul;
 }
 
-int32_t getGVarValuePrec1(int8_t gv, int8_t fm)
+int32_t getGVarValuePrec1(int8_t gv)
 {
   int8_t idx = (gv >= 0 ? gv : -gv - 1);
   int8_t mul = (g_model.gvars[idx].prec == 0 ? 10 : 1); // explicit cast to `int` needed, othervise gv is promoted to double!
   if (gv < 0) {
     mul = -mul;
   }
-  return GVAR_VALUE(idx, getGVarFlightMode(fm, idx)) * mul;
+  return GVAR_VALUE(idx) * mul;
 }
 
-void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
+void setGVarValue(uint8_t gv, int16_t value)
 {
-  fm = getGVarFlightMode(fm, gv);
-  if (GVAR_VALUE(gv, fm) != value) {
-    GVAR_VALUE(gv, fm) = value;
+
+  if (GVAR_VALUE(gv) != value) {
+    GVAR_VALUE(gv) = value;
     storageDirty(EE_MODEL);
     if (g_model.gvars[gv].popup) {
       gvarLastChanged = gv;
@@ -70,20 +57,20 @@ void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
   }
 }
 
-int16_t getGVarFieldValue(int16_t val, int16_t min, int16_t max, int8_t fm)
+int16_t getGVarFieldValue(int16_t val, int16_t min, int16_t max)
 {
   if (GV_IS_GV_VALUE(val)) {
     int8_t gv = GV_INDEX_FROM_VALUE(val);
-    val = getGVarValue(gv, fm);
+    val = getGVarValue(gv);
   }
   return limit(min, val, max);
 }
 
-int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max, int8_t fm)
+int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max)
 {
   if (GV_IS_GV_VALUE(val)) {
     int8_t gv = GV_INDEX_FROM_VALUE(val);
-    val = getGVarValuePrec1(gv, fm);
+    val = getGVarValuePrec1(gv);
   }
   else {
     val *= 10;

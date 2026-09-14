@@ -126,11 +126,10 @@ PACK(struct MixData {
   uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t delayPrec:1;
   uint16_t speedPrec:1;
-  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:1 SKIP;
+  uint16_t spare:2 SKIP;
   uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
   uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
   CurveRef curve;
   uint8_t  delayUp;
   uint8_t  delayDown;
@@ -150,11 +149,10 @@ PACK(struct ExpoData {
   int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
   uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
   uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
   CurveRef curve;
   uint16_t chn:5;
-  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:2 SKIP;
+  uint16_t spare:3 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
 });
 
@@ -226,21 +224,6 @@ PACK(struct CustomFunctionData {
 });
 
 /*
- * FlightMode structure
- */
-
-PACK(struct FlightModeData {
-  uint16_t reservedTrims[MAX_TRIMS] SKIP; // Preserve packed layout; never serialized or used.
-  NOBACKUP(char name[LEN_FLIGHT_MODE_NAME]);
-  // swtch of phase[0] is not used
-  int16_t swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
-  int16_t spare:6 SKIP;
-  uint8_t fadeIn;
-  uint8_t fadeOut;
-  gvar_t gvars[MAX_GVARS] FUNC(gvar_is_active);
-});
-
-/*
  * Curve structure
  */
 
@@ -256,6 +239,7 @@ PACK(struct CurveHeader {
  */
 
 PACK(struct GVarData {
+  gvar_t value;
   NOBACKUP(char name[LEN_GVAR_NAME]);
   uint32_t min:12;
   uint32_t max:12;
@@ -271,7 +255,7 @@ PACK(struct GVarData {
 
 PACK(struct TimerData {
   uint32_t start:22;
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
   int32_t  value:22;
   uint32_t mode:3 ENUM(TimerModes);
   uint32_t countdownBeep:2;
@@ -666,7 +650,6 @@ PACK(struct ModelData {
 
   LogicalSwitchData logicalSw[MAX_LOGICAL_SWITCHES];
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
-  FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
@@ -734,7 +717,7 @@ PACK(struct ModelData {
   uint8_t radioGFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t spareViewOption:2 SKIP;
   // Model level tabs control (model setting)
-  uint8_t modelFMDisabled:2 ENUM(ModelOverridableEnable);
+  uint8_t reservedModelFeature:2 SKIP;
   uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelGVDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelLSDisabled:2 ENUM(ModelOverridableEnable);
@@ -969,7 +952,7 @@ PACK(struct RadioData {
 
   NOBACKUP(int16_t radioGFDisabled:1);
   NOBACKUP(int16_t spareRadioViewOption:1 SKIP);
-  NOBACKUP(int16_t modelFMDisabled:1);
+  NOBACKUP(int16_t reservedModelFeature:1 SKIP);
   NOBACKUP(int16_t modelCurvesDisabled:1);
   NOBACKUP(int16_t modelGVDisabled:1);
 

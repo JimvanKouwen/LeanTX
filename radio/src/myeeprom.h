@@ -108,18 +108,15 @@ enum CurveRefType {
 #define PPM_CENTER_MAX      500
 #define LIMIT_MAX(lim)                                            \
   (GV_IS_GV_VALUE(lim->max)                                       \
-       ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
-                        mixerCurrentFlightMode)                   \
+       ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX)                   \
        : lim->max + LIMIT_STD_MAX)
 #define LIMIT_MIN(lim)                                            \
   (GV_IS_GV_VALUE(lim->min)                                       \
-       ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
-                        mixerCurrentFlightMode)                   \
+       ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX)                   \
        : lim->min - LIMIT_STD_MAX)
 #define LIMIT_OFS(lim)                                               \
   (GV_IS_GV_VALUE(lim->offset)                                       \
-       ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX, \
-                        mixerCurrentFlightMode)                      \
+       ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX)                      \
        : lim->offset)
 #define LIMIT_MAX_RESX(lim) calc1000toRESX(LIMIT_MAX(lim))
 #define LIMIT_MIN_RESX(lim) calc1000toRESX(LIMIT_MIN(lim))

@@ -445,7 +445,7 @@ void guiMain(event_t evt)
     p = strAppend(p, " ", 1);
     p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
     p = strAppend(p, " = ", 3);
-    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
+    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged));
     POPUP_BUBBLE(s, gvarDisplayTimer * 10, GV_POPUP_WIDTH);
     gvarDisplayTimer = 0;
   }

@@ -37,8 +37,6 @@
 #define VBATTUNIT_Y   VBATT_Y
 #define BITMAP_X      ((LCD_W-64)/2)
 #define BITMAP_Y      (LCD_H/2)
-#define PHASE_X       BITMAP_X
-#define PHASE_Y       (3*FH)
 #define TIMERS_X      145
 #define TIMERS_Y      20
 #define TIMERS_H      25
@@ -419,10 +417,6 @@ void menuMainView(event_t event)
       break;
   }
 
-  // Flight Mode Name
-  int mode = mixerCurrentFlightMode;
-  lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name));
-
   // Model Name
   drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
 
@@ -522,7 +516,7 @@ void menuMainView(event_t event)
     drawStringWithIndex(BITMAP_X+FW, BITMAP_Y+FH-1, STR_GV, gvarLastChanged+1);
     lcdDrawSizedText(BITMAP_X+4*FW+FW/2, BITMAP_Y+FH-1, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
     lcdDrawText(BITMAP_X+FW, BITMAP_Y+2*FH+3, "[", BOLD);
-    drawGVarValue(BITMAP_X+2*FW, BITMAP_Y+2*FH+3, gvarLastChanged, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)), LEFT|BOLD);
+    drawGVarValue(BITMAP_X+2*FW, BITMAP_Y+2*FH+3, gvarLastChanged, GVAR_VALUE(gvarLastChanged), LEFT|BOLD);
     lcdDrawText(lcdLastRightPos, BITMAP_Y+2*FH+3, "]", BOLD);
   }
 #endif

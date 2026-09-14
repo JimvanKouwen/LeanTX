@@ -44,6 +44,19 @@
 
 #define luaExecStr(test)  EXPECT_TRUE(__luaExecStr(test))
 
+TEST(Lua, ModelWideGlobalVariableApi)
+{
+  luaExecStr("assert(getFlightMode == nil)");
+  luaExecStr("assert(model.getFlightMode == nil and model.setFlightMode == nil)");
+  luaExecStr("assert(model.deleteFlightModes == nil)");
+#if defined(GVARS)
+  luaExecStr("model.setGlobalVariable(0, -321)");
+  luaExecStr("assert(model.getGlobalVariable(0) == -321)");
+  EXPECT_EQ(-321, getGVarValue(0));
+  luaExecStr("assert(model.getGlobalVariable(99) == nil)");
+#endif
+}
+
 TEST(Lua, testSetModelInfo)
 {
   luaExecStr("info = model.getInfo()");
@@ -221,6 +234,7 @@ TEST(Lua, testLegacyNames)
   MODEL_RESET();
   for (uint8_t i = 0; i < 4; i ++)
     anaSetFiltered(i, -1024);
+  evalInputs(e_perout_mode_normal);
   luaExecStr("value = getValue('thr')");
   luaExecStr("if value ~= -1024 then error('thr not defined in Legacy') end");
   luaExecStr("value = getValue('ail')");

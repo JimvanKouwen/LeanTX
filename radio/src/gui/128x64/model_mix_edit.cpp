@@ -28,7 +28,7 @@ enum MixFields {
   MIX_FIELD_WEIGHT,
   MIX_FIELD_OFFSET,
   MIX_FIELD_CURVE,
-  CASE_FLIGHT_MODES(MIX_FIELD_FLIGHT_MODE)
+
   MIX_FIELD_SWITCH,
   MIX_FIELD_WARNING,
   MIX_FIELD_MLTPX,
@@ -40,8 +40,6 @@ enum MixFields {
   MIX_FIELD_SLOW_DOWN,
   MIX_FIELD_COUNT
 };
-
-extern uint8_t FM_ROW(uint8_t);
 
 extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
 
@@ -102,7 +100,7 @@ void menuModelMixOne(event_t event)
   uint8_t old_editMode = s_editMode;
 
   SUBMENU(STR_MIXES, MIX_FIELD_COUNT,
-          {0, 0, 0, 0, 1, CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0, 0,
+          {0, 0, 0, 0, 1,  0, 0,
            (uint8_t)((s_currIdx > 0 && mixAddress(s_currIdx - 1)->destCh == md2->destCh) ? 0 : HIDDEN_ROW),
            0 /*, ...*/
           });
@@ -152,13 +150,6 @@ void menuModelMixOne(event_t event)
         s_currScale = 0;
         editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr, isSourceAvailable, 1, MIXSRC_LAST);
         break;
-
-#if defined(FLIGHT_MODES)
-      case MIX_FIELD_FLIGHT_MODE:
-        lcdDrawTextAlignedLeft(y, STR_FLMODE);
-        md2->flightModes = editFlightModes(MIXES_2ND_COLUMN, y, event, md2->flightModes, attr);
-        break;
-#endif
 
       case MIX_FIELD_SWITCH:
         md2->swtch = editSwitch(MIXES_2ND_COLUMN, y, md2->swtch, attr, event);

@@ -27,7 +27,7 @@ int expoFn(int x)
 {
   ExpoData * ed = expoAddress(s_currIdx);
   int16_t anas[MAX_INPUTS] = {0};
-  applyExpos(anas, e_perout_mode_inactive_flight_mode, ed->srcRaw, x);
+  applyExpos(anas, e_perout_mode_preview, ed->srcRaw, x);
   return anas[ed->chn];
 }
 
@@ -39,20 +39,13 @@ enum ExposFields {
   EXPO_FIELD_WEIGHT,
   EXPO_FIELD_OFFSET,
   EXPO_FIELD_CURVE,
-  CASE_FLIGHT_MODES(EXPO_FIELD_FLIGHT_MODES)
+
   EXPO_FIELD_SWITCH,
   EXPO_FIELD_SIDE,
   EXPO_FIELD_MAX
 };
 
 #define CURVE_ROWS                     1
-
-uint8_t FM_ROW(uint8_t value)
-{
-  if (modelFMEnabled())
-    return value;
-  return HIDDEN_ROW;
-}
 
 void menuModelExpoOne(event_t event)
 {
@@ -68,7 +61,7 @@ void menuModelExpoOne(event_t event)
 
   SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
           {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, CURVE_ROWS,
-           CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
+            0 /*, ...*/});
 
   SET_SCROLLBAR_X(EXPO_ONE_2ND_COLUMN+10*FW);
 
@@ -131,13 +124,6 @@ void menuModelExpoOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_CURVE);
         editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, event, attr, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
-
-#if defined(FLIGHT_MODES)
-      case EXPO_FIELD_FLIGHT_MODES:
-        lcdDrawTextAlignedLeft(y, STR_FLMODE);
-        ed->flightModes = editFlightModes(EXPO_ONE_2ND_COLUMN, y, event, ed->flightModes, attr);
-        break;
-#endif
 
       case EXPO_FIELD_SWITCH:
         ed->swtch = editSwitch(EXPO_ONE_2ND_COLUMN, y, ed->swtch, attr, event);

@@ -208,7 +208,7 @@ void per10ms()
 
   telemetryInterrupt10ms();
 
-  // These moved here from evalFlightModeMixes() to improve beep trigger reliability.
+  // These moved here from evalChannelMixes() to improve beep trigger reliability.
 #if !defined(AUDIO)
   if (mixWarning & 1) if(((g_tmr10ms&0xFF)==  0)) AUDIO_MIX_WARNING(1);
   if (mixWarning & 2) if(((g_tmr10ms&0xFF)== 64) || ((g_tmr10ms&0xFF)== 72)) AUDIO_MIX_WARNING(2);
@@ -224,11 +224,6 @@ void per10ms()
   heartbeat |= HEART_TIMER_10MS;
 
   DEBUG_TIMER_STOP(debugTimerPer10ms);
-}
-
-FlightModeData *flightModeAddress(uint8_t idx)
-{
-  return &g_model.flightModeData[idx];
 }
 
 ExpoData *expoAddress(uint8_t idx )
@@ -453,19 +448,6 @@ int8_t getMovedSource(uint8_t min)
   s_move_last_time = get_tmr10ms();
 
   return result;
-}
-#endif
-
-#if defined(FLIGHT_MODES)
-uint8_t getFlightMode()
-{
-  for (uint8_t i=1; i<MAX_FLIGHT_MODES; i++) {
-    FlightModeData *phase = &g_model.flightModeData[i];
-    if (phase->swtch && getSwitch(phase->swtch)) {
-      return i;
-    }
-  }
-  return 0;
 }
 #endif
 
@@ -943,7 +925,7 @@ void copySticksToOffset(uint8_t ch)
   mixerTaskStop();
   int32_t zero = (int32_t)channelOutputs[ch];
 
-  evalFlightModeMixes(e_perout_mode_nosticks+e_perout_mode_preview, 0);
+  evalChannelMixes(e_perout_mode_nosticks+e_perout_mode_preview, 0);
   int32_t val = chans[ch];
   LimitData *ld = limitAddress(ch);
   limit_min_max_t lim = LIMIT_MIN(ld);
@@ -1614,9 +1596,7 @@ bool radioGFEnabled() {
 }
 
 // Model menu tab state
-bool modelFMEnabled() {
-  return FEATURE_ENABLED(modelFMDisabled);
-}
+
 bool modelCurvesEnabled() {
   return FEATURE_ENABLED(modelCurvesDisabled);
 }

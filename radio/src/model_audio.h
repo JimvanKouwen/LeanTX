@@ -25,10 +25,8 @@
 
 char* getModelAudioPath(char* path, bool trailingSlash = true);
 
-void getFlightmodeAudioFile(char* path, int index, unsigned int event);
 bool getSwitchAudioFile(char* path, swsrc_t index);
 void getLogicalSwitchAudioFile(char* path, int index, unsigned int event);
 
-bool matchModeAudioFile(const char* filename, int& index, int& event);
 bool matchSwitchAudioFile(const char* filename, int& sw_pos);
 bool matchLogicalSwitchAudioFile(const char* filename, int& index, int& event);

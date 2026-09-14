@@ -790,11 +790,6 @@ uint8_t simuCopyLogicalSwitches(uint8_t* buf, uint8_t maxCount)
   return n;
 }
 
-int32_t simuGetFlightMode()
-{
-  return getFlightMode();
-}
-
 uint8_t simuGetNumGVars()
 {
 #if defined(GVARS)
@@ -804,21 +799,16 @@ uint8_t simuGetNumGVars()
 #endif
 }
 
-uint8_t simuGetNumFlightModes()
-{
-  return MAX_FLIGHT_MODES;
-}
-
-int32_t simuGetGVar(uint8_t gv, uint8_t fm)
+int32_t simuGetGVar(uint8_t gv)
 {
 #if defined(GVARS)
-  if (gv < MAX_GVARS && fm < MAX_FLIGHT_MODES) {
+  if (gv < MAX_GVARS) {
     uint8_t prec = g_model.gvars[gv].prec;
     uint8_t unit = g_model.gvars[gv].unit;
-    int16_t value = (int16_t)GVAR_VALUE(gv, getGVarFlightMode(fm, gv));
-    // Encode as gVarMode_t: value[15:0] | mode[23:16] | prec[25:24] | unit[27:26]
+    int16_t value = (int16_t)GVAR_VALUE(gv);
+    // Encode as value[15:0] | prec[25:24] | unit[27:26]
     return (((unit & 0x3) << 26) | ((prec & 0x3) << 24) |
-            ((fm & 0xFF) << 16) | (value & 0xFFFF));
+            (value & 0xFFFF));
   }
 #endif
   return 0;

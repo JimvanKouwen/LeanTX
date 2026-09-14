@@ -364,98 +364,6 @@ static int luaModelGetInputsCount(lua_State *L)
 }
 
 /*luadoc
-@function model.deleteFlightModes()
-
-Clear all flightModes
-
-@status current Introduced in 2.3.10
-*/
-static int luaModelDeleteFlightModes(lua_State *L)
-{
-  memset(g_model.flightModeData, 0, sizeof(g_model.flightModeData));
-  return 0;
-}
-
-/*luadoc
-@function model.getFlightMode(index)
-
-@param index (unsigned number) flight mode number (use 0 for FM0)
-
-Return input data for given input and line number
-
-@retval nil requested input or line does not exist
-
-@retval table input data:
- * `name` (string) input line name
- * `switch` (number) input switch index
- * `fadeIn` (number) fade in value (in 0.1s)
- * `fadeOut` (number) fade out value (in 0.1s)
-
-@status current Introduced in 2.3.10
-*/
-static int luaModelGetFlightMode(lua_State * L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_FLIGHT_MODES) {
-    FlightModeData * fm = flightModeAddress(idx);
-    lua_newtable(L);
-    lua_pushtablenstring(L, "name", fm->name);
-    lua_pushtableinteger(L, "switch", fm->swtch);
-    lua_pushtableinteger(L, "fadeIn", fm->fadeIn);
-    lua_pushtableinteger(L, "fadeOut", fm->fadeOut);
-
-  }
-  else {
-    lua_pushnil(L);
-  }
-  return 1;
-}
-
-/*luadoc
-@function model.setFlightMode(index, params)
-
-Set Flight mode parameters
-
-@param index (unsigned number) flight mode number (use 0 for FM0)
-
-@param params see model.getFlightMode return format for table format.
-
-@status current Introduced in 2.3.10
-*/
-static int luaModelSetFlightMode(lua_State * L)
-{
-  unsigned int flightMode = luaL_checkinteger(L, 1);
-
-  if (flightMode >= MAX_FLIGHT_MODES) {
-    lua_pushinteger(L, 2);
-    return 1;
-  }
-  FlightModeData * fm = flightModeAddress(flightMode);
-  luaL_checktype(L, -1, LUA_TTABLE);
-  for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-    luaL_checktype(L, -2, LUA_TSTRING); // key is string
-    const char * key = luaL_checkstring(L, -2);
-    if (!strcmp(key, "name")) {
-      const char * name = luaL_checkstring(L, -1);
-      strncpy(fm->name, name, sizeof(fm->name));
-    }
-    else if (!strcmp(key, "switch")) {
-      fm->swtch = luaL_checkinteger(L, -1);
-    }
-    else if (!strcmp(key, "fadeIn")) {
-      fm->fadeIn = luaL_checkinteger(L, -1);
-    }
-    else if (!strcmp(key, "fadeOut")) {
-      fm->fadeOut = luaL_checkinteger(L, -1);
-    }
-
-  }
-  storageDirty(EE_MODEL);
-  lua_pushinteger(L, 0);
-  return 1;
-}
-
-/*luadoc
 @function model.getInput(input, line)
 
 Return input data for given input and line number
@@ -477,7 +385,6 @@ Return input data for given input and line number
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
  * 'side' (number) input side (positive, negative or all)
- * 'flightModes' (number) bit-mask of active flight modes
 
 @status current Introduced in 2.0.0, curveType/curveValue added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, scale added in 2.10, side added in 2.11
 */
@@ -500,7 +407,6 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtableinteger(L, "curveType", expo->curve.type);
     lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(expo->curve.value));
     lua_pushtableinteger(L, "side", expo->mode);
-    lua_pushtableinteger(L, "flightModes", expo->flightModes);
   }
   else {
     lua_pushnil(L);
@@ -575,10 +481,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
 
-      else if (!strcmp(key, "flightModes")) {
-        expo->flightModes = luaL_checkinteger(L, -1);
-      }
-    }
+          }
   }
 
   return 0;
@@ -703,7 +606,6 @@ Get configuration for specified Mix
  * `multiplex` (number) multiplex (0 = ADD, 1 = MULTIPLY, 2 = REPLACE)
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
- * `flightModes` (number) bit-mask of active flight modes
  * `mixWarn` (number) warning (0 = off, 1 = 1 beep, .. 3 = 3 beeps)
  * `delayPrec` precision of delay up/down (1 or 10)
  * `delayUp` (number) delay up (time in 1/10 s)
@@ -731,7 +633,6 @@ static int luaModelGetMix(lua_State *L)
     lua_pushtableinteger(L, "curveType", mix->curve.type);
     lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(mix->curve.value));
     lua_pushtableinteger(L, "multiplex", mix->mltpx);
-    lua_pushtableinteger(L, "flightModes", mix->flightModes);
     lua_pushtableinteger(L, "mixWarn", mix->mixWarn);
     lua_pushtableinteger(L, "delayPrec", mix->delayPrec);
     lua_pushtableinteger(L, "delayUp", mix->delayUp);
@@ -799,9 +700,6 @@ static int luaModelInsertMix(lua_State *L)
       }
       else if (!strcmp(key, "multiplex")) {
         mix->mltpx = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "flightModes")) {
-        mix->flightModes = luaL_checkinteger(L, -1);
       }
 
       else if (!strcmp(key, "mixWarn")) {
@@ -1529,15 +1427,13 @@ static int luaModelSetOutput(lua_State *L)
 
 #if defined(GVARS)
 /*luadoc
-@function model.getGlobalVariable(index, flight_mode)
+@function model.getGlobalVariable(index)
 
 Return current global variable value
 
 @notice a simple warning or notice
 
 @param index  zero based global variable index, use 0 for GV1, 8 for GV9
-
-@param flight_mode  Flight mode number (0 = FM0, 8 = FM8)
 
 @retval nil   requested global variable does not exist
 
@@ -1546,29 +1442,25 @@ Return current global variable value
 Example:
 
 ```lua
-  -- get GV3 (index = 2) from Flight mode 0 (FM0)
-  val = model.getGlobalVariable(2, 0)
+  val = model.getGlobalVariable(2)
 ```
 */
 static int luaModelGetGlobalVariable(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
-  unsigned int phase = luaL_checkinteger(L, 2);
-  if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS)
-    lua_pushinteger(L, getGVarValue(idx, phase));
+  if (idx < MAX_GVARS)
+    lua_pushinteger(L, getGVarValue(idx));
   else
     lua_pushnil(L);
   return 1;
 }
 
 /*luadoc
-@function model.setGlobalVariable(index, flight_mode, value)
+@function model.setGlobalVariable(index, value)
 
 Sets current global variable value. See also model.getGlobalVariable()
 
 @param index  zero based global variable index, use 0 for GV1, 8 for GV9
-
-@param flight_mode  Flight mode number (0 = FM0, 8 = FM8)
 
 @param value  new value for global variable. Permitted range is
 from -1024 to 1024.
@@ -1580,10 +1472,9 @@ by truncating everything behind a floating point.
 static int luaModelSetGlobalVariable(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
-  unsigned int phase = luaL_checkinteger(L, 2);
-  int value = luaL_checkinteger(L, 3);
-  if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS && value >= -GVAR_MAX && value <= GVAR_MAX) {
-    SET_GVAR(idx, value, phase);
+  int value = luaL_checkinteger(L, 2);
+  if (idx < MAX_GVARS && value >= -GVAR_MAX && value <= GVAR_MAX) {
+    SET_GVAR(idx, value);
     storageDirty(EE_MODEL);
   }
   return 0;
@@ -1740,9 +1631,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getTimer, luaModelGetTimer )
   LROT_FUNCENTRY( setTimer, luaModelSetTimer )
   LROT_FUNCENTRY( resetTimer, luaModelResetTimer )
-  LROT_FUNCENTRY( deleteFlightModes, luaModelDeleteFlightModes )
-  LROT_FUNCENTRY( getFlightMode, luaModelGetFlightMode )
-  LROT_FUNCENTRY( setFlightMode, luaModelSetFlightMode )
   LROT_FUNCENTRY( getInputsCount, luaModelGetInputsCount )
   LROT_FUNCENTRY( getInput, luaModelGetInput )
   LROT_FUNCENTRY( insertInput, luaModelInsertInput )

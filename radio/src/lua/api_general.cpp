@@ -1030,34 +1030,6 @@ static int luaGetTxGPS(lua_State * L)
 }
 
 /*luadoc
-@function getFlightMode(mode)
-
-Return flight mode data.
-
-@param mode (number) flight mode number to return (0 - 8). If mode parameter
-is not specified (or contains invalid value), then the current flight mode data is returned.
-
-@retval multiple returns 2 values:
- * (number) (current) flight mode number (0 - 8)
- * (string) (current) flight mode name
-
-@status current Introduced in 2.1.7
-*/
-static int luaGetFlightMode(lua_State * L)
-{
-  int mode = luaL_optinteger(L, 1, -1);
-  if (mode < 0 || mode >= MAX_FLIGHT_MODES) {
-    mode = mixerCurrentFlightMode;
-  }
-  lua_pushinteger(L, mode);
-  char name[sizeof(g_model.flightModeData[0].name)+1];
-  strncpy(name, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[0].name));
-  name[sizeof(g_model.flightModeData[0].name)] = '\0';
-  lua_pushstring(L, name);
-  return 2;
-}
-
-/*luadoc
 @function playFile(filename [, volume])
 
 Play a file from the SD card
@@ -2681,7 +2653,6 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getTxGPS, luaGetTxGPS )
   LROT_FUNCENTRY( getFieldInfo, luaGetFieldInfo )
   LROT_FUNCENTRY( getSourceInfo, luaGetFieldInfo )
-  LROT_FUNCENTRY( getFlightMode, luaGetFlightMode )
   LROT_FUNCENTRY( playFile, luaPlayFile )
   LROT_FUNCENTRY( playNumber, luaPlayNumber )
   LROT_FUNCENTRY( playDuration, luaPlayDuration )

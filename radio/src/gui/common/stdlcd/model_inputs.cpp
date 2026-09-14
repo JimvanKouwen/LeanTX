@@ -179,7 +179,6 @@ void onExposMenu(const char * result)
 #define EXPO_LINE_CURVE_POS            12*FW+11
 #define EXPO_LINE_SWITCH_POS           20*FW
 #define EXPO_LINE_SIDE_POS             25*FW
-#define EXPO_LINE_FM_POS               12*FW+11
 #define EXPO_LINE_SELECT_POS           5*FW+2
 #define EXPO_LINE_NAME_POS             LCD_W-LEN_EXPOMIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 
@@ -193,10 +192,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
   drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
 
-  if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
-    displayExpoInfos(y, ed);
-  else
-    displayFlightModes(EXPO_LINE_FM_POS, y, ed->flightModes);
+  displayExpoInfos(y, ed);
 
   if (ed->name[0]) {
     lcdDrawSizedText(EXPO_LINE_NAME_POS, y, ed->name, sizeof(ed->name), attr);
@@ -232,10 +228,8 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 
   if (ed->name[0])
     lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, attr);
-  else if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
-    displayExpoInfos(y, ed);
   else
-    displayFlightModes(EXPO_LINE_INFOS_POS+9*FWNUM, y, ed->flightModes);
+    displayExpoInfos(y, ed);
 }
 #endif
 

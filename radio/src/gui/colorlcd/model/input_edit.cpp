@@ -25,7 +25,6 @@
 #include "curveedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
-#include "fm_matrix.h"
 #include "getset_helpers.h"
 #include "gvar_numberedit.h"
 #include "input_source.h"
@@ -70,13 +69,7 @@ class InputEditAdvanced : public Page
           SET_DIRTY();
         });
 
-    // Flight modes
-    if (modelFMEnabled()) {
-      line = body->newLine(grid);
-      new StaticText(line, rect_t{}, STR_FLMODE);
-      new FMMatrix<ExpoData>(line, rect_t{}, input);
-    }
-  }
+          }
 };
 
 InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
@@ -107,7 +100,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
+        applyExpos(anas, e_perout_mode_preview, line->srcRaw, x);
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
@@ -120,7 +113,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
+        applyExpos(anas, e_perout_mode_preview, line->srcRaw, x);
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });

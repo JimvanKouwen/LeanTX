@@ -28,8 +28,8 @@ enum GVarFields {
   GVAR_FIELD_MIN,
   GVAR_FIELD_MAX,
   GVAR_FIELD_POPUP,
-  GVAR_FIELD_FM0,
-  GVAR_FIELD_LAST=GVAR_FIELD_FM0+MAX_FLIGHT_MODES
+  GVAR_FIELD_VALUE,
+  GVAR_FIELD_LAST
 };
 
 #define GVAR_2ND_COLUMN                (12*FW)
@@ -41,11 +41,11 @@ void menuModelGVarOne(event_t event)
   GVarData * gvar = &g_model.gvars[s_currIdxSubMenu];
 
   drawStringWithIndex(strlen(STR_GVARS)*FW+FW, 0, STR_GV, s_currIdxSubMenu+1, 0);
-  drawGVarValue(32*FW, 0, s_currIdxSubMenu, getGVarValue(s_currIdxSubMenu, getFlightMode()));
+  drawGVarValue(32*FW, 0, s_currIdxSubMenu, getGVarValue(s_currIdxSubMenu));
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID);
 
   uint8_t old_editMode = s_editMode;
-  
+
   SIMPLE_SUBMENU(STR_GVARS, GVAR_FIELD_LAST);
 
   for (int i=0; i<NUM_BODY_LINES; i++) {
@@ -83,10 +83,35 @@ void menuModelGVarOne(event_t event)
         gvar->popup = editCheckBox(gvar->popup, GVAR_2ND_COLUMN, y, STR_POPUP, attr, event);
         break;
 
-      default:
-        drawStringWithIndex(0, y, STR_FM, k-GVAR_FIELD_FM0);
-        editGVarValue(GVAR_2ND_COLUMN, y, event, s_currIdxSubMenu, k-GVAR_FIELD_FM0, LEFT|attr);
+      case GVAR_FIELD_VALUE:
+        lcdDrawText(0, y, STR_VALUE);
+        editGVarValue(GVAR_2ND_COLUMN, y, event, s_currIdxSubMenu, LEFT|attr);
         break;
     }
   }
+}
+
+void onGVARSMenu(const char* result)
+{
+  if (result == STR_EDIT) {
+    s_currIdxSubMenu = menuVerticalPosition;
+    pushMenu(menuModelGVarOne);
+  } else if (result == STR_CLEAR) {
+    setGVarValue(menuVerticalPosition, 0);
+  }
+}
+
+void menuModelGVars(event_t event)
+{
+  SIMPLE_MENU(STR_MENU_GLOBAL_VARS, menuTabModel, MENU_MODEL_GVARS, MAX_GVARS);
+  for (int l = 0; l < NUM_BODY_LINES; l++) {
+    int i = l + menuVerticalOffset;
+    if (i >= MAX_GVARS) break;
+    coord_t y = MENU_HEADER_HEIGHT + 1 + l * FH;
+    LcdFlags attr = menuVerticalPosition == i ? INVERS : 0;
+    drawGVarName(0, y, i, attr);
+    editGVarValue(GVAR_2ND_COLUMN, y, event, i, LEFT | attr);
+  }
+  if (event == EVT_KEY_LONG(KEY_ENTER))
+    POPUP_MENU_START(onGVARSMenu, 2, STR_EDIT, STR_CLEAR);
 }

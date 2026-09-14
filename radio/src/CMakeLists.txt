@@ -13,7 +13,6 @@ set_property(CACHE TRANSLATIONS PROPERTY STRINGS ${RADIO_LANGUAGES})
 set(DEFAULT_MODE "" CACHE STRING "Default sticks mode")
 set(POPUP_LEVEL 2 CACHE STRING "Popup level")
 
-option(FLIGHT_MODES "Flight Modes" ON)
 option(CURVES "Curves" ON)
 option(GVARS "Global variables" ON)
 option(GUI "GUI enabled" ON)
@@ -226,10 +225,6 @@ if(LUA)
   include(lua/CMakeLists.txt)
 endif()
 
-if(FLIGHT_MODES)
-  add_definitions(-DFLIGHT_MODES)
-endif()
-
 if(CURVES)
   add_definitions(-DCURVES)
   set(SRC ${SRC} curves.cpp)
@@ -245,7 +240,6 @@ if(FAI STREQUAL YES)
 elseif(FAI STREQUAL CHOICE)
   add_definitions(-DFAI_CHOICE)
 endif()
-
 
 if(AUTOSOURCE)
   add_definitions(-DAUTOSOURCE)
@@ -366,7 +360,6 @@ endif()
 if(TEST_BUILD_WARNING)
   add_definitions(-DTEST_BUILD_WARNING)
 endif()
-
 
 if(RADIOMASTER_RELEASE)
   add_definitions(-DRADIOMASTER_RELEASE)

@@ -326,7 +326,6 @@ void Layout::updateDecorations()
 {
   // Set visible decoration
   decoration->setSlidersVisible(hasSliders());
-  decoration->setFlightModeVisible(hasFlightMode());
   zoneUpdateRequired = true;
 }
 
@@ -436,10 +435,6 @@ LayoutOptionValue* Layout::getOptionValue(unsigned int index) const
 
 bool Layout::hasTopbar() const {
   return getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue;
-}
-
-bool Layout::hasFlightMode() const {
-  return getOptionValue(LAYOUT_OPTION_FM)->boolValue;
 }
 
 bool Layout::hasSliders() const {

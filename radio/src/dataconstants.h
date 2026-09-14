@@ -43,7 +43,6 @@
 #if defined(COLORLCD)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
-  #define MAX_FLIGHT_MODES             9
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
   #define MAX_LOGICAL_SWITCHES         64
@@ -59,7 +58,6 @@
 #elif defined(PCBX9DP) || defined(PCBX9E)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
-  #define MAX_FLIGHT_MODES             9
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
   #define MAX_LOGICAL_SWITCHES         64
@@ -70,7 +68,6 @@
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
-  #define MAX_FLIGHT_MODES             9
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
   #define MAX_LOGICAL_SWITCHES         64
@@ -96,7 +93,6 @@ enum CurveType {
 #if defined(COLORLCD)
   #define LEN_MODEL_NAME               15
   #define LEN_TIMER_NAME               8
-  #define LEN_FLIGHT_MODE_NAME         10
   #define LEN_BITMAP_NAME              14
   #define LEN_EXPOMIX_NAME             6
   #define LEN_CHANNEL_NAME             6
@@ -108,7 +104,6 @@ enum CurveType {
 #elif LCD_W == 212
   #define LEN_MODEL_NAME               12
   #define LEN_TIMER_NAME               8
-  #define LEN_FLIGHT_MODE_NAME         10
   #define LEN_BITMAP_NAME              10
   #define LEN_EXPOMIX_NAME             6
   #define LEN_CHANNEL_NAME             6
@@ -120,7 +115,6 @@ enum CurveType {
 #else
   #define LEN_MODEL_NAME               10
   #define LEN_TIMER_NAME               3
-  #define LEN_FLIGHT_MODE_NAME         6
   #define LEN_BITMAP_NAME              0
   #define LEN_EXPOMIX_NAME             6
   #define LEN_CHANNEL_NAME             4
@@ -389,9 +383,6 @@ enum SwitchSources {
   SWSRC_ON,
   SWSRC_ONE,
 
-  SWSRC_FIRST_FLIGHT_MODE SKIP,
-  SWSRC_LAST_FLIGHT_MODE SKIP = SWSRC_FIRST_FLIGHT_MODE+MAX_FLIGHT_MODES-1,
-
   SWSRC_TELEMETRY_STREAMING,
 
   SWSRC_FIRST_SENSOR SKIP,
@@ -423,7 +414,6 @@ enum SwitchTypes {
   SW_SWITCH = 1 << 0,
   SW_TRIM = 1 << 1,
   SW_LOGICAL_SWITCH = 1 << 2,
-  SW_FLIGHT_MODE = 1 << 3,
   SW_TELEM = 1 << 4,
   SW_OTHER = 1 << 5,
   SW_NONE = 1 << 20,

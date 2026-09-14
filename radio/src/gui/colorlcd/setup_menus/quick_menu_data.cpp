@@ -22,7 +22,6 @@
 #include "edgetx.h"
 #include "menu.h"
 #include "model_curves.h"
-#include "model_flightmodes.h"
 #include "model_gvars.h"
 #include "model_inputs.h"
 #include "model_logical_switches.h"
@@ -48,9 +47,6 @@
 
 const PageDef modelMenuItems[] = {
   { ICON_MODEL_SETUP, STR_DEF(STR_QM_MODEL_SETTINGS), STR_DEF(STR_MAIN_MODEL_SETTINGS), PAGE_CREATE, QM_MODEL_SETUP, [](const PageDef& pageDef) { return new ModelSetupPage(pageDef); }},
-#if defined(FLIGHT_MODES)
-  { ICON_MODEL_FLIGHT_MODES, STR_DEF(STR_QM_FLIGHT_MODES), STR_DEF(STR_MENUFLIGHTMODES), PAGE_CREATE, QM_MODEL_FLIGHTMODES, [](const PageDef& pageDef) { return new ModelFlightModesPage(pageDef); }, modelFMEnabled},
-#endif
   { ICON_MODEL_INPUTS, STR_DEF(STR_QM_INPUTS), STR_DEF(STR_MENUINPUTS), PAGE_CREATE, QM_MODEL_INPUTS, [](const PageDef& pageDef) { return new ModelInputsPage(pageDef); }},
   { ICON_MODEL_MIXER, STR_DEF(STR_QM_MIXES), STR_DEF(STR_MIXES), PAGE_CREATE, QM_MODEL_MIXES, [](const PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
   { ICON_MODEL_OUTPUTS, STR_DEF(STR_QM_OUTPUTS), STR_DEF(STR_MENULIMITS), PAGE_CREATE, QM_MODEL_OUTPUTS, [](const PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},

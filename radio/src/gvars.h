@@ -31,20 +31,19 @@
 #define MAX_GVARS                    9
 #endif
 
-// GVars have one value per flight mode
-#define GVAR_VALUE(gv, fm)           g_model.flightModeData[fm].gvars[gv]
+// Each GVar has one model-wide value
+#define GVAR_VALUE(gv)               g_model.gvars[gv].value
 
 #if defined(GVARS)
-    uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv);
-    int16_t getGVarFieldValue(int16_t x, int16_t min, int16_t max, int8_t fm);
-    int32_t getGVarFieldValuePrec1(int16_t x, int16_t min, int16_t max, int8_t fm);
-    int16_t getGVarValue(int8_t gv, int8_t fm);
-    int32_t getGVarValuePrec1(int8_t gv, int8_t fm);
-    void setGVarValue(uint8_t x, int16_t value, int8_t fm);
-    #define GET_GVAR(x, min, max, fm)  getGVarFieldValue(x, min, max, fm)
-    #define SET_GVAR(idx, val, fm)     setGVarValue(idx, val, fm)
+    int16_t getGVarFieldValue(int16_t x, int16_t min, int16_t max);
+    int32_t getGVarFieldValuePrec1(int16_t x, int16_t min, int16_t max);
+    int16_t getGVarValue(int8_t gv);
+    int32_t getGVarValuePrec1(int8_t gv);
+    void setGVarValue(uint8_t x, int16_t value);
+    #define GET_GVAR(x, min, max)  getGVarFieldValue(x, min, max)
+    #define SET_GVAR(idx, val)     setGVarValue(idx, val)
     #define GVAR_DISPLAY_TIME          100 /*1 second*/;
-    #define GET_GVAR_PREC1(x, min, max, fm) getGVarFieldValuePrec1(x, min, max, fm)
+    #define GET_GVAR_PREC1(x, min, max) getGVarFieldValuePrec1(x, min, max)
     extern uint8_t gvarDisplayTimer;
     extern uint8_t gvarLastChanged;
 #else
@@ -66,7 +65,7 @@
 // offset and weight
 constexpr int32_t MIX_WEIGHT_MAX = 500;
 constexpr int32_t MIX_WEIGHT_MIN = -500;
-constexpr int32_t MIX_OFFSET_MAX = 500;       
-constexpr int32_t MIX_OFFSET_MIN = -500;      
+constexpr int32_t MIX_OFFSET_MAX = 500;
+constexpr int32_t MIX_OFFSET_MIN = -500;
 
 void getGVarIncDecRange(int16_t & valMin, int16_t & valMax);

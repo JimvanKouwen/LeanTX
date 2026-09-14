@@ -69,7 +69,7 @@ void menuModelCurvesAll(event_t event)
       drawStringWithIndex(0, y, STR_GV, k-MAX_CURVES+1);
       if (GVAR_SELECTED()) {
         if (attr && s_editMode>0) attr |= BLINK;
-        lcdDrawNumber(10*FW, y, GVAR_VALUE(k-MAX_CURVES, -1), attr);
+        lcdDrawNumber(10*FW, y, GVAR_VALUE(k-MAX_CURVES), attr);
         if (attr) g_model.gvars[k-MAX_CURVES] = checkIncDec(event, g_model.gvars[k-MAX_CURVES], -1000, 1000, EE_MODEL);
       }
     }
@@ -206,7 +206,7 @@ void drawCursor(FnFuncP fn, uint8_t offset)
 
   x512 = CURVE_CENTER_X + (x512 * CURVE_SIDE_WIDTH + (x512 < 0 ? -RESX/2 : RESX/2)) / RESX;
   y512 = CURVE_CENTER_Y - (y512 * CURVE_SIDE_WIDTH + (y512 < 0 ? -RESX/2 : RESX/2)) / RESX;
-  
+
   lcdDrawSolidVerticalLine(x512 - offset, y512-3, 3 * 2 + 1);
   lcdDrawSolidHorizontalLine(x512 - 3 - offset, y512, 3 * 2 + 1);
 }

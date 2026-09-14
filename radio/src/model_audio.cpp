@@ -43,14 +43,6 @@ char* getModelAudioPath(char* path, bool trailingSlash)
   return buf;
 }
 
-void getFlightmodeAudioFile(char* path, int index, unsigned int event)
-{
-  char* str = getModelAudioPath(path);
-  char* tmp = strcatFlightmodeName(str, index);
-  tmp = strAppend(tmp, _suffixes[event]);
-  strAppend(tmp, SOUNDS_EXT);
-}
-
 static const char* const _sw_positions[] = {"-up", "-mid", "-down"};
 
 bool getSwitchAudioFile(char* path, swsrc_t index)
@@ -90,28 +82,6 @@ void getLogicalSwitchAudioFile(char* filename, int index, unsigned int event)
 
   strcpy(str, _suffixes[event]);
   strcat(str, SOUNDS_EXT);
-}
-
-// Flight modes Audio Files <flightmodename>-[on|off].wav
-bool matchModeAudioFile(const char* filename, int& index, int& event)
-{
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
-    auto* c = filename;
-    auto* fm_name = g_model.flightModeData[i].name;
-    auto fm_name_len = strnlen(fm_name, LEN_FLIGHT_MODE_NAME);
-    if (strncasecmp(c, fm_name, fm_name_len) != 0) continue;
-    c += fm_name_len;
-    for (size_t e = 0; e < DIM(_suffixes); e++) {
-      auto suffix_len = strlen(_suffixes[e]);
-      if (strncasecmp(c, _suffixes[e], suffix_len) != 0) continue;
-      c += suffix_len;
-      if (*c != '.') continue;
-      index = i;
-      event = e;
-      return true;
-    }
-  }
-  return false;
 }
 
 bool matchSwitchAudioFile(const char* filename, int& sw_pos)

@@ -406,25 +406,6 @@ char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
 }
 #endif
 
-char *getFlightModeString(char *dest, int8_t idx)
-{
-  char *s = dest;
-
-  if (idx == 0) {
-    strcpy(s, "---");
-    return dest;
-  }
-
-  if (idx < 0) {
-    *s++ = '!';
-    idx = -idx;
-  }
-
-  s = strAppend(s, STR_FM);
-  strAppendUnsigned(s, idx - 1);
-  return dest;
-}
-
 char* getCustomSwitchesGroupName(char *dest, uint8_t idx)
 {
   dest = strAppendStringWithIndex(dest, "GR", idx + 1);
@@ -504,8 +485,6 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
   } else if (idx <= SWSRC_ONE) {
     idx -= SWSRC_ON;
     getStringAtIndex(s, STR_ON_ONE_SWITCHES, idx);
-  } else if (idx <= SWSRC_LAST_FLIGHT_MODE) {
-    strAppendStringWithIndex(s, STR_FM, idx - SWSRC_FIRST_FLIGHT_MODE);
   } else if (idx == SWSRC_TELEMETRY_STREAMING) {
     strcpy(s, "Tele");
   } else if (idx == SWSRC_RADIO_ACTIVITY) {
@@ -609,7 +588,7 @@ const char *getMainControlLabel(uint8_t idx, bool defaultOnly)
 
 const char *getTrimLabel(uint8_t idx, bool defaultOnly)
 {
-  // Stable physical labels, independent of stick mapping and flight mode.
+  // Stable physical labels, independent of stick mapping.
   static char label[4];
   strAppendStringWithIndex(label, "T", idx + 1);
   return label;
@@ -1044,7 +1023,7 @@ std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags)
                               STR_VTELEMUNIT[unit]);
 }
 
-std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
+std::string formatGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
 {
   uint8_t prec = g_model.gvars[gvar].prec;
   if (prec > 0) {

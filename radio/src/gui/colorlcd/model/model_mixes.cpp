@@ -128,7 +128,6 @@ class MixLineButton : public InputMixButtonBase
 
     mplex->refresh();
 
-    setFlightModes(line.flightModes);
   }
 
   void setIndex(uint8_t i) override

@@ -30,7 +30,7 @@
 
 #include "hal/adc_driver.h"
 
-ViewMainDecoration::ViewMainDecoration(Window* parent, bool calibration) :
+ViewMainDecoration::ViewMainDecoration(Window* parent) :
     Window(parent, {0, 0, parent->width(), parent->height()})
 {
   w_ml = layoutBox(this, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
@@ -41,11 +41,6 @@ ViewMainDecoration::ViewMainDecoration(Window* parent, bool calibration) :
   w_bc = layoutBox(this, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
-  if (!calibration) {
-    createFlightMode(w_bc);
-  } else {
-    showFM = false;
-  }
   createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
 }
 
@@ -76,13 +71,6 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
   }
 }
 
-void ViewMainDecoration::setFlightModeVisible(bool visible)
-{
-  showFM = visible;
-  if (flightMode)
-    flightMode->show(visible);
-}
-
 rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
 {
   coord_t x = 0, y = 0, w = width(), h = height();
@@ -99,15 +87,6 @@ rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
       w -= 2 * MainViewSlider::SLIDER_BAR_SIZE;
     }
     bh += MainViewSlider::SLIDER_BAR_SIZE;
-  }
-
-  if (showFM) {
-    bh += EdgeTxStyles::STD_FONT_HEIGHT;
-    if (!has6POS && showSliders)
-      bh -= MainViewSlider::SLIDER_BAR_SIZE;
-  }
-
-  if (showSliders || showFM) {
     x += PAD_LARGE;
     y += PAD_LARGE;
     w -= PAD_LARGE * 2;
@@ -199,13 +178,4 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
       sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, pot);
     }
   }
-}
-
-void ViewMainDecoration::createFlightMode(Window* bc)
-{
-  std::function<std::string()> getFM = []() -> std::string {
-      return stringFromNtString(g_model.flightModeData[mixerCurrentFlightMode].name);
-  };
-
-  flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1_INDEX);
 }

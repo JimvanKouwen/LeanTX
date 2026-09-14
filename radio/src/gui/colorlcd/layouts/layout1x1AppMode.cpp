@@ -33,7 +33,6 @@ class LayoutAppMode : public Layout
   }
 
   bool hasTopbar() const override { return false; }
-  bool hasFlightMode() const override { return false; }
   bool hasSliders() const override { return false; }
   bool isMirrored() const override { return false; }
   bool isAppMode() const override { return true; }

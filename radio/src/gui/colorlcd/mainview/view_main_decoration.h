@@ -26,11 +26,10 @@
 class ViewMainDecoration : public Window
 {
  public:
-  ViewMainDecoration(Window* parent, bool calibration = false);
+  ViewMainDecoration(Window* parent);
 
   // Set decoration visibility
   void setSlidersVisible(bool visible);
-  void setFlightModeVisible(bool visible);
 
   // Get the available space in the middle of the screen
   // (without decoration)
@@ -55,15 +54,12 @@ class ViewMainDecoration : public Window
   Window* w_bc;
   Window* w_br;
   bool showSliders = true;
-  bool showFM = true;
 
   Window* sliders[SLIDERS_MAX] = { 0 };
-  Window* flightMode = nullptr;
   bool hasVerticalSliders = false;
   bool has6POS = false;
 
   Window* layoutBox(Window* parent, lv_align_t align, lv_flex_flow_t flow);
 
   void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
-  void createFlightMode(Window* bc);
 };

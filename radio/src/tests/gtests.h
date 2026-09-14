@@ -85,8 +85,6 @@ inline void MODEL_RESET()
   anaResetFiltered();
   extern uint8_t s_mixer_first_run_done;
   s_mixer_first_run_done = false;
-  evalMixes(1);  // this is needed to reset fp_act
-  lastFlightMode = 255;
 }
 
 inline void MIXER_RESET()
@@ -96,7 +94,6 @@ inline void MIXER_RESET()
   memset(ex_chans, 0, sizeof(ex_chans));
   memset(act, 0, sizeof(act));
   memset(mixState, 0, sizeof(mixState));
-  mixerCurrentFlightMode = lastFlightMode = 0;
   lastAct = 0;
   logicalSwitchesReset();
 }
@@ -128,7 +125,7 @@ inline void TELEMETRY_RESET()
   memclear(g_model.telemetrySensors, sizeof(g_model.telemetrySensors));
 }
 
-class EdgeTxTest : public testing::Test 
+class EdgeTxTest : public testing::Test
 {
   protected:  // You should make the members protected s.t. they can be
               // accessed from sub-classes.
@@ -136,7 +133,7 @@ class EdgeTxTest : public testing::Test
     // virtual void SetUp() will be called before each test is run.  You
     // should define it if you need to initialize the varaibles.
     // Otherwise, this can be skipped.
-    virtual void SetUp() 
+    virtual void SetUp()
     {
       SYSTEM_RESET();
       MODEL_RESET();

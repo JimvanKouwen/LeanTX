@@ -63,7 +63,7 @@ PACK(struct MixState {
 extern MixState mixState[MAX_MIXERS];
 extern int32_t act[MAX_MIXERS];
 
-// static variables used in evalFlightModeMixes - moved here so they don't interfere with the stack
+// static variables used in evalChannelMixes - moved here so they don't interfere with the stack
 // It's also easier to initialize them here.
 
 extern int16_t anas [MAX_INPUTS];

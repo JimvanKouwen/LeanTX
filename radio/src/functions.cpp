@@ -258,39 +258,29 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #if defined(GVARS)
           case FUNC_ADJUST_GVAR:
             if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
-              SET_GVAR(CFN_GVAR_INDEX(cfn), CFN_PARAM(cfn),
-                       mixerCurrentFlightMode);
+              SET_GVAR(CFN_GVAR_INDEX(cfn), CFN_PARAM(cfn));
             } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_GVAR) {
               SET_GVAR(CFN_GVAR_INDEX(cfn),
-                       GVAR_VALUE(CFN_PARAM(cfn),
-                                  getGVarFlightMode(mixerCurrentFlightMode,
-                                                    CFN_PARAM(cfn))),
-                       mixerCurrentFlightMode);
+                       GVAR_VALUE(CFN_PARAM(cfn)));
             } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_INCDEC) {
               if (!functionsContext.isFunctionSwitchActive(i)) {
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                          limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        GVAR_VALUE(CFN_GVAR_INDEX(cfn),
-                                                   getGVarFlightMode(
-                                                       mixerCurrentFlightMode,
-                                                       CFN_GVAR_INDEX(cfn))) +
+                                        GVAR_VALUE(CFN_GVAR_INDEX(cfn)) +
                                             CFN_PARAM(cfn),
-                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
-                         mixerCurrentFlightMode);
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))));
               }
             } else {
               if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_SOURCE)
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
                                         calcRESXto100(getValue(CFN_PARAM(cfn))),
-                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
-                        mixerCurrentFlightMode);
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))));
               else
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
                                         getValue(CFN_PARAM(cfn)),
-                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
-                        mixerCurrentFlightMode);
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))));
             }
             break;
 #endif

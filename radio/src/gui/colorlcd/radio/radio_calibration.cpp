@@ -106,7 +106,7 @@ void RadioCalibrationPage::buildBody(Window *window)
         3, 2);
   }
 
-  new ViewMainDecoration(window, true);
+  new ViewMainDecoration(window);
 
   axisBtn = new TextButton(window, {AXIS_X, PAD_LARGE, AXIS_W, 0}, STR_STICKS,
                  [=]() -> uint8_t {

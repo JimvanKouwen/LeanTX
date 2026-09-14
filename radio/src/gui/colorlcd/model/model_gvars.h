@@ -29,10 +29,7 @@ class ModelGVarsPage : public PageGroupItem
  public:
   ModelGVarsPage(const PageDef& pageDef);
 
-  void cleanup() override;
-
  protected:
-  Window* hdr = nullptr;
 
   void build(Window* window) override;
   void rebuild(Window* window);

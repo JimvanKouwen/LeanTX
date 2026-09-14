@@ -226,11 +226,8 @@ TEST(Model, RemovedTrimSettingsAreIgnored)
       "        value: 512\n        mode: 3\n    fadeIn: 7\n"
       "header:\n  name: Buttons\n");
   EXPECT_STREQ(modelName(), "Buttons");
-  EXPECT_EQ(7, g_model.flightModeData[0].fadeIn);
   EXPECT_EQ(0, g_model.reservedThrTrim);
   EXPECT_EQ(0, g_model.reservedExtendedTrims);
-  for (const auto& fm : g_model.flightModeData)
-    for (auto value : fm.reservedTrims) EXPECT_EQ(0, value);
 
   std::string yaml;
   YamlTreeWalker tree;
@@ -241,7 +238,7 @@ TEST(Model, RemovedTrimSettingsAreIgnored)
   }, &yaml));
   for (const char* field : {"thrTrim:", "displayTrims:", "trimInc:",
                             "extendedTrims:", "thrTrimSw:", "trim:",
-                            "reservedTrims:", "trimSource:", "carryTrim:"})
+                            "flightModeData:", "flightModes:", "reservedTrims:", "trimSource:", "carryTrim:"})
     EXPECT_EQ(std::string::npos, yaml.find(field)) << field;
 }
 
@@ -277,4 +274,46 @@ TEST(Model, PhysicalTrimSwitchesRoundTrip)
     EXPECT_EQ(SWSRC_FIRST_TRIM + i, g_model.customFn[i].swtch);
     EXPECT_EQ(FUNC_PLAY_SOUND, g_model.customFn[i].func);
   }
+}
+
+TEST(Model, SingleGVarValueSurvivesYamlRoundTrip)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("gvars:\n  0:\n    value: -123\n    name: Aux\n    prec: 1\n    unit: 1\n");
+  EXPECT_EQ(-123, g_model.gvars[0].value);
+  EXPECT_EQ(1, g_model.gvars[0].prec);
+  EXPECT_EQ(1, g_model.gvars[0].unit);
+  std::string yaml;
+  YamlTreeWalker tree;
+  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
+    static_cast<std::string*>(opaque)->append(str, len);
+    return true;
+  }, &yaml));
+  EXPECT_EQ(std::string::npos, yaml.find("flightMode"));
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr(yaml.c_str());
+  EXPECT_EQ(-123, g_model.gvars[0].value);
+  EXPECT_EQ(1, g_model.gvars[0].prec);
+  EXPECT_EQ(1, g_model.gvars[0].unit);
+  EXPECT_EQ(0, g_model.gvars[1].value);
+}
+
+TEST(Model, RemovedModeMasksKeepNormalSwitchConditions)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr(
+      "flightModeData:\n  0:\n    gvars:\n      0: 999\n"
+      "mixData:\n -\n    destCh: 4\n    srcRaw: MAX\n"
+      "    weight: 50\n    swtch: ON\n    flightModes: 111111111\n"
+      "expoData:\n -\n    mode: 3\n    srcRaw: MAX\n"
+      "    weight: 25\n    swtch: \"!ON\"\n    flightModes: 111111111\n");
+  EXPECT_EQ(0, g_model.gvars[0].value);
+  EXPECT_EQ(4u, g_model.mixData[0].destCh);
+  EXPECT_EQ(MIXSRC_MAX, g_model.mixData[0].srcRaw);
+  EXPECT_EQ(makeSourceNumVal(50), g_model.mixData[0].weight);
+  EXPECT_EQ(SWSRC_ON, g_model.mixData[0].swtch);
+  EXPECT_EQ(MIXSRC_MAX, g_model.expoData[0].srcRaw);
+  EXPECT_EQ(makeSourceNumVal(25), g_model.expoData[0].weight);
+  EXPECT_EQ(-SWSRC_ON, g_model.expoData[0].swtch);
 }

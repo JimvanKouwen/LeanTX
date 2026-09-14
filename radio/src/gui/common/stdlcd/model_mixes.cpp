@@ -74,7 +74,6 @@ void onMixesMenu(const char * result)
 #define MIX_LINE_SRC_POS               7*FW+5
 #define MIX_LINE_CURVE_POS             13*FW+3
 #define MIX_LINE_SWITCH_POS            19*FW+1
-#define MIX_LINE_FM_POS                13*FW+3
 #define MIX_LINE_DELAY_POS             24*FW+3
 #define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 #define MIX_HDR_GAUGE_POS_X            127
@@ -99,10 +98,8 @@ void displayMixLine(coord_t y, MixData * md)
 {
   if (md->name[0])
     lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), 0);
-  if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
-    displayMixInfos(y, md);
-  else
-    displayFlightModes(MIX_LINE_FM_POS, y, md->flightModes);
+
+  displayMixInfos(y, md);
 
   char cs = ' ';
   if (md->speedDown || md->speedUp)
@@ -116,7 +113,6 @@ void displayMixLine(coord_t y, MixData * md)
 #define MIX_LINE_SRC_POS               7*FW+3
 #define MIX_LINE_CURVE_POS             12*FW+3
 #define MIX_LINE_SWITCH_POS            16*FW+5
-#define MIX_LINE_FM_POS                19*FW
 #define MIX_LINE_DELAY_POS             20*FW+2
 #define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW
 
@@ -149,18 +145,14 @@ void displayMixLine(coord_t y, MixData * md, bool active)
   if(active && md->name[0]) {
     lcdDrawFilledRect(FW*strlen(STR_MIXES)+FW/2, 0, FW*4+1, MENU_HEADER_HEIGHT, 0xFF, ERASE);
     lcdDrawSizedText(FW*strlen(STR_MIXES)+FW/2, 0, md->name, sizeof(md->name), 0);
-    if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
-      displayMixInfos(y, md);
-    else
-      displayFlightModes(MIX_LINE_FM_POS, y, md->flightModes);
+
+    displayMixInfos(y, md);
   }
   else {
     if (md->name[0])
       lcdDrawSizedText(MIX_LINE_NAME_POS, y, md->name, sizeof(md->name), 0);
-    else if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
-      displayMixInfos(y, md);
     else
-      displayFlightModes(MIX_LINE_FM_POS, y, md->flightModes);
+    displayMixInfos(y, md);
   }
 }
 #endif // LCD_W >= 212
@@ -339,7 +331,7 @@ void menuModelMixAll(event_t event)
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
-          editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
+          editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight,
                       MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),
                       0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
 

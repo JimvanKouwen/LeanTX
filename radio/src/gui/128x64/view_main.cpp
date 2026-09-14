@@ -36,8 +36,6 @@
 #endif
 #define MODELNAME_X   (2*FW-2)
 #define MODELNAME_Y   (0)
-#define PHASE_X       (6*FW-2)
-#define PHASE_Y       (2*FH)
 #define VBATT_X       (6*FW-1)
 #define VBATT_Y       (2*FH)
 #define VBATTUNIT_Y   (3*FH)
@@ -440,9 +438,6 @@ void menuMainView(event_t event)
   }
 
   if (view_base != VIEW_CHAN_MONITOR) {
-    // Flight Mode Name
-    uint8_t mode = mixerCurrentFlightMode;
-    lcdDrawSizedText(PHASE_X, PHASE_Y, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[mode].name));
 
     // Model Name
     drawModelName(MODELNAME_X, MODELNAME_Y, g_model.header.name, g_eeGeneral.currModel, BIGSIZE);
@@ -469,7 +464,7 @@ void menuMainView(event_t event)
     drawMessageBox(warningText);
     lcdDrawSizedText(16, 5 * FH, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME, 0);
     lcdDrawText(16 + 6 * FW, 5 * FH, "[", BOLD);
-    drawGVarValue(lcdLastRightPos, 5 * FH, gvarLastChanged, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)),
+    drawGVarValue(lcdLastRightPos, 5 * FH, gvarLastChanged, GVAR_VALUE(gvarLastChanged),
                   LEFT | BOLD);
     if (g_model.gvars[gvarLastChanged].unit) {
       lcdDrawText(lcdLastRightPos, 5 * FH, "%", BOLD);

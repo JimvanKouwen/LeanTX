@@ -68,10 +68,9 @@ template <unsigned int NUM_BITS> class BitField
 };
 
 #define INDEX_LOGICAL_SWITCH_AUDIO_FILE(index, event) (2*(index)+(event))
-#define INDEX_PHASE_AUDIO_FILE(index, event)          (2*(index)+(event))
 
-// max length (example: /SOUNDS/fr/123456789012/1234567890-off.wav)
-constexpr uint8_t AUDIO_MODEL_FILENAME_MAXLEN = (sizeof("/SOUNDS/fr/") - 1) + LEN_MODEL_NAME + 1 + LEN_FLIGHT_MODE_NAME + (sizeof("-off.wav") - 1);
+// Longest model event filename: switch position or logical switch state.
+constexpr uint8_t AUDIO_MODEL_FILENAME_MAXLEN = (sizeof("/SOUNDS/fr/") - 1) + LEN_MODEL_NAME + 1 + (sizeof("SA-down.wav") - 1);
 constexpr uint8_t AUDIO_LUA_FILENAME_MAXLEN = 42; // Some scripts use long audio paths, even on 128x64 boards
 constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MODEL_FILENAME_MAXLEN ? AUDIO_LUA_FILENAME_MAXLEN : AUDIO_MODEL_FILENAME_MAXLEN);
 
@@ -518,7 +517,6 @@ void audioTimerCountdown(uint8_t timer, int value);
 enum AutomaticPromptsCategories {
   SYSTEM_AUDIO_CATEGORY,
   MODEL_AUDIO_CATEGORY,
-  PHASE_AUDIO_CATEGORY,
   SWITCH_AUDIO_CATEGORY,
   LOGICAL_SWITCH_AUDIO_CATEGORY,
 };
@@ -556,8 +554,6 @@ void playModelName();
 #if defined(AUDIO)
   extern tmr10ms_t timeAutomaticPromptsSilence;
   void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
-  #define PLAY_PHASE_OFF(phase)         playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_OFF)
-  #define PLAY_PHASE_ON(phase)          playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_ON)
   #define PLAY_SWITCH_MOVED(sw)         playModelEvent(SWITCH_AUDIO_CATEGORY, sw)
   #define PLAY_LOGICAL_SWITCH_OFF(sw)   playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_OFF)
   #define PLAY_LOGICAL_SWITCH_ON(sw)    playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_ON)
@@ -565,8 +561,6 @@ void playModelName();
   #define START_SILENCE_PERIOD()        timeAutomaticPromptsSilence = get_tmr10ms()
   #define IS_SILENCE_PERIOD_ELAPSED()   (get_tmr10ms()-timeAutomaticPromptsSilence > 50)
 #else
-  #define PLAY_PHASE_OFF(phase)
-  #define PLAY_PHASE_ON(phase)
   #define PLAY_SWITCH_MOVED(sw)
   #define PLAY_LOGICAL_SWITCH_OFF(sw)
   #define PLAY_LOGICAL_SWITCH_ON(sw)

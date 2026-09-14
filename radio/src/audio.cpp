@@ -200,7 +200,6 @@ constexpr unsigned int MAX_SWITCH_POSITIONS =
     MAX_SWITCHES * 3 + MAX_POTS * XPOTS_MULTIPOS_COUNT;
 
 BitField<(AU_SPECIAL_SOUND_FIRST)> sdAvailableSystemAudioFiles;
-BitField<(MAX_FLIGHT_MODES * 2/*on, off*/)> sdAvailableFlightmodeAudioFiles;
 BitField<MAX_SWITCH_POSITIONS> sdAvailableSwitchAudioFiles;
 BitField<(MAX_LOGICAL_SWITCHES * 2/*on, off*/)> sdAvailableLogicalSwitchAudioFiles;
 
@@ -279,7 +278,6 @@ void referenceModelAudioFiles()
   FILINFO fno;
   char path[AUDIO_FILENAME_MAXLEN + 1];
 
-  sdAvailableFlightmodeAudioFiles.reset();
   sdAvailableSwitchAudioFiles.reset();
   sdAvailableLogicalSwitchAudioFiles.reset();
 
@@ -303,11 +301,6 @@ void referenceModelAudioFiles()
       TRACE("referenceModelAudioFiles(): using file: %s", fno.fname);
 
       int idx, event;
-      if (matchModeAudioFile(fno.fname, idx, event)) {
-        sdAvailableFlightmodeAudioFiles.setBit(
-            INDEX_PHASE_AUDIO_FILE(idx, event));
-        continue;
-      }
 
       if (matchSwitchAudioFile(fno.fname, idx)) {
         sdAvailableSwitchAudioFiles.setBit(idx);
@@ -338,13 +331,7 @@ bool isAudioFileReferenced(uint32_t i, char * filename)
       return true;
     }
   }
-  else if (category == PHASE_AUDIO_CATEGORY) {
-    if (sdAvailableFlightmodeAudioFiles.getBit(INDEX_PHASE_AUDIO_FILE(index, event))) {
-      getFlightmodeAudioFile(filename, index, event);
-      return true;
-    }
-  }
-  else if (category == SWITCH_AUDIO_CATEGORY) {
+    else if (category == SWITCH_AUDIO_CATEGORY) {
     if (sdAvailableSwitchAudioFiles.getBit(index)) {
       getSwitchAudioFile(filename, SWSRC_FIRST_SWITCH + index);
       return true;

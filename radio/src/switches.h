@@ -44,8 +44,7 @@ uint8_t lswFamily(uint8_t func);
 int16_t lswTimerValue(delayval_t val);
 
 bool getLSStickyState(uint8_t idx);
-void evalLogicalSwitches(bool isCurrentFlightmode=true);
-void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
+void evalLogicalSwitches(bool playSounds=true);
 void logicalSwitchesReset();
 void logicalSwitchesTimerTick();
 

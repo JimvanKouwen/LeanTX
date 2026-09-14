@@ -233,7 +233,6 @@ bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checks
     return true;
 }
 
-
 struct yaml_writer_ctx {
     FIL*    file;
     FRESULT result;
@@ -277,7 +276,6 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
       yaml_writer(&ctx, "\r\n", 2);
     }
 
-
     if (!tree.generate(yaml_writer, &ctx)) {
         if (ctx.result != FR_OK) {
             f_close(&file);
@@ -312,7 +310,6 @@ const char * writeGeneralSettings()
 
     return nullptr;
 }
-
 
 const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName)
 {
@@ -351,16 +348,6 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       g_model.resetScreenData();
 #endif
       auto md = reinterpret_cast<ModelData*>(buffer);
-#if defined(FLIGHT_MODES) && defined(GVARS)
-      // reset GVars to default values
-      // Note: taken from edgetx.cpp::modelDefault()
-      //TODO: new func in gvars
-      for (int p=1; p<MAX_FLIGHT_MODES; p++) {
-        for (int i=0; i<MAX_GVARS; i++) {
-          md->flightModeData[p].gvars[i] = GVAR_MAX+1;
-        }
-      }
-#endif
       md->rfAlarms.warning = 45;
       md->rfAlarms.critical = 42;
     }

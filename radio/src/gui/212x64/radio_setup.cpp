@@ -106,7 +106,7 @@ enum MenuRadioSetupItems {
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_GF,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
-  CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM) CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
+   CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
       ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
@@ -232,7 +232,7 @@ void menuRadioSetup(event_t event)
           VIEWOPT_ROW(LABEL(RadioMenuTabs)),
           VIEWOPT_ROW(0),
           VIEWOPT_ROW(LABEL(ModelMenuTabs)),
-          CASE_FLIGHT_MODES(VIEWOPT_ROW(0)) CASE_GVARS(VIEWOPT_ROW(0))
+           CASE_GVARS(VIEWOPT_ROW(0))
               VIEWOPT_ROW(0),
           VIEWOPT_ROW(0),
           VIEWOPT_ROW(0),
@@ -757,17 +757,12 @@ void menuRadioSetup(event_t event)
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;
-#if defined(FLIGHT_MODES)
-      case ITEM_VIEW_OPTIONS_FM:
-        g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event, g_model.modelFMDisabled);
-        break;
-#endif
       case ITEM_VIEW_OPTIONS_CURVES:
         g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event, g_model.modelCurvesDisabled);
         break;
 #if defined(GVARS)
       case ITEM_VIEW_OPTIONS_GV:
-        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, g_model.modelGVDisabled);
+        g_eeGeneral.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_eeGeneral.modelGVDisabled, attr, event, g_model.modelGVDisabled);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_LS:
