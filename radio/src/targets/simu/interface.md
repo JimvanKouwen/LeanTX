@@ -29,7 +29,6 @@ uint32_t* simu_get_logical_switches();
 uint8_t simu_get_stick_mode();
 uint16_t simu_get_trim_range();
 
-// TODO: get GVar definitions + values
 
 /**
  * Callbacks / native functions

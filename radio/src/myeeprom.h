@@ -29,12 +29,6 @@
 
 #define IS_PLAY_FUNC(func)             ((func) >= FUNC_PLAY_SOUND && func <= FUNC_PLAY_VALUE)
 
-#if defined(GVARS)
-  #define IS_ADJUST_GV_FUNC(func)      ((func) == FUNC_ADJUST_GVAR)
-#else
-  #define IS_ADJUST_GV_FUNC(func)      (0)
-#endif
-
 #if defined(HAPTIC)
   #define IS_HAPTIC_FUNC(func)         ((func) == FUNC_HAPTIC)
 #else
@@ -49,19 +43,13 @@
 #define CFN_ACTIVE(p)                  ((p)->active)
 #define CFN_CH_INDEX(p)                ((p)->all.param)
 #define CFN_CS_INDEX(p)                ((p)->all.param)
-#define CFN_GVAR_INDEX(p)              ((p)->all.param)
 #define CFN_TIMER_INDEX(p)             ((p)->all.param)
 #define CFN_PLAY_REPEAT(p)             ((p)->repeat)
 #define CFN_PLAY_REPEAT_MUL            1
 #define CFN_PLAY_REPEAT_NOSTART        -1
-#define CFN_GVAR_MODE(p)               ((p)->all.mode)
 #define CFN_PARAM(p)                   ((p)->all.val)
 #define CFN_VAL2(p)                    ((p)->all.val2)
 #define CFN_RESET(p)                   ((p)->active=0, (p)->clear.val1=0, (p)->clear.val2=0)
-#define CFN_GVAR_CST_MIN               -GVAR_MAX
-#define CFN_GVAR_CST_MAX               GVAR_MAX
-#define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + g_model.gvars[idx].min)
-#define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - g_model.gvars[idx].max)
 
 // stick config
 #define STICK_CFG_INV_BITS             1
@@ -106,18 +94,9 @@ enum CurveRefType {
 #define LIMIT_EXT_MAX       (LIMIT_EXT_PERCENT*10)
 #define LIMIT_STD_MAX       (LIMIT_STD_PERCENT*10)
 #define PPM_CENTER_MAX      500
-#define LIMIT_MAX(lim)                                            \
-  (GV_IS_GV_VALUE(lim->max)                                       \
-       ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX)                   \
-       : lim->max + LIMIT_STD_MAX)
-#define LIMIT_MIN(lim)                                            \
-  (GV_IS_GV_VALUE(lim->min)                                       \
-       ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX)                   \
-       : lim->min - LIMIT_STD_MAX)
-#define LIMIT_OFS(lim)                                               \
-  (GV_IS_GV_VALUE(lim->offset)                                       \
-       ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX)                      \
-       : lim->offset)
+#define LIMIT_MAX(lim) ((lim)->max + LIMIT_STD_MAX)
+#define LIMIT_MIN(lim) ((lim)->min - LIMIT_STD_MAX)
+#define LIMIT_OFS(lim) ((lim)->offset)
 #define LIMIT_MAX_RESX(lim) calc1000toRESX(LIMIT_MAX(lim))
 #define LIMIT_MIN_RESX(lim) calc1000toRESX(LIMIT_MIN(lim))
 #define LIMIT_OFS_RESX(lim) calc1000toRESX(LIMIT_OFS(lim))

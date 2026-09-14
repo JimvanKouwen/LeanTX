@@ -198,13 +198,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
   }
 }
 
-void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
-{
-  char s[8];
-  getGVarString(s, idx);
-  lcdDrawText(x, y, s, flags);
-}
-
 void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
                                LcdFlags flags, uint8_t old_editMode)
 {
@@ -263,12 +256,12 @@ void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
     switch (curve.type) {
       case CURVE_REF_DIFF:
         lcdDrawText(x, y, "D", att);
-        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+        editLiteralFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0);
         break;
 
       case CURVE_REF_EXPO:
         lcdDrawText(x, y, "E", att);
-        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
+        editLiteralFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0);
         break;
 
       case CURVE_REF_FUNC:
@@ -345,11 +338,6 @@ void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value,
       lcdDrawText(x, y, "sats: ", flags);
       lcdDrawNumber(lcdNextPos, y, gpsData.numSat, flags);
     }
-  }
-#endif
-#if defined(GVARS)
-  else if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR) {
-    drawGVarValue(x, y, source - MIXSRC_FIRST_GVAR, value, flags);
   }
 #endif
   else if (source < MIXSRC_FIRST_CH) {
@@ -524,17 +512,6 @@ void title(const char * s)
 {
   lcdDrawText(0, 0, s, INVERS);
 }
-
-#if defined(GVARS)
-void drawGVarValue(coord_t x, coord_t y, uint8_t gvar, gvar_t value, LcdFlags flags)
-{
-  uint8_t prec = g_model.gvars[gvar].prec;
-  if (prec > 0) {
-    flags |= (prec == 1 ? PREC1 : PREC2);
-  }
-  drawValueWithUnit(x, y, value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
-}
-#endif
 
 char statusLineMsg[STATUS_LINE_LENGTH];
 static tmr10ms_t statusLineTime = 0;

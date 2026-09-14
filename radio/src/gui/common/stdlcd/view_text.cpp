@@ -210,8 +210,6 @@ void menuTextView(event_t event)
   char * title = reusableBuffer.viewText.filename;
 #if defined(SIMU)
   if (!strncmp(title, "./", 2)) title += 2;
-#else
-  // TODO?
 #endif
   lcdDrawText(LCD_W/2, 0, getBasename(title), CENTERED);
   lcdInvertLine(0);

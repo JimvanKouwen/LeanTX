@@ -89,12 +89,6 @@
   #define CASE_BLUETOOTH(x)
 #endif
 
-#if defined(GVARS)
-  #define CASE_GVARS(x) x,
-#else
-  #define CASE_GVARS(x)
-#endif
-
 #if defined(LUA_MODEL_SCRIPTS)
   #define CASE_LUA_MODEL_SCRIPTS(x) x,
 #else

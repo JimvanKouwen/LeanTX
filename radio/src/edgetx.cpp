@@ -1600,9 +1600,7 @@ bool radioGFEnabled() {
 bool modelCurvesEnabled() {
   return FEATURE_ENABLED(modelCurvesDisabled);
 }
-bool modelGVEnabled() {
-  return FEATURE_ENABLED(modelGVDisabled);
-}
+
 bool modelLSEnabled() {
   return FEATURE_ENABLED(modelLSDisabled);
 }
@@ -1634,14 +1632,6 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     valMax = g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100;
     valMin = -valMax;
   }
-#if defined(GVARS)
-  else if (asrc >= MIXSRC_FIRST_GVAR && asrc <= MIXSRC_LAST_GVAR) {
-    valMax = min<int>(CFN_GVAR_CST_MAX, MODEL_GVAR_MAX(asrc-MIXSRC_FIRST_GVAR));
-    valMin = max<int>(CFN_GVAR_CST_MIN, MODEL_GVAR_MIN(asrc-MIXSRC_FIRST_GVAR));
-    if (flags && g_model.gvars[asrc-MIXSRC_FIRST_GVAR].prec)
-      *flags |= PREC1;
-  }
-#endif
   else if (asrc == MIXSRC_TX_VOLTAGE) {
     valMax =  255;
     valMin = 0;
@@ -1703,23 +1693,6 @@ bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, 
 
   if (cs->v2 < v2_min) { cs->v2 = v2_min; rv = true; }
   else if (cs->v2 > v2_max) { cs->v2 = v2_max; rv = true; }
-
-  return rv;
-}
-
-bool validateSFGV(CustomFunctionData* cfn)
-{
-  bool rv = false;
-
-  if (CFN_FUNC(cfn) == FUNC_ADJUST_GVAR && CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
-    int16_t v = CFN_PARAM(cfn);
-    int16_t vmin, vmax;
-    getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, vmin, vmax);
-    if (v < vmin) v = vmin;
-    else if (v > vmax) v = vmax;
-    if (CFN_PARAM(cfn) != v) rv = true;
-    CFN_PARAM(cfn) = v;
-  }
 
   return rv;
 }

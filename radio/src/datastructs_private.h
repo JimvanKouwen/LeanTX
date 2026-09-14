@@ -69,53 +69,13 @@
 
 #include "storage/yaml/yaml_defs.h"
 
-PACK(union SourceNumVal {
-  struct {
-    int16_t value:10;
-    uint16_t isSource:1;
-  };
-  uint16_t rawValue:11;
-});
-
-inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
-{
-  SourceNumVal v;
-  v.value = val;
-  v.isSource = isSource;
-  return v.rawValue;
-}
-
-// Conversion for Lua API
-inline int sourceNumValToLuaInt(uint16_t val)
-{
-  SourceNumVal v;
-  v.rawValue = val;
-  return v.value + ((v.isSource) ? ((v.value < 0) ? -1024 : 1024) : 0);
-}
-
-inline uint16_t luaIntToSourceNumval(int val)
-{
-  SourceNumVal v;
-  if (val >= 1024) {
-    v.isSource = true;
-    v.value = val - 1024;
-  } else if (val <= -1024) {
-    v.isSource = true;
-    v.value = val + 1024;
-  } else {
-    v.isSource = false;
-    v.value = val;
-  }
-  return v.rawValue;
-}
-
 /*
  * Mixer structure
  */
 
 PACK(struct CurveRef {
   uint16_t type:5;
-  uint16_t value:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  int16_t value:11;
 });
 
 PACK(struct MixData {
@@ -127,8 +87,8 @@ PACK(struct MixData {
   uint16_t delayPrec:1;
   uint16_t speedPrec:1;
   uint16_t spare:2 SKIP;
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  int32_t weight:11;
+  int32_t offset:11;
   int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
   CurveRef curve;
   uint8_t  delayUp;
@@ -147,8 +107,8 @@ PACK(struct ExpoData {
   uint16_t scale:14;
   int16_t  reservedTrimSource:6 SKIP;
   int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  int32_t weight:11;
+  int32_t offset:11;
   int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
   CurveRef curve;
   uint16_t chn:5;
@@ -161,10 +121,10 @@ PACK(struct ExpoData {
  */
 
 PACK(struct LimitData {
-  int32_t min:11 CUST(in_read_weight,in_write_weight);
-  int32_t max:11 CUST(in_read_weight,in_write_weight);
+  int32_t min:11;
+  int32_t max:11;
   int32_t ppmCenter:10; // TODO can be reduced to 8 bits
-  int16_t offset:11 CUST(in_read_weight,in_write_weight);
+  int16_t offset:11;
   uint16_t symetrical:1;
   uint16_t revert:1;
   uint16_t spare:3 SKIP;
@@ -232,21 +192,6 @@ PACK(struct CurveHeader {
   uint8_t smooth:1;
   int8_t  points:6;   // describes number of points - 5
   NOBACKUP(char name[LEN_CURVE_NAME]);
-});
-
-/*
- * GVar structure
- */
-
-PACK(struct GVarData {
-  gvar_t value;
-  NOBACKUP(char name[LEN_GVAR_NAME]);
-  uint32_t min:12;
-  uint32_t max:12;
-  uint32_t popup:1;
-  uint32_t prec:1;
-  uint32_t unit:2;
-  uint32_t spare:4 SKIP;
 });
 
 /*
@@ -655,8 +600,6 @@ PACK(struct ModelData {
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
   NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 
-  GVarData gvars[MAX_GVARS];
-
   NOBACKUP(VarioData varioData);
 
   TOPBAR_DATA
@@ -719,7 +662,7 @@ PACK(struct ModelData {
   // Model level tabs control (model setting)
   uint8_t reservedModelFeature:2 SKIP;
   uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
-  uint8_t modelGVDisabled:2 ENUM(ModelOverridableEnable);
+  uint8_t reservedVariableFeature:2 SKIP;
   uint8_t modelLSDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
@@ -954,7 +897,7 @@ PACK(struct RadioData {
   NOBACKUP(int16_t spareRadioViewOption:1 SKIP);
   NOBACKUP(int16_t reservedModelFeature:1 SKIP);
   NOBACKUP(int16_t modelCurvesDisabled:1);
-  NOBACKUP(int16_t modelGVDisabled:1);
+  NOBACKUP(int16_t reservedVariableFeature:1 SKIP);
 
   NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
@@ -1041,7 +984,6 @@ PACK(struct RadioData {
 });
 
 #undef SWITCHES_WARNING_DATA
-#undef MODEL_GVARS_DATA
 #undef TELEMETRY_DATA
 #undef SCRIPTS_DATA
 #undef CUSTOM_SCREENS_DATA

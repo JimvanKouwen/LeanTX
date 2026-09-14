@@ -27,7 +27,7 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "getset_helpers.h"
-#include "gvar_numberedit.h"
+#include "numberedit.h"
 #include "pagegroup.h"
 #include "textedit.h"
 #include "toggleswitch.h"
@@ -131,7 +131,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Offset
   new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_SUBTRIM);
-  auto off = new GVarNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
+  auto off = new NumberEdit(line, rect_t{}, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
                                 GET_SET_DEFAULT(output->offset), PREC1);
   off->setFastStep(20);
   off->setAccelFactor(16);
@@ -146,10 +146,11 @@ void OutputEditWindow::buildBody(Window *form)
   minText = new StaticText(line, rect_t{}, STR_MIN);
   etx_solid_bg(minText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(minText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  minEdit = new GVarNumberEdit(line, -limit, 0,
-                               GET_SET_DEFAULT(output->min), PREC1,
-                               -LIMIT_STD_MAX, -limit);
+  minEdit = new NumberEdit(line, rect_t{}, -limit, 0,
+                               [=]() { return output->min - LIMIT_STD_MAX; },
+                               [=](int32_t v) { output->min = v + LIMIT_STD_MAX; SET_DIRTY(); }, PREC1);
   etx_font(minEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
+  minEdit->setDefault(-limit);
   minEdit->setFastStep(20);
   minEdit->setAccelFactor(16);
   minEdit->setDisplayHandler([=](int value) {
@@ -162,10 +163,11 @@ void OutputEditWindow::buildBody(Window *form)
   maxText = new StaticText(line, rect_t{}, STR_MAX);
   etx_solid_bg(maxText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(maxText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  maxEdit = new GVarNumberEdit(line, 0, +limit,
-                               GET_SET_DEFAULT(output->max), PREC1,
-                               +LIMIT_STD_MAX, limit);
+  maxEdit = new NumberEdit(line, rect_t{}, 0, +limit,
+                               [=]() { return output->max + LIMIT_STD_MAX; },
+                               [=](int32_t v) { output->max = v - LIMIT_STD_MAX; SET_DIRTY(); }, PREC1);
   etx_font(maxEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
+  maxEdit->setDefault(limit);
   maxEdit->setFastStep(20);
   maxEdit->setAccelFactor(16);
   maxEdit->setDisplayHandler([=](int value) {

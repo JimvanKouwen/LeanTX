@@ -42,24 +42,10 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
 swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr,
                    event_t event);
 
-uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
-                              int16_t min, int16_t max, LcdFlags attr, event_t event,
-                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
+int16_t editLiteralFieldValue(coord_t x, coord_t y, const char* title, int16_t value,
+                              int16_t min, int16_t max, LcdFlags attr, event_t event);
 
-int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
-                           int16_t max, LcdFlags attr, uint8_t editflags,
-                           event_t event);
-
-#define GVAR_MENU_ITEM(x, y, v, min, max, attr, editflags, event) \
-  editGVarFieldValue(x, y, v, min, max, attr, editflags, event)
-
-#if defined(GVARS)
-void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar,
-                   LcdFlags flags);
-#endif
-
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
+void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags);
 
 extern uint8_t editNameCursorPos;
 

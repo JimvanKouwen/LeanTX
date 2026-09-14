@@ -47,7 +47,6 @@
 #define CENTERED                       0x20
 #define CONDENSED                      0x08
 #define FIXEDWIDTH                     0x10
-/* no 0x80 here because of "GV"1 which is aligned LEFT */
 /* no 0x10 here because of "MODEL"01 which uses LEADING0 */
 
 /* lcdDrawNumber additional flags */

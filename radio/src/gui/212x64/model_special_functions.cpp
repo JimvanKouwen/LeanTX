@@ -27,9 +27,9 @@
 #define MODEL_SPECIAL_FUNC_4TH_COLUMN          (31*FW-3)
 #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF    (34*FW-3)
 
-#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
-#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
-#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF 
+#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period
+#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period
+#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF
 
 void onCustomFunctionsFileSelectionMenu(const char * result)
 {
@@ -107,40 +107,6 @@ void onCustomFunctionsMenu(const char * result)
     memmove(cfn, cfn+1, (MAX_SPECIAL_FUNCTIONS-sub-1)*sizeof(CustomFunctionData));
     memset(&g_model.customFn[MAX_SPECIAL_FUNCTIONS-1], 0, sizeof(CustomFunctionData));
     storageDirty(eeFlags);
-  }
-}
-
-void onAdjustGvarSourceLongEnterPress(const char * result)
-{
-  CustomFunctionData * cfn = &g_model.customFn[menuVerticalPosition];
-
-  if (result == STR_CONSTANT) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_MIXSOURCE) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_SOURCE;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_MIXSOURCERAW) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_SOURCERAW;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_GLOBALVAR) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_GVAR;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_INCDEC) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_INCDEC;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result != STR_EXIT) {
-    onSourceLongEnterPress(result);
   }
 }
 
@@ -238,16 +204,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else
 #endif
 
-#if defined(GVARS)
-          if (func == FUNC_ADJUST_GVAR) {
-            if (validateSFGV(cfn)) storageDirty(eeFlags);
-            maxParam = MAX_GVARS-1;
-            drawStringWithIndex(lcdNextPos + 2, y, STR_GV, CFN_GVAR_INDEX(cfn)+1, attr);
-            if (active) CFN_GVAR_INDEX(cfn) = checkIncDec(event, CFN_GVAR_INDEX(cfn), 0, maxParam, eeFlags);
-            break;
-          }
-          else
-#endif
           if (func == FUNC_SET_TIMER) {
             if (timersSetupCount()> 0) {
               maxParam = TIMERS-1;
@@ -363,7 +319,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             }
           }
           else if (func == FUNC_LOGS) {
-            val_min = SD_LOGS_PERIOD_MIN; 
+            val_min = SD_LOGS_PERIOD_MIN;
             val_max = SD_LOGS_PERIOD_MAX;
 
             if (!val_displayed) {
@@ -381,58 +337,13 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               INCDEC_ENABLE_CHECK(isSourceAvailable);
             }
           }
-#if defined(GVARS)
-          else if (func == FUNC_ADJUST_GVAR) {
-            switch (CFN_GVAR_MODE(cfn)) {
-              case FUNC_ADJUST_GVAR_CONSTANT:
-              {
-                val_displayed = (int16_t)CFN_PARAM(cfn);
-                getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
-                drawGVarValue(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, CFN_GVAR_INDEX(cfn), val_displayed, attr|LEFT);
-                break;
-              }
-              case FUNC_ADJUST_GVAR_SOURCE:
-              case FUNC_ADJUST_GVAR_SOURCERAW:
-                val_max = MIXSRC_LAST_CH;
-                drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
-                if (active) {
-                  INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-                  INCDEC_ENABLE_CHECK(isSourceAvailable);
-                }
-                break;
-              case FUNC_ADJUST_GVAR_GVAR:
-                val_max = MAX_GVARS-1;
-                drawStringWithIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_GV, val_displayed+1, attr);
-                break;
-              default: // FUNC_ADJUST_GVAR_INC
-                getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
-                getGVarIncDecRange(val_min, val_max);
-                lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, (val_displayed < 0 ? "-= " : "+= "), attr);
-                drawGVarValue(lcdNextPos, y, CFN_GVAR_INDEX(cfn), abs(val_displayed), attr|LEFT);
-                break;
-            }
-          }
-#endif
           else if (attr) {
             repeatLastCursorMove(event);
           }
 
           if (active || event==EVT_KEY_LONG(KEY_ENTER)) {
             CFN_PARAM(cfn) = CHECK_INCDEC_PARAM(event, val_displayed, val_min, val_max);
-            if (func == FUNC_ADJUST_GVAR && attr && event==EVT_KEY_LONG(KEY_ENTER)) {
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_CONSTANT)
-                POPUP_MENU_ADD_ITEM(STR_CONSTANT);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_SOURCE)
-                POPUP_MENU_ADD_ITEM(STR_MIXSOURCE);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_SOURCERAW)
-                POPUP_MENU_ADD_ITEM(STR_MIXSOURCERAW);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_GVAR)
-                POPUP_MENU_ADD_ITEM(STR_GLOBALVAR);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_INCDEC)
-                POPUP_MENU_ADD_ITEM(STR_INCDEC);
-              POPUP_MENU_START(onAdjustGvarSourceLongEnterPress);
-              s_editMode = EDIT_MODIFY_FIELD;
-            }
+
           }
           break;
         }

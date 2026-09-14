@@ -110,7 +110,7 @@ enum MenuModelIndexes {
   MENU_MODEL_MIXES,
   MENU_MODEL_OUTPUTS,
   MENU_MODEL_CURVES,
-  CASE_GVARS(MENU_MODEL_GVARS)
+
       MENU_MODEL_LOGICAL_SWITCHES,
   MENU_MODEL_SPECIAL_FUNCTIONS,
 #if defined(LUA_MODEL_SCRIPTS)
@@ -135,7 +135,6 @@ void menuServoPwmTool(event_t event);
 
 void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);
-void menuModelGVars(event_t event);
 void menuModelExpoOne(event_t event);
 void menuModelExposAll(event_t event);
 void menuModelMixOne(event_t event);

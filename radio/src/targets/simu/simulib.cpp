@@ -35,9 +35,6 @@
 #include "input_mapping.h"
 #include "gui/gui_common.h"
 #include "mixes.h"
-#if defined(GVARS)
-#include "gvars.h"
-#endif
 #include "telemetry/crossfire.h"
 #if defined(LUA)
 #include "lua/lua_api.h"
@@ -788,30 +785,6 @@ uint8_t simuCopyLogicalSwitches(uint8_t* buf, uint8_t maxCount)
   for (uint8_t i = 0; i < n; i++)
     buf[i] = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i, 0) ? 1 : 0;
   return n;
-}
-
-uint8_t simuGetNumGVars()
-{
-#if defined(GVARS)
-  return MAX_GVARS;
-#else
-  return 0;
-#endif
-}
-
-int32_t simuGetGVar(uint8_t gv)
-{
-#if defined(GVARS)
-  if (gv < MAX_GVARS) {
-    uint8_t prec = g_model.gvars[gv].prec;
-    uint8_t unit = g_model.gvars[gv].unit;
-    int16_t value = (int16_t)GVAR_VALUE(gv);
-    // Encode as value[15:0] | prec[25:24] | unit[27:26]
-    return (((unit & 0x3) << 26) | ((prec & 0x3) << 24) |
-            (value & 0xFFFF));
-  }
-#endif
-  return 0;
 }
 
 bool simuGetBacklightState()

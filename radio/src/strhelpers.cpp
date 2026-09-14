@@ -345,36 +345,11 @@ char *getCurveString(char *dest, int idx)
   return dest;
 }
 
-char *getGVarString(char *dest, int idx)
-{
-  char *s = dest;
-  if (idx < 0) {
-    *s++ = '-';
-    idx = -idx - 1;
-  }
-
-  if (idx >= MAX_GVARS) {
-    s[0] = '\0';
-    return s;
-  }
-
-  if (g_model.gvars[idx].name[0])
-    strAppend(s, g_model.gvars[idx].name, LEN_GVAR_NAME);
-  else
-    strAppendStringWithIndex(s, STR_GV, idx + 1);
-
-  return dest;
-}
-
 #if defined(COLORLCD)
-char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
+char *formatConfigValue(char *dest, size_t len, int16_t value,
                            LcdFlags flags, const char *suffix,
-                           gvar_t offset, bool usePPMUnit)
+                           int16_t offset, bool usePPMUnit)
 {
-  if (GV_IS_GV_VALUE(value)) {
-    int index = GV_INDEX_FROM_VALUE(value);
-    return getGVarString(dest, index);
-  }
 
   value += offset;
   if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
@@ -383,27 +358,6 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
   return dest;
 }
 
-char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
-                           LcdFlags flags, const char *suffix,
-                           gvar_t offset, bool usePPMUnit)
-{
-  SourceNumVal v;
-  v.rawValue = value;
-  if (v.isSource) {
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      getGVarString(dest, (v.value < 0) ? v.value + MIXSRC_FIRST_GVAR - 1 : v.value - MIXSRC_FIRST_GVAR);
-    } else {
-      const char* s = getSourceString(v.value);
-      strncpy(dest, s, len);
-    }
-  } else {
-    v.value += offset;
-    if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
-      v.value = v.value * 128 / 25;
-    formatNumberAsString(dest, len, v.value, flags, 0, nullptr, suffix);
-  }
-  return dest;
-}
 #endif
 
 char* getCustomSwitchesGroupName(char *dest, uint8_t idx)
@@ -728,18 +682,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     } else {
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
     }
-  } else if (idx <= MIXSRC_LAST_GVAR) {
-    idx -= MIXSRC_FIRST_GVAR;
-#if defined(COLORLCD)
-    char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
-    if (!defaultOnly && g_model.gvars[idx].name[0]) {
-      s = strAppend(s, ":");
-      getGVarString(s, idx);
-    }
-#else
-    strAppendStringWithIndex(dest, STR_GV, idx + 1);
-#endif
-  } else if (idx < MIXSRC_FIRST_TIMER) {
+  }  else if (idx < MIXSRC_FIRST_TIMER) {
     // Built-in sources: TX Voltage, Time, GPS (+ reserved)
     const char *src_str;
     switch (idx) {
@@ -785,7 +728,6 @@ bool sourceCanHaveCustomName(mixsrc_t idx)
          (idx >= MIXSRC_FIRST_RESERVED_TRIM && idx <= MIXSRC_LAST_RESERVED_TRIM) ||
          (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) ||
          (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH) ||
-         (idx >= MIXSRC_FIRST_GVAR && idx <= MIXSRC_LAST_GVAR) ||
          (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER);
 }
 
@@ -845,8 +787,6 @@ char *getSwitchPositionName(swsrc_t idx, bool defaultOnly)
 {
   return getSwitchPositionName(_static_str_buffer, idx, defaultOnly);
 }
-
-char *getGVarString(int idx) { return getGVarString(_static_str_buffer, idx); }
 
 #if defined(COLORLCD)
 char *getValueWithUnit(char *dest, size_t len, int32_t val, uint8_t unit,
@@ -921,18 +861,6 @@ char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
       formatNumberAsString(dest, L, gpsData.numSat, flags, len, "sats: ");
     }
     return dest;
-  }
-#endif
-#if defined(GVARS)
-  else if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR) {
-    uint8_t gvar_idx = source - MIXSRC_FIRST_GVAR;
-    auto gvar = &g_model.gvars[gvar_idx];
-    uint8_t prec = gvar->prec;
-    if (prec > 0) {
-      flags |= (prec == 1 ? PREC1 : PREC2);
-    }
-    uint8_t unit = gvar->unit ? UNIT_PERCENT : UNIT_RAW;
-    getValueWithUnit(dest, len, val, unit, flags);
   }
 #endif
 #if defined(LUA_INPUTS)
@@ -1021,16 +949,6 @@ std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags)
 
   return formatNumberAsString(val, flags & (~NO_UNIT), 0, nullptr,
                               STR_VTELEMUNIT[unit]);
-}
-
-std::string formatGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
-{
-  uint8_t prec = g_model.gvars[gvar].prec;
-  if (prec > 0) {
-    flags |= (prec == 1 ? PREC1 : PREC2);
-  }
-  return getValueWithUnit(
-      value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
 }
 
 std::string getGPSCoord(int32_t value, const char *direction, bool seconds)

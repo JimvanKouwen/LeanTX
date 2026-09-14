@@ -21,8 +21,6 @@
 
 #include "edgetx.h"
 
-extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
-
 constexpr int DEFAULT_POINTS = 5;
 constexpr int STD_CURVE_POINTS(int p) { return p + DEFAULT_POINTS; }
 constexpr int CUSTOM_CURVE_POINTS(int p) { return 2 * p + (2 * DEFAULT_POINTS - 2); }
@@ -108,7 +106,7 @@ bool moveCurve(uint8_t index, int8_t shift)
   }
 
   curveMove_unsafe(index, shift);
-  
+
   storageDirty(EE_MODEL);
   return true;
 }
@@ -129,7 +127,7 @@ void curveClear(uint8_t index)
 {
   if (index >= MAX_CURVES)
     return;
-  
+
   CurveHeader * curve = &g_model.curves[index];
   int8_t * curvePoints = curveAddress(index);
 
@@ -138,7 +136,7 @@ void curveClear(uint8_t index)
 
   memclear(curve, sizeof(CurveHeader));
   uint8_t newPoints = getCurvePoints(index);
-  
+
   int8_t shift = newPoints - nPoints;
   if (shift != 0) {
     curveMove_unsafe(index, shift);
@@ -149,7 +147,7 @@ void curveMirror(uint8_t index)
 {
   if (index >= MAX_CURVES)
     return;
-  
+
   CurveHeader & curve = g_model.curves[index];
   int8_t * points = curveAddress(index);
 
@@ -316,13 +314,11 @@ int intpol(int x, uint8_t idx) // -100, -75, -50, -25, 0 ,25 ,50, 75, 100
 
 int applyCurve(int x, CurveRef & curve)
 {
-  SourceNumVal v;
-  v.rawValue = curve.value;
 
   switch (curve.type) {
     case CURVE_REF_DIFF:
     {
-      int curveParam = getSourceNumFieldValue(curve.value, -100, 100);
+      int curveParam = (10 * limit<int>(-100, curve.value, 100));
       if (curveParam > 0 && x < 0)
         x = (x * (1000 - curveParam)) / 1000;
       else if (curveParam < 0 && x > 0)
@@ -332,12 +328,12 @@ int applyCurve(int x, CurveRef & curve)
 
     case CURVE_REF_EXPO:
     {
-      int curveParam = getSourceNumFieldValue(curve.value, -100, 100) / 10;
+      int curveParam = limit<int>(-100, curve.value, 100);
       return expo(x, curveParam);
     }
 
     case CURVE_REF_FUNC:
-      switch (v.value) {
+      switch (curve.value) {
         case CURVE_X_GT0:
           if (x < 0) x = 0; //x|x>0
           return x;
@@ -357,7 +353,7 @@ int applyCurve(int x, CurveRef & curve)
 
     case CURVE_REF_CUSTOM:
     {
-      int curveParam = v.value;
+      int curveParam = curve.value;
       if (curveParam < 0) {
         x = -x;
         curveParam = -curveParam;
@@ -424,27 +420,24 @@ char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
   if (!len) return dest;
   char *s = dest;
 
-  SourceNumVal v;
-  v.rawValue = curve.value;
-
-  if (v.value != 0) {
+  if (curve.value != 0) {
     switch (curve.type) {
       case CURVE_REF_DIFF:
         *(s++) = 'D'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, curve.value, 0, "%");
+        formatConfigValue(s, len, curve.value, 0, "%");
         return dest;
 
       case CURVE_REF_EXPO:
         *(s++) = 'E'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, curve.value, 0, "%");
+        formatConfigValue(s, len, curve.value, 0, "%");
         return dest;
 
       case CURVE_REF_FUNC:
-        strAppend(dest, STR_VCURVEFUNC[v.value], len);
+        strAppend(dest, STR_VCURVEFUNC[curve.value], len);
         return dest;
 
       case CURVE_REF_CUSTOM:
-        return getCurveString(dest, v.value);
+        return getCurveString(dest, curve.value);
     }
   }
 

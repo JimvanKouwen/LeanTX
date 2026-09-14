@@ -40,7 +40,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_OVERRIDE_CHANNEL, "OVERRIDE_CHANNEL"  },
   {  FUNC_RESET, "RESET"  },
   {  FUNC_SET_TIMER, "SET_TIMER"  },
-  {  FUNC_ADJUST_GVAR, "ADJUST_GVAR"  },
   {  FUNC_VOLUME, "VOLUME"  },
   {  FUNC_BIND, "BIND"  },
   {  FUNC_PLAY_SOUND, "PLAY_SOUND"  },
@@ -319,7 +318,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 1 ),
   YAML_PADDING( 1 ),
   YAML_SIGNED( "modelCurvesDisabled", 1 ),
-  YAML_SIGNED( "modelGVDisabled", 1 ),
+  YAML_PADDING( 1 ),
   YAML_SIGNED_CUST( "volumeSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_SIGNED( "modelLSDisabled", 1 ),
   YAML_SIGNED( "modelSFDisabled", 1 ),
@@ -363,7 +362,7 @@ static const struct YamlNode struct_TimerData[] = {
 };
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 5 ),
-  YAML_UNSIGNED_CUST( "value", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_SIGNED( "value", 11 ),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
@@ -375,8 +374,8 @@ static const struct YamlNode struct_MixData[] = {
   YAML_UNSIGNED( "delayPrec", 1 ),
   YAML_UNSIGNED( "speedPrec", 1 ),
   YAML_PADDING( 2 ),
-  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
-  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_SIGNED( "weight", 11 ),
+  YAML_SIGNED( "offset", 11 ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "delayUp", 8 ),
@@ -388,10 +387,10 @@ static const struct YamlNode struct_MixData[] = {
 };
 static const struct YamlNode struct_LimitData[] = {
   YAML_IDX,
-  YAML_SIGNED_CUST( "min", 11, in_read_weight, in_write_weight ),
-  YAML_SIGNED_CUST( "max", 11, in_read_weight, in_write_weight ),
+  YAML_SIGNED( "min", 11 ),
+  YAML_SIGNED( "max", 11 ),
   YAML_SIGNED( "ppmCenter", 10 ),
-  YAML_SIGNED_CUST( "offset", 11, in_read_weight, in_write_weight ),
+  YAML_SIGNED( "offset", 11 ),
   YAML_UNSIGNED( "symetrical", 1 ),
   YAML_UNSIGNED( "revert", 1 ),
   YAML_PADDING( 3 ),
@@ -404,8 +403,8 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_UNSIGNED( "scale", 14 ),
   YAML_PADDING( 6 ),
   YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
-  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_SIGNED( "weight", 11 ),
+  YAML_SIGNED( "offset", 11 ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "chn", 5 ),
@@ -438,18 +437,6 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_GVarData[] = {
-  YAML_IDX,
-  YAML_SIGNED( "value", 16 ),
-  YAML_STRING("name", 3),
-  YAML_UNSIGNED( "min", 12 ),
-  YAML_UNSIGNED( "max", 12 ),
-  YAML_UNSIGNED( "popup", 1 ),
-  YAML_UNSIGNED( "prec", 1 ),
-  YAML_UNSIGNED( "unit", 2 ),
-  YAML_PADDING( 4 ),
   YAML_END
 };
 static const struct YamlNode struct_VarioData[] = {
@@ -662,7 +649,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
   YAML_ARRAY("switchWarning", 2, 32, struct_swtchWarn, nullptr),
-  YAML_ARRAY("gvars", 72, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_STRUCT("rfAlarms", 16, struct_RFAlarmData, NULL),
   YAML_PADDING( 3 ),
@@ -694,7 +680,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_PADDING( 2 ),
   YAML_PADDING( 2 ),
   YAML_ENUM("modelCurvesDisabled", 2, enum_ModelOverridableEnable, NULL),
-  YAML_ENUM("modelGVDisabled", 2, enum_ModelOverridableEnable, NULL),
+  YAML_PADDING( 2 ),
   YAML_ENUM("modelLSDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),

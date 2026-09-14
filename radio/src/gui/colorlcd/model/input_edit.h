@@ -39,9 +39,6 @@ class InputEditWindow : public Page
   uint8_t index;
   Curve* preview = nullptr;
   bool updatePreview = false;
-  getvalue_t lastWeightVal = 0;
-  getvalue_t lastOffsetVal = 0;
-  getvalue_t lastCurveVal = 0;
   uint8_t lastActiveIndex = 255;
   StaticText * headerSwitchName = nullptr;
 

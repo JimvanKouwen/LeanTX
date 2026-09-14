@@ -92,16 +92,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
   {
     STR_DEF(STR_MODEL_MENU_TABS), nullptr,
   },
-#if defined(GVARS)
-  {
-    STR_DEF(STR_MENU_GLOBAL_VARS),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_DEFAULT(g_model.modelGVDisabled),
-                g_eeGeneral.modelGVDisabled);
-    }
-  },
-#endif
   {
     STR_DEF(STR_MENUCURVES),
     [](Window* parent, coord_t x, coord_t y) {

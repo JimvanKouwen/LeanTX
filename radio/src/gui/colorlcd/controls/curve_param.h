@@ -25,7 +25,7 @@
 #include "choice.h"
 
 struct CurveRef;
-class SourceNumberEdit;
+class NumberEdit;
 
 class CurveChoice : public Choice
 {
@@ -45,15 +45,14 @@ class CurveParam : public Window
 {
  public:
   CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-             std::function<void(int32_t)> setRefValue,
-             int16_t sourceMin, mixsrc_t source);
+             std::function<void(int32_t)> setRefValue, mixsrc_t source);
 
  protected:
   // Curve
   CurveRef* ref;
 
   // Controls
-  SourceNumberEdit* value_edit;
+  NumberEdit* value_edit;
   Choice* func_choice;
   Choice* cust_choice;
   Window* act_field = nullptr;

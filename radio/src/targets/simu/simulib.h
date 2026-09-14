@@ -129,10 +129,6 @@ uint8_t  WASM_EXPORT(simuGetMixCount)();
 uint8_t  WASM_EXPORT(simuGetNumLogicalSwitches)();
 uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
 
-// GVars: one value per variable, with precision and unit in the upper bits.
-uint8_t  WASM_EXPORT(simuGetNumGVars)();
-int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv);
-
 // Aux serial: push bytes received from a host serial port into the firmware's
 // rx queue for the matching aux port (port_nr is 0 for AUX1, 1 for AUX2).
 void WASM_EXPORT(simuAuxSerialReceive)(uint8_t port_nr, const uint8_t* data,

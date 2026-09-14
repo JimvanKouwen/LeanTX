@@ -22,7 +22,6 @@
 #include "edgetx.h"
 #include "menu.h"
 #include "model_curves.h"
-#include "model_gvars.h"
 #include "model_inputs.h"
 #include "model_logical_switches.h"
 #include "model_mixer_scripts.h"
@@ -51,9 +50,6 @@ const PageDef modelMenuItems[] = {
   { ICON_MODEL_MIXER, STR_DEF(STR_QM_MIXES), STR_DEF(STR_MIXES), PAGE_CREATE, QM_MODEL_MIXES, [](const PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
   { ICON_MODEL_OUTPUTS, STR_DEF(STR_QM_OUTPUTS), STR_DEF(STR_MENULIMITS), PAGE_CREATE, QM_MODEL_OUTPUTS, [](const PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},
   { ICON_MODEL_CURVES, STR_DEF(STR_QM_CURVES), STR_DEF(STR_MENUCURVES), PAGE_CREATE, QM_MODEL_CURVES, [](const PageDef& pageDef) { return new ModelCurvesPage(pageDef); }, modelCurvesEnabled},
-#if defined(GVARS)
-  { ICON_MODEL_GVARS, STR_DEF(STR_QM_GLOBAL_VARS), STR_DEF(STR_MENU_GLOBAL_VARS), PAGE_CREATE, QM_MODEL_GVARS, [](const PageDef& pageDef) { return new ModelGVarsPage(pageDef); }, modelGVEnabled},
-#endif
   { ICON_MODEL_LOGICAL_SWITCHES, STR_DEF(STR_QM_LOGICAL_SW), STR_DEF(STR_MENULOGICALSWITCHES), PAGE_CREATE, QM_MODEL_LS, [](const PageDef& pageDef) { return new ModelLogicalSwitchesPage(pageDef); }, modelLSEnabled},
   { ICON_MODEL_SPECIAL_FUNCTIONS, STR_DEF(STR_QM_SPEC_FUNC), STR_DEF(STR_MENUCUSTOMFUNC), PAGE_CREATE, QM_MODEL_SF, [](const PageDef& pageDef) { return new SpecialFunctionsPage(pageDef); }, modelSFEnabled},
 #if defined(LUA_MODEL_SCRIPTS)

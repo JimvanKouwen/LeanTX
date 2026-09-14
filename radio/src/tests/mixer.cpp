@@ -115,13 +115,13 @@ TEST_F(MixerTest, InfiniteRecursiveChannels)
 {
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_CH + 1;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[1].destCh = 1;
   g_model.mixData[1].srcRaw = MIXSRC_FIRST_CH + 2;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
+  g_model.mixData[1].weight = (100);
   g_model.mixData[2].destCh = 2;
   g_model.mixData[2].srcRaw = MIXSRC_FIRST_CH;
-  g_model.mixData[2].weight = makeSourceNumVal(100);
+  g_model.mixData[2].weight = (100);
   evalChannelMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[2], 0);
   EXPECT_EQ(chans[1], 0);
@@ -132,7 +132,7 @@ TEST_F(MixerTest, BlockingChannel)
 {
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_CH;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   evalChannelMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], 0);
 }
@@ -142,14 +142,14 @@ TEST_F(MixerTest, RecursiveAddChannel)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(50);
+  g_model.mixData[0].weight = (50);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_ADD;
   g_model.mixData[1].srcRaw = MIXSRC_FIRST_CH + 1;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
+  g_model.mixData[1].weight = (100);
   g_model.mixData[2].destCh = 1;
   g_model.mixData[2].srcRaw = MIXSRC_FIRST_STICK;
-  g_model.mixData[2].weight = makeSourceNumVal(100);
+  g_model.mixData[2].weight = (100);
 
   anaSetFiltered(0, 0);
   evalChannelMixes(e_perout_mode_normal, 0);
@@ -165,7 +165,7 @@ TEST_F(MixerTest, SlowOnSwitchCondition)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].speedUp = 50;
   g_model.mixData[0].speedDown = 50;
 
@@ -188,7 +188,7 @@ TEST_F(MixerTest, SlowOnSwitchSource)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].speedUp = 50;
   g_model.mixData[0].speedDown = 50;
 
@@ -210,7 +210,7 @@ TEST_F(MixerTest, SlowOnSwitchConditionPrec10ms)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].speedUp = 50;
   g_model.mixData[0].speedDown = 50;
   g_model.mixData[0].speedPrec = 1;
@@ -234,7 +234,7 @@ TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].speedUp = 50;
   g_model.mixData[0].speedDown = 50;
   g_model.mixData[0].speedPrec = 1;
@@ -254,7 +254,7 @@ TEST_F(MixerTest, SlowDisabledOnStartup)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].speedUp = 50;
   g_model.mixData[0].speedDown = 50;
 
@@ -271,7 +271,7 @@ TEST_F(MixerTest, DelayOnSwitch)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].swtch = swPos;
   g_model.mixData[0].delayUp = 50;
   g_model.mixData[0].delayDown = 50;
@@ -302,7 +302,7 @@ TEST_F(MixerTest, DelayOnSwitch2)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].delayUp = 50;
   g_model.mixData[0].delayDown = 50;
 
@@ -329,11 +329,11 @@ TEST_F(MixerTest, SlowOnMultiply)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_MUL;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
+  g_model.mixData[1].weight = (100);
   g_model.mixData[1].swtch = SWSRC_FIRST_SWITCH;
   g_model.mixData[1].speedUp = 50;
   g_model.mixData[1].speedDown = 50;
@@ -355,11 +355,11 @@ TEST_F(MixerTest, SlowOnMultiplyPrec10ms)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_MUL;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
+  g_model.mixData[1].weight = (100);
   g_model.mixData[1].swtch = SWSRC_FIRST_SWITCH;
   g_model.mixData[1].speedUp = 50;
   g_model.mixData[1].speedDown = 50;
@@ -390,11 +390,11 @@ TEST_F(MixerTest, MultiplexAdd)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(60);
+  g_model.mixData[0].weight = (60);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_ADD;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(40);
+  g_model.mixData[1].weight = (40);
 
   evalChannelMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], CHANNEL_MAX);  // 60% + 40% = 100%
@@ -406,11 +406,11 @@ TEST_F(MixerTest, MultiplexReplace)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_REPL;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(-50);
+  g_model.mixData[1].weight = (-50);
 
   evalChannelMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], -CHANNEL_MAX / 2);  // REPL overwrites to -50%
@@ -422,11 +422,11 @@ TEST_F(MixerTest, MultiplexMultiplyBasic)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_MUL;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(50);
+  g_model.mixData[1].weight = (50);
 
   evalChannelMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], CHANNEL_MAX / 2);  // 100% * 50% = 50%
@@ -439,15 +439,15 @@ TEST_F(MixerTest, MultiplexMultiplyOrderSensitive)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(60);
+  g_model.mixData[0].weight = (60);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_ADD;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(40);
+  g_model.mixData[1].weight = (40);
   g_model.mixData[2].destCh = 0;
   g_model.mixData[2].mltpx = MLTPX_MUL;
   g_model.mixData[2].srcRaw = MIXSRC_MAX;
-  g_model.mixData[2].weight = makeSourceNumVal(50);
+  g_model.mixData[2].weight = (50);
 
   evalChannelMixes(e_perout_mode_normal, 0);
   int32_t caseA = chans[0];
@@ -458,15 +458,15 @@ TEST_F(MixerTest, MultiplexMultiplyOrderSensitive)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = makeSourceNumVal(60);
+  g_model.mixData[0].weight = (60);
   g_model.mixData[1].destCh = 0;
   g_model.mixData[1].mltpx = MLTPX_MUL;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = makeSourceNumVal(50);
+  g_model.mixData[1].weight = (50);
   g_model.mixData[2].destCh = 0;
   g_model.mixData[2].mltpx = MLTPX_ADD;
   g_model.mixData[2].srcRaw = MIXSRC_MAX;
-  g_model.mixData[2].weight = makeSourceNumVal(40);
+  g_model.mixData[2].weight = (40);
 
   evalChannelMixes(e_perout_mode_normal, 0);
   int32_t caseB = chans[0];
@@ -479,8 +479,8 @@ TEST_F(MixerTest, WeightThenOffset)
 {
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
-  g_model.mixData[0].weight = makeSourceNumVal(50);
-  g_model.mixData[0].offset = makeSourceNumVal(50);
+  g_model.mixData[0].weight = (50);
+  g_model.mixData[0].offset = (50);
 
   // Stick at +100%: 50% of 1024 + 50% offset
   anaSetFiltered(inputMappingConvertMode(0), +1024);
@@ -510,11 +510,11 @@ TEST_F(MixerTest, CascadedChannelBypassesOutputClipping)
   // CH0: stick at 200% weight (overdrives to 200% internally)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
-  g_model.mixData[0].weight = makeSourceNumVal(200);
+  g_model.mixData[0].weight = (200);
   // CH1: reads CH0 at 50% weight — if unclipped, 200%*50% = 100%
   g_model.mixData[1].destCh = 1;
   g_model.mixData[1].srcRaw = MIXSRC_FIRST_CH;
-  g_model.mixData[1].weight = makeSourceNumVal(50);
+  g_model.mixData[1].weight = (50);
 
   anaSetFiltered(inputMappingConvertMode(0), +1024);
   evalMixes(1);
@@ -533,10 +533,10 @@ TEST_F(MixerTest, CascadedWeightMultiplication)
 {
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
-  g_model.mixData[0].weight = makeSourceNumVal(80);
+  g_model.mixData[0].weight = (80);
   g_model.mixData[1].destCh = 1;
   g_model.mixData[1].srcRaw = MIXSRC_FIRST_CH;
-  g_model.mixData[1].weight = makeSourceNumVal(25);
+  g_model.mixData[1].weight = (25);
 
   anaSetFiltered(inputMappingConvertMode(0), +1024);
   evalMixes(1);
@@ -579,7 +579,7 @@ TEST_F(MixerTest, SequencerSlowRampThroughCurve)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[0].weight = (100);
   g_model.mixData[0].speedUp = 10;    // 1.0s
   g_model.mixData[0].speedDown = 10;  // 1.0s
 
@@ -587,9 +587,9 @@ TEST_F(MixerTest, SequencerSlowRampThroughCurve)
   g_model.mixData[1].destCh = 1;
   g_model.mixData[1].mltpx = MLTPX_ADD;
   g_model.mixData[1].srcRaw = MIXSRC_FIRST_CH;
-  g_model.mixData[1].weight = makeSourceNumVal(100);
+  g_model.mixData[1].weight = (100);
   g_model.mixData[1].curve.type = CURVE_REF_CUSTOM;
-  g_model.mixData[1].curve.value = makeSourceNumVal(1);  // curve index 0 (1-based)
+  g_model.mixData[1].curve.value = (1);  // curve index 0 (1-based)
 
   s_mixer_first_run_done = true;
 
@@ -741,34 +741,17 @@ TEST_F(MixerTest, PhysicalTrimButtonsAutoSelectWithoutTrimModes)
 }
 #endif
 
-#if defined(GVARS)
-TEST_F(MixerTest, ModelWideGVarDrivesAuxAndKeepsPrecision)
+TEST_F(MixerTest, NegativeLiteralInputAndMixValues)
 {
-  int sw = findHwSwitch(SWITCH_3POS);
-  ASSERT_GE(sw, 0);
-  auto& mix = g_model.mixData[4];
-  mix.destCh = 4;
-  mix.srcRaw = MIXSRC_MAX;
-  mix.weight = makeSourceNumVal(MIXSRC_FIRST_GVAR, true);
-  mix.swtch = SWSRC_FIRST_SWITCH + sw * 3;
-  setGVarValue(0, 35);
-  EXPECT_EQ(35, getValue(MIXSRC_FIRST_GVAR));
-  EXPECT_EQ(-35, getGVarValue(-1));
-  EXPECT_EQ(350, getGVarValuePrec1(0));
-  g_model.gvars[0].prec = 1;
-  EXPECT_EQ(35, getGVarValuePrec1(0));
-  g_model.gvars[0].prec = 0;
-
-  simuSetSwitch(sw, -1);
+  g_model.expoData[0].srcRaw = MIXSRC_MAX;
+  g_model.expoData[0].mode = 3;
+  g_model.expoData[0].weight = -50;
+  g_model.expoData[0].offset = -25;
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = MIXSRC_FIRST_INPUT;
+  g_model.mixData[0].weight = -100;
+  g_model.mixData[0].offset = -25;
   evalMixes(1);
-  EXPECT_NEAR(RESX * 35 / 100, channelOutputs[4], 1);
-  simuSetSwitch(sw, 1);
-  evalMixes(1);
-  EXPECT_EQ(0, channelOutputs[4]);
-  EXPECT_EQ(35, getGVarValue(0));
-  setGVarValue(0, -60);
-  simuSetSwitch(sw, -1);
-  evalMixes(1);
-  EXPECT_NEAR(-RESX * 60 / 100, channelOutputs[4], 1);
+  EXPECT_NEAR(anas[0], -3 * RESX / 4, 2);
+  EXPECT_NEAR(channelOutputs[0], RESX / 2, 2);
 }
-#endif

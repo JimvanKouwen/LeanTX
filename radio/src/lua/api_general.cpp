@@ -337,14 +337,6 @@ void luaGetValueAndPush(lua_State* L, int src)
   else if (src == MIXSRC_TX_VOLTAGE) {
     lua_pushnumber(L, float(value) * 0.1f);
   }
-  #if defined(GVARS)
-  else if(src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
-   if(g_model.gvars[src - MIXSRC_FIRST_GVAR].prec)
-     lua_pushnumber(L, float(value) * 0.1f);    // prec "0.0"
-  else
-     lua_pushinteger(L, value);                 // prec "0.-"
-  }
-  #endif
   else {
     lua_pushinteger(L, value);
   }
@@ -399,7 +391,6 @@ const LuaMultipleField luaMultipleFields[] = {
     {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
     {MIXSRC_FIRST_LOGICAL_SWITCH, "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
     {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
-    {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
     {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
 };
@@ -2783,7 +2774,6 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( FUNC_OVERRIDE_CHANNEL, FUNC_OVERRIDE_CHANNEL )
   LROT_NUMENTRY( FUNC_RESET, FUNC_RESET )
   LROT_NUMENTRY( FUNC_SET_TIMER, FUNC_SET_TIMER )
-  LROT_NUMENTRY( FUNC_ADJUST_GVAR, FUNC_ADJUST_GVAR )
   LROT_NUMENTRY( FUNC_VOLUME, FUNC_VOLUME )
   LROT_NUMENTRY( FUNC_BIND, FUNC_BIND )
   LROT_NUMENTRY( FUNC_PLAY_SOUND, FUNC_PLAY_SOUND )

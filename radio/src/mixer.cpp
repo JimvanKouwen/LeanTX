@@ -54,26 +54,6 @@ int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
 int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
 
-// TOOD: find better home for this.
-int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
-{
-  int32_t result;
-  SourceNumVal v; v.rawValue = val;
-  if (v.isSource) {
-    result = getValue(v.value);
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      // Mimic behviour of GET_GVAR_PREC1
-      if (g_model.gvars[abs(v.value) - MIXSRC_FIRST_GVAR].prec == 0)
-        result = result * 10;
-    } else {
-      result = calcRESXto1000(result);
-    }
-  } else {
-    result = v.value * 10;
-  }
-  return limit<int>(min * 10, result, max * 10);
-}
-
 // #define EXTENDED_EXPO
 // increases range of expo curve but costs about 82 bytes flash
 
@@ -210,11 +190,11 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
         }
 
         //========== WEIGHT ===============
-        int32_t weight = getSourceNumFieldValue(ed->weight, -100, 100);
+        int32_t weight = (10 * limit<int16_t>(-100, ed->weight, 100));
         v = divRoundClosest((int32_t)v * weight, 1000);
 
         //========== OFFSET ===============
-        int32_t offset = getSourceNumFieldValue(ed->offset, -100, 100);
+        int32_t offset = (10 * limit<int16_t>(-100, ed->offset, 100));
         if (offset) v += divRoundClosest(calc100toRESX(offset), 10);
 
         anas[cur_chn] = v;
@@ -447,15 +427,6 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
     return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;
   } else if (i <= MIXSRC_LAST_CH) {
     return ex_chans[i - MIXSRC_FIRST_CH];
-  }
-
-  else if (i <= MIXSRC_LAST_GVAR) {
-#if defined(GVARS)
-    return GVAR_VALUE(i - MIXSRC_FIRST_GVAR);
-#else
-    if (valid != nullptr) *valid = false;
-    return 0;
-#endif
   }
 
   else if (i == MIXSRC_TX_VOLTAGE) {
@@ -752,7 +723,7 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
         activeMixes[i] = true;
       }
 
-      int32_t weight = getSourceNumFieldValue(md->weight, -RESX, RESX);
+      int32_t weight = (10 * limit<int16_t>(-RESX, md->weight, RESX));
       weight = calc100to256_16Bits(weight);
       //========== SPEED ===============
       // now its on input side, but without weight compensation. More like other remote controls
@@ -807,7 +778,7 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
 
       //========== OFFSET / AFTER ===============
       if (applyOffsetAndCurve) {
-        int32_t offset = getSourceNumFieldValue(md->offset, -RESX, RESX);
+        int32_t offset = (10 * limit<int16_t>(-RESX, md->offset, RESX));
         if (offset) dv += divRoundClosest(calc100toRESX_16Bits(offset), 10) << 8;
       }
 

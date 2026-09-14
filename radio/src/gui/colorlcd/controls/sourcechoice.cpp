@@ -71,11 +71,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
                 nullptr, STR_MENU_LOGICAL_SWITCHES);
     addButton(CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
               STR_MENU_CHANNELS);
-#if defined(GVARS)
-    if (modelGVEnabled())
-      addButton(CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, nullptr,
-                STR_MENU_GVARS);
-#endif
     if (modelTelemetryEnabled())
       addButton(CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
                 nullptr, STR_MENU_TELEMETRY);

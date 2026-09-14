@@ -25,25 +25,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags, IsValueAvailable isValueAvailable,
                 const CheckIncDecStops &stops)
 {
-  return checkIncDec(event, val, i_min, i_max, i_min, i_max, i_flags, isValueAvailable, stops);
-}
-
-int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int srcMax,
-                unsigned int i_flags, IsValueAvailable isValueAvailable,
-                const CheckIncDecStops &stops)
-{
   int newval = val;
-
-  bool isSource = false;
-  if (i_flags & INCDEC_SOURCE_VALUE) {
-    SourceNumVal v;
-    v.rawValue = val;
-    // Save isSource flag;
-    isSource = v.isSource;
-    // Remove isSource flag;
-    val = v.value;
-    newval = v.value;
-  }
 
   if (s_editMode > 0) {
     bool invert = false;
@@ -53,8 +35,8 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
       val = -val;
     }
 
-    int vmin = isSource ? srcMin : i_min;
-    int vmax = isSource ? srcMax : i_max;
+    int vmin = i_min;
+    int vmax = i_max;
 
     if (event == EVT_KEY_FIRST(KEY_UP) || event == EVT_KEY_REPT(KEY_UP) ||
         event == EVT_KEY_FIRST(KEY_RIGHT) || event == EVT_KEY_REPT(KEY_RIGHT)) {
@@ -65,7 +47,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
         else {
           newval++;
         }
-      } while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) &&
+      } while (isValueAvailable && !isValueAvailable(newval) &&
                newval <= vmax);
 
       if (newval > vmax) {
@@ -81,7 +63,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
         } else {
           newval--;
         }
-      } while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) &&
+      } while (isValueAvailable && !isValueAvailable(newval) &&
                newval >= vmin);
 
       if (newval < vmin) {
@@ -91,7 +73,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
       }
     }
 
-    auto moved = checkMovedInput(newval, i_flags, isSource);
+    auto moved = checkMovedInput(newval, i_flags);
     if (!isValueAvailable || isValueAvailable(moved))
       newval = moved;
 
@@ -103,16 +85,9 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
 
   newval = checkBoolean(event, i_min, i_max, newval, val);
 
-  newval = showPopupMenus(event, newval, srcMin, srcMax, i_flags, isValueAvailable, isSource);
+  newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable);
 
   finishCheckIncDec(event, i_min, i_max, i_flags, newval, val, stops);
-
-  if (i_flags & INCDEC_SOURCE_VALUE) {
-    SourceNumVal v;
-    v.isSource = isSource;
-    v.value = newval;
-    newval = v.rawValue;
-  }
 
   return newval;
 }
@@ -259,7 +234,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 
   int linesCount = maxrow;
 
-  if (l_posVert == 0 || 
+  if (l_posVert == 0 ||
       (l_posVert==1 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW) ||
       (l_posVert==2 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW &&
        MAXCOL(vertpos_t(1)) >= HIDDEN_ROW)) {

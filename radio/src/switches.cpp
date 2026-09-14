@@ -556,7 +556,7 @@ bool getLogicalSwitch(uint8_t idx)
         y = convertLswTelemValue(ls);
 
       }
-      else if (v1 >= MIXSRC_FIRST_GVAR) {
+      else if (v1 >= MIXSRC_TX_VOLTAGE) {
         y = ls->v2;
       }
       else {
@@ -568,11 +568,6 @@ bool getLogicalSwitch(uint8_t idx)
           result = (x==y);
           break;
         case LS_FUNC_VALMOSTEQUAL:
-#if defined(GVARS)
-          if (v1 >= MIXSRC_FIRST_GVAR && v1 <= MIXSRC_LAST_GVAR)
-            result = (x==y);
-          else
-#endif
           result = (abs(x-y) < (1024 / STICK_TOLERANCE));
           break;
         case LS_FUNC_VPOS:

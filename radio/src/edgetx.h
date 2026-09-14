@@ -256,8 +256,6 @@ getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
 int8_t getMovedSource(uint8_t min);
 
-#include "gvars.h"
-
 void flightReset(uint8_t check=true);
 
 #define DURATION_MS_PREC2(x) ((x)/10)
@@ -335,7 +333,6 @@ int expo(int x, int k);
 
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 extern bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf);
-extern bool validateSFGV(CustomFunctionData* cfn);
 
 void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx=0, int16_t ovwrValue=0);
 int16_t applyLimits(uint8_t channel, int32_t value);
@@ -720,7 +717,6 @@ extern bool radioThemesEnabled();
 #endif
 extern bool radioGFEnabled();
 extern bool modelCurvesEnabled();
-extern bool modelGVEnabled();
 extern bool modelLSEnabled();
 extern bool modelSFEnabled();
 extern bool modelCustomScriptsEnabled();

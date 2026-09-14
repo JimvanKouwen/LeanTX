@@ -41,15 +41,13 @@ enum MixFields {
   MIX_FIELD_COUNT
 };
 
-extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
-
 void drawOffsetBar(uint8_t x, uint8_t y, MixData * md)
 {
   const int gaugeWidth = 33;
   const int gaugeHeight = 6;
 
-  int offset = getSourceNumFieldValue(md->offset, MIX_OFFSET_MIN, MIX_OFFSET_MAX) / 10;
-  int weight = getSourceNumFieldValue(md->weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX) / 10;
+  int offset = limit<int>(MIX_OFFSET_MIN, md->offset, MIX_OFFSET_MAX);
+  int weight = limit<int>(MIX_WEIGHT_MIN, md->weight, MIX_WEIGHT_MAX);
   int barMin = offset - weight;
   int barMax = offset + weight;
   if (y > 15) {
@@ -133,13 +131,13 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_WEIGHT:
-        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight,
-                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
+        md2->weight = editLiteralFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight,
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event);
         break;
 
       case MIX_FIELD_OFFSET:
-        md2->offset = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
-                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
+        md2->offset = editLiteralFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
+                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event);
         drawOffsetBar(MIXES_2ND_COLUMN+35, y, md2);
         break;
 
@@ -147,7 +145,7 @@ void menuModelMixOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_CURVE);
         s_currSrcRaw = md2->srcRaw;
         s_currScale = 0;
-        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr, isSourceAvailable, 1, MIXSRC_LAST);
+        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr);
         break;
 
       case MIX_FIELD_SWITCH:

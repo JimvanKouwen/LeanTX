@@ -28,5 +28,3 @@ void menuMainViewChannelsMonitor(event_t event);
 #if defined(DEBUG_TRACE_BUFFER)
 void menuTraceBuffer(event_t event);
 #endif
-
-void menuModelGVars(event_t event);

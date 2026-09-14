@@ -41,7 +41,6 @@
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
 #define TR_QM_CURVES                    "Curves"
-#define TR_QM_GLOBAL_VARS               "Global\nVariables"
 #define TR_QM_LOGICAL_SW                "Logical\nSwitches"
 #define TR_QM_SPEC_FUNC                 "Special\nFunctions"
 #define TR_QM_CUSTOM_LUA                "Mixer\nScripts"
@@ -87,7 +86,6 @@
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
 #define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
-#define TR_MENU_GLOBAL_VARS             "Global Variables"
 #define TR_MENULOGICALSWITCHES          TR_BW_COL("LOGICAL SWITCHES", "Logical Switches")
 #define TR_MENUCUSTOMFUNC               TR_BW_COL("SPECIAL FUNCTIONS", "Special Functions")
 #define TR_MENUCUSTOMSCRIPTS            TR_BW_COL("MIXER SCRIPTS", "Mixer Scripts")
@@ -200,7 +198,6 @@
 #define TR_SF_BG_MUSIC                 "BgMusic"
 #define TR_SF_BG_MUSIC_PAUSE           "BgMusic ||"
 #define TR_SF_LOGS                     "SD Logs"
-#define TR_ADJUST_GVAR                 "Adjust"
 #define TR_SF_BACKLIGHT                "Backlight"
 #define TR_SF_VARIO                    "Vario"
 #define TR_SF_TEST                     "Test"
@@ -442,7 +439,6 @@
 #define TR_SLOWDOWN                    TR("Slow dn", "Slow down")
 #define TR_SLOWUP                      "Slow up"
 #define TR_CV                          "CV"
-#define TR_GV                          TR("G", "GV")
 #define TR_RANGE                       "Range"
 #define TR_CENTER                      "Center"
 #define TR_ALARM                       "Alarm"
@@ -748,8 +744,6 @@
 #define TR_SD_SECTORS                  "Sectors:"
 #define TR_SD_SIZE                     "Size:"
 #define TR_TYPE                        "Type"
-#define TR_GVARS                       "GVARS"
-#define TR_GLOBAL_VAR                  "Global variable"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "Date"
 #define TR_MONTHS_1                    "Jan"
@@ -923,11 +917,7 @@
 #define TR_SMOOTH                      "Smooth"
 #define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy axis to subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "Copy min/max/center to all outputs")
-#define TR_INCDEC                      "Inc/Decrement"
-#define TR_GLOBALVAR                   "Global var"
 #define TR_MIXSOURCE                   "Source (%)"
-#define TR_MIXSOURCERAW                "Source (value)"
-#define TR_CONSTANT                    "Constant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_1 "OFF"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_2 "ON"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_3 "AUTO"
@@ -1051,7 +1041,6 @@
 #define TR_MENU_SWITCHES               CHAR_SWITCH "Switches"
 #define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "Logical switches"
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Channels"
-#define TR_MENU_GVARS                  CHAR_SLIDER "GVars"
 #define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetry"
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Other"

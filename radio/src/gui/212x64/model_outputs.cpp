@@ -145,12 +145,6 @@ void menuModelLimits(event_t event)
           break;
 
         case ITEM_LIMITS_OFFSET:
-          if (GV_IS_GV_VALUE(ld->offset) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            if (event == EVT_KEY_LONG(KEY_ENTER))
-              killEvents(event);
-            ld->offset = GVAR_MENU_ITEM(LIMITS_OFFSET_POS, y, ld->offset, -1000, 1000, RIGHT|attr|PREC1, 0, event);
-            break;
-          }
 
           if (g_eeGeneral.ppmunit == PPM_US) {
             lcdDrawNumber(LIMITS_OFFSET_POS, y, ((int32_t)ld->offset*128) / 25, attr|PREC1|RIGHT);
@@ -168,23 +162,13 @@ void menuModelLimits(event_t event)
           break;
 
         case ITEM_LIMITS_MIN:
-          if (GV_IS_GV_VALUE(ld->min) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            if (event == EVT_KEY_LONG(KEY_ENTER))
-              killEvents(event);
-            ld->min = GVAR_MENU_ITEM(LIMITS_MIN_POS, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
-            break;
-          }
+
           lcdDrawNumber(LIMITS_MIN_POS, y, minMaxDisplay(ld->min-LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
           if (active) ld->min = LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->min-LIMITS_MIN_MAX_OFFSET, -limit, 0, EE_MODEL, nullptr, stops1000);
           break;
 
         case ITEM_LIMITS_MAX:
-          if (GV_IS_GV_VALUE(ld->max) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            if (event == EVT_KEY_LONG(KEY_ENTER))
-              killEvents(event);
-            ld->max = GVAR_MENU_ITEM(LIMITS_MAX_POS, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
-            break;
-          }
+
           lcdDrawNumber(LIMITS_MAX_POS, y, minMaxDisplay(ld->max+LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
           if (active) ld->max = -LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->max+LIMITS_MIN_MAX_OFFSET, 0, +limit, EE_MODEL, nullptr, stops1000);
           break;

@@ -26,9 +26,8 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "getset_helpers.h"
-#include "gvar_numberedit.h"
+#include "numberedit.h"
 #include "input_source.h"
-#include "source_numberedit.h"
 #include "switchchoice.h"
 #include "textedit.h"
 
@@ -155,25 +154,25 @@ void InputEditWindow::buildBody(Window* form)
   // Weight
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
-  auto gvar =
-      new SourceNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
+  auto numberEdit =
+      new NumberEdit(line, rect_t{}, -100, 100, GET_DEFAULT(input->weight),
                            [=](int32_t newValue) {
                              input->weight = newValue;
                              updatePreview = true;
                              SET_DIRTY();
-                           }, MIXSRC_FIRST);
-  gvar->setSuffix("%");
+                           });
+  numberEdit->setSuffix("%");
 
   // Offset
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_OFFSET);
-  gvar = new SourceNumberEdit(line, -100, 100,
+  numberEdit = new NumberEdit(line, rect_t{}, -100, 100,
                               GET_DEFAULT(input->offset), [=](int32_t newValue) {
                                 input->offset = newValue;
                                 updatePreview = true;
                                 SET_DIRTY();
-                              }, MIXSRC_FIRST);
-  gvar->setSuffix("%");
+                              });
+  numberEdit->setSuffix("%");
 
   // Switch
   line = form->newLine(grid);
@@ -195,7 +194,7 @@ void InputEditWindow::buildBody(Window* form)
           input->curve.value = newValue;
           updatePreview = true;
           SET_DIRTY();
-        }, MIXSRC_FIRST, input->srcRaw);
+        }, input->srcRaw);
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
 
@@ -214,36 +213,6 @@ void InputEditWindow::checkEvents()
   if (_deleted) return;
 
   ExpoData* input = expoAddress(index);
-
-  getvalue_t val;
-  SourceNumVal v;
-
-  v.rawValue = input->weight;
-  if (v.isSource) {
-    val = getValue(v.value);
-    if (val != lastWeightVal) {
-      lastWeightVal = val;
-      updatePreview = true;
-    }
-  }
-
-  v.rawValue = input->offset;
-  if (v.isSource) {
-    val = getValue(v.value);
-    if (val != lastOffsetVal) {
-      lastOffsetVal = val;
-      updatePreview = true;
-    }
-  }
-
-  v.rawValue = input->curve.value;
-  if (v.isSource) {
-    val = getValue(v.value);
-    if (val != lastCurveVal) {
-      lastCurveVal = val;
-      updatePreview = true;
-    }
-  }
 
   uint8_t activeIdx = 255;
   for (int i = 0; i < MAX_EXPOS; i += 1) {

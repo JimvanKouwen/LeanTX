@@ -28,9 +28,6 @@ const MenuHandler menuTabModel[] = {
     {menuModelMixAll, nullptr},
     {menuModelLimits, nullptr},
     {menuModelCurvesAll, modelCurvesEnabled},
-#if defined(GVARS)
-    {menuModelGVars, modelGVEnabled},
-#endif
     {menuModelLogicalSwitches, modelLSEnabled},
     {menuModelSpecialFunctions, modelSFEnabled},
 #if defined(LUA_MODEL_SCRIPTS)

@@ -301,11 +301,6 @@ void menuMainView(event_t event)
       break;
 
     case EVT_KEY_FIRST(KEY_EXIT):
-#if defined(GVARS)
-      if (gvarDisplayTimer > 0) {
-        gvarDisplayTimer = 0;
-      }
-#endif
       break;
   }
 
@@ -456,23 +451,6 @@ void menuMainView(event_t event)
       lcdDrawChar(REBOOT_X, 1, '!', INVERS|BLINK);
     }
   }
-
-#if defined(GVARS)
-  if (gvarDisplayTimer > 0) {
-    gvarDisplayTimer--;
-    warningText = STR_GLOBAL_VAR;
-    drawMessageBox(warningText);
-    lcdDrawSizedText(16, 5 * FH, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME, 0);
-    lcdDrawText(16 + 6 * FW, 5 * FH, "[", BOLD);
-    drawGVarValue(lcdLastRightPos, 5 * FH, gvarLastChanged, GVAR_VALUE(gvarLastChanged),
-                  LEFT | BOLD);
-    if (g_model.gvars[gvarLastChanged].unit) {
-      lcdDrawText(lcdLastRightPos, 5 * FH, "%", BOLD);
-    }
-    lcdDrawText(lcdLastRightPos, 5 * FH, "]", BOLD);
-    warningText = nullptr;
-  }
-#endif
 
 #if defined(RTCLOCK)
   if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {

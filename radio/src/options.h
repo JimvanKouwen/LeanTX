@@ -38,9 +38,6 @@ static const char * const options[] = {
 #if defined(FAI_CHOICE)
   "FAIchoice",
 #endif
-#if !defined(GVARS)
-  "nogvars",
-#endif
 #if defined(HORUS_STICKS)
   "horussticks",
 #endif

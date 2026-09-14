@@ -69,7 +69,7 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   padAll(PAD_ZERO);
 }
 
-void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
+void InputMixButtonBase::setWeight(int16_t value, int16_t min, int16_t max)
 {
   if (!weight) {
     weight = etx_label_create(lvobj);
@@ -79,7 +79,7 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
   }
 
   char s[32];
-  getValueOrSrcVarString(s, sizeof(s), value, 0, "%");
+  formatConfigValue(s, sizeof(s), value, 0, "%");
   if (getTextWidth(s, 0, FONT(STD)) > WGT_W)
     lv_obj_add_state(weight, LV_STATE_USER_1);
   else
@@ -122,8 +122,6 @@ void InputMixButtonBase::setOpts(const char* s)
 
   lv_label_set_text(opts, s);
 }
-
-
 
 static void group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {

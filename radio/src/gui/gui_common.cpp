@@ -196,14 +196,6 @@ static bool isSourceLSAvailable(int source) {
   return (cs->func != LS_FUNC_NONE);
 }
 
-static bool isSourceGvarAvailable(int source) {
-#if defined(GVARS)
-  return modelGVEnabled();
-#else
-  return false;
-#endif
-}
-
 static bool isSourceTimerAvailable(int source) {
   TimerData *timer = &g_model.timers[source];
   return timer->mode != 0;
@@ -248,7 +240,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SRC_LOGICAL_SWITCH, isSourceLSAvailable },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
-  { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
@@ -271,7 +262,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 
 #define SRC_COMMON \
             SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | \
-            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_GVAR
+            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH
 
 bool isSourceAvailable(int source)
 {
@@ -558,12 +549,7 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
 #else
       return false;
 #endif
-    case FUNC_ADJUST_GVAR:
-#if defined(GVARS)
-      return modelFunctions;
-#else
-      return false;
-#endif
+
 #if !defined(HAPTIC)
     case FUNC_HAPTIC:
       return false;

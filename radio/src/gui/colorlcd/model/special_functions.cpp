@@ -199,30 +199,6 @@ void FunctionLineButton::refresh()
           formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s").c_str());
       break;
 
-    case FUNC_ADJUST_GVAR:
-      strcat(s, getSourceString(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR));
-      switch (CFN_GVAR_MODE(cfn)) {
-        case FUNC_ADJUST_GVAR_CONSTANT:
-          sprintf(s + strlen(s), " = %s",
-                  formatNumberAsString(CFN_PARAM(cfn)).c_str());
-          break;
-        case FUNC_ADJUST_GVAR_SOURCE:
-        case FUNC_ADJUST_GVAR_SOURCERAW:
-          sprintf(s + strlen(s), " = %s", getSourceString(CFN_PARAM(cfn)));
-          break;
-        case FUNC_ADJUST_GVAR_GVAR:
-          sprintf(s + strlen(s), " = %s",
-                  getSourceString(CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR));
-          break;
-        case FUNC_ADJUST_GVAR_INCDEC: {
-          int16_t value = CFN_PARAM(cfn);
-          sprintf(s + strlen(s), " %s= %d", (value >= 0) ? "+" : "-",
-                  abs(value));
-          break;
-        }
-      }
-      break;
-
     default:
       strcpy(s, funcGetLabel(func));
       break;
@@ -486,87 +462,7 @@ class FunctionEditPage : public Page
                       ViewMain::instance()->getMainViewsCount());
         break;
 
-      case FUNC_ADJUST_GVAR: {
-        if (validateSFGV(cfn)) SET_DIRTY();
-        new StaticText(line, rect_t{}, STR_GLOBALVAR);
-        auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
-                                    GET_DEFAULT(CFN_GVAR_INDEX(cfn)),
-                                    [=](int32_t newValue){
-                                      CFN_GVAR_INDEX(cfn) = newValue;
-                                      SET_DIRTY();
-                                      updateSpecialFunctionOneWindow();
-                                    });
-        gvarchoice->setTextHandler([](int32_t value) {
-          return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
-        });
-        line = specialFunctionOneWindow->newLine(grid);
-
-        new StaticText(line, rect_t{}, STR_MODE);
-        auto modechoice = new Choice(line, rect_t{}, FUNC_ADJUST_GVAR_CONSTANT,
-                                    FUNC_ADJUST_GVAR_INCDEC,
-                                    GET_DEFAULT(CFN_GVAR_MODE(cfn)),
-                                    [=](int32_t newValue) {
-                                      CFN_GVAR_MODE(cfn) = newValue;
-                                      CFN_PARAM(cfn) = 0;
-                                      SET_DIRTY();
-                                      updateSpecialFunctionOneWindow();
-                                    });
-        line = specialFunctionOneWindow->newLine(grid);
-
-        modechoice->setTextHandler([](int32_t value) {
-          switch (value) {
-            case FUNC_ADJUST_GVAR_CONSTANT:
-              return std::string(STR_CONSTANT);
-            case FUNC_ADJUST_GVAR_SOURCE:
-              return std::string(STR_MIXSOURCE);
-            case FUNC_ADJUST_GVAR_SOURCERAW:
-              return std::string(STR_MIXSOURCERAW);
-            case FUNC_ADJUST_GVAR_GVAR:
-              return std::string(STR_GLOBALVAR);
-            case FUNC_ADJUST_GVAR_INCDEC:
-              return std::string(STR_INCDEC);
-          }
-          return std::string("---");
-        });
-
-        switch (CFN_GVAR_MODE(cfn)) {
-          case FUNC_ADJUST_GVAR_CONSTANT: {
-            int16_t val_min, val_max;
-            getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
-                          val_max);
-            addNumberEdit(line, STR_CONSTANT, cfn, val_min, val_max);
-            break;
-          }
-          case FUNC_ADJUST_GVAR_SOURCE:
-          case FUNC_ADJUST_GVAR_SOURCERAW:
-            addSourceChoice(line, STR_MIXSOURCE, cfn, MIXSRC_LAST_CH);
-            break;
-          case FUNC_ADJUST_GVAR_GVAR: {
-            new StaticText(line, rect_t{}, STR_GLOBALVAR);
-            auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
-                                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
-            gvarchoice->setTextHandler([](int32_t value) {
-              return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
-            });
-            gvarchoice->setAvailableHandler(
-                [=](int value) { return CFN_GVAR_INDEX(cfn) != value; });
-            break;
-          }
-          case FUNC_ADJUST_GVAR_INCDEC: {
-            int16_t val_min, val_max;
-            getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
-                          val_max);
-            getGVarIncDecRange(val_min, val_max);
-            auto numedit = addNumberEdit(line, STR_INCDEC, cfn, val_min, val_max);
-            numedit->setDisplayHandler([](int value) {
-              return formatNumberAsString(abs(value), 0, 0,
-                                          value >= 0 ? "+=" : "-=", nullptr);
-            });
-            break;
-          }
-        }
       }
-    }
 
     if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
       line = specialFunctionOneWindow->newLine(grid);

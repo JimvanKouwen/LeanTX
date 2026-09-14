@@ -25,7 +25,6 @@
 
 #include "board.h"
 #include "storage/yaml/yaml_defs.h"
-#include "gvars.h"
 
 #if defined(EXPORT)
   #define LUA_EXPORT(...)              LEXP(__VA_ARGS__)
@@ -478,9 +477,6 @@ enum MixSources {
   MIXSRC_FIRST_CH SKIP,
   MIXSRC_LAST_CH SKIP = MIXSRC_FIRST_CH + MAX_OUTPUT_CHANNELS - 1,
 
-  MIXSRC_FIRST_GVAR SKIP,
-  MIXSRC_LAST_GVAR SKIP = MIXSRC_FIRST_GVAR + MAX_GVARS - 1,
-
   MIXSRC_TX_VOLTAGE,
   MIXSRC_TX_TIME,
   MIXSRC_TX_GPS,
@@ -492,10 +488,9 @@ enum MixSources {
   MIXSRC_LAST_TELEM SKIP = MIXSRC_FIRST_TELEM + 3 * MAX_TELEMETRY_SENSORS - 1,
 
   MIXSRC_INVERT SKIP,
-  MIXSRC_VALUE SKIP,  // Special case to trigger source as value conversion
 };
 
-#define MIXSRC_LAST                 MIXSRC_LAST_GVAR
+#define MIXSRC_LAST                 MIXSRC_LAST_CH
 #define INPUTSRC_FIRST              MIXSRC_FIRST_STICK
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
 
@@ -519,7 +514,6 @@ enum SrcTypes {
   SRC_LOGICAL_SWITCH = 1 << 11,
   SRC_CHANNEL = 1 << 13,
   SRC_CHANNEL_ALL = 1 << 14,
-  SRC_GVAR = 1 << 15,
   SRC_TX = 1 << 16,
   SRC_TIMER = 1 << 17,
   SRC_TELEM = 1 << 18,
@@ -573,14 +567,6 @@ enum ResetFunctionParam {
   FUNC_RESET_PARAM_LAST SKIP = FUNC_RESET_PARAMS_COUNT-1,
 };
 
-enum AdjustGvarFunctionParam {
-  FUNC_ADJUST_GVAR_CONSTANT,
-  FUNC_ADJUST_GVAR_SOURCE,
-  FUNC_ADJUST_GVAR_SOURCERAW,
-  FUNC_ADJUST_GVAR_GVAR,
-  FUNC_ADJUST_GVAR_INCDEC,
-};
-
 enum BluetoothModes {
   BLUETOOTH_OFF,
   BLUETOOTH_TELEMETRY,
@@ -626,7 +612,6 @@ enum Functions {
   FUNC_RESERVED_TRIM SKIP,
   FUNC_RESET,
   FUNC_SET_TIMER,
-  FUNC_ADJUST_GVAR,
   FUNC_VOLUME,
   FUNC_BIND,
   FUNC_PLAY_SOUND,
@@ -661,3 +646,8 @@ enum Functions {
   FUNC_MAX SKIP = FUNC_TEST
 #endif
 };
+
+constexpr int32_t MIX_WEIGHT_MAX = 500;
+constexpr int32_t MIX_WEIGHT_MIN = -500;
+constexpr int32_t MIX_OFFSET_MAX = 500;
+constexpr int32_t MIX_OFFSET_MIN = -500;

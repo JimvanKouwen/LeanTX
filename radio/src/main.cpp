@@ -315,7 +315,7 @@ void checkKeysLock()
     // Can't use a modal POPUP_INFORMATION: keys may be locked, so the user
     // couldn't dismiss it. Keep our own deadline and re-arm POPUP_WAIT every
     // tick below — that survives other code clearing warningText (e.g. the
-    // GVAR display in view_main.cpp).
+    // other view popups).
     s_keysLockMsg = areKeysLocked() ? STR_KEYS_LOCKED : STR_KEYS_UNLOCKED;
     s_keysLockInfo = areKeysLocked() ? lockedMsg : nullptr;
     s_keysLockMsgUntil = get_tmr10ms() + 150;
@@ -332,7 +332,7 @@ void checkKeysLock()
       s_keysLockMsg = nullptr;
       s_keysLockInfo = nullptr;
     } else {
-      // Keep the popup fresh every tick — another path (GVAR, etc.) may
+      // Keep the popup fresh every tick — another popup may
       // have cleared warningText; just re-arm it.
       POPUP_WAIT(s_keysLockMsg, s_keysLockInfo);
     }
@@ -412,7 +412,6 @@ void periodicTick()
 }
 
 #if defined(GUI) && defined(COLORLCD)
-static LAYOUT_VAL_SCALED(GV_POPUP_WIDTH, 200)
 
 void guiMain(event_t evt)
 {
@@ -438,17 +437,7 @@ void guiMain(event_t evt)
 
   // For color screens show a popup deferred from another task
   show_ui_popup();
-  // Show GVAR popup
-  if (gvarDisplayTimer > 0) {
-    char s[30], *p;
-    p = strAppendStringWithIndex(s, STR_GV, gvarLastChanged + 1);
-    p = strAppend(p, " ", 1);
-    p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
-    p = strAppend(p, " = ", 3);
-    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged));
-    POPUP_BUBBLE(s, gvarDisplayTimer * 10, GV_POPUP_WIDTH);
-    gvarDisplayTimer = 0;
-  }
+
 }
 #elif defined(GUI)
 

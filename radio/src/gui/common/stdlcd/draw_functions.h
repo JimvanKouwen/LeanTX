@@ -26,7 +26,6 @@ void drawStringWithIndex(coord_t x, coord_t y, const char * str, uint8_t idx, Lc
 void drawValueWithUnit(coord_t x, coord_t y, int32_t val, uint8_t unit, LcdFlags att=0);
 
 void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att = 0);
-void drawGVarName(coord_t x, coord_t y, int8_t index, LcdFlags flags=0);
 
 void drawRtcTime(coord_t x, coord_t y, LcdFlags att);
 void drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags att, LcdFlags att2);
@@ -53,9 +52,6 @@ void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr);
 void drawScreenIndex(uint8_t index, uint8_t count, uint8_t attr);
 void drawVerticalScrollbar(coord_t x, coord_t y, coord_t h, uint16_t offset, uint16_t count, uint8_t visible);
 void drawGauge(coord_t x, coord_t y, coord_t w, coord_t h, int32_t val, int32_t max);
-#if defined(GVARS)
-void drawGVarValue(coord_t x, coord_t y, uint8_t gvar, gvar_t value, LcdFlags flags = 0);
-#endif
 
 void drawStick(coord_t centrex, int16_t xval, int16_t yval);
 void drawSlider(coord_t x, coord_t y, uint8_t width, uint8_t value, uint8_t max, uint8_t attr);

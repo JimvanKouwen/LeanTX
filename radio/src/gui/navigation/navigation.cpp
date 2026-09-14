@@ -110,20 +110,14 @@ static const popupCheckDef popupChecks[] = {
   { MIXSRC_MAX, MIXSRC_MAX, STR_MENU_MAX },
   { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, STR_MENU_SWITCHES },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, STR_MENU_CHANNELS },
-  { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, STR_MENU_GVARS },
 };
 
 inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
-                          unsigned int i_flags, IsValueAvailable isValueAvailable,
-                          bool& isSource)
+                          unsigned int i_flags, IsValueAvailable isValueAvailable)
 {
-  if (i_flags & (INCDEC_SOURCE | INCDEC_SOURCE_VALUE)) {
+  if (i_flags & INCDEC_SOURCE) {
     if (event == EVT_KEY_LONG(KEY_ENTER)) {
       checkIncDecSelection = MIXSRC_NONE;
-
-      if (i_flags & INCDEC_SOURCE_VALUE && isSource) {
-        POPUP_MENU_ADD_ITEM(STR_CONSTANT);
-      }
 
       for (size_t i = 0; i < DIM(popupChecks); i += 1) {
         addPopupItem(i_min, i_max, popupChecks[i].first, popupChecks[i].last, isValueAvailable, popupChecks[i].title);
@@ -142,18 +136,9 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
       POPUP_MENU_START(onSourceLongEnterPress);
     }
     if (checkIncDecSelection != 0) {
-      if (i_flags & INCDEC_SOURCE_VALUE) {
-        if (checkIncDecSelection == MIXSRC_VALUE) {
-          newval = 0;
-          isSource = false;
-        } else {
-          newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
-          if (checkIncDecSelection != MIXSRC_INVERT)
-            isSource = true;
-        }
-      } else {
+
         newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
-      }
+
       if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
         s_editMode = EDIT_MODIFY_FIELD;
       checkIncDecSelection = 0;
@@ -187,7 +172,7 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
   return newval;
 }
 
-int checkMovedInput(int newval, unsigned int i_flags, bool isSource)
+int checkMovedInput(int newval, unsigned int i_flags)
 {
 #if defined(AUTOSWITCH)
   if (i_flags & INCDEC_SWITCH) {
@@ -196,17 +181,12 @@ int checkMovedInput(int newval, unsigned int i_flags, bool isSource)
 #endif
 
 #if defined(AUTOSOURCE)
-    if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
+    if (i_flags & INCDEC_SOURCE) {
       int source = getMovedSource(MIXSRC_FIRST_STICK);
       if (source) {
-        if (i_flags & INCDEC_SOURCE_VALUE) {
-          if (isSource) {
-            // Only use moved source if already a source value
-            newval = source;
-          }
-        } else {
+
           newval = source;
-        }
+
       }
 #if defined(AUTOSWITCH)
     else {

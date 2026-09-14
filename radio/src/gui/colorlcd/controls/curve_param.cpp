@@ -24,9 +24,8 @@
 #include "curve.h"
 #include "edgetx.h"
 #include "getset_helpers.h"
-#include "gvar_numberedit.h"
+#include "numberedit.h"
 #include "model_curves.h"
-#include "source_numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -50,7 +49,7 @@ bool CurveChoice::onLongPress()
 }
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source) :
+                       std::function<void(int32_t)> setRefValue, mixsrc_t source) :
     Window(parent, rect), ref(ref)
 {
   padAll(PAD_TINY);
@@ -68,36 +67,26 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  auto gv = new SourceNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue, sourceMin);
-  gv->setSuffix("%");
-  value_edit = gv;
+  auto numberEdit = new NumberEdit(this, rect_t{}, -100, 100, GET_DEFAULT(ref->value), setRefValue);
+  numberEdit->setSuffix("%");
+  value_edit = numberEdit;
 
   // CURVE_REF_FUNC
   func_choice = new Choice(this, rect_t{}, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
                            [=]() {
-                             SourceNumVal v;
-                             v.rawValue = ref->value;
-                             return v.value;
+                             return ref->value;
                            },
                            [=](int32_t newValue) {
-                             SourceNumVal v;
-                             v.isSource = false;
-                             v.value = newValue;
-                             setRefValue(v.rawValue);
+                             setRefValue(newValue);
                            });
 
   // CURVE_REF_CUSTOM
   cust_choice = new CurveChoice(this,
                                 [=]() {
-                                  SourceNumVal v;
-                                  v.rawValue = ref->value;
-                                  return v.value;
+                                  return ref->value;
                                 },
                                 [=](int32_t newValue) {
-                                  SourceNumVal v;
-                                  v.isSource = false;
-                                  v.value = newValue;
-                                  setRefValue(v.rawValue);
+                                  setRefValue(newValue);
                                 }, source);
 
   update();

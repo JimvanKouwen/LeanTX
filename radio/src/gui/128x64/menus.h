@@ -22,5 +22,3 @@
 #pragma once
 
 #include "menus_common.h"
-
-void menuModelGVarOne(event_t event);

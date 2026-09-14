@@ -53,7 +53,6 @@ Functions cfn_sorted[] = {
 #endif
   /* 设置 */ FUNC_SET_TIMER,
   /* 锁定通道值 */ FUNC_OVERRIDE_CHANNEL,
-  /* 修改全局变量GV值 */ FUNC_ADJUST_GVAR,
   /* 选择主屏 */ FUNC_SET_SCREEN,
   /* 音量 */ FUNC_VOLUME,
   /* 暂停背景音乐 */ FUNC_BACKGND_MUSIC_PAUSE,
@@ -83,7 +82,6 @@ Functions cfn_sorted[] = {
   /* Loguj na SD */ FUNC_LOGS,
   /* Lua Skript */ FUNC_PLAY_SCRIPT,
   /* Modul bind */ FUNC_BIND,
-  /* Nastav */ FUNC_ADJUST_GVAR,
   /* No Keys */ FUNC_DISABLE_KEYS,
 #if !OLED_SCREEN
   /* Podsvětlení */ FUNC_BACKLIGHT,
@@ -115,7 +113,6 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* Ikke berøringsaktiv */ FUNC_DISABLE_TOUCH,
 #endif
-  /* Juster */ FUNC_ADJUST_GVAR,
 #if defined(VIDEO_SWITCH)
   /* LCD til Video */ FUNC_LCD_TO_VIDEO,
 #endif
@@ -146,7 +143,6 @@ Functions cfn_sorted[] = {
   /* Vibration */ FUNC_HAPTIC,
   /* Vælg hoved skærm */ FUNC_SET_SCREEN,
 #elif defined(TRANSLATIONS_DE)
-  /* Ändere */ FUNC_ADJUST_GVAR,
   /* Audio Verst. Aus */ FUNC_DISABLE_AUDIO_AMP,
   /* Datei abspielen */ FUNC_PLAY_TRACK,
   /* Haptik */ FUNC_HAPTIC,
@@ -187,7 +183,6 @@ Functions cfn_sorted[] = {
   /* Wert ansagen */ FUNC_PLAY_VALUE,
 #elif defined(TRANSLATIONS_ES)
   /* Ajuste */ FUNC_SET_TIMER,
-  /* Ajuste */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
   /* BgMúsica */ FUNC_BACKGND_MUSIC,
   /* BgMúsica|| */ FUNC_BACKGND_MUSIC_PAUSE,
@@ -226,7 +221,6 @@ Functions cfn_sorted[] = {
   /* Vario */ FUNC_VARIO,
   /* Volumen */ FUNC_VOLUME,
 #elif defined(TRANSLATIONS_FI)
-  /* Adjust */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
 #if !OLED_SCREEN
   /* Backlight */ FUNC_BACKLIGHT,
@@ -266,7 +260,6 @@ Functions cfn_sorted[] = {
   /* Vario */ FUNC_VARIO,
   /* Volume */ FUNC_VOLUME,
 #elif defined(TRANSLATIONS_FR)
-  /* Ajuster */ FUNC_ADJUST_GVAR,
   /* Bind */ FUNC_BIND,
   /* Déf. */ FUNC_SET_TIMER,
   /* Définir Écran Princ. */ FUNC_SET_SCREEN,
@@ -338,7 +331,6 @@ Functions cfn_sorted[] = {
 #endif
   /* הגדרת מסך ראשי */ FUNC_SET_SCREEN,
   /* הפעל סאונד */ FUNC_PLAY_SOUND,
-  /* התאם */ FUNC_ADJUST_GVAR,
 #if defined(COLORLCD)
   /* ללא מסך מגע */ FUNC_DISABLE_TOUCH,
 #endif
@@ -369,7 +361,6 @@ Functions cfn_sorted[] = {
 #if defined(FUNCTION_SWITCHES)
   /* Premi CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
-  /* Regola */ FUNC_ADJUST_GVAR,
 #if !OLED_SCREEN
   /* Retroillum. */ FUNC_BACKLIGHT,
 #endif
@@ -388,7 +379,6 @@ Functions cfn_sorted[] = {
 #elif defined(TRANSLATIONS_JP)
   /* BGM一時停止 */ FUNC_BACKGND_MUSIC_PAUSE,
   /* BGM再生 */ FUNC_BACKGND_MUSIC,
-  /* G変数修正 */ FUNC_ADJUST_GVAR,
 #if defined(VIDEO_SWITCH)
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
@@ -450,7 +440,6 @@ Functions cfn_sorted[] = {
   /* 소리 재생 */ FUNC_PLAY_SOUND,
   /* 스크린샷 저장 */ FUNC_SCREENSHOT,
   /* 오디오 앰프 끄기 */ FUNC_DISABLE_AUDIO_AMP,
-  /* 전역 변수 조정 */ FUNC_ADJUST_GVAR,
   /* 진동 */ FUNC_HAPTIC,
   /* 초기화 */ FUNC_RESET,
   /* 출력 오버라이드 */ FUNC_OVERRIDE_CHANNEL,
@@ -504,7 +493,6 @@ Functions cfn_sorted[] = {
 #endif
   /* Vario */ FUNC_VARIO,
   /* Volume */ FUNC_VOLUME,
-  /* Wijzig */ FUNC_ADJUST_GVAR,
 #elif defined(TRANSLATIONS_PL)
   /* Bezpiecz */ FUNC_OVERRIDE_CHANNEL,
   /* Głośność */ FUNC_VOLUME,
@@ -539,14 +527,12 @@ Functions cfn_sorted[] = {
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Ustaw */ FUNC_ADJUST_GVAR,
   /* Ustaw */ FUNC_SET_TIMER,
   /* Wario */ FUNC_VARIO,
   /* Wibracje */ FUNC_HAPTIC,
   /* Wycisz wzmacniacz audio */ FUNC_DISABLE_AUDIO_AMP,
   /* Zrzut Ekra */ FUNC_SCREENSHOT,
 #elif defined(TRANSLATIONS_PT)
-  /* Ajuste */ FUNC_ADJUST_GVAR,
   /* Amp Audio Desl */ FUNC_DISABLE_AUDIO_AMP,
   /* BgMusica */ FUNC_BACKGND_MUSIC,
   /* BgMusica || */ FUNC_BACKGND_MUSIC_PAUSE,
@@ -607,7 +593,6 @@ Functions cfn_sorted[] = {
 #if defined(FUNCTION_SWITCHES)
   /* Нажать CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
-  /* Настройка */ FUNC_ADJUST_GVAR,
   /* Оменить */ FUNC_OVERRIDE_CHANNEL,
 #if OLED_SCREEN
   /* Подсветка */ FUNC_BACKLIGHT,
@@ -634,7 +619,6 @@ Functions cfn_sorted[] = {
   /* Ej pekskärm */ FUNC_DISABLE_TOUCH,
 #endif
   /* Haptisk */ FUNC_HAPTIC,
-  /* Justera */ FUNC_ADJUST_GVAR,
 #if defined(VIDEO_SWITCH)
   /* LCD till Video */ FUNC_LCD_TO_VIDEO,
 #endif
@@ -676,7 +660,6 @@ Functions cfn_sorted[] = {
 #if OLED_SCREEN
   /* 亮度 */ FUNC_BACKLIGHT,
 #endif
-  /* 修改全局變量GV值 */ FUNC_ADJUST_GVAR,
 #if defined(VIDEO_SWITCH)
   /* 屏幕顯示圖傳 */ FUNC_LCD_TO_VIDEO,
 #endif
@@ -715,7 +698,6 @@ Functions cfn_sorted[] = {
   /* Грати Трек */ FUNC_PLAY_TRACK,
   /* Гучність */ FUNC_VOLUME,
   /* Модуль Bind */ FUNC_BIND,
-  /* Налашт. */ FUNC_ADJUST_GVAR,
   /* Перевизнач. */ FUNC_OVERRIDE_CHANNEL,
 #if !OLED_SCREEN
   /* Підсвіт. */ FUNC_BACKLIGHT,
@@ -746,7 +728,6 @@ Functions cfn_sorted[] = {
   /* RGB leds */ FUNC_RGB_LED,
   /* SD лог */ FUNC_LOGS,
 #else
-  /* Adjust */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
 #if !OLED_SCREEN
   /* Backlight */ FUNC_BACKLIGHT,

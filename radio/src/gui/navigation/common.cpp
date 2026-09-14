@@ -99,8 +99,6 @@ void onSourceLongEnterPress(const char * result)
     checkIncDecSelection = MIXSRC_FIRST_SWITCH;
   else if (result == STR_MENU_CHANNELS)
     checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_CH, MIXSRC_LAST_CH, isSourceAvailable);
-  else if (result == STR_MENU_GVARS)
-    checkIncDecSelection = MIXSRC_FIRST_GVAR;
   else if (result == STR_MENU_TELEMETRY) {
     for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
       TelemetrySensor * sensor = & g_model.telemetrySensors[i];
@@ -111,8 +109,6 @@ void onSourceLongEnterPress(const char * result)
     }
   } else if (result == STR_MENU_INVERT) {
     checkIncDecSelection = MIXSRC_INVERT;
-  } else if (result == STR_CONSTANT) {
-    checkIncDecSelection = MIXSRC_VALUE;
   }
 }
 

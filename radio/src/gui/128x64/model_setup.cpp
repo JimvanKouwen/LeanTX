@@ -160,7 +160,6 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_GF,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
-  CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
 
   ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
@@ -643,7 +642,6 @@ void menuModelSetup(event_t event)
      VIEWOPT_ROW(LABEL(RadioMenuTabs)),
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(LABEL(ModelMenuTabs)),
-      CASE_GVARS(VIEWOPT_ROW(0))
 
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
@@ -1268,11 +1266,6 @@ void menuModelSetup(event_t event)
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, STR_MODEL_MENU_TABS);
         break;
-#if defined(GVARS)
-      case ITEM_VIEW_OPTIONS_GV:
-        g_model.modelGVDisabled = viewOptChoice(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event);
-        break;
-#endif
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
         break;

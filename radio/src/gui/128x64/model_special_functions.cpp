@@ -28,8 +28,8 @@
 #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF     (19 * FW - 3)
 #define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF     (20 * FW + 1)
 
-#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
-#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
+#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period
+#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period
 #define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF
 
 #define PUSH_CS_DURATION_MIN 0       // 0     no duration : as long as switch is true
@@ -79,39 +79,6 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
 }
 
 #if defined(PCBTARANIS)
-void onAdjustGvarSourceLongEnterPress(const char * result)
-{
-  CustomFunctionData * cfn = &g_model.customFn[menuVerticalPosition];
-
-  if (result == STR_CONSTANT) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_MIXSOURCE) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_SOURCE;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_MIXSOURCERAW) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_SOURCERAW;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_GLOBALVAR) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_GVAR;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result == STR_INCDEC) {
-    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_INCDEC;
-    CFN_PARAM(cfn) = 0;
-    storageDirty(EE_MODEL);
-  }
-  else if (result != STR_EXIT) {
-    onSourceLongEnterPress(result);
-  }
-}
 
 void onCustomFunctionsMenu(const char * result)
 {
@@ -244,16 +211,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else
 #endif
 
-#if defined(GVARS)
-          if (func == FUNC_ADJUST_GVAR) {
-            if (validateSFGV(cfn)) storageDirty(eeFlags);
-            maxParam = MAX_GVARS - 1;
-            drawStringWithIndex(lcdNextPos + 2, y, STR_GV, CFN_GVAR_INDEX(cfn)+1, attr);
-            if (active) CFN_GVAR_INDEX(cfn) = checkIncDec(event, CFN_GVAR_INDEX(cfn), 0, maxParam, eeFlags);
-            break;
-          }
-          else
-#endif // GVARS
           if (func == FUNC_SET_TIMER) {
             if (timersSetupCount()> 0) {
               maxParam = MAX_TIMERS - 1;
@@ -273,7 +230,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active) CFN_CS_INDEX(cfn) = switchGetCustomSwitchIdx(checkIncDec(event, sw, 0, switchGetMaxSwitches() - 1, eeFlags, switchIsCustomSwitch));
             break;
           }
-#endif          
+#endif
           else if (attr) {
             repeatLastCursorHorMove(event);
           }
@@ -405,7 +362,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif
           else if (func == FUNC_LOGS) {
-            val_min = SD_LOGS_PERIOD_MIN; 
+            val_min = SD_LOGS_PERIOD_MIN;
             val_max = SD_LOGS_PERIOD_MAX;
 
             if (!val_displayed) {
@@ -415,69 +372,13 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|PREC1|LEFT);
             lcdDrawChar(lcdLastRightPos, y, 's');
           }
-#if defined(GVARS)
-          else if (func == FUNC_ADJUST_GVAR) {
-            switch (CFN_GVAR_MODE(cfn)) {
-              case FUNC_ADJUST_GVAR_CONSTANT:
-                val_displayed = (int16_t)CFN_PARAM(cfn);
-                getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
-                drawGVarValue(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, CFN_GVAR_INDEX(cfn), val_displayed, attr|LEFT);
-                break;
-              case FUNC_ADJUST_GVAR_SOURCE:
-              case FUNC_ADJUST_GVAR_SOURCERAW:
-                val_max = MIXSRC_LAST_CH;
-                drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
-                if (active) {
-                  INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-                  INCDEC_ENABLE_CHECK(isSourceAvailable);
-                }
-                break;
-              case FUNC_ADJUST_GVAR_GVAR:
-                val_max = MAX_GVARS-1;
-                drawStringWithIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_GV, val_displayed+1, attr);
-                break;
-              default: // FUNC_ADJUST_GVAR_INC
-                getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
-                getGVarIncDecRange(val_min, val_max);
-                lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, (val_displayed < 0 ? "-= " : "+= "), attr);
-                drawGVarValue(lcdNextPos, y, CFN_GVAR_INDEX(cfn), abs(val_displayed), attr|LEFT);
-                break;
-            }
-
-#if !defined(NAVIGATION_X7)
-            // For grid navigation the ENTER long press is handled below
-            if (attr && event==EVT_KEY_LONG(KEY_ENTER)) {
-              killEvents(event);
-              s_editMode = !s_editMode;
-              active = true;
-              CFN_GVAR_MODE(cfn) += 1;
-              if (CFN_GVAR_MODE(cfn) > FUNC_ADJUST_GVAR_INCDEC)
-                CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
-              val_displayed = 0;
-            }
-#endif
-          }
-#endif // GVARS
           else if (attr) {
             repeatLastCursorHorMove(event);
           }
 #if defined(NAVIGATION_X7)
           if (active || event==EVT_KEY_LONG(KEY_ENTER)) {
             CFN_PARAM(cfn) = CHECK_INCDEC_PARAM(event, val_displayed, val_min, val_max);
-            if (func == FUNC_ADJUST_GVAR && attr && event==EVT_KEY_LONG(KEY_ENTER)) {
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_CONSTANT)
-                POPUP_MENU_ADD_ITEM(STR_CONSTANT);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_SOURCE)
-                POPUP_MENU_ADD_ITEM(STR_MIXSOURCE);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_SOURCERAW)
-                POPUP_MENU_ADD_ITEM(STR_MIXSOURCERAW);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_GVAR)
-                POPUP_MENU_ADD_ITEM(STR_GLOBALVAR);
-              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_INCDEC)
-                POPUP_MENU_ADD_ITEM(STR_INCDEC);
-              POPUP_MENU_START(onAdjustGvarSourceLongEnterPress);
-              s_editMode = EDIT_MODIFY_FIELD;
-            }
+
 #else
           if (active) {
             CFN_PARAM(cfn) = CHECK_INCDEC_PARAM(event, val_displayed, val_min, val_max);

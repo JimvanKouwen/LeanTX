@@ -1585,14 +1585,7 @@ int cliDisplay(const char ** argv)
   return 0;
 }
 
-int cliDebugVars(const char ** argv)
-{
-#if defined(PCBTARANIS)
-  //cliSerialPrint("telemetryErrors=%d", telemetryErrors);
-#endif
-
-  return 0;
-}
+int cliDebugVars(const char** argv) { return 0; }
 #endif
 
 #if defined(DEBUG)

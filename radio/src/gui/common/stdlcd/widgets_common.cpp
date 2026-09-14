@@ -60,83 +60,17 @@ swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr, event_t e
   return value;
 }
 
-uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
-                              int16_t min, int16_t max, LcdFlags attr, event_t event,
-                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax)
+int16_t editLiteralFieldValue(coord_t x, coord_t y, const char* title, int16_t value,
+                              int16_t min, int16_t max, LcdFlags attr, event_t event)
 {
-  if (title)
-    lcdDrawTextAlignedLeft(y, title);
-  SourceNumVal v;
-  v.rawValue = value;
-  if (v.isSource) {
-    drawSource(x, y, v.value, attr);
-    if (attr & (~RIGHT)) {
-      value = checkIncDec(event, value, sourceMin, sourceMax,
-                EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_VALUE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isValueAvailable);
-    }
-  } else {
-    lcdDrawNumber(x, y, v.value, attr);
-    if (attr & (~RIGHT)) {
-      value = checkIncDec(event, value, min, max, sourceMin, sourceMax,
-                EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS|INCDEC_SKIP_VAL_CHECK_FUNC,
-                isValueAvailable);
-    }
-  }
-  return value;
-}
 
-int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int16_t max, LcdFlags attr, uint8_t editflags, event_t event)
-{
-#if defined(GVARS)
-  bool invers = (attr & INVERS);
-
-  // TRACE("editGVarFieldValue(val=%d min=%d max=%d)", value, min, max);
-
-  if (modelGVEnabled() && invers && event == EVT_KEY_LONG(KEY_ENTER)) {
-    killEvents(event);
-    s_editMode = !s_editMode;
-    if (attr & PREC1)
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max)*10 : GV_VALUE_FROM_INDEX(0));
-    else
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max) : GV_VALUE_FROM_INDEX(0));
-    storageDirty(EE_MODEL);
-  }
-
-  if (GV_IS_GV_VALUE(value)) {
-    attr &= ~PREC1;
-    int8_t idx = (int16_t)GV_INDEX_FROM_VALUE(value);
-    if (invers) {
-      CHECK_INCDEC_MODELVAR(event, idx, -MAX_GVARS, MAX_GVARS-1);
-    }
-    value = (int16_t)GV_VALUE_FROM_INDEX(idx);
-    drawGVarName(x, y, idx, attr);
-  }
-  else {
-    lcdDrawNumber(x, y, value, attr);
-    if (invers) value = checkIncDec(event, value, min, max, EE_MODEL | editflags);
-  }
-#else
+  if (title) lcdDrawTextAlignedLeft(y, title);
   lcdDrawNumber(x, y, value, attr);
-  if (attr&INVERS) value = checkIncDec(event, value, min, max, EE_MODEL);
-#endif
+  if (attr & (~RIGHT))
+    value = checkIncDec(event, value, min, max, EE_MODEL | NO_INCDEC_MARKS);
   return value;
-}
-
-#if defined(GVARS)
-void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, LcdFlags flags)
-{
-
-  auto& data = g_model.gvars[gvar];
-  const int16_t vmin = GVAR_MIN + data.min;
-  const int16_t vmax = GVAR_MAX - data.max;
-  const int16_t value = limit(vmin, data.value, vmax);
-  if (value != data.value) setGVarValue(gvar, value);
-  drawGVarValue(x, y, gvar, value, flags);
-  if ((flags & INVERS) && s_editMode > 0)
-    setGVarValue(gvar, checkIncDec(event, value, vmin, vmax, EE_MODEL));
 
 }
-#endif
 
 void editSingleName(coord_t x, coord_t y, const char * label, char *name, uint8_t size, event_t event, uint8_t active, uint8_t old_editMode, coord_t lblX)
 {

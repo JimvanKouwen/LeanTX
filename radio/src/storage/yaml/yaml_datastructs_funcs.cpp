@@ -50,11 +50,7 @@ static inline void check_yaml_funcs()
 {
   static_assert(offsetof(ModuleData, crsf) == 3,"");
   check_size<ModuleData, 6>();
-#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
-  static_assert(MAX_GVARS == 15,"");
-#else
-  static_assert(MAX_GVARS == 9,"");
-#endif
+
 }
 
 static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,
@@ -67,51 +63,6 @@ static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque)
 {
   return wf(opaque, FLAVOUR, sizeof(FLAVOUR)-1);
-}
-
-static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
-{
-  if ((strncmp(val, "GV", 2) == 0) || (strncmp(val, "-GV", 3) == 0)) {
-    bool neg = false;
-    int ofst = 2;
-    if (val[0] == '-') {
-      neg = true;
-      ofst = 3;
-    }
-    int32_t idx = yaml_str2int(val + ofst, val_len - ofst);
-    // Convert to range -MAX_GVARS .. MAX_GVARS - 1
-    if (neg)
-      idx = -idx;
-    else
-      idx = idx - 1;
-    return GV_VALUE_FROM_INDEX(idx);
-  }
-
-  return (uint32_t)yaml_str2int(val, val_len);
-}
-
-bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
-                     void* opaque)
-{
-  int32_t sval = yaml_to_signed(val, node->size);
-
-  if (GV_IS_GV_VALUE(sval)) {
-    char s[8] = "";
-    int ofst = 0;
-    int idx = GV_INDEX_FROM_VALUE(sval);
-    if (idx < 0) {
-      s[0] = '-';
-      ofst = 1;
-      idx = -idx;
-    } else {
-      idx = idx + 1;
-    }
-    strAppendStringWithIndex(s + ofst, "GV", idx);
-    return wf(opaque, s, strlen(s));
-  }
-
-  char* s = yaml_signed2str(sval);
-  return wf(opaque, s, strlen(s));
 }
 
 static int _legacy_input_idx(const char* val, uint8_t val_len)
@@ -160,7 +111,6 @@ uint8_t find_sep(const char* val, uint8_t val_len)
 //  - lua(script#,n): LUA mix outputs
 //  - ls(n): logical switches
 //  - ch(n): channels
-//  - gv(n): gvars
 //  - tele(n): telemetry
 //
 static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_len)
@@ -203,14 +153,6 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_CH;
 
-    } else if (val_len > 3 &&
-               val[0] == 'g' &&
-               val[1] == 'v' &&
-               val[2] == '(') {
-
-      val += 3; val_len -= 3;
-      // parse int and ignore closing ')'
-      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_GVAR;
 #if defined(FUNCTION_SWITCHES)
     } else if (val_len > 2 &&
                val[0] == 'G' &&
@@ -364,14 +306,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
           return false;
         str = closing_parenthesis;
     }
-    else if (val >= MIXSRC_FIRST_GVAR
-             && val <= MIXSRC_LAST_GVAR) {
 
-        val -= MIXSRC_FIRST_GVAR;
-        if (!output_source_1_param("gv(", 3, val, wf, opaque))
-          return false;
-        str = closing_parenthesis;
-    }
     else if (val >= MIXSRC_FIRST_TIMER
              && val <= MIXSRC_LAST_TIMER) {
         if (!wf(opaque, "Tmr", 3)) return false;
@@ -434,40 +369,6 @@ static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func w
   if (!wf(opaque, "\"", 1)) return false;
   if (!w_mixSrcRawExNoQuote(node, val, wf, opaque)) return false;
   return wf(opaque, "\"", 1);
-}
-
-static uint32_t r_sourceNumVal(const YamlNode* node, const char* val, uint8_t val_len)
-{
-  SourceNumVal v;
-
-  if (((val[0] == '-') && (val[1] >= '0' && val[1] <= '9')) || (val[0] >= '0' && val[0] <= '9')) {
-    v.isSource = 0;
-    v.value = (uint32_t)yaml_str2int(val, val_len);
-  } else if ((val[0] == '-') && (val[1] == 'G')) {
-    v.isSource = 1;
-    v.value = -((val[3] - '0') + MIXSRC_FIRST_GVAR - 1);
-  } else if (val[0] == 'G') {
-    v.isSource = 1;
-    v.value = (val[2] - '0') + MIXSRC_FIRST_GVAR - 1;
-  } else {
-    v.isSource = 1;
-    v.value = r_mixSrcRawEx(node, val, val_len);
-  }
-
-  return v.rawValue;
-}
-
-bool w_sourceNumVal(const YamlNode* node, uint32_t val, yaml_writer_func wf,
-                     void* opaque)
-{
-  SourceNumVal v;
-  v.rawValue = val;
-
-  if (v.isSource)
-    return w_mixSrcRawEx(node, v.value, wf, opaque);
-
-  char* s = yaml_signed2str(v.value);
-  return wf(opaque, s, strlen(s));
 }
 
 static uint32_t r_vbat_min(const YamlNode* node, const char* val, uint8_t val_len)
@@ -1646,10 +1547,6 @@ static const char* const _func_sound_lookup[] = {
   "SciF","Robt","Chrp","Tada","Crck","Alrm"
 };
 
-static const char* const _adjust_gvar_mode_lookup[] = {
-  "Cst", "Src", "SrcRaw", "GVar", "IncDec"
-};
-
 static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                        const char* val, uint8_t val_len)
 {
@@ -1774,49 +1671,6 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     CFN_PARAM(cfn) = yaml_str2int(val, l_sep); // Duration, 10th of seconds
     break;
 #endif
-  case FUNC_ADJUST_GVAR: {
-
-    CFN_GVAR_INDEX(cfn) = yaml_str2int_ref(val, l_sep);
-    if (val_len == 0 || val[0] != ',') return;
-    val++; val_len--;
-
-    // find "," and cut val_len
-    l_sep = find_sep(val, val_len);
-
-    // parse CFN_GVAR_MODE
-    for (unsigned i=0; i < DIM(_adjust_gvar_mode_lookup); i++) {
-      if (!strncmp(_adjust_gvar_mode_lookup[i],val,l_sep)) {
-        CFN_GVAR_MODE(cfn) = i;
-        break;
-      }
-    }
-
-    val += l_sep; val_len -= l_sep;
-    if (val_len == 0 || val[0] != ',') return;
-    val++; val_len--;
-    // find "," and cut val_len
-    l_sep = find_sep(val, val_len);
-
-    // output param
-    switch(CFN_GVAR_MODE(cfn)) {
-    case FUNC_ADJUST_GVAR_CONSTANT:
-    case FUNC_ADJUST_GVAR_INCDEC:
-      CFN_PARAM(cfn) = yaml_str2int(val, l_sep);
-      break;
-    case FUNC_ADJUST_GVAR_SOURCE:
-    case FUNC_ADJUST_GVAR_SOURCERAW:
-      CFN_PARAM(cfn) = r_mixSrcRawEx(nullptr, val, l_sep);
-      break;
-    case FUNC_ADJUST_GVAR_GVAR: {
-      uint32_t gvar = r_mixSrcRawEx(nullptr, val, l_sep);
-      if (gvar >= MIXSRC_FIRST_GVAR) {
-        CFN_PARAM(cfn) = gvar - MIXSRC_FIRST_GVAR;
-      }
-    } break;
-    }
-
-  } break;
-
   default:
     eat_comma = false;
     break;
@@ -1955,33 +1809,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_LOGS: // 10th of seconds
     str = yaml_unsigned2str(CFN_PARAM(cfn));
     if (!wf(opaque, str, strlen(str))) return false;
-    break;
-
-  case FUNC_ADJUST_GVAR:
-    str = yaml_unsigned2str(CFN_GVAR_INDEX(cfn)); // GVAR index
-    if (!wf(opaque, str, strlen(str))) return false;
-    if (!wf(opaque,",",1)) return false;
-
-    // output CFN_GVAR_MODE
-    str = _adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
-    if (!wf(opaque, str, strlen(str))) return false;
-    if (!wf(opaque,",",1)) return false;
-
-    // output param
-    switch(CFN_GVAR_MODE(cfn)) {
-    case FUNC_ADJUST_GVAR_CONSTANT:
-    case FUNC_ADJUST_GVAR_INCDEC:
-      str = yaml_signed2str(CFN_PARAM(cfn));
-      if (!wf(opaque, str, strlen(str))) return false;
-      break;
-    case FUNC_ADJUST_GVAR_SOURCE:
-    case FUNC_ADJUST_GVAR_SOURCERAW:
-      if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
-      break;
-    case FUNC_ADJUST_GVAR_GVAR:
-      if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
-      break;
-    }
     break;
 
   default:

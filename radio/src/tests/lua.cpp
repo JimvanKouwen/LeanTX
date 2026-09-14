@@ -44,17 +44,13 @@
 
 #define luaExecStr(test)  EXPECT_TRUE(__luaExecStr(test))
 
-TEST(Lua, ModelWideGlobalVariableApi)
+TEST(Lua, RemovedVariableApis)
 {
+  luaExecStr("assert(model.getGlobalVariable == nil and model.setGlobalVariable == nil)");
+  luaExecStr("assert(model.getGlobalVariableDetails == nil and model.setGlobalVariableDetails == nil)");
   luaExecStr("assert(getFlightMode == nil)");
   luaExecStr("assert(model.getFlightMode == nil and model.setFlightMode == nil)");
   luaExecStr("assert(model.deleteFlightModes == nil)");
-#if defined(GVARS)
-  luaExecStr("model.setGlobalVariable(0, -321)");
-  luaExecStr("assert(model.getGlobalVariable(0) == -321)");
-  EXPECT_EQ(-321, getGVarValue(0));
-  luaExecStr("assert(model.getGlobalVariable(99) == nil)");
-#endif
 }
 
 TEST(Lua, testSetModelInfo)
@@ -140,9 +136,7 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  SourceNumVal v;
-  v.rawValue = g_model.expoData[0].weight;
-  EXPECT_EQ(-56, v.value);
+  EXPECT_EQ(-56, g_model.expoData[0].weight);
   EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
@@ -158,8 +152,7 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  v.rawValue = g_model.expoData[0].weight;
-  EXPECT_EQ(-56, v.value);
+  EXPECT_EQ(-56, g_model.expoData[0].weight);
   EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 

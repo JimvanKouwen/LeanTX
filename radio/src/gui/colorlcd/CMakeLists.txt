@@ -61,7 +61,6 @@ set(GUI_SRC
   model/mixer_edit_adv.cpp
   model/mixer_edit.cpp
   model/model_curves.cpp
-  model/model_gvars.cpp
   model/model_inputs.cpp
   model/model_logical_switches.cpp
   model/model_mixes.cpp
@@ -120,10 +119,6 @@ if(FUNCTION_SWITCHES)
   add_gui_src(model/function_switches.cpp)
   add_gui_src(radio/radio_cfs.cpp)
   add_gui_src(radio/radio_diagcustswitches.cpp)
-endif()
-
-if(GVARS)
-  add_gui_src(model/model_gvars.cpp)
 endif()
 
 if(CROSSFIRE)

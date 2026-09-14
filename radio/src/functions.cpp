@@ -255,36 +255,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           }
 #endif
 
-#if defined(GVARS)
-          case FUNC_ADJUST_GVAR:
-            if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
-              SET_GVAR(CFN_GVAR_INDEX(cfn), CFN_PARAM(cfn));
-            } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_GVAR) {
-              SET_GVAR(CFN_GVAR_INDEX(cfn),
-                       GVAR_VALUE(CFN_PARAM(cfn)));
-            } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_INCDEC) {
-              if (!functionsContext.isFunctionSwitchActive(i)) {
-                SET_GVAR(CFN_GVAR_INDEX(cfn),
-                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        GVAR_VALUE(CFN_GVAR_INDEX(cfn)) +
-                                            CFN_PARAM(cfn),
-                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))));
-              }
-            } else {
-              if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_SOURCE)
-                SET_GVAR(CFN_GVAR_INDEX(cfn),
-                        limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        calcRESXto100(getValue(CFN_PARAM(cfn))),
-                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))));
-              else
-                SET_GVAR(CFN_GVAR_INDEX(cfn),
-                        limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                        getValue(CFN_PARAM(cfn)),
-                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))));
-            }
-            break;
-#endif
-
           case FUNC_PLAY_SOUND:
           case FUNC_PLAY_TRACK:
           case FUNC_PLAY_VALUE:
@@ -546,10 +516,6 @@ const char* funcGetLabel(uint8_t func)
     return STR_SF_RESET;
   case FUNC_SET_TIMER:
     return STR_SF_SET_TIMER;
-#if defined(GVARS)
-  case FUNC_ADJUST_GVAR:
-    return STR_ADJUST_GVAR;
-#endif
   case FUNC_VOLUME:
     return STR_SF_VOLUME;
   case FUNC_BIND:

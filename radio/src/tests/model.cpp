@@ -276,29 +276,6 @@ TEST(Model, PhysicalTrimSwitchesRoundTrip)
   }
 }
 
-TEST(Model, SingleGVarValueSurvivesYamlRoundTrip)
-{
-  memset(&g_model, 0, sizeof(g_model));
-  loadModelYamlStr("gvars:\n  0:\n    value: -123\n    name: Aux\n    prec: 1\n    unit: 1\n");
-  EXPECT_EQ(-123, g_model.gvars[0].value);
-  EXPECT_EQ(1, g_model.gvars[0].prec);
-  EXPECT_EQ(1, g_model.gvars[0].unit);
-  std::string yaml;
-  YamlTreeWalker tree;
-  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
-    static_cast<std::string*>(opaque)->append(str, len);
-    return true;
-  }, &yaml));
-  EXPECT_EQ(std::string::npos, yaml.find("flightMode"));
-  memset(&g_model, 0, sizeof(g_model));
-  loadModelYamlStr(yaml.c_str());
-  EXPECT_EQ(-123, g_model.gvars[0].value);
-  EXPECT_EQ(1, g_model.gvars[0].prec);
-  EXPECT_EQ(1, g_model.gvars[0].unit);
-  EXPECT_EQ(0, g_model.gvars[1].value);
-}
-
 TEST(Model, RemovedModeMasksKeepNormalSwitchConditions)
 {
   memset(&g_model, 0, sizeof(g_model));
@@ -308,12 +285,49 @@ TEST(Model, RemovedModeMasksKeepNormalSwitchConditions)
       "    weight: 50\n    swtch: ON\n    flightModes: 111111111\n"
       "expoData:\n -\n    mode: 3\n    srcRaw: MAX\n"
       "    weight: 25\n    swtch: \"!ON\"\n    flightModes: 111111111\n");
-  EXPECT_EQ(0, g_model.gvars[0].value);
   EXPECT_EQ(4u, g_model.mixData[0].destCh);
   EXPECT_EQ(MIXSRC_MAX, g_model.mixData[0].srcRaw);
-  EXPECT_EQ(makeSourceNumVal(50), g_model.mixData[0].weight);
+  EXPECT_EQ((50), g_model.mixData[0].weight);
   EXPECT_EQ(SWSRC_ON, g_model.mixData[0].swtch);
   EXPECT_EQ(MIXSRC_MAX, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(makeSourceNumVal(25), g_model.expoData[0].weight);
+  EXPECT_EQ((25), g_model.expoData[0].weight);
   EXPECT_EQ(-SWSRC_ON, g_model.expoData[0].swtch);
+}
+
+TEST(Model, LiteralNumericSettingsRoundTrip)
+{
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("gvars:\n  0:\n    value: 123\n");
+  g_model.expoData[0].srcRaw = MIXSRC_MAX;
+  g_model.expoData[0].mode = 3;
+  g_model.expoData[0].weight = -75;
+  g_model.expoData[0].offset = -25;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = -500;
+  g_model.mixData[0].offset = 500;
+  g_model.mixData[0].curve.type = CURVE_REF_EXPO;
+  g_model.mixData[0].curve.value = -70;
+  g_model.limitData[0].min = -250;
+  g_model.limitData[0].max = 250;
+  g_model.limitData[0].offset = -1000;
+  g_model.limitData[1].offset = 1000;
+  std::string yaml;
+  YamlTreeWalker tree;
+  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
+    static_cast<std::string*>(opaque)->append(str, len);
+    return true;
+  }, &yaml));
+  EXPECT_EQ(std::string::npos, yaml.find("gvars"));
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr(yaml.c_str());
+  EXPECT_EQ(-75, g_model.expoData[0].weight);
+  EXPECT_EQ(-25, g_model.expoData[0].offset);
+  EXPECT_EQ(-500, g_model.mixData[0].weight);
+  EXPECT_EQ(500, g_model.mixData[0].offset);
+  EXPECT_EQ(-70, g_model.mixData[0].curve.value);
+  EXPECT_EQ(-1250, LIMIT_MIN(&g_model.limitData[0]));
+  EXPECT_EQ(1250, LIMIT_MAX(&g_model.limitData[0]));
+  EXPECT_EQ(-1000, LIMIT_OFS(&g_model.limitData[0]));
+  EXPECT_EQ(1000, LIMIT_OFS(&g_model.limitData[1]));
 }

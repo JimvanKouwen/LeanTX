@@ -27,7 +27,6 @@
 #include "lua_api.h"
 #include "../timers.h"
 #include "model_init.h"
-#include "gvars.h"
 #include "mixes.h"
 
 #include "lua_states.h"
@@ -401,11 +400,11 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtablenstring(L, "inputName", g_model.inputNames[chn]);
     lua_pushtableinteger(L, "source", expo->srcRaw);
     lua_pushtableinteger(L, "scale", expo->scale);
-    lua_pushtableinteger(L, "weight", sourceNumValToLuaInt(expo->weight));
-    lua_pushtableinteger(L, "offset", sourceNumValToLuaInt(expo->offset));
+    lua_pushtableinteger(L, "weight", (expo->weight));
+    lua_pushtableinteger(L, "offset", (expo->offset));
     lua_pushtableinteger(L, "switch", expo->swtch);
     lua_pushtableinteger(L, "curveType", expo->curve.type);
-    lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(expo->curve.value));
+    lua_pushtableinteger(L, "curveValue", (expo->curve.value));
     lua_pushtableinteger(L, "side", expo->mode);
   }
   else {
@@ -466,10 +465,10 @@ static int luaModelInsertInput(lua_State *L)
         expo->mode = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
-        expo->weight = luaIntToSourceNumval(luaL_checkinteger(L, -1));
+        expo->weight = (luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "offset")) {
-        expo->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
+        expo->offset = (luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
         expo->swtch = luaL_checkinteger(L, -1);
@@ -478,7 +477,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
-        expo->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
+        expo->curve.value = (luaL_checkinteger(L, -1));
       }
 
           }
@@ -600,8 +599,8 @@ Get configuration for specified Mix
 @retval table mix data:
  * `name` (string) mix line name
  * `source` (number) source index
- * `weight` (number) weight value (-512 to 511) or source (>= 1024 or <= -1024)
- * `offset` (number) offset value (-512 to 511) or source (>= 1024 or <= -1024)
+ * `weight` (number) literal weight (-500 to 500)
+ * `offset` (number) literal offset (-500 to 500)
  * `switch` (number) switch index
  * `multiplex` (number) multiplex (0 = ADD, 1 = MULTIPLY, 2 = REPLACE)
  * `curveType` (number) curve type (function, expo, custom curve)
@@ -627,11 +626,11 @@ static int luaModelGetMix(lua_State *L)
     lua_newtable(L);
     lua_pushtablenstring(L, "name", mix->name);
     lua_pushtableinteger(L, "source", mix->srcRaw);
-    lua_pushtableinteger(L, "weight", sourceNumValToLuaInt(mix->weight));
-    lua_pushtableinteger(L, "offset", sourceNumValToLuaInt(mix->offset));
+    lua_pushtableinteger(L, "weight", (mix->weight));
+    lua_pushtableinteger(L, "offset", (mix->offset));
     lua_pushtableinteger(L, "switch", mix->swtch);
     lua_pushtableinteger(L, "curveType", mix->curve.type);
-    lua_pushtableinteger(L, "curveValue", sourceNumValToLuaInt(mix->curve.value));
+    lua_pushtableinteger(L, "curveValue", (mix->curve.value));
     lua_pushtableinteger(L, "multiplex", mix->mltpx);
     lua_pushtableinteger(L, "mixWarn", mix->mixWarn);
     lua_pushtableinteger(L, "delayPrec", mix->delayPrec);
@@ -684,10 +683,10 @@ static int luaModelInsertMix(lua_State *L)
         mix->srcRaw = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
-        mix->weight = luaIntToSourceNumval(luaL_checkinteger(L, -1));
+        mix->weight = (luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "offset")) {
-        mix->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
+        mix->offset = (luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
         mix->swtch = luaL_checkinteger(L, -1);
@@ -696,7 +695,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
-        mix->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
+        mix->curve.value = (luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "multiplex")) {
         mix->mltpx = luaL_checkinteger(L, -1);
@@ -1425,137 +1424,6 @@ static int luaModelSetOutput(lua_State *L)
   return 0;
 }
 
-#if defined(GVARS)
-/*luadoc
-@function model.getGlobalVariable(index)
-
-Return current global variable value
-
-@notice a simple warning or notice
-
-@param index  zero based global variable index, use 0 for GV1, 8 for GV9
-
-@retval nil   requested global variable does not exist
-
-@retval number current value of global variable
-
-Example:
-
-```lua
-  val = model.getGlobalVariable(2)
-```
-*/
-static int luaModelGetGlobalVariable(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_GVARS)
-    lua_pushinteger(L, getGVarValue(idx));
-  else
-    lua_pushnil(L);
-  return 1;
-}
-
-/*luadoc
-@function model.setGlobalVariable(index, value)
-
-Sets current global variable value. See also model.getGlobalVariable()
-
-@param index  zero based global variable index, use 0 for GV1, 8 for GV9
-
-@param value  new value for global variable. Permitted range is
-from -1024 to 1024.
-
-@notice Global variable can only store integer values,
-any floating point value is converted into integer value
-by truncating everything behind a floating point.
-*/
-static int luaModelSetGlobalVariable(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  int value = luaL_checkinteger(L, 2);
-  if (idx < MAX_GVARS && value >= -GVAR_MAX && value <= GVAR_MAX) {
-    SET_GVAR(idx, value);
-    storageDirty(EE_MODEL);
-  }
-  return 0;
-}
-
-/*luadoc
-@name model.getGlobalVariableDetails(index)
-
-@description Returns details about a Global Variable, but not values
-
-@syntax val = model.getGlobalVariableDetails(index)
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@return table
-@returndesc table with keys - name (string), min (int), max, prec, unit and popup (bool) - if exists
-@apistat 2.11.0 introduced
-*/
-static int luaModelGetGlobalVariableDetails(lua_State *L)
-{
-  unsigned int idx = luaL_checkunsigned(L, 1);
-  if (idx < MAX_GVARS) {
-    lua_newtable(L);
-    lua_pushtablenstring(L, "name", g_model.gvars[idx].name);
-    lua_pushtableinteger(L, "min", GVAR_MIN + g_model.gvars[idx].min);
-    lua_pushtableinteger(L, "max", GVAR_MAX - g_model.gvars[idx].max);
-    lua_pushtableinteger(L, "prec", g_model.gvars[idx].prec);
-    lua_pushtableinteger(L, "unit", g_model.gvars[idx].unit);
-    lua_pushtableboolean(L, "popup", g_model.gvars[idx].popup);
-  }
-  else
-    lua_pushnil(L);
-  return 1;
-}
-
-/*luadoc
-@name model.setGlobalVariableDetails(index, params)
-
-@description Sets details about a Global Variable, but not values
-
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@arg table params
-@argdesc see model.getGlobalVariableDetails(index) return format for table format.
-@return none
-@apistat 2.11.0 introduced
-
-*/
-static int luaModelSetGlobalVariableDetails(lua_State *L)
-{
-  unsigned int idx = luaL_checkunsigned(L, 1);
-  if (idx < MAX_GVARS) {
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      luaL_checktype(L, -2, LUA_TSTRING); // key is string
-      const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "name")) {
-        const char * name = luaL_checkstring(L, -1);
-        strncpy(g_model.gvars[idx].name, name, sizeof(g_model.gvars[idx].name));
-      }
-      if (!strcmp(key, "min")) {
-        g_model.gvars[idx].min = luaL_checkinteger(L, -1) - GVAR_MIN;
-      }
-      if (!strcmp(key, "max")) {
-        g_model.gvars[idx].max = GVAR_MAX - luaL_checkinteger(L, -1);
-      }
-      if (!strcmp(key, "unit")) {
-        g_model.gvars[idx].unit = luaL_checkinteger(L, -1);
-      }
-      if (!strcmp(key, "prec")) {
-        g_model.gvars[idx].prec = luaL_checkinteger(L, -1);
-      }
-      if (!strcmp(key, "popup")) {
-        g_model.gvars[idx].popup = lua_toboolean(L, -1);
-      }
-    }
-    storageDirty(EE_MODEL);
-  }
-  return 0;
-}
-#endif
-
 /*luadoc
 @function model.getSensor(sensor)
 
@@ -1652,12 +1520,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( setCurve, luaModelSetCurve )
   LROT_FUNCENTRY( getOutput, luaModelGetOutput )
   LROT_FUNCENTRY( setOutput, luaModelSetOutput )
-#if defined (GVARS)
-  LROT_FUNCENTRY( getGlobalVariable, luaModelGetGlobalVariable )
-  LROT_FUNCENTRY( setGlobalVariable, luaModelSetGlobalVariable )
-  LROT_FUNCENTRY( getGlobalVariableDetails, luaModelGetGlobalVariableDetails )
-  LROT_FUNCENTRY( setGlobalVariableDetails, luaModelSetGlobalVariableDetails )
-#endif
   LROT_FUNCENTRY( getSensor, luaModelGetSensor )
   LROT_FUNCENTRY( resetSensor, luaModelResetSensor )
 LROT_END(modellib, NULL, 0)

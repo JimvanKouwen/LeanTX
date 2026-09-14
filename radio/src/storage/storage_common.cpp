@@ -80,12 +80,6 @@ void preModelLoad()
 
 void postRadioSettingsLoad()
 {
-#if LCD_W == 128
-  // Prevent GVARS to be off when imported or manually modified yaml
-  // Since there is no way to have those back
-  g_eeGeneral.modelGVDisabled = false;
-#endif
-
 #if defined(PCBX12S) && defined(INTERNAL_GPS)
   // AUX2 is hardwired to AUX2 on X12S
   serialSetMode(SP_AUX2, UART_MODE_GPS);
@@ -185,10 +179,6 @@ void postModelLoad(bool alarms)
     }
 #endif
   }
-#elif LCD_W == 128
-  // Prevent GVARS to be off when imported or manually modified yaml
-  // Since there is no way to have those back
-  g_model.modelGVDisabled = false;
 #endif
 
 #if defined(FUNCTION_SWITCHES)
