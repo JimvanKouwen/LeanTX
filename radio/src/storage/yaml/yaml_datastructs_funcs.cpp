@@ -109,7 +109,6 @@ uint8_t find_sep(const char* val, uint8_t val_len)
 
 // sources: parse/output
 //  - lua(script#,n): LUA mix outputs
-//  - ls(n): logical switches
 //  - ch(n): channels
 //  - tele(n): telemetry
 //
@@ -136,15 +135,6 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
              script * MAX_SCRIPT_OUTPUTS;
 
     } else if (val_len > 3 &&
-               val[0] == 'l' &&
-               val[1] == 's' &&
-               val[2] == '(') {
-
-      val += 3; val_len -= 3;
-      // parse int and ignore closing ')'
-      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_LOGICAL_SWITCH - 1;
-
-    }  else if (val_len > 3 &&
                val[0] == 'c' &&
                val[1] == 'h' &&
                val[2] == '(') {
@@ -289,14 +279,6 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
         str = fsSwitchGroupGetCanonicalName(val - MIXSRC_FIRST_CUSTOMSWITCH_GROUP);
     }
 #endif
-    else if (val >= MIXSRC_FIRST_LOGICAL_SWITCH
-             && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
-
-        val -= MIXSRC_FIRST_LOGICAL_SWITCH;
-        if (!output_source_1_param("ls(", 3, val + 1, wf, opaque))
-          return false;
-        str = closing_parenthesis;
-    }
 
     else if (val >= MIXSRC_FIRST_CH
              && val <= MIXSRC_LAST_CH) {
@@ -1226,12 +1208,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         }
       }
     }
-    else if (val_len >= 2
-             && val[0] == 'L'
-             && (val[1] >= '0' && val[1] <= '9')) {
 
-      ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
-    }
     else if (val_len >= 2
              && val[0] == 'T'
              && (val[1] >= '0' && val[1] <= '9')) {
@@ -1286,11 +1263,6 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
       auto trim = trimSwitchNames[sval - SWSRC_FIRST_TRIM];
       return wf(opaque, trim, strlen(trim));
 
-    } else if (sval <= SWSRC_LAST_LOGICAL_SWITCH) {
-
-      wf(opaque, "L", 1);
-      str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
-      return wf(opaque,str, strlen(str));
     }
     else if (sval <= SWSRC_LAST_SENSOR) {
 
@@ -1849,148 +1821,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 }
 
 #include "switches.h"
-
-static delayval_t timerValue2lsw(uint32_t t)
-{
-  if (t < 20) {
-    return t - 129;
-  } else if (t < 600) {
-    return t / 5 - 113;
-  } else {
-    return t / 10 - 53;
-  }
-}
-
-static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
-                      const char* val, uint8_t val_len)
-{
-  data += bitoffs >> 3UL;
-  data -= sizeof(LogicalSwitchData::func);
-
-  // find "," and cut val_len
-  uint8_t l_sep = find_sep(val, val_len);
-
-  auto ls = reinterpret_cast<LogicalSwitchData*>(data);
-  switch(lswFamily(ls->func)) {
-
-  case LS_FAMILY_BOOL:
-  case LS_FAMILY_STICKY:
-    ls->v1 = r_swtchSrc(nullptr, val, l_sep);
-    val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    ls->v2 = r_swtchSrc(nullptr, val, val_len);
-    break;
-
-  case LS_FAMILY_EDGE:
-    ls->v1 = r_swtchSrc(nullptr, val, l_sep);
-    val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    ls->v2 = timerValue2lsw(yaml_str2uint_ref(val, val_len));
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    if (val_len == 1 && val[0] == '<') {
-      ls->v3 = -1;
-    } else if (val_len == 1 && val[0] == '-') {
-        ls->v3 = 0;
-    } else {
-      int16_t t = (int16_t)timerValue2lsw(yaml_str2uint_ref(val, val_len));
-      ls->v3 = t - ls->v2;
-    }
-    break;
-
-  case LS_FAMILY_COMP:
-    ls->v1 = r_mixSrcRawEx(nullptr, val, l_sep);
-    val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    ls->v2 = r_mixSrcRawEx(nullptr, val, val_len);
-    break;
-
-  case LS_FAMILY_TIMER:
-    ls->v1 = timerValue2lsw(yaml_str2uint(val, l_sep));
-    val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    ls->v2 = timerValue2lsw(yaml_str2uint(val, val_len));
-    break;
-
-  default:
-    ls->v1 = r_mixSrcRawEx(nullptr, val, l_sep);
-    val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    // TODO?: ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2
-    ls->v2 = yaml_str2int_ref(val, val_len);
-    break;
-  }
-
-}
-
-static const struct YamlNode _ls_node_v1 = YAML_PADDING(10);
-static const struct YamlNode _ls_node_v2 = YAML_PADDING(16);
-
-static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
-                      yaml_writer_func wf, void* opaque)
-{
-  data += bitoffs >> 3UL;
-  data -= sizeof(LogicalSwitchData::func);
-  if (!wf(opaque,"\"",1)) return false;
-
-  const char* str = nullptr;
-  auto ls = reinterpret_cast<LogicalSwitchData*>(data);
-  switch(lswFamily(ls->func)) {
-
-  case LS_FAMILY_BOOL:
-  case LS_FAMILY_STICKY:
-    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
-    if (!wf(opaque,",",1)) return false;
-    if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
-    break;
-
-  case LS_FAMILY_EDGE:
-    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
-    if (!wf(opaque,",",1)) return false;
-    str = yaml_unsigned2str(lswTimerValue(ls->v2));
-    if (!wf(opaque,str,strlen(str))) return false;
-    if (!wf(opaque,",",1)) return false;
-    if (ls->v3 < 0) {
-      if (!wf(opaque,"<",1)) return false;
-    } else if(ls->v3 == 0) {
-      if (!wf(opaque,"-",1)) return false;
-    } else {
-      str = yaml_unsigned2str(lswTimerValue(ls->v2 + ls->v3));
-      if (!wf(opaque, str, strlen(str))) return false;
-    }
-    break;
-
-  case LS_FAMILY_COMP:
-    if (!w_mixSrcRawExNoQuote(nullptr, ls->v1, wf, opaque)) return false;
-    if (!wf(opaque,",",1)) return false;
-    if (!w_mixSrcRawExNoQuote(nullptr, ls->v2, wf, opaque)) return false;
-    break;
-
-  case LS_FAMILY_TIMER:
-    str = yaml_unsigned2str(lswTimerValue(ls->v1));
-    if (!wf(opaque,str,strlen(str))) return false;
-    if (!wf(opaque,",",1)) return false;
-    str = yaml_unsigned2str(lswTimerValue(ls->v2));
-    if (!wf(opaque,str,strlen(str))) return false;
-    break;
-
-  default:
-    if (!w_mixSrcRawExNoQuote(nullptr, ls->v1, wf, opaque)) return false;
-    if (!wf(opaque,",",1)) return false;
-    // TODO?: ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2
-    str = yaml_signed2str(ls->v2);
-    if (!wf(opaque,str,strlen(str))) return false;
-    break;
-  }
-
-  if (!wf(opaque,"\"",1)) return false;
-  return true;
-}
 
 static uint32_t r_thrSrc(const YamlNode* node, const char* val, uint8_t val_len)
 {

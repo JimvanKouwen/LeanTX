@@ -108,7 +108,6 @@ enum MenuRadioSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
       ITEM_VIEW_OPTIONS_CURVES,
-  ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
   CASE_LUA_MODEL_SCRIPTS(ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS)
       ITEM_VIEW_OPTIONS_TELEMETRY,
@@ -234,7 +233,6 @@ void menuRadioSetup(event_t event)
           VIEWOPT_ROW(LABEL(ModelMenuTabs)),
 
               VIEWOPT_ROW(0),
-          VIEWOPT_ROW(0),
           VIEWOPT_ROW(0),
           CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0)) VIEWOPT_ROW(0),
       });
@@ -759,9 +757,6 @@ void menuRadioSetup(event_t event)
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event, g_model.modelCurvesDisabled);
-        break;
-      case ITEM_VIEW_OPTIONS_LS:
-        g_eeGeneral.modelLSDisabled = viewOptCheckBox(y, STR_MENULOGICALSWITCHES, g_eeGeneral.modelLSDisabled, attr, event, g_model.modelLSDisabled);
         break;
       case ITEM_VIEW_OPTIONS_SF:
         g_eeGeneral.modelSFDisabled = viewOptCheckBox(y, STR_MENUCUSTOMFUNC, g_eeGeneral.modelSFDisabled, attr, event, g_model.modelSFDisabled);

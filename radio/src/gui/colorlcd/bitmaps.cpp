@@ -110,9 +110,6 @@ static const uint8_t mask_model_general[] __FLASH = {
 static const uint8_t mask_model_inputs[] __FLASH = {
 #include "mask_icon_model_inputs.lbm"
 };
-static const uint8_t mask_model_logical_switches[] __FLASH = {
-#include "mask_icon_model_logical_switches.lbm"
-};
 static const uint8_t mask_model_mixer[] __FLASH = {
 #include "mask_icon_model_mixer.lbm"
 };
@@ -169,9 +166,6 @@ static const uint8_t mask_tools_debug[] __FLASH = {
 };
 static const uint8_t mask_tools_monitor_ch[] __FLASH = {
 #include "mask_icon_tools_monitor_ch.lbm"
-};
-static const uint8_t mask_tools_monitor_ls[] __FLASH = {
-#include "mask_icon_tools_monitor_ls.lbm"
 };
 static const uint8_t mask_tools_reset[] __FLASH = {
 #include "mask_icon_tools_reset.lbm"
@@ -398,7 +392,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_MODEL_NOTES, mask_model_notes),
     BI(ICON_MODEL_OUTPUTS, mask_model_outputs),
     BI(ICON_MODEL_CURVES, mask_model_curves),
-    BI(ICON_MODEL_LOGICAL_SWITCHES, mask_model_logical_switches),
     BI(ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions),
     BI(ICON_MODEL_LUA_SCRIPTS, mask_model_mixer_scripts),
     BI(ICON_MODEL_TELEMETRY, mask_model_telemetry),
@@ -422,7 +415,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_STATS_ANALOGS, mask_radio_analogs),
     BI(ICON_STATS_DEBUG, mask_tools_debug),
     BI(ICON_MONITOR, mask_tools_monitor_ch),
-    BI(ICON_MONITOR_LOGICAL_SWITCHES, mask_tools_monitor_ls),
 
     BI(ICON_CHAN_MONITOR_LOCKED, mask_inline_locked),
     BI(ICON_CHAN_MONITOR_INVERTED, mask_inline_inverted),

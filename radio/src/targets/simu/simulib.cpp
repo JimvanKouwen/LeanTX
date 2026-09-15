@@ -774,19 +774,6 @@ uint8_t simuGetMixCount()
   return getMixCount();
 }
 
-uint8_t simuGetNumLogicalSwitches()
-{
-  return MAX_LOGICAL_SWITCHES;
-}
-
-uint8_t simuCopyLogicalSwitches(uint8_t* buf, uint8_t maxCount)
-{
-  uint8_t n = MAX_LOGICAL_SWITCHES < maxCount ? MAX_LOGICAL_SWITCHES : maxCount;
-  for (uint8_t i = 0; i < n; i++)
-    buf[i] = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i, 0) ? 1 : 0;
-  return n;
-}
-
 bool simuGetBacklightState()
 {
   return isBacklightEnabled();

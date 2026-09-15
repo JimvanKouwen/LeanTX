@@ -66,9 +66,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     addButton(CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, nullptr,
               STR_MENU_SWITCHES);
 #endif
-    if (modelLSEnabled())
-      addButton("LS", MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH,
-                nullptr, STR_MENU_LOGICAL_SWITCHES);
     addButton(CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
               STR_MENU_CHANNELS);
     if (modelTelemetryEnabled())

@@ -394,7 +394,7 @@ bool isInputRecursive(int index)
       break;
     else if (line->chn < index)
       continue;
-    else if (line->srcRaw >= MIXSRC_FIRST_LOGICAL_SWITCH)
+    else if (line->srcRaw >= MIXSRC_FIRST_CH)
       return true;
   }
   return false;
@@ -451,12 +451,12 @@ int8_t getMovedSource(uint8_t min)
 }
 #endif
 
-getvalue_t convert16bitsTelemValue(source_t channel, ls_telemetry_value_t value)
+getvalue_t convert16bitsTelemValue(source_t channel, telemetry_value_t value)
 {
   return value;
 }
 
-ls_telemetry_value_t maxTelemValue(source_t channel)
+telemetry_value_t maxTelemValue(source_t channel)
 {
   return MIXSRC_MAX_VALUE;
 }
@@ -823,8 +823,6 @@ void flightReset(uint8_t check)
 
   RESET_THR_TRACE();
 
-  logicalSwitchesReset();
-
   if (check) {
     checkAll();
   }
@@ -1132,7 +1130,6 @@ void edgeTxInit()
     // SDCARD not available, try to restore last model from RAM
     TRACE("rambackupRestore");
     rambackupRestore();
-    logicalSwitchesInit(true);
   }
   else {
     storageReadAll();
@@ -1601,9 +1598,6 @@ bool modelCurvesEnabled() {
   return FEATURE_ENABLED(modelCurvesDisabled);
 }
 
-bool modelLSEnabled() {
-  return FEATURE_ENABLED(modelLSDisabled);
-}
 bool modelSFEnabled() {
   return FEATURE_ENABLED(modelSFDisabled);
 }
@@ -1658,41 +1652,4 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     valMax = MIXSRC_MAX_VALUE;
     valMin = -valMax;
   }
-}
-
-bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf)
-{
-  getMixSrcRange(cs->v1, v2_min, v2_max, lf);
-  if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG)) {
-    if (v2_min >= 0) {
-      // min >= 0 && max >= 0
-    } else if (v2_max < 0) {
-      // min < 0 && max < 0
-      int16_t v = v2_min;
-      v2_min = -v2_max;
-      v2_max = -v;
-    } else {
-      // min < 0 && max >= 0
-      v2_min = 0;
-    }
-  } else {
-    uint16_t v = v2_max - v2_min;
-    if (v > MIXSRC_MAX_VALUE) v = MIXSRC_MAX_VALUE;
-    if (cs->func == LS_FUNC_DIFFEGREATER) {
-      // delta range (min - max) .. (max - min)
-      v2_max = v;
-      v2_min = -v;
-    } else if (cs->func == LS_FUNC_ADIFFEGREATER) {
-      // abs delta range 0 .. (max - min)
-      v2_max = v;
-      v2_min = 0;
-    }
-  }
-
-  bool rv = false;
-
-  if (cs->v2 < v2_min) { cs->v2 = v2_min; rv = true; }
-  else if (cs->v2 > v2_max) { cs->v2 = v2_max; rv = true; }
-
-  return rv;
 }

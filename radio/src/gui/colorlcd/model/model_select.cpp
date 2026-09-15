@@ -807,10 +807,10 @@ void ModelLabelsWindow::buildBody(Window *window)
     if (!hasMoreSelections)
       return LV_SYMBOL_OK;
     if (row == 0 && (g_eeGeneral.labelMultiMode == 0 || g_eeGeneral.favMultiMode == 0))
-      return STR_VCSWFUNC[7]; // AND
+      return STR_LABEL_MATCH_ALL; // AND
     if (g_eeGeneral.labelMultiMode == 0)
-      return STR_VCSWFUNC[7]; // AND
-    return STR_VCSWFUNC[8]; // OR
+      return STR_LABEL_MATCH_ALL; // AND
+    return STR_LABEL_MATCH_ANY; // OR
   });
 
   lblselector->setLongPressHandler([=]() {

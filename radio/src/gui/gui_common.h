@@ -45,7 +45,6 @@ typedef bool (*IsValueAvailable)(int);
 
 enum SwitchContext
 {
-  LogicalSwitchesContext,
   ModelCustomFunctionsContext,
   GeneralCustomFunctionsContext,
   MixesContext
@@ -59,7 +58,6 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes);
 bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
 bool isInputAvailable(int input);
 bool isThrottleSourceAvailable(int source);
-bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailableForBacklightOrVolume(int source);
 bool isSourceAvailable(int source);
@@ -69,7 +67,6 @@ bool isSourceAvailableInResetSpecialFunction(int index);
 bool isSourceAvailableInGlobalResetSpecialFunction(int index);
 bool isSwitchAvailable(int swtch, SwitchContext context);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
-bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInCustomFunctions(int swtch);
 bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableInMixes(int swtch);

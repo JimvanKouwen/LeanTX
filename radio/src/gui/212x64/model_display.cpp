@@ -163,7 +163,7 @@ void menuModelDisplay(event_t event)
           if (ZEXIST(scriptData.file))
             lcdDrawSizedText(DISPLAY_COL2+7*FW, y, scriptData.file, sizeof(scriptData.file), (menuHorizontalPosition==1 ? attr : 0));
           else
-            lcdDrawTextAtIndex(DISPLAY_COL2+7*FW, y, STR_VCSWFUNC, 0, (menuHorizontalPosition==1 ? attr : 0));
+            lcdDrawText(DISPLAY_COL2+7*FW, y, STR_EMPTY, (menuHorizontalPosition==1 ? attr : 0));
 
           if (menuHorizontalPosition==1 && attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
             s_editMode = 0;

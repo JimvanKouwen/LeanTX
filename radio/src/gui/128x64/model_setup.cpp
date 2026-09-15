@@ -162,7 +162,6 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
   ITEM_VIEW_OPTIONS_CURVES,
-  ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
 #if defined(LUA_MODEL_SCRIPTS)
   ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS,
@@ -643,7 +642,6 @@ void menuModelSetup(event_t event)
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(LABEL(ModelMenuTabs)),
 
-      VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
       CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0))
@@ -1268,9 +1266,6 @@ void menuModelSetup(event_t event)
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
-        break;
-      case ITEM_VIEW_OPTIONS_LS:
-        g_model.modelLSDisabled = viewOptChoice(y, STR_MENULOGICALSWITCHES, g_model.modelLSDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_SF:
         g_model.modelSFDisabled = viewOptChoice(y, STR_MENUCUSTOMFUNC, g_model.modelSFDisabled, attr, event);

@@ -6,7 +6,6 @@ set(GUI_SRC
   startup_shutdown.cpp
   model_select.cpp
   model_setup.cpp
-  model_logical_switches.cpp
   model_special_functions.cpp
   model_outputs.cpp
   model_telemetry.cpp

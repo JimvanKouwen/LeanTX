@@ -73,7 +73,6 @@ constexpr int g_use_plural2 = USE_PLURAL2;
 #define CHAR_CHANNEL    "\302\222"
 #define CHAR_TELEMETRY  "\302\223"
 #define CHAR_LUA        "\302\224"
-#define CHAR_LS         "\302\225"
 #define CHAR_CURVE      "\302\226"
 
 // ACCESS STUFF

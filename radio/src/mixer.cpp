@@ -423,9 +423,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-  else if (i <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;
-  } else if (i <= MIXSRC_LAST_CH) {
+   else if (i <= MIXSRC_LAST_CH) {
     return ex_chans[i - MIXSRC_FIRST_CH];
   }
 
@@ -579,9 +577,6 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
 
-  if (tick10ms)
-    evalLogicalSwitches(mode==e_perout_mode_normal);
-
   memclear(chans, sizeof(chans)); // all outputs to 0
 
   //========== MIXER LOOP ===============
@@ -623,7 +618,7 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
       //========== SWITCH =====
       bool mixCondition = (md->swtch != SWSRC_NONE);
       bool mixLineActive = getSwitch(md->swtch);
-      delayval_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
+      int16_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
 
       if (mixLineActive) {
 
@@ -682,8 +677,8 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
       bool applyOffsetAndCurve = true;
 
       //========== DELAYS ===============
-      delayval_t _swOn = mixState[i].now;
-      delayval_t _swPrev = mixState[i].prev;
+      int16_t _swOn = mixState[i].now;
+      int16_t _swPrev = mixState[i].prev;
       bool swTog = (mixEnabled > _swOn+DELAY_POS_MARGIN || mixEnabled < _swOn-DELAY_POS_MARGIN);
 
       if (mode == e_perout_mode_normal && swTog) {
@@ -988,8 +983,6 @@ void doMixerPeriodicUpdates()
     if ((s_cnt_100ms += tick10ms) >= 10) { // 0.1sec
       s_cnt_100ms -= 10;
       s_cnt_1s += 1;
-
-      logicalSwitchesTimerTick();
 
       if (s_cnt_1s >= 10) { // 1sec
         s_cnt_1s -= 10;

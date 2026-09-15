@@ -168,7 +168,7 @@ void FunctionLineButton::refresh()
       if (ZEXIST(cfn->play.name)) {
         strAppend(s + strlen(s), cfn->play.name, LEN_FUNCTION_NAME);
       } else {
-        strcat(s, STR_VCSWFUNC[0]);
+        strcat(s, STR_EMPTY);
       }
       break;
 

@@ -191,11 +191,6 @@ static bool isSourceFuncSwitchAvailable(int source) {
 }
 #endif
 
-static bool isSourceLSAvailable(int source) {
-  LogicalSwitchData * cs = lswAddress(source);
-  return (cs->func != LS_FUNC_NONE);
-}
-
 static bool isSourceTimerAvailable(int source) {
   TimerData *timer = &g_model.timers[source];
   return timer->mode != 0;
@@ -237,7 +232,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
 #if defined(FUNCTION_SWITCHES)
   { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SRC_FUNC_SWITCH, isSourceFuncSwitchAvailable },
 #endif
-  { MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SRC_LOGICAL_SWITCH, isSourceLSAvailable },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
@@ -262,7 +256,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 
 #define SRC_COMMON \
             SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | \
-            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH
+            SRC_SWITCH | SRC_FUNC_SWITCH
 
 bool isSourceAvailable(int source)
 {
@@ -276,22 +270,14 @@ bool isSourceAvailableForBacklightOrVolume(int source)
   return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);
 }
 
-bool isLogicalSwitchAvailable(int index)
-{
-  LogicalSwitchData * lsw = lswAddress(index);
-  return (lsw->func != LS_FUNC_NONE);
-}
-
 bool isSwitchAvailable(int swtch, SwitchContext context)
 {
-  bool negative = false;
-  (void)negative;
+  if (swtch < SWSRC_FIRST || swtch > SWSRC_LAST) return false;
 
   if (swtch < 0) {
     if (swtch == -SWSRC_ON || swtch == -SWSRC_ONE) {
       return false;
     }
-    negative = true;
     swtch = -swtch;
   }
 
@@ -326,15 +312,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) {
     int index = (swtch - SWSRC_FIRST_TRIM) / 2;
     return index < keysGetMaxTrims();
-  }
-
-  if (swtch >= SWSRC_FIRST_LOGICAL_SWITCH && swtch <= SWSRC_LAST_LOGICAL_SWITCH) {
-    if (context == GeneralCustomFunctionsContext) {
-      return false;
-    }
-    else if (context != LogicalSwitchesContext) {
-      return isLogicalSwitchAvailable(swtch - SWSRC_FIRST_LOGICAL_SWITCH);
-    }
   }
 
   if (context != ModelCustomFunctionsContext && context != GeneralCustomFunctionsContext && (swtch == SWSRC_ON || swtch == SWSRC_ONE)) {
@@ -388,10 +365,6 @@ static bool isSwitchTrimAvailable(int swtch, bool invert) {
   return index < keysGetMaxTrims();
 }
 
-static bool isSwitchLSAvailable(int swtch, bool invert) {
-  return isLogicalSwitchAvailable(swtch);
-}
-
 static bool isSwitchTelemAvailable(int swtch, bool invert) {
   return isTelemetryFieldAvailable(swtch);
 }
@@ -420,7 +393,6 @@ struct switchAvailableCheck {
 static struct switchAvailableCheck switchChecks[] = {
   { SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SW_SWITCH, isSwitchSwitchAvailable },
   { SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SW_TRIM, isSwitchTrimAvailable },
-  { SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SW_LOGICAL_SWITCH, isSwitchLSAvailable },
   { SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SW_TELEM, isSwitchTelemAvailable },
   { SWSRC_ON, SWSRC_COUNT - 1, SW_OTHER, isSwitchOtherAvailable },
   { SWSRC_NONE, SWSRC_NONE, SW_NONE, switchIsAvailable },
@@ -503,11 +475,6 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
   auto p = serialGetModePort(mode);
   if (p >= 0 && p != port_nr) return false;
   return true;
-}
-
-bool isSwitchAvailableInLogicalSwitches(int swtch)
-{
-  return isSwitchAvailable(swtch, LogicalSwitchesContext);
 }
 
 bool isSwitchAvailableInMixes(int swtch)

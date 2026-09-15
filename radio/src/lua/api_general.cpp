@@ -389,7 +389,6 @@ struct LuaMultipleField {
 const LuaMultipleField luaMultipleFields[] = {
     {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
     {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
-    {MIXSRC_FIRST_LOGICAL_SWITCH, "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
     {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
     {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
@@ -2071,62 +2070,6 @@ static int luaGetShmVar(lua_State * L)
 #endif
 
 /*luadoc
-@function setStickySwitch(id, value)
-
-@param id: integer identifying the sticky logical switch (zero for LS1 etc.).
-
-@param value: true/false. The new value of the sticky logical switch.
-
-@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor
-via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value
-is returned and no messages was sent (i.e. the switch was not changed).
-
-Sets the value of a sticky logical switch.
-
-@status current Introduced in 2.6
-*/
-
-#if (MAX_LOGICAL_SWITCHES != 64)
-#warning "The following code assumes that MAX_LOGICAL_SWITCHES == 64!"
-#endif
-
-static int luaSetStickySwitch(lua_State * L)
-{
-  int id = luaL_checkinteger(L, 1);
-  bool value = lua_toboolean(L, 2);
-
-  uint8_t msg = (1 << 6);       // This bit is always set to have a non-zero value
-  if (value) msg |= (1 << 7);
-  msg |= (id & 0x3F);
-
-  lua_pushboolean(L, luaSetStickySwitchBuffer.write(msg));
-  return 1;
-}
-
-/*luadoc
-@function getLogicalSwitchValue(id)
-
-@param id: integer identifying the logical switch (zero for LS1 etc.).
-
-@retval value: true/false.
-
-Reads the value of a logical switch.
-
-@status current Introduced in 2.6
-*/
-
-static int luaGetLogicalSwitchValue(lua_State * L)
-{
-  int id = luaL_checkinteger(L, 1);
-
-  if (id >= 0 && id < MAX_LOGICAL_SWITCHES)
-    lua_pushboolean(L, getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + id));
-  else
-    lua_pushnil(L);
-  return 1;
-}
-
-/*luadoc
 @function getSwitchInfo(sourceIndex)
 
 @param sourceIndex: integer identifying a value source as returned by `getSourceIndex(sourceName)` or the `id` field in the table returned by `getFieldInfo`.
@@ -2168,8 +2111,7 @@ static int luaGetSwitchInfo(lua_State * L)
 @param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have
 special characters in them like arrow up/down etc.
 
-@retval value: integer. The switchIndex, which can be used as input for `getSwitchName(switchIndex)` and `getSwitchValue(switchIndex)`. Also corresponds
-to the fields in the table returned by `model.getLogicalSwitch(switch)` identifying switches.
+@retval value: integer. The switchIndex, which can be used as input for `getSwitchName(switchIndex)` and `getSwitchValue(switchIndex)`.
 
 @status current Introduced in 2.6
 */
@@ -2190,8 +2132,7 @@ static int luaGetSwitchIndex(lua_State * L)
 /*luadoc
 @function getSwitchName(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
-`model.getLogicalSwitch(switch)` identifying switches.
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)`.
 
 @retval value: string naming the switch position as it is shown on radio menus where a switch can be chosen.
 
@@ -2213,8 +2154,7 @@ static int luaGetSwitchName(lua_State * L)
 /*luadoc
 @function getSwitchValue(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
-`model.getLogicalSwitch(switch)` identifying switches.
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)`.
 
 @retval value: true/false. The value of the switch.
 
@@ -2683,8 +2623,6 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( setShmVar, luaSetShmVar )
   LROT_FUNCENTRY( getShmVar, luaGetShmVar )
 #endif
-  LROT_FUNCENTRY( setStickySwitch, luaSetStickySwitch )
-  LROT_FUNCENTRY( getLogicalSwitchValue, luaGetLogicalSwitchValue )
   LROT_FUNCENTRY( getSwitchInfo, luaGetSwitchInfo )
   LROT_FUNCENTRY( getSwitchIndex, luaGetSwitchIndex )
   LROT_FUNCENTRY( getSwitchName, luaGetSwitchName )
@@ -2744,32 +2682,13 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( MIXSRC_FIRST_INPUT, MIXSRC_FIRST_INPUT )
   #include "lua_mixsrc.inc"
   LROT_NUMENTRY( MIXSRC_CH1, MIXSRC_FIRST_CH )
-  LROT_NUMENTRY( SWSRC_LAST, SWSRC_LAST_LOGICAL_SWITCH )
+  LROT_NUMENTRY( SWSRC_LAST, SWSRC_LAST )
   LROT_NUMENTRY( SWITCH_COUNT, SWSRC_COUNT )
   LROT_NUMENTRY( MAX_SENSORS, MAX_TELEMETRY_SENSORS )
 
   LROT_NUMENTRY( MAX_OUTPUT_CHANNELS, MAX_OUTPUT_CHANNELS )
   LROT_NUMENTRY( LIMIT_EXT_PERCENT, LIMIT_EXT_PERCENT )
   LROT_NUMENTRY( LIMIT_STD_PERCENT, LIMIT_STD_PERCENT )
-
-  LROT_NUMENTRY( LS_FUNC_NONE, LS_FUNC_NONE )
-  LROT_NUMENTRY( LS_FUNC_VEQUAL, LS_FUNC_VEQUAL )
-  LROT_NUMENTRY( LS_FUNC_VALMOSTEQUAL, LS_FUNC_VALMOSTEQUAL )
-  LROT_NUMENTRY( LS_FUNC_VPOS, LS_FUNC_VPOS )
-  LROT_NUMENTRY( LS_FUNC_VNEG, LS_FUNC_VNEG )
-  LROT_NUMENTRY( LS_FUNC_APOS, LS_FUNC_APOS )
-  LROT_NUMENTRY( LS_FUNC_ANEG, LS_FUNC_ANEG )
-  LROT_NUMENTRY( LS_FUNC_AND, LS_FUNC_AND )
-  LROT_NUMENTRY( LS_FUNC_OR, LS_FUNC_OR )
-  LROT_NUMENTRY( LS_FUNC_XOR, LS_FUNC_XOR )
-  LROT_NUMENTRY( LS_FUNC_EDGE, LS_FUNC_EDGE )
-  LROT_NUMENTRY( LS_FUNC_EQUAL, LS_FUNC_EQUAL )
-  LROT_NUMENTRY( LS_FUNC_GREATER, LS_FUNC_GREATER )
-  LROT_NUMENTRY( LS_FUNC_LESS, LS_FUNC_LESS )
-  LROT_NUMENTRY( LS_FUNC_DIFFEGREATER, LS_FUNC_DIFFEGREATER )
-  LROT_NUMENTRY( LS_FUNC_ADIFFEGREATER, LS_FUNC_ADIFFEGREATER )
-  LROT_NUMENTRY( LS_FUNC_TIMER, LS_FUNC_TIMER )
-  LROT_NUMENTRY( LS_FUNC_STICKY, LS_FUNC_STICKY )
 
   LROT_NUMENTRY( FUNC_OVERRIDE_CHANNEL, FUNC_OVERRIDE_CHANNEL )
   LROT_NUMENTRY( FUNC_RESET, FUNC_RESET )
@@ -2914,7 +2833,6 @@ LROT_BEGIN(etxstr, NULL, 0)
   LROT_LUDENTRY( CHAR_CHANNEL, CHAR_CHANNEL )
   LROT_LUDENTRY( CHAR_TELEMETRY, CHAR_TELEMETRY )
   LROT_LUDENTRY( CHAR_LUA, CHAR_LUA )
-  LROT_LUDENTRY( CHAR_LS, CHAR_LS )
   LROT_LUDENTRY( CHAR_CURVE, CHAR_CURVE )
 LROT_END(etxstr, NULL, 0)
 }

@@ -36,8 +36,6 @@
 #include "targets/taranis/gx12/bsp_io.h"
 #endif
 
-#define CS_LAST_VALUE_INIT -32768
-
 #if defined(COLORLCD)
   #define SWITCH_WARNING_LIST_X        WARNING_LINE_X
   #define SWITCH_WARNING_LIST_Y        WARNING_LINE_Y+3*FH
@@ -48,26 +46,6 @@
   #define SWITCH_WARNING_LIST_X        4
   #define SWITCH_WARNING_LIST_Y        4*FH+4
 #endif
-
-enum LogicalSwitchContextState {
-  SWITCH_START,
-  SWITCH_DELAY,
-  SWITCH_ENABLE
-};
-
-PACK(struct LogicalSwitchContext {
-  uint8_t state:1;
-  uint8_t timerState:2;
-  uint8_t spare:1;
-  uint8_t deltaTimer:4; // Timer for holding delta function state change active
-  uint8_t timer;
-  int16_t lastValue;
-});
-
-LogicalSwitchContext logicalSwitchState[MAX_LOGICAL_SWITCHES];
-CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
-
-#define LS_LAST_VALUE(idx) logicalSwitchState[idx].lastValue
 
 tmr10ms_t switchesMidposStart[MAX_SWITCHES];
 uint64_t  switchesPos = 0;
@@ -456,211 +434,6 @@ uint8_t switchGetMaxRow(uint8_t col)
 }
 #endif
 
-getvalue_t getValueForLogicalSwitch(mixsrc_t i)
-{
-  return getValue(i);
-}
-
-PACK(typedef struct {
-  uint8_t state;
-  uint8_t last;
-}) ls_sticky_struct;
-
-PACK(typedef struct {
-  uint16_t state:1;
-  uint16_t duration:15;
-}) ls_stay_struct;
-
-bool getLSStickyState(uint8_t idx)
-{
-  return logicalSwitchState[idx].lastValue & 1;
-}
-
-void logicalSwitchesInit(bool force)
-{
-  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
-    LogicalSwitchData * ls = lswAddress(idx);
-    if (ls->func == LS_FUNC_STICKY && (force || ls->lsPersist)) {
-      logicalSwitchState[idx].lastValue = ls->lsState;
-    }
-  }
-}
-
-bool getLogicalSwitch(uint8_t idx)
-{
-  LogicalSwitchData * ls = lswAddress(idx);
-  LogicalSwitchContext &context = logicalSwitchState[idx];
-  bool result;
-
-  swsrc_t s = ls->andsw;
-
-  if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
-    if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {
-      // AND switch must not affect STICKY and EDGE processing
-      context.lastValue = CS_LAST_VALUE_INIT;
-    }
-    result = false;
-  }
-  else if ((s=lswFamily(ls->func)) == LS_FAMILY_BOOL) {
-    bool res1 = getSwitch(ls->v1);
-    bool res2 = getSwitch(ls->v2);
-    switch (ls->func) {
-      case LS_FUNC_AND:
-        result = (res1 && res2);
-        break;
-      case LS_FUNC_OR:
-        result = (res1 || res2);
-        break;
-      // case LS_FUNC_XOR:
-      default:
-        result = (res1 ^ res2);
-        break;
-    }
-  }
-  else if (s == LS_FAMILY_TIMER) {
-    result = (context.lastValue <= 0);
-  }
-  else if (s == LS_FAMILY_STICKY) {
-    result = (context.lastValue & (1<<0));
-  }
-  else if (s == LS_FAMILY_EDGE) {
-    result = (context.lastValue & (1<<0));
-  }
-  else {
-    getvalue_t x = getValueForLogicalSwitch(ls->v1);
-    getvalue_t y;
-    if (s == LS_FAMILY_COMP) {
-      y = getValueForLogicalSwitch(ls->v2);
-
-      switch (ls->func) {
-        case LS_FUNC_EQUAL:
-          result = (x==y);
-          break;
-        case LS_FUNC_GREATER:
-          result = (x>y);
-          break;
-        default:
-          result = (x<y);
-          break;
-      }
-    }
-    else {
-      mixsrc_t v1 = ls->v1;
-      // Telemetry
-      if (v1 >= MIXSRC_FIRST_TELEM) {
-        if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1-1)) {
-          result = false;
-          goto DurationAndDelayProcessing;
-        }
-
-        y = convertLswTelemValue(ls);
-
-      }
-      else if (v1 >= MIXSRC_TX_VOLTAGE) {
-        y = ls->v2;
-      }
-      else {
-        y = calc100toRESX(ls->v2);
-      }
-
-      switch (ls->func) {
-        case LS_FUNC_VEQUAL:
-          result = (x==y);
-          break;
-        case LS_FUNC_VALMOSTEQUAL:
-          result = (abs(x-y) < (1024 / STICK_TOLERANCE));
-          break;
-        case LS_FUNC_VPOS:
-          result = (x>y);
-          break;
-        case LS_FUNC_VNEG:
-          result = (x<y);
-          break;
-        case LS_FUNC_APOS:
-          result = (abs(x)>y);
-          break;
-        case LS_FUNC_ANEG:
-          result = (abs(x)<y);
-          break;
-        default:
-        {
-          if (context.lastValue == CS_LAST_VALUE_INIT) {
-            context.lastValue = x;
-          }
-          int16_t diff = x - context.lastValue;
-          bool update = false;
-          if (ls->func == LS_FUNC_DIFFEGREATER) {
-            if (y >= 0) {
-              result = (diff >= y);
-              if (diff < 0)
-                update = true;
-            }
-            else {
-              result = (diff <= y);
-              if (diff > 0)
-                update = true;
-            }
-          }
-          else {
-            result = (abs(diff) >= y);
-          }
-          if (result) {
-            context.deltaTimer = 10;
-          } else if (context.deltaTimer > 0) {
-            // Hold active state for 100ms to ensure state change is seen
-            context.deltaTimer -= 1;
-            result = true;
-          }
-          if (result || update) {
-            context.lastValue = x;
-          }
-          break;
-        }
-      }
-    }
-  }
-
-DurationAndDelayProcessing:
-
-    if (ls->delay || ls->duration) {
-      if (result) {
-        if (context.timerState == SWITCH_START) {
-          // set delay timer
-          context.timerState = SWITCH_DELAY;
-          context.timer = (ls->func == LS_FUNC_EDGE ? 0 : ls->delay);
-        }
-
-        if (context.timerState == SWITCH_DELAY) {
-          if (context.timer) {
-            result = false;   // return false while delay timer running
-          }
-          else {
-            // set duration timer
-            context.timerState = SWITCH_ENABLE;
-            context.timer = ls->duration;
-          }
-        }
-
-        if (context.timerState == SWITCH_ENABLE) {
-          result = (ls->duration==0 || context.timer>0); // return false after duration timer runs out
-          if (!result && ls->func == LS_FUNC_STICKY) {
-            ls_sticky_struct & lastValue = (ls_sticky_struct &)context.lastValue;
-            lastValue.state = 0;
-          }
-        }
-      }
-      else if (context.timerState == SWITCH_ENABLE && ls->duration > 0 && context.timer > 0) {
-        result = true;
-      }
-      else {
-        context.timerState = SWITCH_START;
-        context.timer = 0;
-      }
-    }
-
-  return result;
-}
-
 bool getSwitch(swsrc_t swtch, uint8_t flags)
 {
   bool result;
@@ -721,7 +494,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
     result = (inactivity.counter < 2);
   }
 
-  else if (cs_idx >= SWSRC_FIRST_SENSOR) {
+  else if (cs_idx >= SWSRC_FIRST_SENSOR && cs_idx <= SWSRC_LAST_SENSOR) {
     result = !telemetryItems[cs_idx-SWSRC_FIRST_SENSOR].isOld();
   }
   else if (cs_idx == SWSRC_TELEMETRY_STREAMING) {
@@ -729,8 +502,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   }
 
   else {
-    cs_idx -= SWSRC_FIRST_LOGICAL_SWITCH;
-    result = logicalSwitchState[cs_idx].state;
+    return false;
   }
 
   return swtch > 0 ? result : !result;
@@ -740,30 +512,6 @@ uint8_t getXPotPosition(uint8_t idx)
 {
   if (idx >= MAX_POTS || !IS_POT_MULTIPOS(idx)) return 0;
   return potsPos[idx] & 0x0F;
-}
-
-/**
-  @brief Calculates new state of logical switches for the model
-*/
-void evalLogicalSwitches(bool playSounds)
-{
-  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
-    LogicalSwitchContext & context = logicalSwitchState[idx];
-    bool result = getLogicalSwitch(idx);
-    if (playSounds) {
-      if (result) {
-        if (!context.state) PLAY_LOGICAL_SWITCH_ON(idx);
-      }
-      else {
-        if (context.state) PLAY_LOGICAL_SWITCH_OFF(idx);
-      }
-    }
-    context.state = result;
-    if ((g_model.logicalSw[idx].func == LS_FUNC_STICKY) && (g_model.logicalSw[idx].lsState != result)) {
-      g_model.logicalSw[idx].lsState = result;
-      storageDirty(EE_MODEL);
-    }
-  }
 }
 
 static inline uint8_t _bits_set(uint8_t val, uint8_t bits)
@@ -1012,152 +760,6 @@ void checkSwitches()
   LED_ERROR_END();
 }
 #endif // GUI
-
-void logicalSwitchesTimerTick()
-{
-#if (MAX_LOGICAL_SWITCHES != 64)
-#warning "The following code assumes that MAX_LOGICAL_SWITCHES == 64!"
-#endif
-  // Read messages from Lua in the buffer and flick switches
-  uint8_t msg = luaSetStickySwitchBuffer.read();
-  while(msg) {
-    uint8_t i = msg & 0x3F;
-    uint8_t s = msg >> 7;
-    LogicalSwitchData * ls = lswAddress(i);
-    if (ls->func == LS_FUNC_STICKY) {
-      ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(i);
-      lastValue.state = s;
-      bool now;
-      if (s)
-        now = getSwitch(ls->v2);
-      else
-        now = getSwitch(ls->v1);
-      if (now)
-        lastValue.last |= 1;
-      else
-        lastValue.last &= ~1;
-
-    }
-    msg = luaSetStickySwitchBuffer.read();
-  }
-
-  // Update logical switches
-  for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
-    LogicalSwitchData * ls = lswAddress(i);
-    if (ls->func == LS_FUNC_TIMER) {
-      int16_t *lastValue = &LS_LAST_VALUE(i);
-      if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
-        *lastValue = -lswTimerValue(ls->v1);
-      } else if (*lastValue < 0) {
-        if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2);
-      } else {  // if (*lastValue > 0)
-        if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1);
-      }
-    } else if (ls->func == LS_FUNC_STICKY) {
-      ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(i);
-      bool before = lastValue.last & 0x01;
-      if (lastValue.state) {
-          if (ls->v2 != SWSRC_NONE) { // only if used / source set
-              bool now = getSwitch(ls->v2);
-              if (now != before) {
-                lastValue.last ^= 1;
-                if (!before) {
-                  lastValue.state = 0;
-                }
-              }
-          }
-      }
-      else {
-          if (ls->v1 != SWSRC_NONE) { // only if used / source set
-              bool now = getSwitch(ls->v1);
-              if (before != now) {
-                lastValue.last ^= 1;
-                if (!before) {
-                  lastValue.state = 1;
-                }
-              }
-          }
-      }
-    } else if (ls->func == LS_FUNC_EDGE) {
-      ls_stay_struct & lastValue = (ls_stay_struct &)LS_LAST_VALUE(i);
-      // if this ls was reset by the logicalSwitchesReset() the lastValue will be set to CS_LAST_VALUE_INIT(0x8000)
-      // when it is unpacked into ls_stay_struct the lastValue.duration will have a value of 0x4000
-      // this will produce an instant true for edge logical switch if the second parameter is big enough.
-      // So we reset it here.
-      if (LS_LAST_VALUE(i) == CS_LAST_VALUE_INIT) {
-        lastValue.duration = 0;
-      }
-      lastValue.state = false;
-      bool state = getSwitch(ls->v1);
-      if (state) {
-        if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2))
-          lastValue.state = true;
-        if (lastValue.duration < 1000)
-          lastValue.duration++;
-      }
-      else {
-        if (lastValue.duration > lswTimerValue(ls->v2) && (ls->v3 == 0 || lastValue.duration <= lswTimerValue(ls->v2+ls->v3)))
-          lastValue.state = true;
-        lastValue.duration = 0;
-      }
-    }
-
-    // decrement delay/duration timer
-    LogicalSwitchContext &context = logicalSwitchState[i];
-    if (context.timer) {
-      context.timer--;
-    }
-  }
-
-}
-
-LogicalSwitchData * lswAddress(uint8_t idx)
-{
-  return &g_model.logicalSw[idx];
-}
-
-uint8_t lswFamily(uint8_t func)
-{
-  if (func <= LS_FUNC_ANEG)
-    return LS_FAMILY_OFS;
-  else if (func <= LS_FUNC_XOR)
-    return LS_FAMILY_BOOL;
-  else if (func == LS_FUNC_EDGE)
-    return LS_FAMILY_EDGE;
-  else if (func <= LS_FUNC_LESS)
-    return LS_FAMILY_COMP;
-  else if (func <= LS_FUNC_ADIFFEGREATER)
-    return LS_FAMILY_DIFF;
-  else
-    return LS_FAMILY_TIMER+func-LS_FUNC_TIMER;
-}
-
-// val = [-129,-110] => [0,19]     (step  1)
-// val = [-109,6]    => [20,595]   (step  5)
-// val = [7,122]     => [600,1750] (step 10)
-//
-int16_t lswTimerValue(delayval_t val)
-{
-  return (val < -109 ? 129+val : (val < 7 ? (113+val)*5 : (53+val)*10));
-}
-
-void logicalSwitchesReset()
-{
-  memset(logicalSwitchState, 0, sizeof(logicalSwitchState));
-
-  for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
-    LS_LAST_VALUE(i) = CS_LAST_VALUE_INIT;
-  }
-
-  luaSetStickySwitchBuffer.clear();
-}
-
-getvalue_t convertLswTelemValue(LogicalSwitchData * ls)
-{
-  getvalue_t val;
-  val = convert16bitsTelemValue(ls->v1 - MIXSRC_FIRST_TELEM + 1, ls->v2);
-  return val;
-}
 
 void setAllPreflightSwitchStates()
 {

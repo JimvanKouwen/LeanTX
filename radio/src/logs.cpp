@@ -70,7 +70,7 @@ void initLoggingTimer()
   if(!timer_is_active(&loggingTimer)) {                         // log Timer not running
     if(isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0) {  // if SF Logging is active and log rate is valid
       loggingTimerStart(logDelay100ms * 100);                   // start log timer
-    }  
+    }
   } else {                                                      // log timer is already running
     if(logDelay100msOld != logDelay100ms) {                     // if log rate was changed
       logDelay100msOld = logDelay100ms;                         // memorize new log rate
@@ -207,22 +207,12 @@ void writeHeader()
       f_puts(s, &g_oLogFile);
     }
   }
-  f_puts("LSW,", &g_oLogFile);
-  
+
   for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
     f_printf(&g_oLogFile, "CH%d(us),", channel+1);
   }
 
   f_puts("TxBat(V)\n", &g_oLogFile);
-}
-
-uint32_t getLogicalSwitchesStates(uint8_t first)
-{
-  uint32_t result = 0;
-  for (uint8_t i=0; i<32; i++) {
-    result |= (getSwitch(SWSRC_FIRST_LOGICAL_SWITCH+first+i) << i);
-  }
-  return result;
 }
 
 void logsWrite()
@@ -284,7 +274,7 @@ void logsWrite()
         if (isTelemetryFieldAvailable(i)) {
           TelemetrySensor & sensor = g_model.telemetrySensors[i];
           TelemetryItem telemetryItem;
-          
+
           if (sensor.logs) {
             if(TELEMETRY_STREAMING() && !telemetryItems[i].isOld())
               telemetryItem = telemetryItems[i];
@@ -345,8 +335,6 @@ void logsWrite()
           f_printf(&g_oLogFile, "%d,", getSwitchState(i));
         }
       }
-      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32),
-               getLogicalSwitchesStates(0));
 
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
         f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
@@ -365,7 +353,7 @@ void logsWrite()
   else {
     error_displayed = nullptr;
     logsClose();
-    
+
     #if !defined(SIMU)
     loggingTimerStop();
     #endif

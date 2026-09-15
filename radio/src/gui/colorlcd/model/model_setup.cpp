@@ -100,14 +100,7 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
                 g_eeGeneral.modelCurvesDisabled);
     }
   },
-  {
-    STR_DEF(STR_MENULOGICALSWITCHES),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_DEFAULT(g_model.modelLSDisabled),
-                g_eeGeneral.modelLSDisabled);
-    }
-  },
+
   {
     STR_DEF(STR_MENUCUSTOMFUNC),
     [](Window* parent, coord_t x, coord_t y) {

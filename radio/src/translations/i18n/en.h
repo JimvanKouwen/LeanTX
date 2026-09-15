@@ -41,7 +41,6 @@
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
 #define TR_QM_CURVES                    "Curves"
-#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
 #define TR_QM_SPEC_FUNC                 "Special\nFunctions"
 #define TR_QM_CUSTOM_LUA                "Mixer\nScripts"
 #define TR_QM_TELEM                     "Telemetry"
@@ -65,7 +64,6 @@
 #define TR_QM_STORAGE                   "Storage"
 #define TR_QM_RESET                     "Flight\nReset"
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
-#define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
 #define TR_MAIN_MODEL_SETTINGS          "Model Settings"
@@ -73,7 +71,6 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Manage Models"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model Notes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel Monitor"
-#define TR_MONITOR_SWITCHES             "Logical Switch Monitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model Setup"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio Setup"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
@@ -86,7 +83,6 @@
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
 #define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
-#define TR_MENULOGICALSWITCHES          TR_BW_COL("LOGICAL SWITCHES", "Logical Switches")
 #define TR_MENUCUSTOMFUNC               TR_BW_COL("SPECIAL FUNCTIONS", "Special Functions")
 #define TR_MENUCUSTOMSCRIPTS            TR_BW_COL("MIXER SCRIPTS", "Mixer Scripts")
 #define TR_MENUTELEMETRY                TR_BW_COL("TELEMETRY", "Telemetry")
@@ -179,10 +175,6 @@
 #define TR_VMLTPX_1                    "Add"
 #define TR_VMLTPX_2                    "Multiply"
 #define TR_VMLTPX_3                    "Replace"
-
-#define TR_CSWTIMER                    TR("Tim", "Timer")
-#define TR_CSWSTICKY                   TR("Stky", "Sticky")
-#define TR_CSWSTAY                     "Edge"
 
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Set"
@@ -563,7 +555,6 @@
 #define TR_MENUMODELSEL                TR("MODELSEL", "MODEL SELECTION")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
 
-#define TR_MENULOGICALSWITCH           "LOGICAL SWITCH"
 #define TR_MENUSTAT                    "STATS"
 #define TR_MENUDEBUG                   "DEBUG"
 #define TR_MONITOR_CHANNELS            "CHANNELS %d-%d"
@@ -677,10 +668,7 @@
 #define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Function"
-#define TR_V1                          "V1"
-#define TR_V2                          "V2"
 #define TR_DURATION                    "Duration"
-#define TR_DELAY                       "Delay"
 #define TR_NO_SOUNDS_ON_SD             "No sounds on SD"
 #define TR_NO_MODELS_ON_SD             "No models on SD"
 #define TR_NO_BITMAPS_ON_SD            "No bitmaps on SD"
@@ -842,7 +830,6 @@
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Storage (SD)"
 #define TR_USB_SERIAL                  "USB Serial (VCP)"
-#define TR_AND_SWITCH                  "AND switch"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
 #define TR_ANADIAGS_CALIB              "Calibrated analogs"
@@ -1039,7 +1026,6 @@
 #define TR_MENU_MAX                    CHAR_FUNCTION "MAX"
 #define TR_MENU_TRIMS                  CHAR_TRIM "Trims"
 #define TR_MENU_SWITCHES               CHAR_SWITCH "Switches"
-#define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "Logical switches"
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Channels"
 #define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetry"
 #define TR_MENU_DISPLAY                "DISPLAY"
@@ -1221,3 +1207,6 @@
 #define TR_LONG_PRESS             "Long Press"
 #define TR_OPEN_QUICK_MENU        "Open Quick Menu"
 #define TR_QUICK_MENU_FAVORITES   "Quick Menu Favorites"
+
+#define TR_LABEL_MATCH_ALL "AND"
+#define TR_LABEL_MATCH_ANY "OR"

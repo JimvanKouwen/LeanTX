@@ -161,7 +161,7 @@ Functions cfn_sorted[] = {
   /* LCD zu Video */ FUNC_LCD_TO_VIDEO,
 #endif
 #if defined(FUNCTION_SWITCHES)
-  /* LS setzen */ FUNC_PUSH_CUST_SWITCH,
+  /* Funktionsschalter setzen */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Lua-Skript */ FUNC_PLAY_SCRIPT,
   /* Module Bind */ FUNC_BIND,

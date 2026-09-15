@@ -51,12 +51,7 @@
 
 #define TR_EMPTY                        "---"
 
-// '~' is remapped to 0x7B in B&W font
-#define CHAR_TILDE                      TR_BW_COL("{", "~")
-
 // String array groups
-#define TR_VCSWFUNC                     "---","a=x","a" CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,\
-                                        "a=b","a>b","a<b",CHAR_DELTA "≥x","|" CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX2                      "+=","*=",":="
 #define TR_PPMUNIT                      "0.--","0.0","us"
@@ -71,7 +66,6 @@
 #define TR_TIMER_MODES      TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START
 #define TR_PHASES_HEADERS   TR_PHASES_HEADERS_NAME, TR_PHASES_HEADERS_SW, TR_PHASES_HEADERS_FAD_IN, TR_PHASES_HEADERS_FAD_OUT
 #define TR_LIMITS_HEADERS   TR_LIMITS_HEADERS_NAME, TR_LIMITS_HEADERS_SUBTRIM, TR_LIMITS_HEADERS_MIN, TR_LIMITS_HEADERS_MAX, TR_LIMITS_HEADERS_DIRECTION, TR_LIMITS_HEADERS_CURVE, TR_LIMITS_HEADERS_PPMCENTER, TR_LIMITS_HEADERS_SUBTRIMMODE
-#define TR_LSW_HEADERS      TR_FUNC, TR_V1, TR_V2, TR_V2, TR_AND_SWITCH, TR_DURATION, TR_DELAY, TR_PERSISTENT
 
 #define SA2(s) s##_1, s##_2
 #define SA3(s) s##_1, s##_2, s##_3

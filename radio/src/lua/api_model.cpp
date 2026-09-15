@@ -856,111 +856,6 @@ static int luaModelSetSwitchWarning(lua_State *L)
 }
 
 /*luadoc
-@function model.getLogicalSwitch(switch)
-
-Get Logical Switch parameters
-
-@param switch (unsigned number) logical switch number (use 0 for LS1)
-
-@retval nil requested logical switch does not exist
-
-@retval table logical switch data:
- * `func` (number) function index
- * `v1` (number) V1 value (index)
- * `v2` (number) V2 value (index or value)
- * `v3` (number) V3 value (index or value)
- * `and` (number) AND switch index
- * `delay` (number) delay (time in 1/10 s)
- * `duration` (number) duration (time in 1/10 s)
- * `state` (boolean) current state of the logical switch
- * `persistent` (boolean) if true then the state is persistent across reboot of the radio
-
-@status current Introduced in 2.0.0, state and persistent added in 2.11.2
-*/
-static int luaModelGetLogicalSwitch(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_LOGICAL_SWITCHES) {
-    LogicalSwitchData * sw = lswAddress(idx);
-    lua_newtable(L);
-    lua_pushtableinteger(L, "func", sw->func);
-    lua_pushtableinteger(L, "v1", sw->v1);
-    lua_pushtableinteger(L, "v2", sw->v2);
-    lua_pushtableinteger(L, "v3", sw->v3);
-    lua_pushtableinteger(L, "and", sw->andsw);
-    lua_pushtableinteger(L, "delay", sw->delay);
-    lua_pushtableinteger(L, "duration", sw->duration);
-    lua_pushtableboolean(L, "state", sw->lsState);
-    lua_pushtableboolean(L, "persistent", sw->lsPersist);
-  }
-  else {
-    lua_pushnil(L);
-  }
-  return 1;
-}
-
-/*luadoc
-@function model.setLogicalSwitch(switch, value)
-
-Set Logical Switch parameters
-
-@param switch (unsigned number) logical switch number (use 0 for LS1)
-
-@param value (table) see model.getLogicalSwitch() for table format
-
-@notice If a parameter is missing from the value, then
-that parameter remains unchanged.
-
-@notice To set the `and` member (which is Lua keyword)
-use the following syntax: `model.setLogicalSwitch(30, {func=4,v1=1,v2=-99, ["and"]=24})`
-
-@status current Introduced in 2.0.0, state and persistent added in 2.11.2
-*/
-static int luaModelSetLogicalSwitch(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_LOGICAL_SWITCHES) {
-    LogicalSwitchData * sw = lswAddress(idx);
-    memclear(sw, sizeof(LogicalSwitchData));
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      luaL_checktype(L, -2, LUA_TSTRING); // key is string
-      const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "func")) {
-        sw->func = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "v1")) {
-        sw->v1 = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "v2")) {
-        sw->v2 = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "v3")) {
-        sw->v3 = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "and")) {
-        sw->andsw = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "delay")) {
-        sw->delay = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "duration")) {
-        sw->duration = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "state")) {
-        sw->lsState = lua_toboolean(L, -1);
-      }
-      else if (!strcmp(key, "persistent")) {
-        sw->lsPersist = lua_toboolean(L, -1);
-      }
-    }
-    storageDirty(EE_MODEL);
-  }
-
-  return 0;
-}
-
-/*luadoc
 @function model.getCurve(curve)
 
 Get Curve parameters
@@ -1512,8 +1407,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
   LROT_FUNCENTRY( getSwitchWarning, luaModelGetSwitchWarning )
   LROT_FUNCENTRY( setSwitchWarning, luaModelSetSwitchWarning )
-  LROT_FUNCENTRY( getLogicalSwitch, luaModelGetLogicalSwitch )
-  LROT_FUNCENTRY( setLogicalSwitch, luaModelSetLogicalSwitch )
   LROT_FUNCENTRY( getCustomFunction, luaModelGetCustomFunction )
   LROT_FUNCENTRY( setCustomFunction, luaModelSetCustomFunction )
   LROT_FUNCENTRY( getCurve, luaModelGetCurve )

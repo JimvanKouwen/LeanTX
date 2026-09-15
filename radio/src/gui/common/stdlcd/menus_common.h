@@ -111,7 +111,6 @@ enum MenuModelIndexes {
   MENU_MODEL_OUTPUTS,
   MENU_MODEL_CURVES,
 
-      MENU_MODEL_LOGICAL_SWITCHES,
   MENU_MODEL_SPECIAL_FUNCTIONS,
 #if defined(LUA_MODEL_SCRIPTS)
   MENU_MODEL_CUSTOM_SCRIPTS,
@@ -142,7 +141,6 @@ void menuModelMixAll(event_t event);
 void menuModelLimits(event_t event);
 void menuModelCurvesAll(event_t event);
 void menuModelCurveOne(event_t event);
-void menuModelLogicalSwitches(event_t event);
 void menuModelSpecialFunctions(event_t event);
 void menuModelCustomScripts(event_t event);
 void menuModelTelemetry(event_t event);

@@ -332,7 +332,6 @@ inline int calcRESXto100(int x)
 int expo(int x, int k);
 
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
-extern bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, LcdFlags* lf);
 
 void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx=0, int16_t ovwrValue=0);
 int16_t applyLimits(uint8_t channel, int32_t value);
@@ -344,7 +343,6 @@ uint16_t anaIn(uint8_t chan);
 
 ExpoData * expoAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
-LogicalSwitchData * lswAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 
 void applyDefaultTemplate();
@@ -620,12 +618,11 @@ extern ReusableBuffer reusableBuffer;
 // Stick tolerance varies between transmitters, Higher is better
 #define STICK_TOLERANCE 64
 
-ls_telemetry_value_t maxTelemValue(source_t channel);
+telemetry_value_t maxTelemValue(source_t channel);
 
-getvalue_t convert16bitsTelemValue(source_t channel, ls_telemetry_value_t value);
-getvalue_t convertLswTelemValue(LogicalSwitchData * cs);
+getvalue_t convert16bitsTelemValue(source_t channel, telemetry_value_t value);
 
-inline getvalue_t convertTelemValue(source_t channel, ls_telemetry_value_t value)
+inline getvalue_t convertTelemValue(source_t channel, telemetry_value_t value)
 {
   return convert16bitsTelemValue(channel, value);
 }
@@ -668,8 +665,7 @@ void varioWakeup();
 
 enum ClipboardType {
   CLIPBOARD_TYPE_NONE,
-  CLIPBOARD_TYPE_CUSTOM_SWITCH,
-  CLIPBOARD_TYPE_CUSTOM_FUNCTION,
+    CLIPBOARD_TYPE_CUSTOM_FUNCTION,
   CLIPBOARD_TYPE_SD_FILE,
 };
 
@@ -682,7 +678,6 @@ enum ClipboardType {
 struct Clipboard {
   ClipboardType type;
   union {
-    LogicalSwitchData csw;
     CustomFunctionData cfn;
     struct {
       char directory[CLIPBOARD_PATH_LEN];
@@ -709,15 +704,12 @@ extern Clipboard clipboard;
 extern uint8_t latencyToggleSwitch;
 #endif
 
-extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
-
 // Radio menu tab state
 #if defined(COLORLCD)
 extern bool radioThemesEnabled();
 #endif
 extern bool radioGFEnabled();
 extern bool modelCurvesEnabled();
-extern bool modelLSEnabled();
 extern bool modelSFEnabled();
 extern bool modelCustomScriptsEnabled();
 extern bool modelTelemetryEnabled();

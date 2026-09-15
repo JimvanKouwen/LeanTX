@@ -638,11 +638,7 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
                   GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
                   g_model.modelCurvesDisabled);
      }},
-    {STR_DEF(STR_MENULOGICALSWITCHES),
-     [](Window* parent, coord_t x, coord_t y) {
-       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled),
-                  g_model.modelLSDisabled);
-     }},
+
     {STR_DEF(STR_MENUCUSTOMFUNC),
      [](Window* parent, coord_t x, coord_t y) {
        viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled),

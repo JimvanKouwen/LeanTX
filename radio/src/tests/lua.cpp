@@ -260,3 +260,11 @@ TEST(Lua, ioSeek)
 }
 
 #endif   // #if defined(LUA)
+
+TEST(Lua, LogicalSwitchApisRemoved)
+{
+  luaExecStr("assert(model.getLogicalSwitch == nil and model.setLogicalSwitch == nil)");
+  luaExecStr("assert(getLogicalSwitchValue == nil and setStickySwitch == nil)");
+  luaExecStr("assert(LS_FUNC_AND == nil and getSwitchIndex('L01') == nil)");
+  luaExecStr("assert(type(getSwitchName) == 'function' and type(getSwitchValue) == 'function')");
+}

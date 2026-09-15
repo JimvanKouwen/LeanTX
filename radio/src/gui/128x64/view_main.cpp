@@ -246,9 +246,7 @@ void menuMainView(event_t event)
       */
     case EVT_KEY_NEXT_PAGE:
     case EVT_KEY_PREVIOUS_PAGE:
-      if (view_base == VIEW_INPUTS)
-        g_eeGeneral.view ^= ALTERNATE_VIEW;
-      else
+      if (view_base != VIEW_INPUTS)
         g_eeGeneral.view = (g_eeGeneral.view + (4 * ALTERNATE_VIEW) + ((event == EVT_KEY_PREVIOUS_PAGE) ? -ALTERNATE_VIEW : ALTERNATE_VIEW)) % (4 * ALTERNATE_VIEW);
       break;
 
@@ -365,68 +363,51 @@ void menuMainView(event_t event)
       break;
 
     case VIEW_INPUTS:
-      if (view == VIEW_INPUTS) {
-        // Sticks + Pots
-        doMainScreenGraphics();
+      // Sticks + Pots
+      doMainScreenGraphics();
 
-        // Switches
-        // -> 2 columns: one for each side
-        // -> 4 slots on each side
-        uint8_t maxSwitch = 0;
-        uint8_t leftMaxRow = 0;
-        uint8_t rightMaxRow = 0;
-        for (uint8_t n = 0; n < switchGetMaxSwitches(); n += 1)
-            if (SWITCH_EXISTS(n) && !switchIsFlex(n) && !switchIsCustomSwitch(n)) {
-              auto switch_display = switchGetDisplayPosition(n);
-              if (switch_display.col) {
-                if (switch_display.row > rightMaxRow)
-                  rightMaxRow = switch_display.row;
-              } else {
-                if (switch_display.row > leftMaxRow)
-                  leftMaxRow = switch_display.row;
-              }
-              maxSwitch = n + 1;
+      // Switches
+      // -> 2 columns: one for each side
+      // -> 4 slots on each side
+      uint8_t maxSwitch = 0;
+      uint8_t leftMaxRow = 0;
+      uint8_t rightMaxRow = 0;
+      for (uint8_t n = 0; n < switchGetMaxSwitches(); n += 1)
+          if (SWITCH_EXISTS(n) && !switchIsFlex(n) && !switchIsCustomSwitch(n)) {
+            auto switch_display = switchGetDisplayPosition(n);
+            if (switch_display.col) {
+              if (switch_display.row > rightMaxRow)
+                rightMaxRow = switch_display.row;
+            } else {
+              if (switch_display.row > leftMaxRow)
+                leftMaxRow = switch_display.row;
             }
-
-        if (leftMaxRow < 3 && rightMaxRow < 3) {
-          for (int i = 0; i < maxSwitch; ++i) {
-            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
-              auto switch_display = switchGetDisplayPosition(i);
-              coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
-              coord_t y = 33 + switch_display.row * FH;
-              getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-              if (val == 0) x -= 1;
-              getvalue_t sw =
-                  ((val < 0) ? 3 * i + 1
-                              : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-              drawSwitch(x, y, sw, CENTERED, false);
-            }
+            maxSwitch = n + 1;
           }
-        }
-        else {
-          for (int i = 0; i < maxSwitch; ++i) {
-            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
-              auto switch_display = switchGetDisplayPosition(i);
-              coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
-              if (maxSwitch < 9) x += 3;
-              drawSmallSwitch(x, 5 * FH + 1, 4, i);
-            }
+
+      if (leftMaxRow < 3 && rightMaxRow < 3) {
+        for (int i = 0; i < maxSwitch; ++i) {
+          if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
+            auto switch_display = switchGetDisplayPosition(i);
+            coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
+            coord_t y = 33 + switch_display.row * FH;
+            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+            if (val == 0) x -= 1;
+            getvalue_t sw =
+                ((val < 0) ? 3 * i + 1
+                            : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
+            drawSwitch(x, y, sw, CENTERED, false);
           }
         }
       }
       else {
-        // Logical Switches
-        uint8_t index = 0;
-        uint8_t y = LCD_H - 20;
-        for (uint8_t line = 0; line < 2; line++) {
-          for (uint8_t column = 0; column < MAX_LOGICAL_SWITCHES / 2; column++) {
-            int8_t len = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index) ? 10 : 1;
-            uint8_t x = (16 + 3 * column);
-            lcdDrawSolidVerticalLine(x - 1, y - len, len);
-            lcdDrawSolidVerticalLine(x, y - len, len);
-            index++;
+        for (int i = 0; i < maxSwitch; ++i) {
+          if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
+            auto switch_display = switchGetDisplayPosition(i);
+            coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
+            if (maxSwitch < 9) x += 3;
+            drawSmallSwitch(x, 5 * FH + 1, 4, i);
           }
-          y += 12;
         }
       }
       break;

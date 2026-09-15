@@ -67,9 +67,7 @@ template <unsigned int NUM_BITS> class BitField
     }
 };
 
-#define INDEX_LOGICAL_SWITCH_AUDIO_FILE(index, event) (2*(index)+(event))
-
-// Longest model event filename: switch position or logical switch state.
+// Longest model event filename: switch position.
 constexpr uint8_t AUDIO_MODEL_FILENAME_MAXLEN = (sizeof("/SOUNDS/fr/") - 1) + LEN_MODEL_NAME + 1 + (sizeof("SA-down.wav") - 1);
 constexpr uint8_t AUDIO_LUA_FILENAME_MAXLEN = 42; // Some scripts use long audio paths, even on 128x64 boards
 constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MODEL_FILENAME_MAXLEN ? AUDIO_LUA_FILENAME_MAXLEN : AUDIO_MODEL_FILENAME_MAXLEN);
@@ -518,13 +516,6 @@ enum AutomaticPromptsCategories {
   SYSTEM_AUDIO_CATEGORY,
   MODEL_AUDIO_CATEGORY,
   SWITCH_AUDIO_CATEGORY,
-  LOGICAL_SWITCH_AUDIO_CATEGORY,
-};
-
-enum AutomaticPromptsEvents {
-  AUDIO_EVENT_OFF,
-  AUDIO_EVENT_ON,
-  AUDIO_EVENT_MID,
 };
 
 void pushPrompt(uint16_t prompt, uint8_t id=0, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
@@ -555,15 +546,11 @@ void playModelName();
   extern tmr10ms_t timeAutomaticPromptsSilence;
   void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
   #define PLAY_SWITCH_MOVED(sw)         playModelEvent(SWITCH_AUDIO_CATEGORY, sw)
-  #define PLAY_LOGICAL_SWITCH_OFF(sw)   playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_OFF)
-  #define PLAY_LOGICAL_SWITCH_ON(sw)    playModelEvent(LOGICAL_SWITCH_AUDIO_CATEGORY, sw, AUDIO_EVENT_ON)
   #define PLAY_MODEL_NAME()             playModelName()
   #define START_SILENCE_PERIOD()        timeAutomaticPromptsSilence = get_tmr10ms()
   #define IS_SILENCE_PERIOD_ELAPSED()   (get_tmr10ms()-timeAutomaticPromptsSilence > 50)
 #else
   #define PLAY_SWITCH_MOVED(sw)
-  #define PLAY_LOGICAL_SWITCH_OFF(sw)
-  #define PLAY_LOGICAL_SWITCH_ON(sw)
   #define PLAY_MODEL_NAME()
   #define START_SILENCE_PERIOD()
   #define IS_SILENCE_PERIOD_ELAPSED()   true

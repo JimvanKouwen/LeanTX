@@ -62,7 +62,6 @@ set(GUI_SRC
   model/mixer_edit.cpp
   model/model_curves.cpp
   model/model_inputs.cpp
-  model/model_logical_switches.cpp
   model/model_mixes.cpp
   model/model_outputs.cpp
   model/model_select.cpp

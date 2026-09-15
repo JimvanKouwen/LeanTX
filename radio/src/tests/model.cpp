@@ -331,3 +331,37 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   EXPECT_EQ(-1000, LIMIT_OFS(&g_model.limitData[0]));
   EXPECT_EQ(1000, LIMIT_OFS(&g_model.limitData[1]));
 }
+
+TEST(Model, PhysicalSwitchConditionsRoundTripWithoutLogicalSwitchStorage)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+  RADIO_RESET();
+  const int sw = findHwSwitch(SWITCH_3POS);
+  ASSERT_GE(sw, 0);
+  const int position = SWSRC_FIRST_SWITCH + 3 * sw;
+  loadModelYamlStr("logicalSw:\n  0:\n    func: AND\n    def: SA0,SB0\n");
+  g_model.expoData[0].mode = 3;
+  g_model.expoData[0].srcRaw = MIXSRC_MAX;
+  g_model.expoData[0].swtch = position;
+  g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
+  g_model.mixData[0].swtch = -position;
+  g_model.customFn[0].func = FUNC_PLAY_SOUND;
+  g_model.customFn[0].swtch = position;
+  g_model.timers[0].swtch = -position;
+  std::string yaml;
+  YamlTreeWalker tree;
+  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
+    static_cast<std::string*>(opaque)->append(str, len);
+    return true;
+  }, &yaml));
+  EXPECT_EQ(std::string::npos, yaml.find("logicalSw"));
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr(yaml.c_str());
+  EXPECT_EQ(position, g_model.expoData[0].swtch);
+  EXPECT_EQ(-position, g_model.mixData[0].swtch);
+  EXPECT_EQ(MIXSRC_FIRST_SWITCH + sw, g_model.mixData[0].srcRaw);
+  EXPECT_EQ(position, g_model.customFn[0].swtch);
+  EXPECT_EQ(-position, g_model.timers[0].swtch);
+}

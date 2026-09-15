@@ -118,27 +118,6 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_TX_GPS, "TX_GPS"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
-  {  LS_FUNC_NONE, "FUNC_NONE"  },
-  {  LS_FUNC_VEQUAL, "FUNC_VEQUAL"  },
-  {  LS_FUNC_VALMOSTEQUAL, "FUNC_VALMOSTEQUAL"  },
-  {  LS_FUNC_VPOS, "FUNC_VPOS"  },
-  {  LS_FUNC_VNEG, "FUNC_VNEG"  },
-  {  LS_FUNC_APOS, "FUNC_APOS"  },
-  {  LS_FUNC_ANEG, "FUNC_ANEG"  },
-  {  LS_FUNC_AND, "FUNC_AND"  },
-  {  LS_FUNC_OR, "FUNC_OR"  },
-  {  LS_FUNC_XOR, "FUNC_XOR"  },
-  {  LS_FUNC_EDGE, "FUNC_EDGE"  },
-  {  LS_FUNC_EQUAL, "FUNC_EQUAL"  },
-  {  LS_FUNC_GREATER, "FUNC_GREATER"  },
-  {  LS_FUNC_LESS, "FUNC_LESS"  },
-  {  LS_FUNC_DIFFEGREATER, "FUNC_DIFFEGREATER"  },
-  {  LS_FUNC_ADIFFEGREATER, "FUNC_ADIFFEGREATER"  },
-  {  LS_FUNC_TIMER, "FUNC_TIMER"  },
-  {  LS_FUNC_STICKY, "FUNC_STICKY"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_PotsWarnMode[] = {
   {  POTS_WARN_OFF, "WARN_OFF"  },
   {  POTS_WARN_MANUAL, "WARN_MANUAL"  },
@@ -335,7 +314,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "modelCurvesDisabled", 1 ),
   YAML_PADDING( 1 ),
   YAML_SIGNED_CUST( "volumeSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_SIGNED( "modelLSDisabled", 1 ),
+  YAML_PADDING( 1 ),
   YAML_SIGNED( "modelSFDisabled", 1 ),
   YAML_SIGNED( "modelCustomScriptsDisabled", 1 ),
   YAML_SIGNED( "modelTelemetryDisabled", 1 ),
@@ -438,20 +417,6 @@ static const struct YamlNode struct_CurveHeader[] = {
 static const struct YamlNode struct_signed_8[] = {
   YAML_IDX,
   YAML_SIGNED( "val", 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_LogicalSwitchData[] = {
-  YAML_IDX,
-  YAML_ENUM("func", 8, enum_LogicalSwitchesFunctions, NULL),
-  YAML_CUSTOM("def",r_logicSw,w_logicSw),
-  YAML_PADDING( 10 ),
-  YAML_PADDING( 10 ),
-  YAML_SIGNED_CUST( "andsw", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_UNSIGNED( "lsPersist", 1 ),
-  YAML_UNSIGNED( "lsState", 1 ),
-  YAML_PADDING( 16 ),
-  YAML_UNSIGNED( "delay", 8 ),
-  YAML_UNSIGNED( "duration", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_VarioData[] = {
@@ -664,7 +629,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("expoData", 136, 64, struct_ExpoData, NULL),
   YAML_ARRAY("curves", 32, 32, struct_CurveHeader, NULL),
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
-  YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
@@ -703,7 +667,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_PADDING( 2 ),
   YAML_ENUM("modelCurvesDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_PADDING( 2 ),
-  YAML_ENUM("modelLSDisabled", 2, enum_ModelOverridableEnable, NULL),
+  YAML_PADDING( 2 ),
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable, NULL),

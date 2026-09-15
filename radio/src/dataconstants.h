@@ -44,7 +44,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_LOGICAL_SWITCHES         64
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  9
   #define MAX_INPUTS                   32
@@ -59,7 +58,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_LOGICAL_SWITCHES         64
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
@@ -69,7 +67,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_LOGICAL_SWITCHES         64
   #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
@@ -143,7 +140,6 @@ enum MainViews {
 enum MainViews {
   VIEW_TIMERS,
   VIEW_INPUTS,
-  VIEW_SWITCHES,
   VIEW_COUNT
 };
 #else
@@ -376,9 +372,6 @@ enum SwitchSources {
   SWSRC_FIRST_TRIM SKIP,
   SWSRC_LAST_TRIM SKIP = SWSRC_FIRST_TRIM + 2 * MAX_TRIMS - 1,
 
-  SWSRC_FIRST_LOGICAL_SWITCH SKIP,
-  SWSRC_LAST_LOGICAL_SWITCH SKIP = SWSRC_FIRST_LOGICAL_SWITCH + MAX_LOGICAL_SWITCHES - 1,
-
   SWSRC_ON,
   SWSRC_ONE,
 
@@ -400,10 +393,8 @@ enum SwitchSources {
   SWSRC_LAST SKIP = SWSRC_COUNT-1,
   SWSRC_FIRST SKIP = -SWSRC_LAST,
 
-  SWSRC_LAST_IN_LOGICAL_SWITCHES SKIP = SWSRC_COUNT-1,
   SWSRC_LAST_IN_MIXES SKIP = SWSRC_COUNT-1,
 
-  SWSRC_FIRST_IN_LOGICAL_SWITCHES SKIP = -SWSRC_LAST_IN_LOGICAL_SWITCHES,
   SWSRC_FIRST_IN_MIXES SKIP = -SWSRC_LAST_IN_MIXES,
 
   SWSRC_INVERT SKIP = SWSRC_COUNT+1,
@@ -412,7 +403,6 @@ enum SwitchSources {
 enum SwitchTypes {
   SW_SWITCH = 1 << 0,
   SW_TRIM = 1 << 1,
-  SW_LOGICAL_SWITCH = 1 << 2,
   SW_TELEM = 1 << 4,
   SW_OTHER = 1 << 5,
   SW_NONE = 1 << 20,
@@ -471,8 +461,6 @@ enum MixSources {
   MIXSRC_FIRST_CUSTOMSWITCH_GROUP SKIP,
   MIXSRC_LAST_CUSTOMSWITCH_GROUP SKIP = MIXSRC_FIRST_CUSTOMSWITCH_GROUP + NUM_FUNCTIONS_GROUPS - 1,
 #endif
-  MIXSRC_FIRST_LOGICAL_SWITCH SKIP,
-  MIXSRC_LAST_LOGICAL_SWITCH SKIP = MIXSRC_FIRST_LOGICAL_SWITCH + MAX_LOGICAL_SWITCHES - 1,
 
   MIXSRC_FIRST_CH SKIP,
   MIXSRC_LAST_CH SKIP = MIXSRC_FIRST_CH + MAX_OUTPUT_CHANNELS - 1,
@@ -511,7 +499,6 @@ enum SrcTypes {
   SRC_MINMAX = 1 << 6,
   SRC_SWITCH = 1 << 9,
   SRC_FUNC_SWITCH = 1 << 10,
-  SRC_LOGICAL_SWITCH = 1 << 11,
   SRC_CHANNEL = 1 << 13,
   SRC_CHANNEL_ALL = 1 << 14,
   SRC_TX = 1 << 16,

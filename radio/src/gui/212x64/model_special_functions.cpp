@@ -282,7 +282,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (ZEXIST(cfn->play.name))
               lcdDrawSizedText(x, y, cfn->play.name, sizeof(cfn->play.name), attr);
             else
-              lcdDrawTextAtIndex(x, y, STR_VCSWFUNC, 0, attr);
+              lcdDrawText(x, y, STR_EMPTY, attr);
             if (active && event==EVT_KEY_BREAK(KEY_ENTER)) {
               s_editMode = 0;
               char directory[256];

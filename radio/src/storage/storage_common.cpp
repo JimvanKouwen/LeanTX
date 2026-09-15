@@ -207,8 +207,6 @@ void postModelLoad(bool alarms)
 
   customFunctionsReset();
 
-  logicalSwitchesInit(false);
-
   restoreTimers();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {

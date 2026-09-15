@@ -433,10 +433,7 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
     s = strAppend(s, getTrimLabel(idx / 2));
     *s++ = idx & 1 ? '+' : '-';
     *s = '\0';
-  } else if (idx <= SWSRC_LAST_LOGICAL_SWITCH) {
-    *s++ = 'L';
-    strAppendUnsigned(s, idx - SWSRC_FIRST_LOGICAL_SWITCH + 1, 2);
-  } else if (idx <= SWSRC_ONE) {
+  }  else if (idx <= SWSRC_ONE) {
     idx -= SWSRC_ON;
     getStringAtIndex(s, STR_ON_ONE_SWITCHES, idx);
   } else if (idx == SWSRC_TELEMETRY_STREAMING) {
@@ -672,10 +669,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
     getCustomSwitchesGroupName(pos, idx);
 #endif
-  } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
-    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
-  } else if (idx <= MIXSRC_LAST_CH) {
+  }  else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
     if (!defaultOnly && g_model.limitData[ch].name[0] != '\0') {
       strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);

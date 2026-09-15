@@ -120,33 +120,6 @@ enum MixerMultiplex {
 #define MD_OFFSET_TO_UNION(md, var) var.word = md->offset
 #define MD_UNION_TO_OFFSET(var, md) md->offset = var.word
 
-enum LogicalSwitchesFunctions {
-  LS_FUNC_NONE,
-  LS_FUNC_VEQUAL, // v==offset
-  LS_FUNC_VALMOSTEQUAL, // v~=offset
-  LS_FUNC_VPOS,   // v>offset
-  LS_FUNC_VNEG,   // v<offset
-  LS_FUNC_APOS,   // |v|>offset
-  LS_FUNC_ANEG,   // |v|<offset
-  LS_FUNC_AND,
-  LS_FUNC_OR,
-  LS_FUNC_XOR,
-  LS_FUNC_EDGE,
-  LS_FUNC_EQUAL,
-  LS_FUNC_GREATER,
-  LS_FUNC_LESS,
-  LS_FUNC_DIFFEGREATER,
-  LS_FUNC_ADIFFEGREATER,
-  LS_FUNC_TIMER,
-  LS_FUNC_STICKY,
-  LS_FUNC_COUNT SKIP,
-  LS_FUNC_MAX SKIP = LS_FUNC_COUNT-1
-};
-
-#define MAX_LS_DURATION 250 /*25s*/
-#define MAX_LS_DELAY    250 /*25s*/
-#define MAX_LS_ANDSW    SWSRC_LAST
-
 enum TelemetrySensorType
 {
   TELEM_TYPE_CUSTOM,

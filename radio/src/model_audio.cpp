@@ -24,8 +24,6 @@
 #include "edgetx.h"
 #include "switches.h"
 
-static const char* const _suffixes[] = {"-off", "-on"};
-
 char* getModelAudioPath(char* path, bool trailingSlash)
 {
   strcpy(path, SOUNDS_PATH "/");
@@ -67,23 +65,6 @@ bool getSwitchAudioFile(char* path, swsrc_t index)
   return true;
 }
 
-void getLogicalSwitchAudioFile(char* filename, int index, unsigned int event)
-{
-  char* str = getModelAudioPath(filename);
-
-  *str++ = 'L';
-  if (index >= 9) {
-    div_t qr = div(index + 1, 10);
-    *str++ = '0' + qr.quot;
-    *str++ = '0' + qr.rem;
-  } else {
-    *str++ = '1' + index;
-  }
-
-  strcpy(str, _suffixes[event]);
-  strcat(str, SOUNDS_EXT);
-}
-
 bool matchSwitchAudioFile(const char* filename, int& sw_pos)
 {
   // Switches Audio Files <switchname>-[up|mid|down].wav
@@ -123,31 +104,5 @@ bool matchSwitchAudioFile(const char* filename, int& sw_pos)
     }
   }
 
-  return false;
-}
-
-// Logical Switches Audio Files <switchname>-[on|off].wav
-bool matchLogicalSwitchAudioFile(const char* filename, int& index, int& event)
-{
-  auto* c = filename;
-  if (*c != 'L' && *c != 'l') return false;
-  c += 1;
-  if (*c < '1' && *c > '9') return false;
-  int lsw = *c++ - '0';
-  if (*c >= '0' && *c <= '9') {
-    lsw = (lsw * 10) + (*c++ - '0');
-  }
-  if (*c != '-' || lsw < 1) return false;
-
-  for (size_t e = 0; e < DIM(_suffixes); e++) {
-    auto* s = c;
-    auto suffix_len = strlen(_suffixes[e]);
-    if (strncasecmp(s, _suffixes[e], suffix_len) != 0) continue;
-    s += suffix_len;
-    if (*s != '.') continue;
-    index = lsw - 1;
-    event = e;
-    return true;
-  }
   return false;
 }

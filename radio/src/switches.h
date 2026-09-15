@@ -27,27 +27,6 @@
 #include "edgetx_types.h"
 #include "edgetx_constants.h"
 
-enum LogicalSwitchFamilies {
-  LS_FAMILY_OFS,
-  LS_FAMILY_BOOL,
-  LS_FAMILY_COMP,
-  LS_FAMILY_DIFF,
-  LS_FAMILY_TIMER,
-  LS_FAMILY_STICKY,
-  LS_FAMILY_RANGE,
-  LS_FAMILY_EDGE
-};
-
-typedef int16_t delayval_t;
-
-uint8_t lswFamily(uint8_t func);
-int16_t lswTimerValue(delayval_t val);
-
-bool getLSStickyState(uint8_t idx);
-void evalLogicalSwitches(bool playSounds=true);
-void logicalSwitchesReset();
-void logicalSwitchesTimerTick();
-
 bool isSwitchWarningRequired(uint16_t &bad_pots);
 
 void getSwitchesPosition(bool startup);
@@ -82,9 +61,6 @@ const char* fsSwitchGroupGetCanonicalName(uint8_t idx);
 uint8_t getSwitchCountInFSGroup(uint8_t index);
 
 SwitchConfig switchGetMaxType(uint8_t idx);
-
-// Restore switch state
-void logicalSwitchesInit(bool force);
 
 #if defined(FUNCTION_SWITCHES)
 void setFSStartupPosition();

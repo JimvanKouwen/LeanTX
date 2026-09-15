@@ -133,23 +133,6 @@ PACK(struct LimitData {
 });
 
 /*
- * LogicalSwitch structure
- */
-
-PACK(struct LogicalSwitchData {
-  uint8_t  func ENUM(LogicalSwitchesFunctions);
-  CUST_ATTR(def,r_logicSw,w_logicSw);
-  int32_t  v1:10 SKIP;
-  int32_t  v3:10 SKIP;
-  int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t lsPersist:1;
-  uint32_t lsState:1;
-  int16_t  v2 SKIP;
-  uint8_t  delay;
-  uint8_t  duration;
-});
-
-/*
  * SpecialFunction structure
  */
 
@@ -231,13 +214,13 @@ PACK(struct RFAlarmData {
   int8_t critical;
 });
 
-typedef int16_t ls_telemetry_value_t;
+typedef int16_t telemetry_value_t;
 
 #if !defined(COLORLCD)
 PACK(struct TelemetryBarData {
   source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
-  ls_telemetry_value_t barMin;           // minimum for bar display
-  ls_telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
+  telemetry_value_t barMin;           // minimum for bar display
+  telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
 });
 
 // This is used to be able to use
@@ -593,7 +576,6 @@ PACK(struct ModelData {
   CurveHeader curves[MAX_CURVES];
   int8_t    points[MAX_CURVE_POINTS];
 
-  LogicalSwitchData logicalSw[MAX_LOGICAL_SWITCHES];
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
@@ -663,7 +645,7 @@ PACK(struct ModelData {
   uint8_t reservedModelFeature:2 SKIP;
   uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t reservedVariableFeature:2 SKIP;
-  uint8_t modelLSDisabled:2 ENUM(ModelOverridableEnable);
+  uint8_t reservedConditionFeature:2 SKIP;
   uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
@@ -901,7 +883,7 @@ PACK(struct RadioData {
 
   NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
-  NOBACKUP(int16_t modelLSDisabled:1);
+  NOBACKUP(int16_t reservedConditionFeature:1 SKIP);
   NOBACKUP(int16_t modelSFDisabled:1);
   NOBACKUP(int16_t modelCustomScriptsDisabled:1);
   NOBACKUP(int16_t modelTelemetryDisabled:1);

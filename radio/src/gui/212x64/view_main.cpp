@@ -42,11 +42,6 @@
 #define TIMERS_H      25
 #define TIMERS_R      193
 #define REBOOT_X      (LCD_W-FW)
-#define VSWITCH_X(i)  (((i>=MAX_LOGICAL_SWITCHES*3/4) ? BITMAP_X+28 : ((i>=MAX_LOGICAL_SWITCHES/2) ? BITMAP_X+25 : ((i>=MAX_LOGICAL_SWITCHES/4) ? 21 : 18))) + 3*i)
-#define VSWITCH_Y     (LCD_H-9)
-#define LOGICAL_SWITCHES_X     (LCD_W-32-9)
-
-#define LOGICAL_SWITCHES_HALF_WIDTH 27
 
 const unsigned char logo_taranis[]  = {
 #include "logo.lbm"
@@ -358,7 +353,6 @@ void displaySwitch(coord_t x, coord_t y, int width, unsigned int index)
 
 void menuMainView(event_t event)
 {
-  static bool secondPage = false;
 
   switch(event) {
     case EVT_ENTRY:
@@ -402,14 +396,6 @@ void menuMainView(event_t event)
     case EVT_KEY_FIRST(KEY_EXIT):
       break;
 
-    case EVT_KEY_FIRST(KEY_PLUS):
-    case EVT_KEY_FIRST(KEY_MINUS):
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    case EVT_ROTARY_LEFT:
-    case EVT_ROTARY_RIGHT:
-#endif
-      secondPage = !secondPage;
-      break;
   }
 
   // Model Name
@@ -475,32 +461,6 @@ void menuMainView(event_t event)
   else if (g_model.view == VIEW_INPUTS) {
     // Sticks
     doMainScreenGraphics();
-  }
-  else {
-    // Logical Switches
-    int sw = (secondPage && MAX_LOGICAL_SWITCHES > 32 ? 32 : 0);
-    const int end = sw + 32;
-    uint8_t y = 6*FH-1;
-    lcdDrawText(LOGICAL_SWITCHES_X - LOGICAL_SWITCHES_HALF_WIDTH/2 + 1, y, "LS");
-    lcdDrawNumber(lcdLastRightPos + 1, y, sw + 1, LEFT|LEADING0, 2);
-    lcdDrawText(lcdLastRightPos, y, "-");
-    lcdDrawNumber(lcdLastRightPos, y, end, LEFT);
-    for ( ; sw < end; ++sw) {
-      const div_t qr = div(sw + 32 - end, 10);
-      const uint8_t x = LOGICAL_SWITCHES_X - LOGICAL_SWITCHES_HALF_WIDTH + qr.rem*5 + (qr.rem >= 5 ? 3 : 0);
-      y = 13 + 11 * qr.quot;
-      LogicalSwitchData * cs = lswAddress(sw);
-      if (cs->func == LS_FUNC_NONE) {
-        lcdDrawSolidHorizontalLine(x, y+6, 4);
-        lcdDrawSolidHorizontalLine(x, y+7, 4);
-      }
-      else if (getSwitch(SWSRC_FIRST_LOGICAL_SWITCH+sw)) {
-        lcdDrawFilledRect(x, y, 4, 8);
-      }
-      else {
-        lcdDrawRect(x, y, 4, 8);
-      }
-    }
   }
 
 }

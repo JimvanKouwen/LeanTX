@@ -23,8 +23,6 @@ const int16_t* simu_get_outputs();
 unsigned int simu_get_num_channels();
 const int16_t* simu_get_channels();
 
-unsigned int simu_get_num_logical_switches();
-uint32_t* simu_get_logical_switches();
 
 uint8_t simu_get_stick_mode();
 uint16_t simu_get_trim_range();

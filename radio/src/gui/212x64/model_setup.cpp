@@ -121,7 +121,6 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
   ITEM_VIEW_OPTIONS_CURVES,
-  ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
 #if defined(LUA_MODEL_SCRIPTS)
   ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS,
@@ -434,7 +433,6 @@ void menuModelSetup(event_t event)
 
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
-      VIEWOPT_ROW(0),
       CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
 
@@ -475,7 +473,7 @@ void menuModelSetup(event_t event)
         if (ZEXIST(g_model.header.bitmap))
           lcdDrawSizedText(MODEL_SETUP_2ND_COLUMN, y, g_model.header.bitmap, LEN_BITMAP_NAME, attr);
         else
-          lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VCSWFUNC, 0, attr);
+          lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_EMPTY, attr);
         if (attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
           s_editMode = 0;
           if (sdListFiles(BITMAPS_PATH, BITMAPS_EXT, LEN_BITMAP_NAME, g_model.header.bitmap, LIST_NONE_SD_FILE)) {
@@ -910,9 +908,6 @@ void menuModelSetup(event_t event)
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event, g_eeGeneral.modelCurvesDisabled);
-        break;
-      case ITEM_VIEW_OPTIONS_LS:
-        g_model.modelLSDisabled = viewOptChoice(y, STR_MENULOGICALSWITCHES, g_model.modelLSDisabled, attr, event, g_eeGeneral.modelLSDisabled);
         break;
       case ITEM_VIEW_OPTIONS_SF:
         g_model.modelSFDisabled = viewOptChoice(y, STR_MENUCUSTOMFUNC, g_model.modelSFDisabled, attr, event, g_eeGeneral.modelSFDisabled);

@@ -125,10 +125,6 @@ bool     WASM_EXPORT(simuIsChannelUsed)(uint8_t channel);
 int      WASM_EXPORT(simuGetChannelsUsed)();
 uint8_t  WASM_EXPORT(simuGetMixCount)();
 
-// Bulk copy logical switch states into buf (uint8_t[], 0 or 1). Returns count.
-uint8_t  WASM_EXPORT(simuGetNumLogicalSwitches)();
-uint8_t  WASM_EXPORT(simuCopyLogicalSwitches)(uint8_t* buf, uint8_t maxCount);
-
 // Aux serial: push bytes received from a host serial port into the firmware's
 // rx queue for the matching aux port (port_nr is 0 for AUX1, 1 for AUX2).
 void WASM_EXPORT(simuAuxSerialReceive)(uint8_t port_nr, const uint8_t* data,

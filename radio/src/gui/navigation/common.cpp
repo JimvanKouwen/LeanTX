@@ -63,11 +63,7 @@ void onSwitchLongEnterPress(const char * result)
     checkIncDecSelection = SWSRC_FIRST_SWITCH;
   } else if (result == STR_MENU_TRIMS) {
     checkIncDecSelection = SWSRC_FIRST_TRIM;
-  } else if (result == STR_MENU_LOGICAL_SWITCHES) {
-    checkIncDecSelection =
-        SWSRC_FIRST_LOGICAL_SWITCH +
-        getFirstAvailable(0, MAX_LOGICAL_SWITCHES, isLogicalSwitchAvailable);
-  } else if (result == STR_MENU_OTHER) {
+  }  else if (result == STR_MENU_OTHER) {
     checkIncDecSelection = SWSRC_ON;
   } else if (result == STR_MENU_INVERT) {
     checkIncDecSelection = SWSRC_INVERT;

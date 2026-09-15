@@ -95,7 +95,6 @@ inline void MIXER_RESET()
   memset(act, 0, sizeof(act));
   memset(mixState, 0, sizeof(mixState));
   lastAct = 0;
-  logicalSwitchesReset();
 }
 
 // Find a hardware switch matching the given type (SWITCH_3POS, SWITCH_2POS,

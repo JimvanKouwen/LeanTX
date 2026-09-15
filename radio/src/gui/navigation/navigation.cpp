@@ -40,12 +40,11 @@ extern int checkIncDecSelection;
 
 INIT_STOPS(stops100, 3, -100, 0, 100)
 INIT_STOPS(stops1000, 3, -1000, 0, 1000)
-INIT_STOPS(stopsSwitch, 15, SWSRC_FIRST,
-           CATEGORY_END(-SWSRC_FIRST_LOGICAL_SWITCH),
+INIT_STOPS(stopsSwitch, 11, SWSRC_FIRST,
            CATEGORY_END(-SWSRC_FIRST_TRIM),
            CATEGORY_END(-SWSRC_LAST_SWITCH + 1), 0,
            CATEGORY_END(SWSRC_LAST_SWITCH), CATEGORY_END(SWSRC_FIRST_TRIM - 1),
-           CATEGORY_END(SWSRC_FIRST_LOGICAL_SWITCH - 1), SWSRC_LAST)
+           SWSRC_LAST)
 
 #define INC(val, min, max)  if (val<max) {val++;} else {val=min;}
 #define DEC(val, min, max)  if (val>min) {val--;} else {val=max;}
@@ -149,14 +148,7 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
       checkIncDecSelection = SWSRC_NONE;
       if (i_min <= SWSRC_FIRST_SWITCH && i_max >= SWSRC_LAST_SWITCH)       POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
       if (i_min <= SWSRC_FIRST_TRIM && i_max >= SWSRC_LAST_TRIM)           POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
-      if (i_min <= SWSRC_FIRST_LOGICAL_SWITCH && i_max >= SWSRC_LAST_LOGICAL_SWITCH) {
-        for (int i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
-          if (isValueAvailable && isValueAvailable(SWSRC_FIRST_LOGICAL_SWITCH+i)) {
-            POPUP_MENU_ADD_ITEM(STR_MENU_LOGICAL_SWITCHES);
-            break;
-          }
-        }
-      }
+
       if (isValueAvailable && isValueAvailable(SWSRC_ON))                  POPUP_MENU_ADD_ITEM(STR_MENU_OTHER);
       if (isValueAvailable && isValueAvailable(-newval))                   POPUP_MENU_ADD_ITEM(STR_MENU_INVERT);
       POPUP_MENU_START(onSwitchLongEnterPress);

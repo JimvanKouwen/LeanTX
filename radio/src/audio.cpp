@@ -201,7 +201,6 @@ constexpr unsigned int MAX_SWITCH_POSITIONS =
 
 BitField<(AU_SPECIAL_SOUND_FIRST)> sdAvailableSystemAudioFiles;
 BitField<MAX_SWITCH_POSITIONS> sdAvailableSwitchAudioFiles;
-BitField<(MAX_LOGICAL_SWITCHES * 2/*on, off*/)> sdAvailableLogicalSwitchAudioFiles;
 
 char * getAudioPath(char * path)
 {
@@ -279,7 +278,6 @@ void referenceModelAudioFiles()
   char path[AUDIO_FILENAME_MAXLEN + 1];
 
   sdAvailableSwitchAudioFiles.reset();
-  sdAvailableLogicalSwitchAudioFiles.reset();
 
   getModelAudioPath(path, false);
 
@@ -300,18 +298,13 @@ void referenceModelAudioFiles()
 
       TRACE("referenceModelAudioFiles(): using file: %s", fno.fname);
 
-      int idx, event;
+      int idx;
 
       if (matchSwitchAudioFile(fno.fname, idx)) {
         sdAvailableSwitchAudioFiles.setBit(idx);
         continue;
       }
 
-      if (matchLogicalSwitchAudioFile(fno.fname, idx, event)) {
-        sdAvailableLogicalSwitchAudioFiles.setBit(
-            INDEX_LOGICAL_SWITCH_AUDIO_FILE(idx, event));
-        continue;
-      }
     }
     f_closedir(&dir);
   }
@@ -334,12 +327,6 @@ bool isAudioFileReferenced(uint32_t i, char * filename)
     else if (category == SWITCH_AUDIO_CATEGORY) {
     if (sdAvailableSwitchAudioFiles.getBit(index)) {
       getSwitchAudioFile(filename, SWSRC_FIRST_SWITCH + index);
-      return true;
-    }
-  }
-  else if (category == LOGICAL_SWITCH_AUDIO_CATEGORY) {
-    if (sdAvailableLogicalSwitchAudioFiles.getBit(INDEX_LOGICAL_SWITCH_AUDIO_FILE(index, event))) {
-      getLogicalSwitchAudioFile(filename, index, event);
       return true;
     }
   }

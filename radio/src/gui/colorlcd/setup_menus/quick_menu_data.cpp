@@ -23,7 +23,6 @@
 #include "menu.h"
 #include "model_curves.h"
 #include "model_inputs.h"
-#include "model_logical_switches.h"
 #include "model_mixer_scripts.h"
 #include "model_mixes.h"
 #include "model_outputs.h"
@@ -39,7 +38,6 @@
 #include "screen_setup.h"
 #include "special_functions.h"
 #include "view_channels.h"
-#include "view_logical_switches.h"
 #include "view_main.h"
 #include "view_statistics.h"
 #include "view_text.h"
@@ -50,7 +48,6 @@ const PageDef modelMenuItems[] = {
   { ICON_MODEL_MIXER, STR_DEF(STR_QM_MIXES), STR_DEF(STR_MIXES), PAGE_CREATE, QM_MODEL_MIXES, [](const PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
   { ICON_MODEL_OUTPUTS, STR_DEF(STR_QM_OUTPUTS), STR_DEF(STR_MENULIMITS), PAGE_CREATE, QM_MODEL_OUTPUTS, [](const PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},
   { ICON_MODEL_CURVES, STR_DEF(STR_QM_CURVES), STR_DEF(STR_MENUCURVES), PAGE_CREATE, QM_MODEL_CURVES, [](const PageDef& pageDef) { return new ModelCurvesPage(pageDef); }, modelCurvesEnabled},
-  { ICON_MODEL_LOGICAL_SWITCHES, STR_DEF(STR_QM_LOGICAL_SW), STR_DEF(STR_MENULOGICALSWITCHES), PAGE_CREATE, QM_MODEL_LS, [](const PageDef& pageDef) { return new ModelLogicalSwitchesPage(pageDef); }, modelLSEnabled},
   { ICON_MODEL_SPECIAL_FUNCTIONS, STR_DEF(STR_QM_SPEC_FUNC), STR_DEF(STR_MENUCUSTOMFUNC), PAGE_CREATE, QM_MODEL_SF, [](const PageDef& pageDef) { return new SpecialFunctionsPage(pageDef); }, modelSFEnabled},
 #if defined(LUA_MODEL_SCRIPTS)
   { ICON_MODEL_LUA_SCRIPTS, STR_DEF(STR_QM_CUSTOM_LUA), STR_DEF(STR_MENUCUSTOMSCRIPTS), PAGE_CREATE, QM_MODEL_SCRIPTS, [](const PageDef& pageDef) { return new ModelMixerScriptsPage(pageDef); }, modelCustomScriptsEnabled},
@@ -166,7 +163,6 @@ const PageDef toolsMenuItems[] = {
     }
   },
   { ICON_MONITOR, STR_DEF(STR_QM_CHAN_MON), STR_DEF(STR_QM_CHAN_MON), PAGE_ACTION, QM_TOOLS_CHAN_MON, nullptr, nullptr, []() { new ChannelsViewMenu(); } },
-  { ICON_MONITOR_LOGICAL_SWITCHES, STR_DEF(STR_QM_LS_MON), STR_DEF(STR_MONITOR_SWITCHES), PAGE_CREATE, QM_TOOLS_LS_MON, [](const PageDef& pageDef) { return new LogicalSwitchesViewPage(pageDef); }},
   { ICON_STATS, STR_DEF(STR_QM_STATS), STR_DEF(STR_MAIN_MENU_STATISTICS), PAGE_CREATE, QM_TOOLS_STATS, [](const PageDef& pageDef) { return new StatisticsViewPage(pageDef); }},
   { ICON_STATS_DEBUG, STR_DEF(STR_QM_DEBUG), STR_DEF(STR_DEBUG), PAGE_CREATE, QM_TOOLS_DEBUG, [](const PageDef& pageDef) { return new DebugViewPage(pageDef); }},
   { EDGETX_ICONS_COUNT }
