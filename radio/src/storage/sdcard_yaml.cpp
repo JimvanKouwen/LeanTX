@@ -19,19 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/adc_driver.h"
-#include "myeeprom.h"
+#include "sdcard_yaml.h"
+
 #include "edgetx.h"
 #include "edgetx_helpers.h"
-#include "storage.h"
-#include "sdcard_common.h"
-#include "sdcard_yaml.h"
+#include "hal/adc_driver.h"
 #include "modelslist.h"
-
-#include "yaml/yaml_tree_walker.h"
-#include "yaml/yaml_parser.h"
-#include "yaml/yaml_datastructs.h"
+#include "myeeprom.h"
+#include "radio_config.h"
+#include "sdcard_common.h"
+#include "storage.h"
 #include "yaml/yaml_bits.h"
+#include "yaml/yaml_datastructs.h"
+#include "yaml/yaml_parser.h"
+#include "yaml/yaml_tree_walker.h"
 
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result)
 {
@@ -119,51 +120,36 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 // SDCARD storage interface
 //
 
-static const char * attemptLoad(const char *filename, ChecksumResult* checksum_status)
-{
-  YamlTreeWalker tree;
-  tree.reset(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral);
-  return readYamlFile(filename, YamlTreeWalker::get_parser_calls(), &tree, checksum_status);
-}
-
+// Radio-settings (radio.yml) persistence is handled by the new
+// target-independent streaming engine in radio_config.cpp/.h. It does not
+// depend on yaml_datastructs/YamlNode/YamlTreeWalker at all -- those remain
+// in use for model storage only. See radio_config.h for the load/save
+// contract (known/unknown/missing field classification, bounded memory,
+// safe tmp+rename writes).
 const char * loadRadioSettingsYaml(bool checks)
 {
-    // YAML reader
-    TRACE("YAML radio settings reader");
+  TRACE("radio.yml streaming reader");
 
-    ChecksumResult checksum_status;
-    const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
+  RadioConfigLoadResult result = radioConfigLoad(RADIO_SETTINGS_YAML_PATH);
 
-    if(!checks)
-      return p;
+  if (result.fileMissing) {
+    TRACE("radio.yml: no file present");
+  }
+  if (result.invalidFields) {
+    TRACE("radio.yml: %u invalid field(s) kept at default",
+          result.invalidFields);
+  }
+  if (result.missingFields) {
+    TRACE("radio.yml: %u known field(s) missing, defaults applied",
+          result.missingFields);
+  }
 
-    if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
-      // Read failed or checksum check failed
-      FRESULT result = FR_OK;
-      TRACE("radio settings: Reading failed");
-      if ( (p == NULL) && g_eeGeneral.manuallyEdited) {
-        // Read sussessfull, checksum failed, manuallyEdited set
-        TRACE("File has been manually edited - ignoring checksum mismatch");
-        g_eeGeneral.manuallyEdited = 0;
-        storageDirty(EE_GENERAL);   // Trigger a save on sucessfull recovery
-      } else {
-        TRACE("File is corrupted, attempting alternative file");
-        f_unlink(RADIO_SETTINGS_ERRORFILE_YAML_PATH);
-        result = f_rename(RADIO_SETTINGS_YAML_PATH, RADIO_SETTINGS_ERRORFILE_YAML_PATH); // Save corrupted file for later analysis
-        p = attemptLoad(RADIO_SETTINGS_TMPFILE_YAML_PATH, &checksum_status);
-        if (p == NULL && (checksum_status == ChecksumResult::Success)) {
-            f_unlink(RADIO_SETTINGS_YAML_PATH);
-            result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
-            if (result != FR_OK) {
-              ALERT(STR_STORAGE_WARNING, STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
-              return SDCARD_ERROR(result);
-            }
-        }
-        TRACE("Unable to recover radio data");
-        ALERT(STR_STORAGE_WARNING, p == NULL ? STR_RADIO_DATA_RECOVERED : STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
-      }
+    if (result.dirty) {
+      storageDirty(EE_GENERAL);
     }
-    return p;
+
+    (void)checks;
+    return nullptr;
 }
 
 const char * loadRadioSettings()
@@ -289,26 +275,10 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 
 const char * writeGeneralSettings()
 {
-    TRACE("YAML radio settings writer");
-    uint16_t file_checksum = 0;
-
-    YamlFileChecksum(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral, &file_checksum);
-    g_eeGeneral.manuallyEdited = false;
-
-    const char *p = writeFileYaml(RADIO_SETTINGS_TMPFILE_YAML_PATH, get_radiodata_nodes(),
-                         (uint8_t*)&g_eeGeneral, file_checksum);
-    TRACE("generalSettings written with checksum %u", file_checksum);
-
-    if (p != NULL) {
-        return p;
-    }
-    f_unlink(RADIO_SETTINGS_YAML_PATH);
-
-    FRESULT result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);
-    if(result != FR_OK)
-        return SDCARD_ERROR(result);
-
-    return nullptr;
+  TRACE("radio.yml streaming writer");
+  g_eeGeneral.manuallyEdited = false;
+  return radioConfigSave(RADIO_SETTINGS_YAML_PATH,
+                         RADIO_SETTINGS_TMPFILE_YAML_PATH);
 }
 
 const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName)
