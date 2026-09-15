@@ -202,16 +202,13 @@ endif()
 if(RTC_BACKUP_RAM AND NOT WASI)
   add_definitions(-DRTC_BACKUP_RAM)
 
-  GenerateDataCopy(datastructs_private.h datacopy.inc)
 
   set(SRC ${SRC}
     storage/rlc.cpp
     storage/rtc_backup.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc
+    storage/emergency_snapshot.cpp
     )
 
-  # Add custom target for debugging
-  add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc)
 endif()
 
 if (LUA_MIXER AND NOT LUA)

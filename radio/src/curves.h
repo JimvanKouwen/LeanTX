@@ -36,6 +36,7 @@ void curveClear(uint8_t index);
 void curveMirror(uint8_t index);
 bool isCurveUsed(uint8_t index);
 void loadCurves();
+bool rebuildCurveCache();
 int8_t * curveAddress(uint8_t idx);
 bool moveCurve(uint8_t index, int8_t shift);
 int8_t getCurveX(int noPoints, int point);

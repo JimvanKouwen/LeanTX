@@ -41,7 +41,7 @@ uint8_t getCurvePoints(uint8_t index)
   return 0;
 }
 
-void loadCurves()
+bool rebuildCurveCache()
 {
   bool showWarning= false;
   int8_t * tmp = g_model.points;
@@ -70,7 +70,12 @@ void loadCurves()
     curveEnd[i] = tmp;
 
   }
-  if (showWarning) {
+  return showWarning;
+}
+
+void loadCurves()
+{
+  if (rebuildCurveCache()) {
     POPUP_WARNING("Invalid curve data repaired", "check your curves, logic switches");
   }
 }

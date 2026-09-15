@@ -24,7 +24,6 @@
 #if !defined(BOOT)
 #include "datastructs_private.h"
 
-#if !defined(BACKUP)
 /* Compile time check to test structure size has not changed *
    Changing the size of one of the eeprom structs may cause wrong data to
    be loaded. Error out if the struct size changes.
@@ -129,5 +128,5 @@ static inline void check_struct()
 
 #undef CHKSIZE
 }
-#endif /* BACKUP */
+
 #endif /* !BOOT */

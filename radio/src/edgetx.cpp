@@ -1124,7 +1124,7 @@ void edgeTxInit()
   if (UNEXPECTED_SHUTDOWN()) {
     // SDCARD not available, try to restore last model from RAM
     TRACE("rambackupRestore");
-    rambackupRestore();
+    rambackupRestoreOrReset();
   }
   else {
     storageReadAll();

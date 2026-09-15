@@ -21,16 +21,30 @@
 
 #pragma once
 
-#include "definitions.h"
+#include "emergency_snapshot.h"
+#include "rlc.h"
 
-PACK(struct RamBackup {
-  uint16_t size;
-  uint8_t data[4094];
-});
-
-extern RamBackup * ramBackup;
-
+constexpr unsigned RTC_BACKUP_CAPACITY = 4096;
+static_assert(sizeof(EmergencySnapshotHeader) == 20, "RTC header layout");
+static_assert(sizeof(EmergencySnapshot) <= RTC_BACKUP_CAPACITY - sizeof(EmergencySnapshotHeader),
+              "Review emergency snapshot capacity before adding fields");
+// RLC needs one control byte per run of up to 63 literal bytes, so
+// incompressible input can expand by ceil(size/63) bytes.
+constexpr unsigned RLC_MAX_LITERAL_RUN = 63;
+constexpr unsigned EMERGENCY_SNAPSHOT_WORST_CASE_COMPRESSED_SIZE =
+    sizeof(EmergencySnapshot) +
+    (sizeof(EmergencySnapshot) + RLC_MAX_LITERAL_RUN - 1) / RLC_MAX_LITERAL_RUN;
+static_assert(
+    EMERGENCY_SNAPSHOT_WORST_CASE_COMPRESSED_SIZE <=
+        RTC_BACKUP_CAPACITY - sizeof(EmergencySnapshotHeader),
+    "Worst-case incompressible snapshot must still fit the RTC payload area");
+struct RamBackup {
+  EmergencySnapshotHeader header;
+  uint8_t data[RTC_BACKUP_CAPACITY - sizeof(EmergencySnapshotHeader)];
+};
+static_assert(sizeof(RamBackup) == RTC_BACKUP_CAPACITY, "RTC RAM capacity");
+extern RamBackup *ramBackup;
 void rambackupWrite();
 bool rambackupRestore();
-unsigned int compress(uint8_t * dst, unsigned int dstsize, const uint8_t * src, unsigned int len);
-unsigned int uncompress(uint8_t * dst, unsigned int dstsize, const uint8_t * src, unsigned int len);
+// Boot wrapper: failed recovery leaves zeroed control configuration and RF off.
+bool rambackupRestoreOrReset();

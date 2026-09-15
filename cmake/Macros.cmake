@@ -59,32 +59,7 @@ function(AddCompilerFlags output)
   set(${output} ${${output}} ${ARGS} PARENT_SCOPE)
 endfunction()
 
-function(GenerateDatacopy source output)
 
-  set(GEN_DATACOPY ${RADIO_DIRECTORY}/util/generate_datacopy.py)
-  set(GEN_DATACOPY_DEPEND
-    ${CMAKE_CURRENT_SOURCE_DIR}/${source} ${GEN_DATACOPY}
-    ${CMAKE_CURRENT_BINARY_DIR}/hal_settings.h)
-
-  # Fetch defines / include directories in use
-  AddCompilerFlags(GEN_DATACOPY_ARGS)
-
-  # Hack to get rid of warnings in StdPeriph lib
-
-  set(GEN_DATACOPY_ARGS
-    # source file MUST be the first argument
-    ${CMAKE_CURRENT_SOURCE_DIR}/${source}
-    -DBACKUP ${GEN_DATACOPY_ARGS} ${SYSROOT_ARG})
-
-  set(GEN_DATACOPY_CMD
-    ${PYTHON_EXECUTABLE} ${GEN_DATACOPY} ${GEN_DATACOPY_ARGS})
-
-  add_custom_command(
-    OUTPUT ${output}
-    COMMAND ${GEN_DATACOPY_CMD} > ${output}
-    DEPENDS ${GEN_DATACOPY_DEPEND} ${CMAKE_BINARY_DIR}/CMakeCache.txt
-    )
-endfunction()
 
 function(AddHardwareDefTarget output)
 
