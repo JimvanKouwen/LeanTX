@@ -84,7 +84,6 @@ void menuChannelsViewCommon(event_t event);
 void menuChannelsView(event_t event);
 void menuMainView(event_t event);
 void menuViewTelemetry(event_t event);
-void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomFunctionsContext * functionsContext);
 void menuStatisticsView(event_t event);
 void menuStatisticsDebug(event_t event);
 void menuStatisticsDebug2(event_t event);
@@ -97,7 +96,6 @@ enum MenuRadioIndexes
 #endif
   MENU_RADIO_SD_MANAGER,
   MENU_RADIO_SETUP,
-  MENU_RADIO_SPECIAL_FUNCTIONS,
   MENU_RADIO_HARDWARE,
   MENU_RADIO_VERSION,
   MENU_RADIO_PAGES_COUNT
@@ -111,7 +109,6 @@ enum MenuModelIndexes {
   MENU_MODEL_OUTPUTS,
   MENU_MODEL_CURVES,
 
-  MENU_MODEL_SPECIAL_FUNCTIONS,
 #if defined(LUA_MODEL_SCRIPTS)
   MENU_MODEL_CUSTOM_SCRIPTS,
 #endif
@@ -122,7 +119,6 @@ enum MenuModelIndexes {
 
 void menuRadioSetup(event_t event);
 void menuRadioSdManager(event_t event);
-void menuRadioSpecialFunctions(event_t event);
 void menuRadioVersion(event_t event);
 void menuRadioDiagKeys(event_t event);
 void menuRadioDiagAnalogs(event_t event);
@@ -141,7 +137,6 @@ void menuModelMixAll(event_t event);
 void menuModelLimits(event_t event);
 void menuModelCurvesAll(event_t event);
 void menuModelCurveOne(event_t event);
-void menuModelSpecialFunctions(event_t event);
 void menuModelCustomScripts(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);

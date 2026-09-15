@@ -9,15 +9,11 @@ on:
       - '.github/workflows/codegen_drift.yml'
       - '.github/actions/codegen_drift/action.yml'
       - 'Justfile'
-      # cfn sort order
-      - 'tools/cfn_sorter.sh'
-      - 'tools/cfn_sorter.cpp'
       - 'tools/copyright-header.txt'
       - 'radio/src/dataconstants.h'
-      - 'radio/src/cfn_sort.cpp'
       # LVGL fonts
       - 'radio/src/fonts/**'
-      # shared: the i18n headers feed both the fonts and the cfn sort order
+      # LVGL font character coverage
       - 'radio/src/translations/i18n/**'
       # YAML parsers
       - 'tools/generate-yaml.sh'
@@ -56,7 +52,6 @@ jobs:
     name: Detect changed inputs
     runs-on: ubuntu-latest
     outputs:
-      cfn: ${{ steps.filter.outputs.cfn }}
       fonts: ${{ steps.filter.outputs.fonts }}
       yaml: ${{ steps.filter.outputs.yaml }}
       radios: ${{ steps.filter.outputs.radios }}
@@ -88,15 +83,6 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         with:
           filters: |
-            cfn:
-              - '.github/workflows/codegen_drift.yml'
-              - '.github/actions/codegen_drift/action.yml'
-              - 'tools/cfn_sorter.sh'
-              - 'tools/cfn_sorter.cpp'
-              - 'tools/copyright-header.txt'
-              - 'radio/src/dataconstants.h'
-              - 'radio/src/cfn_sort.cpp'
-              - 'radio/src/translations/i18n/**'
             fonts:
               - '.github/workflows/codegen_drift.yml'
               - '.github/actions/codegen_drift/action.yml'
@@ -122,29 +108,6 @@ jobs:
               - 'radio/src/boards/hw_defs/**'
               - 'web/scripts/gen-radios-json.js'
               - 'web/public/radios.json'
-
-  cfn-sort:
-    name: Custom function sort order
-    needs: changes
-    if: needs.changes.outputs.cfn == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
-      volumes:
-        - ${{ github.workspace }}:/src
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v7
-        with:
-          submodules: recursive
-
-      - name: Check for drift
-        uses: ./.github/actions/codegen_drift
-        with:
-          recipe: cfn-sort
-          paths: radio/src/cfn_sort.cpp
-          label: Custom function sort order
 
   fonts:
     name: LVGL fonts

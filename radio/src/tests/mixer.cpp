@@ -21,8 +21,48 @@
 
 #include "gtests.h"
 #include "hal/adc_driver.h"
+#include "tasks/mixer_task.h"
+#include <future>
 
 class MixerTest : public EdgeTxTest {};
+
+TEST_F(MixerTest, OutputOverridesBeforeMixerTaskInitialization)
+{
+  ASSERT_FALSE(mixerTaskInitialized());
+  const int16_t ordinary = applyLimits(0, 0);
+  // Native mutexes exist before task initialization, unlike FreeRTOS mutexes.
+  // Hold this one unavailable so an accidental startup lock cannot pass silently.
+  mixerTaskLock();
+  auto startup = std::async(std::launch::async, [] {
+    setChannelOverride(0, 75);
+    const int16_t overridden = applyLimits(0, 0);
+    clearChannelOverrides(); // Also called during startup model loading.
+    return std::make_pair(overridden, applyLimits(0, 0));
+  });
+  const auto status = startup.wait_for(std::chrono::seconds(1));
+  mixerTaskUnlock(); // Release even on failure, so the test cannot deadlock.
+  EXPECT_EQ(std::future_status::ready, status);
+  const auto values = startup.get();
+  EXPECT_EQ(calc100toRESX(75), values.first);
+  EXPECT_EQ(ordinary, values.second);
+}
+
+TEST_F(MixerTest, DirectOutputOverrides)
+{
+  clearChannelOverrides();
+  const int16_t ordinary = applyLimits(0, 0);
+  setChannelOverride(0, 75);
+  EXPECT_EQ(calc100toRESX(75), applyLimits(0, 0));
+  setChannelOverride(0, -75);
+  EXPECT_EQ(calc100toRESX(-75), applyLimits(0, 0));
+  setChannelOverride(0, 0, false);
+  EXPECT_EQ(ordinary, applyLimits(0, 0));
+  setChannelOverride(MAX_OUTPUT_CHANNELS, 100); // Invalid index is ignored.
+  EXPECT_EQ(ordinary, applyLimits(0, 0));
+  setChannelOverride(0, 75);
+  clearChannelOverrides();
+  EXPECT_EQ(ordinary, applyLimits(0, 0));
+}
 
 #define CHECK_NO_MOVEMENT(channel, value, duration) \
     for (int i=1; i<=(duration); i++) { \

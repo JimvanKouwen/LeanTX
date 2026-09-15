@@ -22,24 +22,22 @@ firmware presets plus the simulator with `./build-targets.sh full`.
 [![Discord](https://img.shields.io/discord/839849772864503828.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/wF9wUKnZ6H)
 [![Support us on OpenCollective](https://img.shields.io/opencollective/all/edgetx)](https://opencollective.com/edgetx)
 
-
 <p align="center">
 <a href="https://raw.githubusercontent.com/EdgeTX/edgetx.github.io/master/docs/assets/logo.png"><img src="https://raw.githubusercontent.com/EdgeTX/edgetx.github.io/master/docs/assets/logo.png" align="center" height="150" width="150" ></a>
 
 # Welcome to EdgeTX!
 **The cutting edge open-source firmware for your R/C radio!**
 
-
 ### About EdgeTX
 EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and cutting-edge features are developed and field-tested by the enthusiasts of our hobby. EdgeTX is a community project – ideas from the community, developed by the community, and enjoyed by the community! The community will always have a say in what EdgeTX is and what EdgeTX will be in the future. Without community feedback and involvement EdgeTX cannot exist.
 
 ### Community
-- [Discord](https://discord.gg/wF9wUKnZ6H)   
+- [Discord](https://discord.gg/wF9wUKnZ6H)
 
 - [Facebook](https://www.facebook.com/groups/edgetx)
 
 - [Github Discussions](https://github.com/EdgeTX/edgetx/discussions)
-  
+
 ### Navigation Links
 
 - [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
@@ -51,8 +49,8 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 - [Reporting Issues / Requesting features](https://github.com/EdgeTX/edgetx/issues/new/choose)
 
 - [Lua Documentation Site](https://luadoc.edgetx.org/)
-  
-- Buddy: [Info](https://github.com/EdgeTX/buddy) - [Downloads](https://github.com/EdgeTX/buddy/releases) 
+
+- Buddy: [Info](https://github.com/EdgeTX/buddy) - [Downloads](https://github.com/EdgeTX/buddy/releases)
 
 - SD Card: [Info](https://github.com/EdgeTX/edgetx-sdcard) - [Downloads](https://github.com/EdgeTX/edgetx-sdcard/releases)
 
@@ -60,19 +58,119 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 
 - [Developer Documentation](https://edgetx.org/edgetx/latest/) - [Docker Build Environment](https://github.com/EdgeTX/build-edgetx)
 
-
 ## Acknowledgements
 Some icon assets provided by [ICONS8](https://icons8.com).</br>
 Lua Documentation site powered with the kind support of [GitBook](https://www.gitbook.com).
 
 Traditional trim values are removed: physical trim buttons never offset stick
 inputs. Each direction remains a momentary switch (`T1-`, `T1+`, and so on),
-independent of stick mapping and flight mode, and can be selected wherever a
+independent of stick mapping, and can be selected wherever a
 switch condition is accepted. GPIO scanning, button diagnostics, simulator
 buttons, and bootloader button combinations remain supported. No new button
 actions are assigned by default.
 
 Old trim values, inheritance, and trim-specific actions are ignored when loading
-models. Their packed storage positions and numeric source/action IDs are reserved
+models. Remaining packed trim positions and numeric source/action IDs are reserved
 to avoid shifting unrelated settings; reserved fields are not written to YAML.
 Ordinary output offsets and audio-recording trim tools are unaffected.
+
+Transmitter flight modes are removed. Inputs and Mixes retain their ordinary
+switch conditions, but have no mode masks, fades, or mode-specific settings.
+Betaflight modes still work through AUX channels; received CRSF mode telemetry
+and assignable flight-controller mode sound prompts remain supported.
+
+Global Variables (GVars) are removed, including their storage, editors, special
+functions, Lua APIs, and simulator exports. Input and mixer weights/offsets,
+output limits/offsets, and curve parameters now hold literal numbers only.
+Source selection for Inputs and Mixes remains supported; numeric settings no
+longer encode references to sources or variables.
+
+These changes break compatibility with old packed model backups and models
+using flight modes or GVars. Old mode/variable data is ignored and variable
+references are not migrated. Recreate and check affected model settings.
+Lua mode and global-variable APIs are no longer available.
+
+Transmitter Logical Switches are removed: no L01–L64 conditions/sources, logical
+expressions, sticky/edge/timer evaluation, delay/duration state, monitors, audio
+prompts, log columns, or Logical Switch Lua APIs remain. Physical switch positions
+and their inversion, trim buttons, multiposition controls, function-switch hardware,
+and telemetry availability conditions remain supported. Inputs, Mixes, and timers
+retain their ordinary switch conditions.
+
+This changes packed model layout and source/switch IDs after the removed ranges.
+Physical switch position IDs are unchanged. Old logical-switch definitions are
+ignored; their references are not migrated. Recreate and verify affected conditions
+before using old models (an unknown condition may become an unconditioned field).
+No replacement event/condition system has been introduced.
+
+## Special and Global Functions removed
+
+LeanTX no longer stores or evaluates EdgeTX Custom Functions (model Special
+Functions or radio Global Functions). Their editors, menu pages, enable flags,
+Lua configuration APIs, action constants, scheduling state, and YAML handlers
+are removed. No replacement event or binding system is provided.
+
+Old YAML `customFn`, `noGlobalFunctions`, `radioGFDisabled`, and
+`modelSFDisabled` entries are ignored and are not written back. Packed model
+and radio-settings layouts have changed; old binary backups are incompatible.
+Old action configurations are discarded, including channel-override assignments.
+
+### Preserved capabilities
+
+- Normal radio volume and brightness settings and their source controls run
+  directly in the UI loop. Backlight timeout, activity, and alarm flashing remain.
+- Audio playback, haptic output, screenshots, timer set/reset, flight and
+  telemetry reset, module binding, Lua execution, hardware switches, key locking,
+  touch hardware, microphone recording, and logging implementations remain.
+- `playValue()` is declared in `audio.h` and implemented in `audio_value.cpp`.
+- `AudioQueue::setBackgroundPaused()` controls background playback directly;
+  queued background files play without a function-active bit. Flushing audio
+  clears the pause state.
+- `setChannelOverride(channel, percent, enabled)` retains direct transient
+  output override behavior. It bypasses ordinary output limits. Passing `false`
+  disables that channel's override; `clearChannelOverrides()` clears all of them.
+  Loading a model clears overrides. There are no switch assignments or stored
+  override configurations.
+- `varioWakeup()` remains callable with telemetry/FAI guards. Automatic vario
+  wakeups are removed so deleting functions does not silently enable vario audio.
+- Logging remains callable; a nonzero `logDelay100ms` enables the existing logger.
+  Its default is zero. There is currently no user-facing logging trigger.
+
+Trainer support was already removed earlier in LeanTX; this change does not
+restore it.
+
+### Actions without their former entry points
+
+There is no longer switch-triggered/repeating sound, haptic, spoken-value,
+background-music/pause, screenshot, timer/reset, bind, backlight/volume override,
+channel-override, screen-selection, key/touch-disable, amplifier-mute, video-input,
+or customizable-switch-push action. Existing direct system/UI/Lua routes remain
+where provided. In particular, standalone/tools, telemetry, mixer scripts and
+widgets remain; function-scheduled scripts and RGB script scheduling are gone.
+Logging, automatic vario activation and function script scheduling need future
+user-facing entry points. The old Racing Mode action had no evaluator dispatch.
+
+### Audit and future work
+
+Production code contains no Custom Function configuration or evaluation symbols.
+The removed names remain only in regression tests and this compatibility note.
+`FUNCTION_SWITCHES`, `FUNCTION_SWITCHES_RGB_LEDS`, their fields and switch/LED
+APIs refer to physical customizable switches and remain. `PLAY_FUNCTION` and
+`I18N_PLAY_FUNCTION` declare reusable speech functions. Sensor-register `FUNC_*`
+and vendor function symbols are unrelated. `AU_SPECIAL_SOUND_*` identifies
+reusable audio/haptic patterns and remains.
+
+Possible later simplifications, deliberately deferred: consolidate the remaining
+switch-selection contexts; design explicit logging/vario controls; expose the
+preserved actions through Values/Events; review startup-audio timing and unused
+view-option padding; simplify now-sparser menus. Inputs, Mixes, and Outputs keep
+their existing engine and ordinary switch conditions.
+
+### Validation
+
+Pocket firmware and the native simulator build successfully. Additional
+X9D+ 2019 and TX16S MK3 firmware builds cover the wider monochrome and color
+interfaces. The simulator runs 54 selected model/storage/Lua/switch/timer/haptic
+regression tests and all 28 mixer tests successfully (the override test is in both
+runs). All 22 YAML layouts were regenerated. Hardware flight testing remains
+outside these build and simulator checks.

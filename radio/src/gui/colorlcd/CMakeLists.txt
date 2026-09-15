@@ -70,7 +70,6 @@ set(GUI_SRC
   model/model_templates.cpp
   model/output_edit.cpp
   model/preflight_checks.cpp
-  model/special_functions.cpp
   model/timer_setup.cpp
 
   module/module_setup.cpp

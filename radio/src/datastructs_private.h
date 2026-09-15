@@ -133,40 +133,6 @@ PACK(struct LimitData {
 });
 
 /*
- * SpecialFunction structure
- */
-
-PACK(struct CustomFunctionData {
-  int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint16_t func:6 ENUM(Functions) CUST(r_function,w_function); // TODO: 6 bits for Functions?
-  CUST_ATTR(def,r_customFn,w_customFn);
-  PACK(union {
-    NOBACKUP(PACK(struct {
-      char name[LEN_FUNCTION_NAME];
-    }) play);
-
-    PACK(struct {
-      int16_t val;
-      uint8_t mode;
-      uint8_t param;
-      int32_t val2;
-    }) all;
-
-    NOBACKUP(PACK(struct {
-      int32_t val1;
-      int32_t val2;
-    }) clear);
-  }) NAME(fp) SKIP;
-  uint8_t active : 1 SKIP;
-  int8_t repeat:7 SKIP;
-
-  bool isEmpty() const
-  {
-    return swtch == 0;
-  }
-});
-
-/*
  * Curve structure
  */
 
@@ -492,8 +458,7 @@ PACK(struct customSwitch {
     CUST_ARRAY(switchNames, struct_cfsNameConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
     FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
     customSwitch customSwitches[NUM_FUNCTIONS_SWITCHES] FUNC(isAlwaysActive) NO_IDX; \
-    uint8_t cfsGroupOn ARRAY(1, struct_cfsGroupOn, cfsGroupIsActive); \
-    NOBACKUP(uint8_t sfPushState) SKIP;
+    uint8_t cfsGroupOn ARRAY(1, struct_cfsGroupOn, cfsGroupIsActive);
 #else
   #define FUNCTION_SWITCHS_FIELDS
 #endif
@@ -548,7 +513,8 @@ PACK(struct ModelData {
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
   uint8_t   reservedThrTrim:1 SKIP;
-  uint8_t   noGlobalFunctions:1;
+  // Complete this byte so the following signed bitfields match YAML offsets.
+  uint8_t   spareModelFlags:1 SKIP;
   uint8_t   reservedDisplayTrims:2 SKIP;
   uint8_t   ignoreSensorIds:1;
   int8_t    reservedTrimInc:3 SKIP;
@@ -576,7 +542,6 @@ PACK(struct ModelData {
   CurveHeader curves[MAX_CURVES];
   int8_t    points[MAX_CURVE_POINTS];
 
-  CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
@@ -639,14 +604,12 @@ PACK(struct ModelData {
 #if defined(COLORLCD)
   uint8_t radioThemesDisabled:2 ENUM(ModelOverridableEnable);
 #endif
-  uint8_t radioGFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t spareViewOption:2 SKIP;
   // Model level tabs control (model setting)
   uint8_t reservedModelFeature:2 SKIP;
   uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t reservedVariableFeature:2 SKIP;
   uint8_t reservedConditionFeature:2 SKIP;
-  uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
 
@@ -672,9 +635,6 @@ PACK(struct ModelData {
   void cfsSetStart(uint8_t n, fsStartPositionType v);
   bool cfsState(uint8_t n);
   void cfsSetState(uint8_t n, bool v);
-  bool cfsSFState(uint8_t n);
-  void cfsSetSFState(uint8_t n, bool v);
-  void cfsResetSFState();
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   RGBLedColor& getSwitchOnColor(uint8_t n);
   RGBLedColor& getSwitchOffColor(uint8_t n);
@@ -833,7 +793,6 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioPitch CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRange CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRepeat);
-  CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
@@ -875,7 +834,6 @@ PACK(struct RadioData {
 
   NOBACKUP(int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
-  NOBACKUP(int16_t radioGFDisabled:1);
   NOBACKUP(int16_t spareRadioViewOption:1 SKIP);
   NOBACKUP(int16_t reservedModelFeature:1 SKIP);
   NOBACKUP(int16_t modelCurvesDisabled:1);
@@ -884,7 +842,6 @@ PACK(struct RadioData {
   NOBACKUP(int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 
   NOBACKUP(int16_t reservedConditionFeature:1 SKIP);
-  NOBACKUP(int16_t modelSFDisabled:1);
   NOBACKUP(int16_t modelCustomScriptsDisabled:1);
   NOBACKUP(int16_t modelTelemetryDisabled:1);
   NOBACKUP(int16_t sparePoweroffAlarm:1 SKIP);

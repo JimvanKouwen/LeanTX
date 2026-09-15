@@ -39,10 +39,6 @@ extern uint16_t sessionTimer;
 extern uint16_t s_timeCumThr;
 extern uint16_t s_timeCum16ThrP;
 
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-#define OVERRIDE_CHANNEL_UNDEFINED -4096
-extern safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
-#endif
 
 extern uint32_t maxMixerDuration;
 

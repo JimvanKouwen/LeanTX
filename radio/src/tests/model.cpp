@@ -242,24 +242,12 @@ TEST(Model, RemovedTrimSettingsAreIgnored)
     EXPECT_EQ(std::string::npos, yaml.find(field)) << field;
 }
 
-TEST(Model, RemovedTrimActionsLoadDisabled)
-{
-  memset(&g_model, 0, sizeof(g_model));
-  loadModelYamlStr("customFn:\n  0:\n    swtch: ON\n    func: INSTANT_TRIM\n"
-                   "    def: 0,1\n  1:\n    swtch: ON\n    func: RESET\n"
-                   "    def: Trims,1\n");
-  EXPECT_EQ(FUNC_RESERVED_TRIM, g_model.customFn[0].func);
-  EXPECT_EQ(FUNC_RESERVED_TRIM, g_model.customFn[1].func);
-  EXPECT_FALSE(isAssignableFunctionAvailable(FUNC_RESERVED_TRIM, true));
-  EXPECT_FALSE(isSourceAvailableInResetSpecialFunction(FUNC_RESET_RESERVED_TRIMS));
-}
-
 TEST(Model, PhysicalTrimSwitchesRoundTrip)
 {
   memset(&g_model, 0, sizeof(g_model));
   for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
-    g_model.customFn[i].swtch = SWSRC_FIRST_TRIM + i;
-    g_model.customFn[i].func = FUNC_PLAY_SOUND;
+    g_model.mixData[i].swtch = SWSRC_FIRST_TRIM + i;
+    g_model.mixData[i].srcRaw = MIXSRC_MAX;
   }
   std::string yaml;
   YamlTreeWalker tree;
@@ -271,8 +259,43 @@ TEST(Model, PhysicalTrimSwitchesRoundTrip)
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
   for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
-    EXPECT_EQ(SWSRC_FIRST_TRIM + i, g_model.customFn[i].swtch);
-    EXPECT_EQ(FUNC_PLAY_SOUND, g_model.customFn[i].func);
+    EXPECT_EQ(SWSRC_FIRST_TRIM + i, g_model.mixData[i].swtch);
+    EXPECT_EQ(MIXSRC_MAX, g_model.mixData[i].srcRaw);
+  }
+}
+
+TEST(Model, RemovedActionSettingsAreIgnored)
+{
+  MODEL_RESET();
+  RADIO_RESET();
+  const char* obsolete =
+      "customFn:\n  0:\n    swtch: ON\n    func: OVERRIDE_CHANNEL\n"
+      "    def: 0,100,1\nnoGlobalFunctions: 1\n"
+      "radioGFDisabled: 1\nmodelSFDisabled: 1\n";
+  for (bool radio : {false, true}) {
+    YamlTreeWalker tree;
+    auto nodes = radio ? get_radiodata_nodes() : get_modeldata_nodes();
+    auto data = radio ? (uint8_t*)&g_eeGeneral : (uint8_t*)&g_model;
+    tree.reset(nodes, data);
+    YamlParser parser;
+    parser.init(YamlTreeWalker::get_parser_calls(), &tree);
+    std::string input = obsolete;
+    input += radio ? "speakerVolume: 3\n" : "header:\n  name: NoActions\n";
+    parser.parse(input.c_str(), input.size());
+    if (radio)
+      EXPECT_EQ(3 - VOLUME_LEVEL_DEF, g_eeGeneral.speakerVolume);
+    else
+      EXPECT_STREQ("NoActions", modelName());
+
+    std::string output;
+    tree.reset(nodes, data);
+    ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
+      static_cast<std::string*>(opaque)->append(str, len);
+      return true;
+    }, &output));
+    for (const char* field : {"customFn:", "noGlobalFunctions:",
+                              "radioGFDisabled:", "modelSFDisabled:"})
+      EXPECT_EQ(std::string::npos, output.find(field)) << field;
   }
 }
 
@@ -346,8 +369,6 @@ TEST(Model, PhysicalSwitchConditionsRoundTripWithoutLogicalSwitchStorage)
   g_model.expoData[0].swtch = position;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
   g_model.mixData[0].swtch = -position;
-  g_model.customFn[0].func = FUNC_PLAY_SOUND;
-  g_model.customFn[0].swtch = position;
   g_model.timers[0].swtch = -position;
   std::string yaml;
   YamlTreeWalker tree;
@@ -362,6 +383,5 @@ TEST(Model, PhysicalSwitchConditionsRoundTripWithoutLogicalSwitchStorage)
   EXPECT_EQ(position, g_model.expoData[0].swtch);
   EXPECT_EQ(-position, g_model.mixData[0].swtch);
   EXPECT_EQ(MIXSRC_FIRST_SWITCH + sw, g_model.mixData[0].srcRaw);
-  EXPECT_EQ(position, g_model.customFn[0].swtch);
   EXPECT_EQ(-position, g_model.timers[0].swtch);
 }

@@ -196,15 +196,6 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     return;
   }
 
-  // no touch input if special function is used
-  if (isFunctionActive(FUNCTION_DISABLE_TOUCH)) {
-    lv_indev_reset(touchDevice, nullptr);
-    if (st.event != TE_NONE) {
-      POPUP_BUBBLE(STR_TOUCH_DISABLED, 1500, DEFAULT_BUBBLE_WIDTH, DEFAULT_BUBBLE_Y-BUBBLE_HEIGHT);
-    }
-    return;
-  }
-  
   if(st.event == TE_NONE) {
     TRACE("TE_NONE");
   } else {
@@ -306,7 +297,7 @@ static void init_lvgl_drivers()
 {
   // Register the driver and save the created display object
   lcdInitDisplayDriver();
- 
+
   // Register the driver in LVGL and save the created input device object
   lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
   touchDriver.type = LV_INDEV_TYPE_POINTER; /*See below.*/

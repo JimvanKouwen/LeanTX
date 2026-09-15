@@ -45,8 +45,7 @@ typedef bool (*IsValueAvailable)(int);
 
 enum SwitchContext
 {
-  ModelCustomFunctionsContext,
-  GeneralCustomFunctionsContext,
+  AllSwitchesContext,
   MixesContext
 };
 
@@ -58,22 +57,17 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes);
 bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
 bool isInputAvailable(int input);
 bool isThrottleSourceAvailable(int source);
-bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailableForBacklightOrVolume(int source);
 bool isSourceAvailable(int source);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);
-bool isSourceAvailableInResetSpecialFunction(int index);
-bool isSourceAvailableInGlobalResetSpecialFunction(int index);
 bool isSwitchAvailable(int swtch, SwitchContext context);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
-bool isSwitchAvailableInCustomFunctions(int swtch);
 bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableInMixes(int swtch);
 bool isExternalModuleAvailable(int moduleType);
 bool isInternalModuleAvailable(int moduleType);
 bool isInternalModuleSupported(int moduleType);
-bool isAssignableFunctionAvailable(int function, bool modelFunctions);
 bool isPotTypeAvailable(uint8_t type);
 bool isFlexSwitchSourceValid(int source);
 bool getPotInversion(int index);

@@ -23,13 +23,6 @@ default:
 gen-fonts:
     radio/src/fonts/lvgl/make_fonts.sh
 
-# Needs: a C++ compiler, plus the 19 system locales listed at the top of
-# tools/cfn_sorter.sh (apt install locales && locale-gen ...).
-[doc('Regenerate the custom-function sort order (radio/src/cfn_sort.cpp)')]
-[group('codegen')]
-cfn-sort:
-    tools/cfn_sorter.sh
-
 # FLAVOR is a semicolon-separated target list; empty uses the script's default.
 # Recreates ./build from scratch, and needs the libclang version from the
 # edgetx-dev container.
@@ -45,9 +38,9 @@ gen-yaml FLAVOR='':
 gen-radios:
     node web/scripts/gen-radios-json.js
 
-[doc('Regenerate the YAML parsers, LVGL fonts, cfn sort order and radio list')]
+[doc('Regenerate the YAML parsers, LVGL fonts and radio list')]
 [group('codegen')]
-codegen: gen-fonts cfn-sort gen-yaml gen-radios
+codegen: gen-fonts gen-yaml gen-radios
 
 # Needs: python3 only.
 [doc('Check every referenced RADIO_* macro can be defined')]
@@ -71,11 +64,6 @@ check: check-radio-macros check-hw-defs
 docker-gen-fonts:
     {{ _docker }} radio/src/fonts/lvgl/make_fonts.sh
 
-[doc('Regenerate the custom-function sort order in the dev container')]
-[group('codegen (docker)')]
-docker-cfn-sort:
-    {{ _docker }} tools/cfn_sorter.sh
-
 # Uses its own FetchContent cache: the default one is inside the repo, so it
 # would be shared with host builds and their CMake state is not portable here.
 [doc('Regenerate the YAML parsers in the dev container')]
@@ -92,7 +80,7 @@ docker-gen-radios:
 
 [doc('Regenerate everything in the dev container')]
 [group('codegen (docker)')]
-docker-codegen: docker-gen-fonts docker-cfn-sort docker-gen-yaml docker-gen-radios
+docker-codegen: docker-gen-fonts docker-gen-yaml docker-gen-radios
 
 [doc('Run the checks in the dev container')]
 [group('checks (docker)')]

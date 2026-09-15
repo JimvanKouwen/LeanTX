@@ -26,6 +26,7 @@
 #include "hal/audio_driver.h"
 
 #include "edgetx.h"
+#include "tasks/mixer_task.h"
 #include "lua/lua_states.h"
 
 #if defined(COLORLCD)
@@ -605,10 +606,17 @@ void perMain()
   event_t evt = getEvent();
 #endif
 
-  if (radioGFEnabled())
-    evalUIFunctions(g_eeGeneral.customFn, globalFunctionsContext);
-  if (modelSFEnabled())
-    evalUIFunctions(g_model.customFn, modelFunctionsContext);
+  // Apply the radio's controls independently of optional model features.
+  if (g_eeGeneral.backlightSrc && mixerTaskRunning())
+    calcBacklightValue(g_eeGeneral.backlightSrc);
+  else
+    requiredBacklightBright = g_eeGeneral.getBrightness();
+#if defined(AUDIO)
+  if (g_eeGeneral.volumeSrc && mixerTaskRunning())
+    calcVolumeValue(g_eeGeneral.volumeSrc);
+  else
+    requiredSpeakerVolume = limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
+#endif
 
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);

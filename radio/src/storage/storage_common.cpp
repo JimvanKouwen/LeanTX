@@ -185,14 +185,6 @@ void postModelLoad(bool alarms)
   setFSStartupPosition();
 #endif
 
-  // Convert 'noGlobalFunctions' to 'radioGFDisabled'
-  // TODO: Remove sometime in the future (and remove 'noGlobalFunctions' property)
-  if (g_model.noGlobalFunctions) {
-    g_model.radioGFDisabled = OVERRIDE_OFF;
-    g_model.noGlobalFunctions = 0;
-    storageDirty(EE_MODEL);
-  }
-
 #if defined(STM32F4) && defined(CROSSFIRE)
   // Limit ext. CRSF speed to 3.75Mbps due to CRC errors at higher speeds
   if(isModuleCrossfire(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate == 4) {
@@ -203,9 +195,9 @@ void postModelLoad(bool alarms)
 #endif
 
   AUDIO_FLUSH();
+  clearChannelOverrides();
   flightReset(false);
 
-  customFunctionsReset();
 
   restoreTimers();
 

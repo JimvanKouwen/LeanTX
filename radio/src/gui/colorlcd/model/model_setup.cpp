@@ -80,14 +80,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
                 g_eeGeneral.radioThemesDisabled);
     }
   },
-  {
-    STR_DEF(STR_MENUSPECIALFUNCS),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_DEFAULT(g_model.radioGFDisabled),
-                g_eeGeneral.radioGFDisabled);
-    }
-  },
 
   {
     STR_DEF(STR_MODEL_MENU_TABS), nullptr,
@@ -98,15 +90,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelCurvesDisabled),
                 g_eeGeneral.modelCurvesDisabled);
-    }
-  },
-
-  {
-    STR_DEF(STR_MENUCUSTOMFUNC),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_DEFAULT(g_model.modelSFDisabled),
-                g_eeGeneral.modelSFDisabled);
     }
   },
 #if defined(LUA_MODEL_SCRIPTS)

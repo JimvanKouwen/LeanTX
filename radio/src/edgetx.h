@@ -126,32 +126,6 @@ void memswap(void * a, void * b, uint8_t size);
 #include "pulses/pulses.h"
 #include "pulses/modules_helpers.h"
 
-#define MASK_CFN_TYPE  uint64_t  // current max = 64 customizable switches
-#define MASK_FUNC_TYPE uint32_t  // current max = 32 functions
-
-struct CustomFunctionsContext {
-  MASK_FUNC_TYPE activeFunctions;
-  MASK_FUNC_TYPE activeUIFunctions;
-  MASK_CFN_TYPE  activeSwitches;
-  MASK_CFN_TYPE  activeUISwitches;
-  tmr10ms_t lastFunctionTime[MAX_SPECIAL_FUNCTIONS];
-
-  inline bool isFunctionActive(uint8_t func)
-  {
-    return (activeFunctions | activeUIFunctions) & ((MASK_FUNC_TYPE)1 << func);
-  }
-
-  inline bool isFunctionSwitchActive(uint8_t functionIdx)
-  {
-    return (activeSwitches | activeUISwitches) & ((MASK_CFN_TYPE)1 << functionIdx);
-  }
-
-  void reset()
-  {
-    memclear(this, sizeof(*this));
-  }
-};
-
 #include "strhelpers.h"
 #if defined(COLORLCD)
 #include "gui_common.h"
@@ -335,6 +309,9 @@ extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax,
 
 void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx=0, int16_t ovwrValue=0);
 int16_t applyLimits(uint8_t channel, int32_t value);
+// Percent overrides bypass ordinary output limits, just as a direct output action.
+void setChannelOverride(uint8_t channel, int16_t percent, bool enabled = true);
+void clearChannelOverrides();
 
 void evalInputs(uint8_t mode);
 uint16_t anaIn(uint8_t chan);
@@ -359,41 +336,10 @@ inline bool isMixActive(uint8_t mix)
   return mixState[mix].activeMix;
 }
 
-enum FunctionsActive {
-  FUNCTION_VARIO,
-  FUNCTION_LOGS,
-  FUNCTION_BACKGND_MUSIC,
-  FUNCTION_BACKGND_MUSIC_PAUSE,
-  FUNCTION_BACKLIGHT,
-  FUNCTION_RACING_MODE,
-  FUNCTION_DISABLE_TOUCH,
-  FUNCTION_DISABLE_AUDIO_AMP,
-  FUNCTION_VOLUME,
-  FUNCTION_DISABLE_KEYS,
-};
-
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
 #define VARIO_FREQUENCY_RANGE  1000/*Hz*/
 #define VARIO_REPEAT_ZERO      500/*ms*/
 #define VARIO_REPEAT_MAX       80/*ms*/
-
-extern CustomFunctionsContext modelFunctionsContext;
-extern CustomFunctionsContext globalFunctionsContext;
-inline bool isFunctionActive(uint8_t func)
-{
-  return globalFunctionsContext.isFunctionActive(func) || modelFunctionsContext.isFunctionActive(func);
-}
-void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
-void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
-inline void customFunctionsReset()
-{
-  globalFunctionsContext.reset();
-  modelFunctionsContext.reset();
-}
-
-const char* funcGetLabel(uint8_t func);
-uint8_t getFuncSortIdx(uint8_t func);
-extern Functions cfn_sorted[];
 
 #include "telemetry/telemetry.h"
 #include "crc.h"
@@ -665,7 +611,6 @@ void varioWakeup();
 
 enum ClipboardType {
   CLIPBOARD_TYPE_NONE,
-    CLIPBOARD_TYPE_CUSTOM_FUNCTION,
   CLIPBOARD_TYPE_SD_FILE,
 };
 
@@ -678,7 +623,6 @@ enum ClipboardType {
 struct Clipboard {
   ClipboardType type;
   union {
-    CustomFunctionData cfn;
     struct {
       char directory[CLIPBOARD_PATH_LEN];
       char filename[CLIPBOARD_PATH_LEN];
@@ -708,9 +652,7 @@ extern uint8_t latencyToggleSwitch;
 #if defined(COLORLCD)
 extern bool radioThemesEnabled();
 #endif
-extern bool radioGFEnabled();
 extern bool modelCurvesEnabled();
-extern bool modelSFEnabled();
 extern bool modelCustomScriptsEnabled();
 extern bool modelTelemetryEnabled();
 

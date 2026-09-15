@@ -21,7 +21,6 @@
 
 #pragma once
 
-#if !defined(CFN_ONLY)
 
 #include "board.h"
 #include "storage/yaml/yaml_defs.h"
@@ -44,7 +43,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  9
   #define MAX_INPUTS                   32
 #if defined(STM32H7)
@@ -58,7 +56,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
   #define MAX_TELEMETRY_SENSORS        60
@@ -67,7 +64,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
   #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
   #define MAX_TELEMETRY_SENSORS        40
@@ -94,7 +90,6 @@ enum CurveType {
   #define LEN_CHANNEL_NAME             6
   #define LEN_INPUT_NAME               4
   #define LEN_CURVE_NAME               3
-  #define LEN_FUNCTION_NAME            8
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
 #elif LCD_W == 212
@@ -105,7 +100,6 @@ enum CurveType {
   #define LEN_CHANNEL_NAME             6
   #define LEN_INPUT_NAME               4
   #define LEN_CURVE_NAME               3
-  #define LEN_FUNCTION_NAME            8
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
 #else
@@ -116,7 +110,6 @@ enum CurveType {
   #define LEN_CHANNEL_NAME             4
   #define LEN_INPUT_NAME               3
   #define LEN_CURVE_NAME               3
-  #define LEN_FUNCTION_NAME            8
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
 #endif
@@ -541,19 +534,6 @@ enum CountDownModes {
   COUNTDOWN_COUNT SKIP
 };
 
-enum ResetFunctionParam {
-  FUNC_RESET_TIMER1,
-  FUNC_RESET_TIMER2,
-  FUNC_RESET_TIMER3,
-  FUNC_RESET_FLIGHT,
-  FUNC_RESET_TELEMETRY,
-  FUNC_RESET_RESERVED_TRIMS SKIP,
-  FUNC_RESET_PARAM_FIRST_TELEM,
-  FUNC_RESET_PARAM_LAST_TELEM = FUNC_RESET_PARAM_FIRST_TELEM + MAX_TELEMETRY_SENSORS,
-  FUNC_RESET_PARAMS_COUNT SKIP,
-  FUNC_RESET_PARAM_LAST SKIP = FUNC_RESET_PARAMS_COUNT-1,
-};
-
 enum BluetoothModes {
   BLUETOOTH_OFF,
   BLUETOOTH_TELEMETRY,
@@ -590,48 +570,6 @@ enum PPMUnit {
     PPM_PERCENT_PREC0,
     PPM_PERCENT_PREC1,
     PPM_US
-};
-
-#endif
-
-enum Functions {
-  FUNC_OVERRIDE_CHANNEL,
-  FUNC_RESERVED_TRIM SKIP,
-  FUNC_RESET,
-  FUNC_SET_TIMER,
-  FUNC_VOLUME,
-  FUNC_BIND,
-  FUNC_PLAY_SOUND,
-  FUNC_PLAY_TRACK,
-  FUNC_PLAY_VALUE,
-  FUNC_PLAY_SCRIPT,
-  FUNC_BACKGND_MUSIC,
-  FUNC_BACKGND_MUSIC_PAUSE,
-  FUNC_VARIO,
-  FUNC_HAPTIC,
-  FUNC_LOGS,
-  FUNC_BACKLIGHT,
-  FUNC_SCREENSHOT,
-  FUNC_RACING_MODE,
-#if defined(COLORLCD) || defined(CFN_ONLY)
-  FUNC_DISABLE_TOUCH,
-#endif
-  FUNC_SET_SCREEN,
-  FUNC_DISABLE_AUDIO_AMP,
-  FUNC_RGB_LED,
-#if defined(VIDEO_SWITCH) || defined(CFN_ONLY)
-  FUNC_LCD_TO_VIDEO,
-#endif
-#if defined(FUNCTION_SWITCHES) || defined(CFN_ONLY)
-  FUNC_PUSH_CUST_SWITCH,
-#endif
-  FUNC_DISABLE_KEYS,
-  FUNC_TEST, // MUST remain last
-#if defined(DEBUG)
-  FUNC_MAX SKIP
-#else
-  FUNC_MAX SKIP = FUNC_TEST
-#endif
 };
 
 constexpr int32_t MIX_WEIGHT_MAX = 500;

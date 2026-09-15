@@ -127,19 +127,6 @@ void ModelData::cfsSetState(uint8_t n, bool v) {
   storageDirty(EE_MODEL);
 }
 
-bool ModelData::cfsSFState(uint8_t n) {
-  return bfGet<uint8_t>(sfPushState, switchGetCustomSwitchIdx(n), 1);
-}
-
-void ModelData::cfsSetSFState(uint8_t n, bool v) {
-  // Note: n = cfs index, not switch index
-  sfPushState = bfSet<uint8_t>(sfPushState, v, n, 1);
-}
-
-void ModelData::cfsResetSFState() {
-  sfPushState = 0;
-}
-
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 RGBLedColor& ModelData::getSwitchOnColor(uint8_t n) {
   if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)

@@ -470,7 +470,7 @@ int getSwitchIndex(const char* name, bool all)
   }
 
   for (swsrc_t idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+    if (all || isSwitchAvailable(idx, AllSwitchesContext)) {
       char* s;
       if (switchCanHaveCustomName(idx)) {
         // Check default name

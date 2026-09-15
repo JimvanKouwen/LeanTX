@@ -254,13 +254,6 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
       },
       txtColIdx, FONT(XS) | RIGHT, "", suffix);
 
-  // Override icon
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-  overrideIcon = new StaticIcon(
-      this, 0, PAD_SMALL, ICON_CHAN_MONITOR_LOCKED, txtColIdx);
-  overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
-#endif
-
   // Channel reverted icon
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
@@ -268,12 +261,3 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
                    txtColIdx);
   }
 }
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-void ComboChannelBar::checkEvents()
-{
-  Window::checkEvents();
-
-  overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
-}
-#endif

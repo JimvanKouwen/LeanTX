@@ -1117,108 +1117,6 @@ static int luaModelSetCurve(lua_State *L)
 }
 
 /*luadoc
-@function model.getCustomFunction(function)
-
-Get Custom Function parameters
-
-@param function (unsigned number) custom function number (use 0 for CF1)
-
-@retval nil requested custom function does not exist
-
-@retval table custom function data:
- * `switch` (number) switch index
- * `func` (number) function index
- * `name` (string)  Name of track to play (only returned only returned if action is play track, sound or script)
- * `value` (number) value (only returned only returned if action is **not** play track, sound or script)
- * `mode` (number) mode (only returned only returned if action is **not** play track, sound or script)
- * `param` (number) parameter (only returned only returned if action is **not** play track, sound or script)
- * `active` (number) 0 = disabled, 1 = enabled
- * `repetition` (number) -1 to 60, range and meaning depend on function
-
-@status current Introduced in 2.0.0, TODO rename function
-*/
-static int luaModelGetCustomFunction(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_SPECIAL_FUNCTIONS) {
-    CustomFunctionData * cfn = &g_model.customFn[idx];
-    lua_newtable(L);
-    lua_pushtableinteger(L, "switch", CFN_SWITCH(cfn));
-    lua_pushtableinteger(L, "func", CFN_FUNC(cfn));
-    if (CFN_FUNC(cfn) == FUNC_PLAY_TRACK || CFN_FUNC(cfn) == FUNC_BACKGND_MUSIC || CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED) {
-      lua_pushtablenstring(L, "name", cfn->play.name);
-    }
-    else {
-      lua_pushtableinteger(L, "value", cfn->all.val);
-      lua_pushtableinteger(L, "mode", cfn->all.mode);
-      lua_pushtableinteger(L, "param", cfn->all.param);
-    }
-    lua_pushtableinteger(L, "active", CFN_ACTIVE(cfn));
-    lua_pushtableinteger(L, "repetition", cfn->repeat);
-  }
-  else {
-    lua_pushnil(L);
-  }
-  return 1;
-}
-
-/*luadoc
-@function model.setCustomFunction(function, value)
-
-Set Custom Function parameters
-
-@param function (unsigned number) custom function number (use 0 for CF1)
-
-@param value (table) custom function parameters, see model.getCustomFunction() for table format
-
-@notice If a parameter is missing from the value, then
-that parameter remains unchanged.
-
-@status current Introduced in 2.0.0, TODO rename function
-*/
-static int luaModelSetCustomFunction(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_SPECIAL_FUNCTIONS) {
-    CustomFunctionData * cfn = &g_model.customFn[idx];
-    memclear(cfn, sizeof(CustomFunctionData));
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      luaL_checktype(L, -2, LUA_TSTRING); // key is string
-      const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "switch")) {
-        CFN_SWITCH(cfn) = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "func")) {
-        CFN_FUNC(cfn) = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "name")) {
-        const char * name = luaL_checkstring(L, -1);
-        strncpy(cfn->play.name, name, sizeof(cfn->play.name));
-      }
-      else if (!strcmp(key, "value")) {
-        cfn->all.val = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "mode")) {
-        cfn->all.mode = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "param")) {
-        cfn->all.param = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "active")) {
-        CFN_ACTIVE(cfn) = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "repetition")) {
-        cfn->repeat = luaL_checkinteger(L, -1);
-      }
-    }
-    storageDirty(EE_MODEL);
-  }
-
-  return 0;
-}
-
-/*luadoc
 @function model.getOutput(index)
 
 Get servo parameters
@@ -1407,8 +1305,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
   LROT_FUNCENTRY( getSwitchWarning, luaModelGetSwitchWarning )
   LROT_FUNCENTRY( setSwitchWarning, luaModelSetSwitchWarning )
-  LROT_FUNCENTRY( getCustomFunction, luaModelGetCustomFunction )
-  LROT_FUNCENTRY( setCustomFunction, luaModelSetCustomFunction )
   LROT_FUNCENTRY( getCurve, luaModelGetCurve )
   LROT_FUNCENTRY( setCurve, luaModelSetCurve )
   LROT_FUNCENTRY( getOutput, luaModelGetOutput )

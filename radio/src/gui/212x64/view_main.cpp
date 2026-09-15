@@ -212,7 +212,7 @@ void displayTopBar()
     x -= 12;
   }
 
-  if (isFunctionActive(FUNCTION_LOGS)) {
+  if (logDelay100ms > 0) {
     LCD_NOTIF_ICON(x, ICON_LOGS);
     x -= 12;
   }

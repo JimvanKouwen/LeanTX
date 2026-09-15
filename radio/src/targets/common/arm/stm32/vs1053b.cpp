@@ -290,10 +290,6 @@ static void vs1053b_mute()
 
 static void vs1053b_unmute()
 {
-  if(isFunctionActive(FUNCTION_DISABLE_AUDIO_AMP)) {
-    _set_mute_pin(true);
-    return;
-  }
 
   if (_instance->unmute_delay_ms) {
     // if muted

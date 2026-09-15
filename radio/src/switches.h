@@ -38,8 +38,7 @@ uint8_t switchGetMaxRow(uint8_t col);
 extern swarnstate_t switches_states;
 swsrc_t getMovedSwitch();
 
-#define GETSWITCH_MIDPOS_DELAY   1
-bool getSwitch(swsrc_t swtch, uint8_t flags=0);
+bool getSwitch(swsrc_t swtch);
 uint8_t getXPotPosition(uint8_t idx);
 
 div_t switchInfo(int switchPosition);

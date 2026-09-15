@@ -24,8 +24,6 @@
 #include "channel_bar.h"
 #include "model_select.h"
 #include "edgetx.h"
-#if VERSION_MAJOR == 2
-#endif
 
 // TODO: find better way to detect only used channels!
 #define ALL_CHANNELS true
@@ -160,8 +158,6 @@ ChannelsViewMenu::ChannelsViewMenu() :
     i = end;
   }
 
-#if VERSION_MAJOR == 2
-#endif
 
   if (pages < 2) hidePageButtons();
 }

@@ -49,6 +49,7 @@
 
 tmr10ms_t switchesMidposStart[MAX_SWITCHES];
 uint64_t  switchesPos = 0;
+#define SWITCH_POSITION(sw) (switchesPos & (uint64_t(1) << (sw)))
 
 static_assert(sizeof(uint64_t) * 8 >= ((MAX_SWITCHES - 1) / 2) + 1,
               "MAX_SWITCHES too big for uint64_t position state");
@@ -56,7 +57,6 @@ static_assert(sizeof(uint64_t) * 8 >= ((MAX_SWITCHES - 1) / 2) + 1,
 tmr10ms_t potsLastposStart[MAX_POTS];
 uint8_t   potsPos[MAX_POTS];
 
-#define SWITCH_POSITION(sw) (switchesPos & ((MASK_CFN_TYPE)1 << (sw)))
 #define POT_POSITION(sw)                            \
   ((potsPos[(sw) / XPOTS_MULTIPOS_COUNT] & 0x0f) == \
    ((sw) % XPOTS_MULTIPOS_COUNT))
@@ -114,10 +114,6 @@ void setFSLogicalState(uint8_t index, uint8_t value)
 
 bool getFSPhysicalState(uint8_t index)
 {
-#if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(index) && g_model.cfsSFState(index))
-    return true;
-#endif
 
   return switchGetPosition(index) != SWITCH_HW_UP;
 }
@@ -326,13 +322,13 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
   switch(pos) {
 
   case SWITCH_HW_UP:
-    result = ((MASK_CFN_TYPE)1 << index);
+    result = ((uint64_t)1 << index);
     switchesMidposStart[idx] = 0;
     break;
 
   case SWITCH_HW_DOWN:
     index += 2;
-    result = ((MASK_CFN_TYPE)1 << index);
+    result = ((uint64_t)1 << index);
     switchesMidposStart[idx] = 0;
     break;
 
@@ -343,10 +339,10 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
          (tmr10ms_t)(get_tmr10ms() - switchesMidposStart[idx]) >
          SWITCHES_DELAY())) {
       index += 1;
-      result = ((MASK_CFN_TYPE)1 << index);
+      result = ((uint64_t)1 << index);
       switchesMidposStart[idx] = 0;
     } else {
-      result = (switchesPos & ((MASK_CFN_TYPE)0x7 << index));
+      result = (switchesPos & ((uint64_t)0x7 << index));
       if (!switchesMidposStart[idx]) {
         switchesMidposStart[idx] = get_tmr10ms();
       }
@@ -434,7 +430,7 @@ uint8_t switchGetMaxRow(uint8_t col)
 }
 #endif
 
-bool getSwitch(swsrc_t swtch, uint8_t flags)
+bool getSwitch(swsrc_t swtch)
 {
   bool result;
 
@@ -467,17 +463,11 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
       div_t qr = div(cs_idx, 3);
       if (SWITCH_EXISTS(qr.quot)) {
         auto sw_cfg = g_model.getSwitchType(qr.quot);
-        if (flags & GETSWITCH_MIDPOS_DELAY) {
-          result = SWITCH_POSITION(cs_idx);
-          // Handle 2POS switch installed in 3POS slot
-          if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
-            result = SWITCH_POSITION(cs_idx - 1);
-        } else {
-          result = switchState(cs_idx);
-          // Handle 2POS switch installed in 3POS slot
-          if (!result && qr.rem == SWITCH_HW_DOWN && (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
-            result = switchState(cs_idx - 1);
-        }
+        result = switchState(cs_idx);
+        // Handle a 2-position switch installed in a 3-position slot.
+        if (!result && qr.rem == SWITCH_HW_DOWN &&
+            (sw_cfg == SWITCH_2POS || sw_cfg == SWITCH_TOGGLE))
+          result = switchState(cs_idx - 1);
       } else {
          result = false;
       }

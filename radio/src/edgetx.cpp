@@ -96,9 +96,6 @@ uint32_t maxMixerDuration; // microseconds
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
 uint8_t heartbeat;
 
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
-#endif
 
 union ReusableBuffer reusableBuffer __DMA;
 
@@ -507,9 +504,7 @@ void checkBacklight()
     } else {
       bool backlightOn = ((g_eeGeneral.backlightMode == e_backlight_mode_on) ||
                           (g_eeGeneral.backlightMode != e_backlight_mode_off &&
-                           lightOffCounter) ||
-                          (g_eeGeneral.backlightMode == e_backlight_mode_off &&
-                           isFunctionActive(FUNCTION_BACKLIGHT)));
+                           lightOffCounter));
 
       if (flashCounter) {
         backlightOn = !backlightOn;
@@ -1588,9 +1583,7 @@ bool radioThemesEnabled() {
   return FEATURE_ENABLED(radioThemesDisabled);
 }
 #endif
-bool radioGFEnabled() {
-  return FEATURE_ENABLED(radioGFDisabled);
-}
+
 
 // Model menu tab state
 
@@ -1598,9 +1591,7 @@ bool modelCurvesEnabled() {
   return FEATURE_ENABLED(modelCurvesDisabled);
 }
 
-bool modelSFEnabled() {
-  return FEATURE_ENABLED(modelSFDisabled);
-}
+
 bool modelCustomScriptsEnabled() {
   return FEATURE_ENABLED(modelCustomScriptsDisabled);
 }

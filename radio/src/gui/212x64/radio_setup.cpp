@@ -59,7 +59,6 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_WAV_VOLUME,
   ITEM_RADIO_SETUP_BACKGROUND_VOLUME,
   ITEM_RADIO_SETUP_VOLUME_SOURCE,
-  ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE,
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_LABEL)
       CASE_VARIO(ITEM_RADIO_SETUP_VARIO_VOLUME)
@@ -83,7 +82,6 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_CONTRAST,
   CASE_HAS_BACKLIGHT_COLOR(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
       ITEM_RADIO_SETUP_BACKLIGHT_SOURCE,
-  ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE,
   ITEM_RADIO_SETUP_FLASH_BEEP,
   CASE_KEY_LOCK(ITEM_RADIO_SETUP_KEY_LOCK) ITEM_RADIO_ONE_LOG_PER_DAY,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
@@ -104,11 +102,9 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_STICK_MODE,
   ITEM_VIEW_OPTIONS_LABEL,
   ITEM_VIEW_OPTIONS_RADIO_TAB,
-  ITEM_VIEW_OPTIONS_GF,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
       ITEM_VIEW_OPTIONS_CURVES,
-  ITEM_VIEW_OPTIONS_SF,
   CASE_LUA_MODEL_SCRIPTS(ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS)
       ITEM_VIEW_OPTIONS_TELEMETRY,
   ITEM_RADIO_SETUP_MAX
@@ -123,8 +119,6 @@ PACK(struct RadioSetupExpandState {
 static struct RadioSetupExpandState expandState;
 
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
-static uint8_t SOUND_WARNING_ROW(uint8_t value) { return expandState.sound && isFunctionActive(FUNCTION_VOLUME) ? value : HIDDEN_ROW; }
-static uint8_t BACKLIGHT_WARNING_ROW(uint8_t value) { return isFunctionActive(FUNCTION_BACKLIGHT) ? value : HIDDEN_ROW; }
 
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
 
@@ -181,7 +175,6 @@ void menuRadioSetup(event_t event)
           SOUND_ROW(0),                 // wav volume
           SOUND_ROW(0),                 // background volume
           SOUND_ROW(0),                 // volume control
-          SOUND_WARNING_ROW(LABEL(0)),  // volume control override warning
           SOUND_ROW(0),                 // startup sound
           // Vario
           CASE_VARIO(LABEL(VARIO)) CASE_VARIO(0) CASE_VARIO(0) CASE_VARIO(0)
@@ -203,8 +196,6 @@ void menuRadioSetup(event_t event)
           0,                           // contrast
           CASE_HAS_BACKLIGHT_COLOR(0)  // backlight color
           0,                           // backlight control
-          BACKLIGHT_WARNING_ROW(
-              LABEL(0)),  // backlight control override warning
           0,              // flash beep
           0,
           CASE_KEY_LOCK(0)          // key lock
@@ -229,11 +220,11 @@ void menuRadioSetup(event_t event)
           // View options
           0,
           VIEWOPT_ROW(LABEL(RadioMenuTabs)),
-          VIEWOPT_ROW(0),
+
           VIEWOPT_ROW(LABEL(ModelMenuTabs)),
 
               VIEWOPT_ROW(0),
-          VIEWOPT_ROW(0),
+
           CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0)) VIEWOPT_ROW(0),
       });
 
@@ -400,9 +391,6 @@ void menuRadioSetup(event_t event)
                 isSourceAvailableForBacklightOrVolume);
         break;
 
-      case ITEM_RADIO_SETUP_VOLUME_SOURCE_OVRRIDE:
-        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, STR_SF_OVERRIDDEN, RIGHT);
-        break;
 
       case ITEM_RADIO_SETUP_START_SOUND:
         g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, RADIO_SETUP_2ND_COLUMN, y, STR_PLAY_HELLO, attr, event, INDENT_WIDTH) ;
@@ -551,9 +539,6 @@ void menuRadioSetup(event_t event)
                 isSourceAvailableForBacklightOrVolume);
         break;
 
-      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE:
-        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, STR_SF_OVERRIDDEN, RIGHT);
-        break;
 
       case ITEM_RADIO_ONE_LOG_PER_DAY: {
         lcdDrawTextAlignedLeft(y, STR_ONE_LOG_PER_DAY);
@@ -748,18 +733,12 @@ void menuRadioSetup(event_t event)
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
         lcdDrawTextIndented(y, STR_RADIO_MENU_TABS);
         break;
-      case ITEM_VIEW_OPTIONS_GF:
-        g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event, g_model.radioGFDisabled);
-        break;
 
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event, g_model.modelCurvesDisabled);
-        break;
-      case ITEM_VIEW_OPTIONS_SF:
-        g_eeGeneral.modelSFDisabled = viewOptCheckBox(y, STR_MENUCUSTOMFUNC, g_eeGeneral.modelSFDisabled, attr, event, g_model.modelSFDisabled);
         break;
 #if defined(LUA_MODEL_SCRIPTS)
       case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:

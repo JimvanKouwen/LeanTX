@@ -291,10 +291,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
       return false;
     }
 
-    if (switchIsCustomSwitch(swinfo.quot) && context == GeneralCustomFunctionsContext) {
-      return false;   // FS are defined at model level, and cannot be in global functions
-    }
-
     if (!IS_CONFIG_3POS(swinfo.quot)) {
       if (swinfo.rem == 1) {
         // mid position not available for 2POS switches
@@ -314,15 +310,12 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     return index < keysGetMaxTrims();
   }
 
-  if (context != ModelCustomFunctionsContext && context != GeneralCustomFunctionsContext && (swtch == SWSRC_ON || swtch == SWSRC_ONE)) {
+  if (context != AllSwitchesContext && (swtch == SWSRC_ON || swtch == SWSRC_ONE)) {
     return false;
   }
 
   if (swtch >= SWSRC_FIRST_SENSOR && swtch <= SWSRC_LAST_SENSOR) {
-    if (context == GeneralCustomFunctionsContext)
-      return false;
-    else
-      return isTelemetryFieldAvailable(swtch - SWSRC_FIRST_SENSOR);
+    return isTelemetryFieldAvailable(swtch - SWSRC_FIRST_SENSOR);
   }
 
   return true;
@@ -484,7 +477,7 @@ bool isSwitchAvailableInMixes(int swtch)
 
 bool isSwitchAvailableForArming(int swtch)
 {
-  return isSwitchAvailable(swtch, ModelCustomFunctionsContext);
+  return isSwitchAvailable(swtch, AllSwitchesContext);
 }
 
 #if defined(COLORLCD)
@@ -505,65 +498,6 @@ bool isThrottleSourceAvailable(int src)
      ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
 }
 
-bool isAssignableFunctionAvailable(int function, bool modelFunctions)
-{
-  switch (function) {
-    case FUNC_RESERVED_TRIM:
-      return false;
-    case FUNC_OVERRIDE_CHANNEL:
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-      return modelFunctions;
-#else
-      return false;
-#endif
-
-#if !defined(HAPTIC)
-    case FUNC_HAPTIC:
-      return false;
-#endif
-#if !defined(DANGEROUS_MODULE_FUNCTIONS)
-    case FUNC_BIND:
-      return false;
-#endif
-#if !defined(LUA)
-    case FUNC_PLAY_SCRIPT:
-      return false;
-#endif
-#if !defined(AUDIO_MUTE_GPIO)
-    case FUNC_DISABLE_AUDIO_AMP:
-      return false;
-#endif
-#if !defined(LED_STRIP_LENGTH)
-    case FUNC_RGB_LED:
-      return false;
-#endif
-#if !defined(DEBUG)
-    case FUNC_TEST:
-      return false;
-#endif
-#if defined(FUNCTION_SWITCHES) || defined(CFN_ONLY)
-    case FUNC_PUSH_CUST_SWITCH:
-      return modelFunctions;
-#endif
-    case FUNC_DISABLE_KEYS:
-#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
-      return g_eeGeneral.keyLockEnabled;
-#else
-      return false;
-#endif
-
-    default:
-      return true;
-  }
-}
-
-#if !defined(COLORLCD)
-bool isAssignableFunctionAvailable(int function)
-{
-  return isAssignableFunctionAvailable(function, menuHandlers[menuLevel] == menuModelSpecialFunctions);
-}
-#endif
-
 int timersSetupCount()
 {
   int tc = 0;
@@ -577,34 +511,6 @@ bool isTimerSourceAvailable(int index)
 {
   TimerData *timer = &g_model.timers[index];
   return timer->mode != 0;
-}
-
-bool isSourceAvailableInGlobalResetSpecialFunction(int index)
-{
-  if (index >= FUNC_RESET_PARAM_FIRST_TELEM)
-    return false;
-  else
-    return isSourceAvailableInResetSpecialFunction(index);
-}
-
-bool isSourceAvailableInResetSpecialFunction(int index)
-{
-  if (index == FUNC_RESET_RESERVED_TRIMS) return false;
-  if (index >= FUNC_RESET_PARAM_FIRST_TELEM) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index-FUNC_RESET_PARAM_FIRST_TELEM];
-    return telemetrySensor.isAvailable();
-  }
-  else if (index <= FUNC_RESET_TIMER3) {
-    if (index > (TIMERS - 1))
-      return false;
-    else {
-      TimerData *timer = &g_model.timers[index];
-      return timer->mode != 0;
-    }
-  }
-  else {
-    return true;
-  }
 }
 
 #if defined(EXTERNAL_ANTENNA)

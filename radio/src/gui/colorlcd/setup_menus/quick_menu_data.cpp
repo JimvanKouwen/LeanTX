@@ -36,7 +36,6 @@
 #include "radio_tools.h"
 #include "radio_version.h"
 #include "screen_setup.h"
-#include "special_functions.h"
 #include "view_channels.h"
 #include "view_main.h"
 #include "view_statistics.h"
@@ -48,7 +47,6 @@ const PageDef modelMenuItems[] = {
   { ICON_MODEL_MIXER, STR_DEF(STR_QM_MIXES), STR_DEF(STR_MIXES), PAGE_CREATE, QM_MODEL_MIXES, [](const PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
   { ICON_MODEL_OUTPUTS, STR_DEF(STR_QM_OUTPUTS), STR_DEF(STR_MENULIMITS), PAGE_CREATE, QM_MODEL_OUTPUTS, [](const PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},
   { ICON_MODEL_CURVES, STR_DEF(STR_QM_CURVES), STR_DEF(STR_MENUCURVES), PAGE_CREATE, QM_MODEL_CURVES, [](const PageDef& pageDef) { return new ModelCurvesPage(pageDef); }, modelCurvesEnabled},
-  { ICON_MODEL_SPECIAL_FUNCTIONS, STR_DEF(STR_QM_SPEC_FUNC), STR_DEF(STR_MENUCUSTOMFUNC), PAGE_CREATE, QM_MODEL_SF, [](const PageDef& pageDef) { return new SpecialFunctionsPage(pageDef); }, modelSFEnabled},
 #if defined(LUA_MODEL_SCRIPTS)
   { ICON_MODEL_LUA_SCRIPTS, STR_DEF(STR_QM_CUSTOM_LUA), STR_DEF(STR_MENUCUSTOMSCRIPTS), PAGE_CREATE, QM_MODEL_SCRIPTS, [](const PageDef& pageDef) { return new ModelMixerScriptsPage(pageDef); }, modelCustomScriptsEnabled},
 #endif
@@ -66,7 +64,6 @@ const PageDef radioMenuItems[] = {
 #if VERSION_MAJOR == 2
   { ICON_RADIO_EDIT_THEME, STR_DEF(STR_QM_THEMES), STR_DEF(STR_MAIN_MENU_THEMES), PAGE_CREATE, QM_UI_THEMES, [](const PageDef& pageDef) { return new ThemeSetupPage(pageDef); }, radioThemesEnabled},
 #endif
-  { ICON_RADIO_GLOBAL_FUNCTIONS, STR_DEF(STR_QM_GLOB_FUNC), STR_DEF(STR_MENUSPECIALFUNCS), PAGE_CREATE, QM_RADIO_GF, [](const PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
   { ICON_RADIO_HARDWARE, STR_DEF(STR_QM_HARDWARE), STR_DEF(STR_HARDWARE), PAGE_CREATE, QM_RADIO_HARDWARE, [](const PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},
   { ICON_RADIO_VERSION, STR_DEF(STR_QM_ABOUT), STR_DEF(STR_MAIN_MENU_ABOUT_EDGETX), PAGE_CREATE, QM_RADIO_VERSION, [](const PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
   { EDGETX_ICONS_COUNT }

@@ -84,7 +84,6 @@
 
 #define TR_VTELEMUNIT               SA30(TR_VTELEMUNIT)
 
-#define TR_FUNCSOUNDS               SA16(TR_FUNCSOUNDS)
 
 #define TR_MONTHS                   SA12(TR_MONTHS)
 
@@ -104,7 +103,6 @@
 
 #define TR_VBEEPCOUNTDOWN           SA6(TR_VBEEPCOUNTDOWN)
 #define TR_VTMRMODES                SA6(TR_VTMRMODES)
-#define TR_VFSWRESET                SA6(TR_VFSWRESET)
 
 #define TR_VBLMODE                  SA5(TR_VBLMODE)
 #if defined(FUNCTION_SWITCHES)

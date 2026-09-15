@@ -122,9 +122,7 @@ static const uint8_t mask_model_notes[] __FLASH = {
 static const uint8_t mask_model_outputs[] __FLASH = {
 #include "mask_icon_model_outputs.lbm"
 };
-static const uint8_t mask_model_special_functions[] __FLASH = {
-#include "mask_icon_model_special_functions.lbm"
-};
+
 static const uint8_t mask_model_telemetry[] __FLASH = {
 #include "mask_icon_model_telemetry.lbm"
 };
@@ -149,9 +147,7 @@ static const uint8_t mask_radio_calibration[] __FLASH = {
 static const uint8_t mask_radio_general[] __FLASH = {
 #include "mask_icon_radio_general.lbm"
 };
-static const uint8_t mask_radio_global_functions[] __FLASH = {
-#include "mask_icon_radio_global_functions.lbm"
-};
+
 static const uint8_t mask_radio_hardware[] __FLASH = {
 #include "mask_icon_radio_hardware.lbm"
 };
@@ -380,7 +376,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_RADIO_SETUP, mask_radio_general),
     BI(ICON_RADIO_SD_MANAGER, mask_tools_storage),
     BI(ICON_RADIO_TOOLS, mask_menu_tools),
-    BI(ICON_RADIO_GLOBAL_FUNCTIONS, mask_radio_global_functions),
     BI(ICON_RADIO_HARDWARE, mask_radio_hardware),
     BI(ICON_RADIO_CALIBRATION, mask_radio_calibration),
     BI(ICON_RADIO_EDIT_THEME, mask_ui_themes),
@@ -392,7 +387,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_MODEL_NOTES, mask_model_notes),
     BI(ICON_MODEL_OUTPUTS, mask_model_outputs),
     BI(ICON_MODEL_CURVES, mask_model_curves),
-    BI(ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions),
     BI(ICON_MODEL_LUA_SCRIPTS, mask_model_mixer_scripts),
     BI(ICON_MODEL_TELEMETRY, mask_model_telemetry),
     BI(ICON_MODEL_USB, mask_model_usb),

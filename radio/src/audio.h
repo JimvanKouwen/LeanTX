@@ -432,6 +432,7 @@ class AudioQueue {
     void stopAll();
     void flush();
     void pause(uint16_t tLen);
+    void setBackgroundPaused(bool paused);
     void stopSD();
     bool isPlaying(uint8_t id);
     bool isEmpty() const { return fragmentsFifo.empty(); };
@@ -447,6 +448,7 @@ class AudioQueue {
     volatile bool _started;
     MixedContext normalContext;
     WavContext   backgroundContext;
+    bool backgroundPaused = false;
     ToneContext  priorityContext;
     ToneContext  varioContext;
     AudioFragmentFifo fragmentsFifo;
@@ -456,9 +458,8 @@ extern uint8_t currentSpeakerVolume;
 extern AudioQueue audioQueue;
 
 enum {
-  // IDs for special functions [0:64]
-  // IDs for global functions [64:128]
-  ID_PLAY_PROMPT_BASE = 128,
+  // Prompt IDs used by audioEvent(); zero means an untagged sound.
+  ID_PLAY_PROMPT_BASE = 1,
   ID_PLAY_FROM_SD_MANAGER = 255,
 };
 
@@ -521,6 +522,7 @@ enum AutomaticPromptsCategories {
 void pushPrompt(uint16_t prompt, uint8_t id=0, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
 void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
 void playModelName();
+void playValue(mixsrc_t source, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME);
 
 #define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id, fragmentVolume)
 #define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id, fragmentVolume)

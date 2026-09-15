@@ -592,22 +592,14 @@ static const char * getScriptName(uint8_t idx)
 #if defined(LUA_MODEL_SCRIPTS)
   if (ref <= SCRIPT_MIX_LAST) {
     return g_model.scriptsData[ref - SCRIPT_MIX_FIRST].file;
-  } else
+  }
 #endif
-  if (ref <= SCRIPT_FUNC_LAST) {
-    return g_model.customFn[ref - SCRIPT_FUNC_FIRST].play.name;
-  }
-  else if (ref <= SCRIPT_GFUNC_LAST) {
-    return g_eeGeneral.customFn[ref - SCRIPT_GFUNC_FIRST].play.name;
-  }
 #if defined(PCBTARANIS)
-  else if (ref <= SCRIPT_TELEMETRY_LAST) {
+  if (ref <= SCRIPT_TELEMETRY_LAST) {
     return g_model.screens[ref - SCRIPT_TELEMETRY_FIRST].script.file;
   }
 #endif
-  else {
-    return "standalone";
-  }
+  return "standalone";
 }
 
 static bool luaLoad(const char * pathname, ScriptInternalData & sid)
@@ -650,53 +642,6 @@ static bool luaLoadMixScript(uint8_t ref)
   return false;
 }
 #endif
-
-static bool luaLoadFunctionScript(uint8_t ref)
-{
-  uint8_t idx;
-  CustomFunctionData * fn;
-
-  if (ref <= SCRIPT_FUNC_LAST) {
-    if (modelSFEnabled()) {
-      idx = ref - SCRIPT_FUNC_FIRST;
-      fn = &g_model.customFn[idx];
-    } else {
-      return false;
-    }
-  }
-  else if (radioGFEnabled()) {
-    idx = ref - SCRIPT_GFUNC_FIRST;
-    fn = &g_eeGeneral.customFn[idx];
-  }
-  else
-    return false;
-
-  if (fn -> func == FUNC_PLAY_SCRIPT && ZEXIST(fn -> play.name)) {
-    if (luaScriptsCount < MAX_SCRIPTS) {
-      ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
-      sid.reference = ref;
-      return luaLoadFile(SCRIPTS_FUNCS_PATH, fn->play.name, sid);
-    }
-    else {
-      POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
-      return true;
-    }
-  }
-
-  if (fn -> func == FUNC_RGB_LED && ZEXIST(fn -> play.name)) {
-    if (luaScriptsCount < MAX_SCRIPTS) {
-      ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
-      sid.reference = ref;
-      return luaLoadFile(SCRIPTS_RGB_PATH, fn->play.name, sid);
-    }
-    else {
-      POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
-      return true;
-    }
-  }
-
-  return false;
-}
 
 #if defined(PCBTARANIS)
 static bool luaLoadTelemetryScript(uint8_t ref)
@@ -901,22 +846,16 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
         }
       } else
 #endif
-      if (ref <= SCRIPT_GFUNC_LAST) {
-        if (luaLoadFunctionScript(ref)) {
-          luaError(lsScripts, scriptInternalData[luaScriptsCount - 1].state);
-          continue;
-        }
-      }
 #if defined(PCBTARANIS)
-      else if (ref <= SCRIPT_TELEMETRY_LAST) {
+      if (ref <= SCRIPT_TELEMETRY_LAST) {
         if (luaLoadTelemetryScript(ref)) {
           luaError(lsScripts, scriptInternalData[luaScriptsCount - 1].state);
           continue;
         }
-      }
+      } else
 #endif
 #if !defined(COLORLCD)
-      else {
+      {
         // Standalone script
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = SCRIPT_STANDALONE;
@@ -925,6 +864,9 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           break;
         }
       }
+#endif
+#if defined(COLORLCD)
+      { continue; }
 #endif
       // Skip the rest of the loop if we did not get a new script
       if (countBefore == luaScriptsCount) continue;
@@ -1120,42 +1062,13 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           }
         } else
 #endif
-        if (ref <= SCRIPT_GFUNC_LAST) {
-          uint8_t idx;
-          CustomFunctionData * fn;
-          CustomFunctionsContext * functionsContext;
-
-          if (ref <= SCRIPT_FUNC_LAST) {
-            if (!modelSFEnabled()) continue;
-            idx = ref - SCRIPT_FUNC_FIRST;
-            fn = &g_model.customFn[idx];
-            functionsContext = &modelFunctionsContext;
-          } else {
-            if (!radioGFEnabled()) continue;
-            idx = ref - SCRIPT_GFUNC_FIRST;
-            fn = &g_eeGeneral.customFn[idx];
-            functionsContext = &globalFunctionsContext;
-          }
-
-          if (CFN_ACTIVE(fn) && CFN_SWITCH(fn)) {
-            tmr10ms_t tmr10ms = get_tmr10ms();
-            if (getSwitch(CFN_SWITCH(fn)) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
-              lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
-              functionsContext->lastFunctionTime[idx] = tmr10ms;
-            }
-            else {
-              if (sid.background == LUA_REFNIL) continue;
-              lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
-            }
-          } else continue;
-        }
 #if defined(PCBTARANIS)
-        else if (ref <= SCRIPT_TELEMETRY_LAST) {
+        if (ref <= SCRIPT_TELEMETRY_LAST) {
           if (sid.background == LUA_REFNIL) continue;
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
-        }
+        } else
 #endif
-        else continue;
+        { continue; }
       }
     }
 

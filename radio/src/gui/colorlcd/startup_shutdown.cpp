@@ -133,7 +133,7 @@ void waitSplash()
       return false;
     });
 
-    // Reset timer so special/global functions set to !1x don't get triggered
+    // Keep startup audio quiet after the splash screen.
     START_SILENCE_PERIOD();
   }
 

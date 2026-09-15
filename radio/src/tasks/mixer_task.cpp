@@ -46,6 +46,7 @@ TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 // mixer hold this mutex while computing
 // channels and sending them out
 static mutex_handle_t mixerMutex;
+static bool _mixer_initialized = false;
 
 // The mixer will start in 'paused' mode
 // and start working properly once
@@ -73,9 +74,15 @@ void mixerTaskInit()
 {
   mixerSchedulerInit();
   mutex_create(&mixerMutex);
+  _mixer_initialized = true;
   task_create(&mixerTaskId, mixerTask, "mixer", mixerStack, MIXER_STACK_SIZE,
               MIXER_TASK_PRIO);
   mixerSchedulerStart();
+}
+
+bool mixerTaskInitialized()
+{
+  return _mixer_initialized;
 }
 
 bool mixerTaskStarted()

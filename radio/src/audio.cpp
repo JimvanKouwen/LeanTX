@@ -646,12 +646,13 @@ void AudioQueue::wakeup()
     }
 
     // mix the background context
-    if (isFunctionActive(FUNCTION_BACKGND_MUSIC) && !isFunctionActive(FUNCTION_BACKGND_MUSIC_PAUSE)) {
+    if (!backgroundPaused) {
       result = backgroundContext.mixBuffer(buffer, g_eeGeneral.backgroundVolume, fade);
       if (result > 0) {
         size = max(size, result);
       }
     }
+
 
     // push the buffer if needed
     if (size > 0) {
@@ -701,10 +702,17 @@ void AudioQueue::pause(uint16_t len)
   playTone(0, 0, len);
 }
 
+void AudioQueue::setBackgroundPaused(bool paused)
+{
+  _audio_lock();
+  backgroundPaused = paused;
+  _audio_unlock();
+}
+
 bool AudioQueue::isPlaying(uint8_t id)
 {
   return normalContext.hasPromptId(id) ||
-         (isFunctionActive(FUNCTION_BACKGND_MUSIC) && backgroundContext.hasPromptId(id)) ||
+         backgroundContext.hasPromptId(id) ||
          fragmentsFifo.hasPromptId(id);
 }
 
@@ -795,6 +803,7 @@ void AudioQueue::flush()
   fragmentsFifo.clear();
   varioContext.clear();
   backgroundContext.clear();
+  backgroundPaused = false;
   _audio_unlock();
 }
 

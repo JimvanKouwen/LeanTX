@@ -211,14 +211,6 @@ void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
     lcdDrawMMM(x, y, flags);
 }
 
-bool isSwitchAvailableInCustomFunctions(int swtch)
-{
-  if (menuHandlers[menuLevel] == menuModelSpecialFunctions)
-    return isSwitchAvailable(swtch, ModelCustomFunctionsContext);
-  else
-    return isSwitchAvailable(swtch, GeneralCustomFunctionsContext);
-}
-
 void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att)
 {
   float power_W_PREC1 = powf(10.0, (dBm - 30.0) / 10.0) * 10;

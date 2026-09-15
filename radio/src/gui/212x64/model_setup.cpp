@@ -117,11 +117,9 @@ enum MenuModelSetupItems {
 
   ITEM_VIEW_OPTIONS_LABEL,
   ITEM_VIEW_OPTIONS_RADIO_TAB,
-  ITEM_VIEW_OPTIONS_GF,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
   ITEM_VIEW_OPTIONS_CURVES,
-  ITEM_VIEW_OPTIONS_SF,
 #if defined(LUA_MODEL_SCRIPTS)
   ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS,
 #endif
@@ -428,11 +426,11 @@ void menuModelSetup(event_t event)
     // View options
     0,
      VIEWOPT_ROW(LABEL(RadioMenuTabs)),
-      VIEWOPT_ROW(0),
+
       VIEWOPT_ROW(LABEL(ModelMenuTabs)),
 
       VIEWOPT_ROW(0),
-      VIEWOPT_ROW(0),
+
       CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
 
@@ -899,18 +897,12 @@ void menuModelSetup(event_t event)
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
         lcdDrawTextIndented(y, STR_RADIO_MENU_TABS);
         break;
-      case ITEM_VIEW_OPTIONS_GF:
-        g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event, g_eeGeneral.radioGFDisabled);
-        break;
 
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event, g_eeGeneral.modelCurvesDisabled);
-        break;
-      case ITEM_VIEW_OPTIONS_SF:
-        g_model.modelSFDisabled = viewOptChoice(y, STR_MENUCUSTOMFUNC, g_model.modelSFDisabled, attr, event, g_eeGeneral.modelSFDisabled);
         break;
 #if defined(LUA_MODEL_SCRIPTS)
       case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:

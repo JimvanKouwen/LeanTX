@@ -81,14 +81,6 @@ void menuChannelsViewCommon(event_t event)
       if (phase == 3) phase = 0;
 
       // Properties
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-      if (phase == 1) {
-        if (safetyCh[ch] != OVERRIDE_CHANNEL_UNDEFINED)
-          lcdDrawText(LCD_W + 1, y + 1, "OVR", TINSIZE | RIGHT);
-        else
-          phase = 0;
-      }
-#endif
       if (phase == 2) {
         if (ld && ld->revert)
           lcdDrawText(LCD_W + 1, y + 1, "INV", TINSIZE | RIGHT);

@@ -211,11 +211,6 @@ void telemetryWakeup()
     }
   }
 
-#if defined(VARIO)
-  if (TELEMETRY_STREAMING() && !IS_FAI_ENABLED()) {
-    varioWakeup();
-  }
-#endif
 
   static tmr10ms_t alarmsCheckTime = 0;
 #define SCHEDULE_NEXT_ALARMS_CHECK(seconds) \

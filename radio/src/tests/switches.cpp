@@ -184,7 +184,6 @@ TEST(getSwitch, PhysicalPositionsAndInversion)
       EXPECT_EQ(pos != selected, getSwitch(-(first + selected)));
       EXPECT_TRUE(isSwitchAvailableInMixes(first + selected));
       EXPECT_TRUE(isSwitchAvailableInMixes(-(first + selected)));
-      EXPECT_TRUE(isSwitchAvailable(first + selected, GeneralCustomFunctionsContext));
     }
   }
   EXPECT_FALSE(getSwitch(SWSRC_COUNT));

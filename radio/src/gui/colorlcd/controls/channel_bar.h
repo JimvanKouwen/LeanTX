@@ -88,9 +88,4 @@ class ComboChannelBar : public Window
  protected:
   uint8_t channel;
   OutputChannelBar* outputChannelBar = nullptr;
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-  StaticIcon* overrideIcon = nullptr;
-
-  void checkEvents() override;
-#endif
 };

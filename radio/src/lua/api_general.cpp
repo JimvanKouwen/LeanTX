@@ -2092,7 +2092,7 @@ return true if switch is a customisable switch
 static int luaGetSwitchInfo(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
-  if (idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+  if (idx < SWSRC_COUNT && isSwitchAvailable(idx, AllSwitchesContext)) {
     lua_newtable(L);
     char* name = getSwitchPositionName(idx);
     lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
@@ -2142,7 +2142,7 @@ static int luaGetSwitchIndex(lua_State * L)
 static int luaGetSwitchName(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, AllSwitchesContext)) {
     char* name = getSwitchPositionName(idx);
     lua_pushstring(L, name);
   }
@@ -2164,7 +2164,7 @@ static int luaGetSwitchName(lua_State * L)
 static int luaGetSwitchValue(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext))
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, AllSwitchesContext))
     lua_pushboolean(L, getSwitch(idx));
   else
     lua_pushnil(L);
@@ -2189,7 +2189,7 @@ static int luaNextSwitch(lua_State * L)
   swsrc_t idx = luaL_checkinteger(L, 2);
 
   while (++idx <= last) {
-    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+    if (isSwitchAvailable(idx, AllSwitchesContext)) {
       char* name = getSwitchPositionName(idx);
       lua_pushinteger(L, idx);
       lua_pushstring(L, name);
@@ -2690,32 +2690,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( LIMIT_EXT_PERCENT, LIMIT_EXT_PERCENT )
   LROT_NUMENTRY( LIMIT_STD_PERCENT, LIMIT_STD_PERCENT )
 
-  LROT_NUMENTRY( FUNC_OVERRIDE_CHANNEL, FUNC_OVERRIDE_CHANNEL )
-  LROT_NUMENTRY( FUNC_RESET, FUNC_RESET )
-  LROT_NUMENTRY( FUNC_SET_TIMER, FUNC_SET_TIMER )
-  LROT_NUMENTRY( FUNC_VOLUME, FUNC_VOLUME )
-  LROT_NUMENTRY( FUNC_BIND, FUNC_BIND )
-  LROT_NUMENTRY( FUNC_PLAY_SOUND, FUNC_PLAY_SOUND )
-  LROT_NUMENTRY( FUNC_PLAY_TRACK, FUNC_PLAY_TRACK )
-  LROT_NUMENTRY( FUNC_PLAY_VALUE, FUNC_PLAY_VALUE )
-  LROT_NUMENTRY( FUNC_PLAY_SCRIPT, FUNC_PLAY_SCRIPT )
-  LROT_NUMENTRY( FUNC_BACKGND_MUSIC, FUNC_BACKGND_MUSIC )
-  LROT_NUMENTRY( FUNC_BACKGND_MUSIC_PAUSE, FUNC_BACKGND_MUSIC_PAUSE )
-  LROT_NUMENTRY( FUNC_VARIO, FUNC_VARIO )
-  LROT_NUMENTRY( FUNC_HAPTIC, FUNC_HAPTIC )
-  LROT_NUMENTRY( FUNC_LOGS, FUNC_LOGS )
-  LROT_NUMENTRY( FUNC_BACKLIGHT, FUNC_BACKLIGHT )
-  LROT_NUMENTRY( FUNC_SCREENSHOT, FUNC_SCREENSHOT )
-  LROT_NUMENTRY( FUNC_RACING_MODE, FUNC_RACING_MODE )
-#if defined(FUNCTION_SWITCHES)
-  LROT_NUMENTRY( FUNC_PUSH_CUST_SWITCH, FUNC_PUSH_CUST_SWITCH )
-#endif
-  LROT_NUMENTRY( FUNC_SET_SCREEN, FUNC_SET_SCREEN )
-#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
-  LROT_NUMENTRY( FUNC_DISABLE_KEYS, FUNC_DISABLE_KEYS )
-#endif
 #if defined(COLORLCD)
-  LROT_NUMENTRY( FUNC_DISABLE_TOUCH, FUNC_DISABLE_TOUCH )
 
   LROT_NUMENTRY( SHADOWED, SHADOWED )
   // WidgetOption::Integer == INPUT_TYPE_VALUE - use VALUE in widget options

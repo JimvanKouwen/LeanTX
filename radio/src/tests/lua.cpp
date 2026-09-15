@@ -268,3 +268,11 @@ TEST(Lua, LogicalSwitchApisRemoved)
   luaExecStr("assert(LS_FUNC_AND == nil and getSwitchIndex('L01') == nil)");
   luaExecStr("assert(type(getSwitchName) == 'function' and type(getSwitchValue) == 'function')");
 }
+
+TEST(Lua, ActionConfigurationApisRemoved)
+{
+  luaExecStr("assert(model.getCustomFunction == nil and model.setCustomFunction == nil)");
+  luaExecStr("assert(FUNC_OVERRIDE_CHANNEL == nil and FUNC_PLAY_SCRIPT == nil)");
+  luaExecStr("assert(type(playFile) == 'function' and type(screenshot) == 'function')");
+  luaExecStr("assert(type(model.setTimer) == 'function' and type(loadScript) == 'function')");
+}

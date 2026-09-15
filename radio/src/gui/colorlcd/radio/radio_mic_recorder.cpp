@@ -735,7 +735,8 @@ void RadioMicRecorder::askSaveAs()
   char* dot = strrchr(baseName, '.');
   if (dot) *dot = '\0';
 
-  new LabelDialog(baseName, LEN_FUNCTION_NAME, STR_SAVE_AS, [this](std::string newName) {
+  constexpr unsigned maxRecordingNameLength = 8;
+  new LabelDialog(baseName, maxRecordingNameLength, STR_SAVE_AS, [this](std::string newName) {
     if (newName.empty()) return;
     char dir[sizeof(SOUNDS_PATH) + 1];
     strcpy(dir, SOUNDS_PATH "/");

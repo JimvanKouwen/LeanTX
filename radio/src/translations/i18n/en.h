@@ -41,10 +41,8 @@
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
 #define TR_QM_CURVES                    "Curves"
-#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
 #define TR_QM_CUSTOM_LUA                "Mixer\nScripts"
 #define TR_QM_TELEM                     "Telemetry"
-#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
 #define TR_QM_HARDWARE                  "Hardware"
 #define TR_QM_ABOUT                     "About\nEdgeTX"
 #define TR_QM_THEMES                    "Themes"
@@ -83,10 +81,8 @@
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
 #define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
-#define TR_MENUCUSTOMFUNC               TR_BW_COL("SPECIAL FUNCTIONS", "Special Functions")
 #define TR_MENUCUSTOMSCRIPTS            TR_BW_COL("MIXER SCRIPTS", "Mixer Scripts")
 #define TR_MENUTELEMETRY                TR_BW_COL("TELEMETRY", "Telemetry")
-#define TR_MENUSPECIALFUNCS             TR_BW_COL("GLOBAL FUNCTIONS", "Global Functions")
 #define TR_HARDWARE                     TR_BW_COL("HARDWARE", "Hardware")
 #define TR_USER_INTERFACE               "Top Bar"
 #define TR_SD_CARD                      TR_BW_COL("SD CARD", "Storage")
@@ -176,63 +172,10 @@
 #define TR_VMLTPX_2                    "Multiply"
 #define TR_VMLTPX_3                    "Replace"
 
-#define TR_SF_RESET                    "Reset"
-#define TR_SF_SET_TIMER                "Set"
-#define TR_SF_VOLUME                   "Volume"
-#define TR_SF_MOD_BIND                 "Module Bind"
-#define TR_SF_RGBLEDS                  "RGB leds"
 
-#define TR_SOUND                       "Play Sound"
-#define TR_PLAY_TRACK                  TR("Ply Trk", "Play Track")
-#define TR_PLAY_VALUE                  TR("Play Val","Play Value")
-#define TR_SF_HAPTIC                   "Haptic"
-#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua Script")
-#define TR_SF_BG_MUSIC                 "BgMusic"
-#define TR_SF_BG_MUSIC_PAUSE           "BgMusic ||"
-#define TR_SF_LOGS                     "SD Logs"
-#define TR_SF_BACKLIGHT                "Backlight"
-#define TR_SF_VARIO                    "Vario"
-#define TR_SF_TEST                     "Test"
 
-#define TR_SF_SAFETY                   TR("Overr.", "Override")
 
-#define TR_SF_SCREENSHOT               "Screenshot"
-#define TR_SF_RACING_MODE              "Racing Mode"
-#define TR_SF_DISABLE_TOUCH            "No Touch"
-#define TR_SF_DISABLE_KEYS             "No Keys"
-#define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
-#define TR_SF_SET_SCREEN               TR_BW_COL("Set Screen", "Set Main Screen")
-#define TR_SF_PUSH_CUST_SWITCH         "Push CS"
-#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
-#define TR_FSW_RESET_TELEM             TR("Telm", "Telemetry")
-#define TR_FSW_RESET_TIMERS_1          "Tmr1"
-#define TR_FSW_RESET_TIMERS_2          "Tmr2"
-#define TR_FSW_RESET_TIMERS_3          "Tmr3"
-
-#define TR_VFSWRESET_1                 TR_FSW_RESET_TIMERS_1
-#define TR_VFSWRESET_2                 TR_FSW_RESET_TIMERS_2
-#define TR_VFSWRESET_3                 TR_FSW_RESET_TIMERS_3
-#define TR_VFSWRESET_4                 TR("All","Flight")
-#define TR_VFSWRESET_5                 TR_FSW_RESET_TELEM
-#define TR_VFSWRESET_6                 "---"
-
-#define TR_FUNCSOUNDS_1                TR("Bp1","Beep1")
-#define TR_FUNCSOUNDS_2                TR("Bp2","Beep2")
-#define TR_FUNCSOUNDS_3                TR("Bp3","Beep3")
-#define TR_FUNCSOUNDS_4                TR("Wrn1","Warn1")
-#define TR_FUNCSOUNDS_5                TR("Wrn2","Warn2")
-#define TR_FUNCSOUNDS_6                TR("Chee","Cheep")
-#define TR_FUNCSOUNDS_7                TR("Rata","Ratata")
-#define TR_FUNCSOUNDS_8                "Tick"
-#define TR_FUNCSOUNDS_9                TR("Sirn","Siren")
-#define TR_FUNCSOUNDS_10               "Ring"
-#define TR_FUNCSOUNDS_11               TR("SciF","SciFi")
-#define TR_FUNCSOUNDS_12               TR("Robt","Robot")
-#define TR_FUNCSOUNDS_13               TR("Chrp","Chirp")
-#define TR_FUNCSOUNDS_14               "Tada"
-#define TR_FUNCSOUNDS_15               TR("Crck","Crickt")
-#define TR_FUNCSOUNDS_16               TR("Alrm","AlmClk")
 
 #define TR_VUNITSSYSTEM_1              "Metric"
 #define TR_VUNITSSYSTEM_2              TR("Imper.","Imperial")
@@ -409,7 +352,6 @@
 #define TR_SWITCH_TYPE                 "Type"
 #define TR_SWITCH_STARTUP              "Startup"
 #define TR_SWITCH_GROUP                "Group"
-#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trims"
 #define TR_MODE                        "Mode"
 #define TR_LEFT_STICK                  "Left"
@@ -665,9 +607,7 @@
 #define TR_VOLUME                      "Volume"
 #define TR_BRIGHTNESS                  "Brightness"
 #define TR_CONTROL                     "Control"
-#define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
 #define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
-#define TR_FUNC                        "Function"
 #define TR_DURATION                    "Duration"
 #define TR_NO_SOUNDS_ON_SD             "No sounds on SD"
 #define TR_NO_MODELS_ON_SD             "No models on SD"
@@ -865,7 +805,6 @@
 #define TR_VALUE                       "Value"
 #define TR_PERIOD                      "Period"
 #define TR_INTERVAL                    "Interval"
-#define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
 #define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"

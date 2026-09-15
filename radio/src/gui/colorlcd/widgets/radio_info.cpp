@@ -124,7 +124,7 @@ class RadioInfoWidget : public Widget
     else
       usbIcon->setColor(COLOR_THEME_PRIMARY2_INDEX);
 
-    logsIcon->show(!usbPlugged() && isFunctionActive(FUNCTION_LOGS) &&
+    logsIcon->show(!usbPlugged() && logDelay100ms > 0 &&
                    BLINK_ON_PHASE);
 
 #if defined(AUDIO)

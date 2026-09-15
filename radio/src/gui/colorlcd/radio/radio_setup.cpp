@@ -183,27 +183,6 @@ class DateTimeWindow : public Window
   }
 };
 
-class ControlTextOverride : public StaticText
-{
- public:
-  ControlTextOverride(Window* parent, coord_t x, coord_t y, FunctionsActive func) :
-        StaticText(parent, {x + XO, y + PAD_MEDIUM, 0, 0}, STR_SF_OVERRIDDEN, COLOR_THEME_WARNING_INDEX, FONT_SZ), func(func)
-  {
-    hide();
-  }
-
-  void checkEvents() override
-  {
-    show(isFunctionActive(func));
-  }
-
-  static LAYOUT_SIZE(FONT_SZ, FONT(STD), FONT(XS))
-  static LAYOUT_ORIENTATION(XO, PAD_LARGE * 12, PAD_LARGE * 8)
-
- protected:
-  FunctionsActive func;
-};
-
 #if defined(AUDIO)
 const static SetupLineDef soundPageSetupLines[] = {
   {
@@ -277,7 +256,6 @@ const static SetupLineDef soundPageSetupLines[] = {
       auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
               GET_SET_DEFAULT(g_eeGeneral.volumeSrc), true);
       choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
-      new ControlTextOverride(parent, x, y, FUNCTION_VOLUME);
       }
   },
 #if defined(KCX_BTAUDIO)
@@ -549,7 +527,6 @@ const static SetupLineDef backlightSetupLines[] = {
       auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
               GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
       choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
-      new ControlTextOverride(parent, x, y, FUNCTION_BACKLIGHT);
     }
   },
   {
@@ -622,11 +599,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
                   GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),
                   g_model.radioThemesDisabled);
      }},
-    {STR_DEF(STR_MENUSPECIALFUNCS),
-     [](Window* parent, coord_t x, coord_t y) {
-       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled),
-                  g_model.radioGFDisabled);
-     }},
 
     {
         STR_DEF(STR_MODEL_MENU_TABS),
@@ -637,12 +609,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
        viewOption(parent, x, y,
                   GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
                   g_model.modelCurvesDisabled);
-     }},
-
-    {STR_DEF(STR_MENUCUSTOMFUNC),
-     [](Window* parent, coord_t x, coord_t y) {
-       viewOption(parent, x, y, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled),
-                  g_model.modelSFDisabled);
      }},
 #if defined(LUA_MODEL_SCRIPTS)
     {STR_DEF(STR_MENUCUSTOMSCRIPTS),

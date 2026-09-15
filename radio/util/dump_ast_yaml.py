@@ -178,5 +178,4 @@ index = Index.create()
 translation_unit = index.parse(sys.argv[1], ['-x', 'c++', '-std=c++11'] + sys.argv[3:])
 
 print_top_node(sys.argv[2])
-#print_top_node('CustomFunctionData')
 #print_all()

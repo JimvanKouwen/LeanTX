@@ -17,8 +17,6 @@ option(CURVES "Curves" ON)
 option(GUI "GUI enabled" ON)
 option(PPM_CENTER_ADJUSTABLE "PPM center adjustable" ON)
 option(PPM_LIMITS_SYMETRICAL "PPM limits symetrical" OFF)
-option(OVERRIDE_CHANNEL_FUNCTION "OverrideChannel function available" ON)
-option(DANGEROUS_MODULE_FUNCTIONS "Dangerous module functions (RangeCheck / Bind / Module OFF, etc.) available" OFF)
 option(FAI "Competition mode (no telemetry)" OFF)
 option(AUTOSOURCE "Automatic source detection in menus" ON)
 option(AUTOSWITCH "Automatic switch detection in menus" ON)
@@ -274,13 +272,7 @@ if(PPM_LIMITS_SYMETRICAL)
   add_definitions(-DPPM_LIMITS_SYMETRICAL)
 endif()
 
-if(OVERRIDE_CHANNEL_FUNCTION)
-  add_definitions(-DOVERRIDE_CHANNEL_FUNCTION)
-endif()
 
-if(DANGEROUS_MODULE_FUNCTIONS)
-  add_definitions(-DDANGEROUS_MODULE_FUNCTIONS)
-endif()
 
 if(NOT DEFAULT_MODE STREQUAL "")
   add_definitions(-DDEFAULT_MODE=${DEFAULT_MODE})
@@ -397,7 +389,7 @@ set(SRC
   edgetx.cpp
   datastructs_model.cpp
   datastructs_radio.cpp
-  functions.cpp
+  audio_value.cpp
   strhelpers.cpp
   switches.cpp
   analogs.cpp
@@ -423,7 +415,6 @@ if(GUI)
     keys.cpp
     maths.cpp
     translations/translations.cpp
-    cfn_sort.cpp
     gui/gui_common.cpp
     )
   foreach(FILE ${GUI_SRC})

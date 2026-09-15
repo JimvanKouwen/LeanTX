@@ -30,6 +30,9 @@ void mixerTask();
 // init, create and start the OS task itself
 void mixerTaskInit();
 
+// Whether mixer synchronization is initialized. Startup model loading runs earlier.
+bool mixerTaskInitialized();
+
 // return true if the mixer has
 // already started at least once since boot
 bool mixerTaskStarted();
@@ -68,4 +71,3 @@ void mixerTaskUnlock();
 
 // returns true if the lock could be acquired
 bool mixerTaskTryLock();
-

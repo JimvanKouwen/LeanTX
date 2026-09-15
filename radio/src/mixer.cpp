@@ -25,6 +25,7 @@
 #include "switches.h"
 #include "input_mapping.h"
 #include "mixes.h"
+#include "tasks/mixer_task.h"
 
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
@@ -43,6 +44,33 @@ uint8_t s_mixer_first_run_done = false;
 
 int16_t anas [MAX_INPUTS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
+
+// Direct output overrides are transient and independent of model configuration.
+static int16_t channelOverrideValues[MAX_OUTPUT_CHANNELS];
+static uint32_t channelOverrideMask;
+static_assert(MAX_OUTPUT_CHANNELS <= 32, "Channel override mask is too small");
+
+void setChannelOverride(uint8_t channel, int16_t percent, bool enabled)
+{
+  if (channel >= MAX_OUTPUT_CHANNELS) return;
+  const bool needsLock = mixerTaskInitialized();
+  if (needsLock) mixerTaskLock();
+  channelOverrideValues[channel] = percent;
+  if (enabled)
+    channelOverrideMask |= uint32_t(1) << channel;
+  else
+    channelOverrideMask &= ~(uint32_t(1) << channel);
+  if (needsLock) mixerTaskUnlock();
+}
+
+void clearChannelOverrides()
+{
+  // Startup loads the model before mixerTaskInit(): no mutex or mixer task yet.
+  const bool needsLock = mixerTaskInitialized();
+  if (needsLock) mixerTaskLock();
+  channelOverrideMask = 0;
+  if (needsLock) mixerTaskUnlock();
+}
 BeepANACenter bpanaCenter = 0;
 
 int32_t act [MAX_MIXERS] = {0};
@@ -226,12 +254,8 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
 // rescaled from -262144 to 262144
 int16_t applyLimits(uint8_t channel, int32_t value)
 {
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-  if (safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED) {
-    // safety channel available for channel check
-    return calc100toRESX(safetyCh[channel]);
-  }
-#endif
+  if (channelOverrideMask & (uint32_t(1) << channel))
+    return calc100toRESX(channelOverrideValues[channel]);
 
   LimitData * lim = limitAddress(channel);
 
@@ -867,29 +891,6 @@ void evalMixes(uint8_t tick10ms)
   _poll_switches();
 #endif
   evalChannelMixes(e_perout_mode_normal, tick10ms);
-
-  //========== FUNCTIONS ===============
-  // must be done after mixing because some functions use the inputs/channels values
-  // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
-  if (tick10ms) {
-    if (radioGFEnabled()) {
-      evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
-    } else {
-      globalFunctionsContext.reset();
-    }
-    if (modelSFEnabled()) {
-      evalFunctions(g_model.customFn, modelFunctionsContext);
-    } else {
-      modelFunctionsContext.reset();
-    }
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-    if (!radioGFEnabled() && !modelSFEnabled()) {
-      for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
-        safetyCh[i] = OVERRIDE_CHANNEL_UNDEFINED;
-      }
-    }
-#endif
-  }
 
   //========== LIMITS ===============
   for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS; i++) {
