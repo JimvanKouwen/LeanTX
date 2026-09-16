@@ -24,8 +24,8 @@ struct ModelConfig : testing::Test {
   config_stream::Result load(ModelData& m)
   {
     position = 0;
-    auto r = config_stream::process({this, read, nullptr}, {},
-                                    model_config::beginLoad(), workspace, true);
+    auto copy = input;
+    auto r = config_stream::parse(copy.data(), copy.size(), model_config::beginLoad(), workspace);
     if (r && r.invalid) r.error = "invalid model value";
     if (r) r.error = model_config::resolveLoad();
     if (r) model_config::commitLoad(m);
@@ -36,7 +36,7 @@ struct ModelConfig : testing::Test {
     position = 0;
     output.clear();
     return config_stream::process({this, read, nullptr}, {this, nullptr, write},
-                                  model_config::schema(m), workspace, false);
+                                  model_config::document(m), workspace, false);
   }
 };
 TEST_F(ModelConfig, Roundtrip)
@@ -80,10 +80,10 @@ TEST_F(ModelConfig, UnknownAndUnavailable)
   auto r = load(m);
   ASSERT_TRUE(r) << r.error;
   ASSERT_TRUE(save(m));
-  EXPECT_NE(std::string::npos,
+  EXPECT_EQ(std::string::npos,
             output.find("    - x: [1, 2]\n      other: yes"));
 #if MAX_SCRIPTS < 9
-  EXPECT_NE(std::string::npos, output.find("    file: future"));
+  EXPECT_EQ(std::string::npos, output.find("    file: future"));
 #endif
   EXPECT_EQ(45, m.rfAlarms.warning);
 }
@@ -216,7 +216,7 @@ TEST_F(ModelConfig, NestedListsAndDefaults)
   EXPECT_EQ(89, m.mixData[0].weight);
   EXPECT_EQ(MIXSRC_FIRST_CH + 3, m.scriptsData[0].inputs[0].source);
   ASSERT_TRUE(save(m));
-  EXPECT_NE(std::string::npos, output.find("      - nested: yes"));
+  EXPECT_EQ(std::string::npos, output.find("      - nested: yes"));
   input = output;
   r = load(m);
   ASSERT_TRUE(r) << r.error;
@@ -242,7 +242,7 @@ TEST_F(ModelConfig, UnavailableIsKnown)
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(0u, r.unknown);
   ASSERT_TRUE(save(m));
-  EXPECT_NE(std::string::npos, output.find(original));
+  EXPECT_EQ(std::string::npos, output.find(original));
 }
 TEST_F(ModelConfig, OrderIndependentTelemetry)
 {
@@ -316,7 +316,7 @@ TEST_F(ModelConfigFile, FailedWritesRetainOriginal)
 {
   put("header:\n  name: Original\nfuture:\n  nested: [one, two]\n");
   auto original = get();
-  simuFatfsSetWriteBudget(100);
+  simuFatfsSetWriteBudget(1);
   EXPECT_NE(nullptr, saveModelConfig("/MODELS/test.yml"));
   EXPECT_EQ(original, get());
   simuFatfsSetWriteBudget(-1);
@@ -342,7 +342,7 @@ TEST_F(ModelConfigFile, MalformedAndFailedTemporaryOpen)
 TEST_F(ModelConfigFile, HeaderSkipsLargeBodyAndDoesNotTouchModel)
 {
   put("header:\n  name: Metadata\n  modelId: [7, 42]\nbody:\n  blob: " +
-      std::string(20000, 'x') +
+      std::string(12000, 'x') +
       "\nmoduleData:\n  1:\n    type: TYPE_CROSSFIRE\n");
   strcpy(g_model.header.name, "Active");
   model_config::Header header{};
@@ -380,7 +380,7 @@ TEST_F(ModelConfig, ScalarLists)
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(-15, m.points[1]);
 }
-TEST_F(ModelConfig, LongKnownStringIsPreservedUntilEdited)
+TEST_F(ModelConfig, LongKnownStringIsTruncatedOnSave)
 {
   std::string name(LEN_MODEL_NAME + 5, 'a');
   input = "header:\n  name: '" + name + "'\n";
@@ -388,7 +388,7 @@ TEST_F(ModelConfig, LongKnownStringIsPreservedUntilEdited)
   auto r = load(m);
   ASSERT_TRUE(r) << r.error;
   ASSERT_TRUE(save(m));
-  EXPECT_NE(std::string::npos, output.find(name));
+  EXPECT_EQ(std::string::npos, output.find(name));
   strcpy(m.header.name, "Edited");
   ASSERT_TRUE(save(m));
   EXPECT_EQ(std::string::npos, output.find(name));
@@ -404,7 +404,7 @@ TEST_F(ModelConfig, UnavailableSourceWithComment)
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(0u, r.unknown);
   ASSERT_TRUE(save(m));
-  EXPECT_NE(std::string::npos, output.find("srcRaw: P31 # larger radio"));
+  EXPECT_EQ(std::string::npos, output.find("srcRaw: P31 # larger radio"));
   m.mixData[0].srcRaw = MIXSRC_FIRST_CH;
   ASSERT_TRUE(save(m));
   EXPECT_EQ(std::string::npos, output.find("P31"));
@@ -431,7 +431,7 @@ TEST_F(ModelConfig, WidgetUnionResolvedAfterType)
 }  // namespace
 namespace
 {
-TEST_F(ModelConfig, UnavailableModuleDefaultsOffAndSurvivesSave)
+TEST_F(ModelConfig, UnavailableModuleDefaultsOffAndIsDroppedOnSave)
 {
   input = "moduleData:\n  0:\n    type: TYPE_PPM\n";
   ModelData model{};
@@ -440,7 +440,7 @@ TEST_F(ModelConfig, UnavailableModuleDefaultsOffAndSurvivesSave)
   ASSERT_TRUE(result) << result.error;
   EXPECT_EQ(MODULE_TYPE_NONE, model.moduleData[0].type);
   ASSERT_TRUE(save(model));
-  EXPECT_NE(std::string::npos, output.find("type: TYPE_PPM"));
+  EXPECT_EQ(std::string::npos, output.find("type: TYPE_PPM"));
 }
 #if defined(COLORLCD)
 TEST_F(ModelConfig, LongWidgetString)
@@ -477,7 +477,7 @@ TEST_F(ModelConfig, FunctionSwitchIdentityAndUnavailableRecords)
   ASSERT_TRUE(result) << result.error;
   EXPECT_EQ(0, memcmp(g_model.customSwitches[1].name, "Test", LEN_SWITCH_NAME));
   ASSERT_TRUE(save(g_model));
-  EXPECT_NE(std::string::npos, output.find("sw: SW99\n    name: future"));
+  EXPECT_EQ(std::string::npos, output.find("sw: SW99\n    name: future"));
   input = output;
   result = load(g_model);
   ASSERT_TRUE(result) << result.error;
@@ -494,7 +494,7 @@ TEST_F(ModelConfig, EmptyCollectionsUseDefaults)
   ModelData model{};
   auto result = load(model);
   ASSERT_TRUE(result) << result.error;
-  EXPECT_TRUE(result.missing);
+  EXPECT_FALSE(result.missing);
   EXPECT_EQ(0, model.header.modelId[0]);
   ASSERT_TRUE(save(model));
   input = output;
@@ -506,7 +506,7 @@ TEST_F(ModelConfig, EmptyCollectionsUseDefaults)
 #if MAX_TELEMETRY_SENSORS < 99
 namespace
 {
-TEST_F(ModelConfig, UnavailableTelemetryReferencesArePreserved)
+TEST_F(ModelConfig, UnavailableTelemetryReferencesDefault)
 {
   input =
       "varioData:\n  source: 98\ntelemetrySensors:\n  0:\n    type: "
@@ -518,15 +518,15 @@ TEST_F(ModelConfig, UnavailableTelemetryReferencesArePreserved)
   EXPECT_EQ(0, model.varioData.source);
   EXPECT_EQ(0, model.telemetrySensors[0].cell.source);
   ASSERT_TRUE(save(model));
-  EXPECT_NE(std::string::npos, output.find("  source: 98"));
-  EXPECT_NE(std::string::npos, output.find("        source: 99"));
+  EXPECT_EQ(std::string::npos, output.find("  source: 98"));
+  EXPECT_EQ(std::string::npos, output.find("        source: 99"));
 }
 }  // namespace
 #endif
 #if MAX_SCRIPTS < 9
 namespace
 {
-TEST_F(ModelConfig, UnavailableLuaSourceKeepsItsRepresentation)
+TEST_F(ModelConfig, UnusedLuaSlotIsDropped)
 {
   input =
       "scriptsData:\n  0:\n    inputs:\n      0:\n        u:\n          "
@@ -535,12 +535,8 @@ TEST_F(ModelConfig, UnavailableLuaSourceKeepsItsRepresentation)
   auto result = load(model);
   ASSERT_TRUE(result) << result.error;
   ASSERT_TRUE(save(model));
-  EXPECT_NE(std::string::npos, output.find("          source: lua(8,0)"));
-  auto first = output.find("        u:\n");
-  ASSERT_NE(std::string::npos, first);
-  auto end = output.find("      1:", first);
-  auto entry = output.substr(first, end - first);
-  EXPECT_EQ(std::string::npos, entry.find("value:"));
+  EXPECT_EQ(std::string::npos, output.find("          source: lua(8,0)"));
+  EXPECT_EQ(std::string::npos, output.find("scriptsData:"));
 }
 }  // namespace
 #endif
@@ -650,3 +646,137 @@ TEST_F(ModelConfig, CurvePointCountEncodingIsUnchanged)
   }
 }
 }
+
+namespace {
+TEST_F(ModelConfig, SparseSlotsKeepIndicesAndDefaultValues)
+{
+  ModelData model{};
+  model.rfAlarms.warning = 45; model.rfAlarms.critical = 42;
+  ASSERT_TRUE(save(model));
+  for (const char* section : {"mixData:", "expoData:", "limitData:", "telemetrySensors:", "scriptsData:", "screens:", "screenData:"})
+    EXPECT_EQ(std::string::npos, output.find(section)) << section;
+  model.mixData[7].srcRaw = MIXSRC_FIRST_INPUT;
+  model.mixData[7].destCh = 3;
+  model.mixData[7].weight = 100;
+  model.limitData[11].offset = 123;
+  model.timers[2].start = 50;
+  // Stale data in inactive slots must not create entries.
+  model.mixData[6].weight = 80;
+  model.expoData[5].weight = 90;
+  model.scriptsData[0].inputs[0].value = 42;
+  ASSERT_TRUE(save(model));
+  EXPECT_EQ(std::string::npos, output.find("  6:"));
+  EXPECT_EQ(std::string::npos, output.find("expoData:"));
+  EXPECT_EQ(std::string::npos, output.find("scriptsData:"));
+  EXPECT_NE(std::string::npos, output.find("mixData:\n  7:"));
+  EXPECT_NE(std::string::npos, output.find("limitData:\n  11:"));
+  input = output;
+  ModelData loaded{};
+  ASSERT_TRUE(load(loaded));
+  EXPECT_EQ(MIXSRC_FIRST_INPUT, loaded.mixData[7].srcRaw);
+  EXPECT_EQ(0, loaded.mixData[6].weight);
+  EXPECT_EQ(123, loaded.limitData[11].offset);
+  EXPECT_EQ(50u, loaded.timers[2].start);
+  EXPECT_EQ(45, loaded.rfAlarms.warning);
+}
+TEST_F(ModelConfig, DuplicateAliasesAndInvalidScalarAreRejected)
+{
+  ModelData model{};
+  for (const char* yaml : {"header:\n  modelId: [1, 2]\n  modelId:\n    0:\n      val: 3\n", "timers:\n  0:\n    start:\n"}) {
+    input = yaml;
+    EXPECT_FALSE(load(model));
+  }
+}
+TEST_F(ModelConfigFile, WholeFileCapacityAndLastByte)
+{
+  const auto capacity = config_stream::DocumentCapacity;
+  // Exactly capacity bytes, without a final newline, remains valid.
+  std::string document = "header:\n  name: Boundary\n#";
+  document.append(capacity - document.size(), 'x');
+  put(document);
+  ASSERT_EQ(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
+  EXPECT_STREQ("Boundary", g_model.header.name);
+  put(document + "x");
+  EXPECT_NE(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
+  EXPECT_STREQ("Boundary", g_model.header.name);
+  EXPECT_EQ(document + "x", get());
+  // Reset the failed-load guard with a valid load for subsequent tests.
+  put("header:\n  name: Boundary\n");
+  ASSERT_EQ(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
+}
+TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
+{
+  put("header:\n  name: Original\n");
+  auto original = get();
+  // A dense meaningful model exceeds the deliberately fixed 16 KiB document.
+  for (unsigned i = 0; i < MAX_MIXERS; ++i) {
+    auto& mix = g_model.mixData[i];
+    mix.srcRaw = MIXSRC_FIRST_INPUT; mix.weight = 100; mix.offset = 99;
+    mix.destCh = 15; mix.swtch = SWSRC_ON; mix.delayUp = 20; mix.delayDown = 20;
+    mix.speedUp = 20; mix.speedDown = 20; mix.curve.value = 10;
+  }
+  for (auto& expo : g_model.expoData) {
+    expo.mode = 3; expo.srcRaw = MIXSRC_FIRST_STICK; expo.weight = 100;
+    expo.offset = 20; expo.scale = 100; expo.swtch = SWSRC_ON; expo.chn = 12;
+  }
+  EXPECT_STREQ("configuration file too large", saveModelConfig("/MODELS/test.yml"));
+  EXPECT_EQ(original, get());
+  EXPECT_FALSE(std::filesystem::exists(root / "MODELS/test.yml.tmp"));
+}
+}
+#if defined(STORAGE_MODELSLIST)
+namespace {
+TEST_F(ModelConfigFile, LabelEditSerializesCandidateLuaTypes)
+{
+  strcpy(g_model.header.name, "Active");
+  g_model.timers[0].start = 999;
+  put("header:\n  name: Other\nscriptsData:\n  0:\n    file: mix\n    inputs:\n      0:\n        u:\n          source: ch(3)\n");
+  ASSERT_EQ(nullptr, saveModelConfigLabels("/MODELS/test.yml", "new"));
+  EXPECT_STREQ("Active", g_model.header.name);
+  EXPECT_EQ(999u, g_model.timers[0].start);
+  EXPECT_NE(std::string::npos, get().find("source:"));
+  ASSERT_EQ(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
+  EXPECT_STREQ("new", g_model.header.labels);
+  EXPECT_EQ(MIXSRC_FIRST_CH + 3, g_model.scriptsData[0].inputs[0].source);
+}
+}
+#endif
+#if defined(COLORLCD)
+namespace {
+TEST_F(ModelConfig, EmptyAllocatedScreensAndOptionsAreOmitted)
+{
+  g_model.resetScreenData();
+  g_model = ModelData{};
+  g_model.rfAlarms.warning = 45; g_model.rfAlarms.critical = 42;
+  g_model.getScreenData(0); // Allocation alone is not a used screen.
+  ASSERT_TRUE(save(g_model));
+  EXPECT_EQ(std::string::npos, output.find("screenData:"));
+  g_model.setScreenLayoutId(3, "Layout1x1");
+  ASSERT_TRUE(save(g_model));
+  EXPECT_NE(std::string::npos, output.find("screenData:\n  3:"));
+  EXPECT_EQ(std::string::npos, output.find("options:"));
+  input = output;
+  ASSERT_TRUE(load(g_model));
+  EXPECT_STREQ("Layout1x1", g_model.getScreenLayoutId(3));
+  auto& zone = g_model.getScreenData(3)->layoutData.zones[0];
+  zone.widgetName = "Zero";
+  zone.widgetData.options.resize(2);
+  zone.widgetData.options[0].type = WOV_Color;
+  zone.widgetData.options[0].value.unsignedValue = 0;
+  zone.widgetData.options[1].type = WOV_Source;
+  zone.widgetData.options[1].value.unsignedValue = 0;
+  ASSERT_TRUE(save(g_model));
+  EXPECT_EQ(std::string::npos, output.find("COLIDX0"));
+  EXPECT_EQ(std::string::npos, output.find("source: \"NONE\""));
+  input = output;
+  ASSERT_TRUE(load(g_model));
+  auto& options = g_model.getWidgetData(3, 0)->options;
+  ASSERT_EQ(2u, options.size());
+  EXPECT_EQ(WOV_Color, options[0].type);
+  EXPECT_EQ(0u, options[0].value.unsignedValue);
+  EXPECT_EQ(WOV_Source, options[1].type);
+  EXPECT_EQ(0u, options[1].value.unsignedValue);
+  g_model.resetScreenData();
+}
+}
+#endif

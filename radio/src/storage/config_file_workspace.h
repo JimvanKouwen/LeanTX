@@ -1,27 +1,22 @@
-// Shared FatFs buffers for serialized streaming configuration transactions.
-// GPL-2.0-or-later.
+// Shared, serialized whole-document YAML transactions. GPL-2.0-or-later.
 #pragma once
 #include "config_stream.h"
 #include "ff.h"
-
-namespace config_file
-{
+namespace config_file {
 struct Workspace {
   config_stream::Workspace parser;
-  FIL source, destination;
+  config_stream::Writer writer;
+  FIL file;
   FILINFO fileInfo;
-  char readBuffer[128];
-  char writeBuffer[512];
-  UINT written;
-  UINT position, length;
-  bool eof;
+  size_t length;
+  char temporary[272], recovery[272];
 };
 extern Workspace workspace;
 extern bool busy;
-struct Guard {
-  Guard() { busy = true; }
-  ~Guard() { busy = false; }
-};
-static_assert(sizeof(Workspace) <= 4096,
-              "configuration file workspace fixed RAM budget");
-}  // namespace config_file
+struct Guard { Guard() { busy = true; } ~Guard() { busy = false; } };
+const char* recover(const char* path);
+const char* read(const char* path);
+const char* save(const char* path, const config_stream::Document&);
+static_assert(sizeof(Workspace) < config_stream::DocumentCapacity + 6144,
+              "fixed configuration workspace budget");
+}

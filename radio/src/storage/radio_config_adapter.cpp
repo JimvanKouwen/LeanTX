@@ -33,6 +33,7 @@ struct Candidate {
 #endif
 };
 static Candidate candidate;
+static Field defaultField;
 static_assert(sizeof(Candidate) <= 4096, "radio candidate fixed RAM budget");
 RadioData& settings(void* context) {
   return context ? static_cast<Candidate*>(context)->radio : g_eeGeneral;
@@ -190,9 +191,9 @@ const Scalar scalars[] = {
 #else
 #define RC_INVERT(...)
 #endif
-int64_t scalarGet(unsigned id) {
+int64_t scalarGet(unsigned id, const RadioData& radio) {
   switch(id) {
-#define RC_FIELD(key, member, lo, hi, offset, scale, cap, names) case ID_##key: return int64_t(g_eeGeneral.member) * scale + offset;
+#define RC_FIELD(key, member, lo, hi, offset, scale, cap, names) case ID_##key: return int64_t(radio.member) * scale + offset;
 #include "radio_config_fields.inc"
 #undef RC_FIELD
     default: return 0;
@@ -265,6 +266,8 @@ char* stringMember(unsigned i, size_t& size, RadioData& radio = g_eeGeneral) {
   return nullptr;
 }
 bool field(void* context, unsigned id, Field& f) {
+  auto& radio = settings(context);
+  auto* pending = static_cast<Candidate*>(context);
   // Transaction-only marker for the steps container: its shape is relevant
   // only if the final pot type selects multiposition calibration.
   if (context && id >= FieldCount) {
@@ -272,17 +275,16 @@ bool field(void* context, unsigned id, Field& f) {
     if (i >= adcGetMaxCalibratedInputs()) return false;
     const char* name = adcGetInputName(i);
     if (!name) return false;
-    snprintf(f.path, sizeof(f.path), "calib/%s/steps", name);
     f.available = true;
-    f.required = false;
+
     return true;
   }
   f.available = true;
-  f.required = true;
+
   if (id < ScalarCount) {
-    auto& s = scalars[id]; strcpy(f.path, s.key);
+    auto& s = scalars[id];
     f.available = available(s.capability);
-    auto n = scalarGet(id);
+    auto n = scalarGet(id, radio);
     if (s.lo == 0 && s.hi == 1) n = !!n;
     if (s.names) for (auto e = s.names; e->name; ++e) if (e->value == n) {
       strcpy(f.value, e->name); return true;
@@ -292,15 +294,13 @@ bool field(void* context, unsigned id, Field& f) {
   if (id < Source) {
     unsigned i = id - Strings;
     if (i == 5) return false;
-    strcpy(f.path, stringKeys[i]);
-    size_t size = 0; auto str = stringMember(i, size);
+    size_t size = 0; auto str = stringMember(i, size, radio);
     f.available = str && (i != 2 || available(Bluetooth));
     return !f.available || quoted(f, str, size);
   }
   if (id < Calib) {
-    strcpy(f.path, id == Source ? "backlightSrc" : "volumeSrc");
     if (f.metadataOnly) return true;
-    int source = id == Source ? g_eeGeneral.backlightSrc : g_eeGeneral.volumeSrc;
+    int source = id == Source ? radio.backlightSrc : radio.volumeSrc;
     if (!source) { strcpy(f.value, "NONE"); return true; }
     bool invert = source < 0;
     if (invert) source = -source;
@@ -322,10 +322,9 @@ bool field(void* context, unsigned id, Field& f) {
     unsigned i = (id - Calib) / 9, part = (id - Calib) % 9;
     if (i >= adcGetMaxCalibratedInputs() || i >= MAX_CALIB_ANALOG_INPUTS) return false;
     const char* name = adcGetInputName(i); if (!name) return false;
-    snprintf(f.path, sizeof(f.path), "calib/%s/%s", name, calibKeys[part]);
-    const auto& c = g_eeGeneral.calib[i];
+    const auto& c = radio.calib[i];
     int pot = int(i) - adcGetInputOffset(ADC_INPUT_FLEX);
-    bool multi = pot >= 0 && pot < adcGetMaxInputs(ADC_INPUT_FLEX) && getPotType(pot) == FLEX_MULTIPOS;
+    bool multi = pot >= 0 && pot < adcGetMaxInputs(ADC_INPUT_FLEX) && potType(radio, pot) == FLEX_MULTIPOS;
     f.available = (part >= 3) == multi;
     if (part < 3) return number(f, part == 0 ? c.mid : part == 1 ? c.spanNeg : c.spanPos);
 #if XPOTS_MULTIPOS_COUNT > 0
@@ -338,23 +337,20 @@ bool field(void* context, unsigned id, Field& f) {
   if (id < Pots) {
     unsigned i = (id - Sticks) / 2, part = (id - Sticks) % 2;
     if (i >= adcGetMaxInputs(ADC_INPUT_MAIN)) return false;
-    snprintf(f.path, sizeof(f.path), "sticksConfig/%u/%s", i, part ? "inv" : "name");
-    return part ? number(f, getStickInversion(i)) : quoted(f, analogGetCustomLabel(ADC_INPUT_MAIN, i), LEN_ANA_NAME);
+    return part ? number(f, ((radio.stickInvert >> i) & 1)) : quoted(f, (pending ? pending->labels[adcGetInputOffset(ADC_INPUT_MAIN) + i] : analogGetCustomLabel(ADC_INPUT_MAIN, i)), LEN_ANA_NAME);
   }
   if (id < Switches) {
     unsigned i = (id - Pots) / 3, part = (id - Pots) % 3;
     if (i >= adcGetMaxInputs(ADC_INPUT_FLEX)) return false;
     const char* name = analogGetPhysicalName(ADC_INPUT_FLEX, i); if (!name) return false;
-    snprintf(f.path, sizeof(f.path), "potsConfig/%s/%s", name, part == 0 ? "type" : part == 1 ? "inv" : "name");
-    if (part == 0) { strcpy(f.value, potTypes[getPotType(i) & 7]); return true; }
-    return part == 1 ? number(f, getPotInversion(i)) : quoted(f, analogGetCustomLabel(ADC_INPUT_FLEX, i), LEN_ANA_NAME);
+    if (part == 0) { strcpy(f.value, potTypes[potType(radio, i) & 7]); return true; }
+    return part == 1 ? number(f, ((radio.potsConfig >> (POT_CFG_BITS * i + POT_CFG_TYPE_BITS)) & 1)) : quoted(f, (pending ? pending->labels[adcGetInputOffset(ADC_INPUT_FLEX) + i] : analogGetCustomLabel(ADC_INPUT_FLEX, i)), LEN_ANA_NAME);
   }
   if (id < Serial) {
     unsigned i = (id - Switches) / 11, part = (id - Switches) % 11;
     if (i >= switchGetMaxSwitches() || i >= MAX_SWITCHES) return false;
     const char* name = switchGetDefaultName(i); if (!name) return false;
-    snprintf(f.path, sizeof(f.path), "switchConfig/%s/%s", name, switchKeys[part]);
-    auto& s = g_eeGeneral.switchConfig[i];
+    auto& s = radio.switchConfig[i];
     if (part == 0) return quoted(f, s.name, LEN_SWITCH_NAME);
     if (part == 1) { strcpy(f.value, switchTypes[s.type <= 4 ? s.type : 0]); return true; }
     f.available = false;
@@ -374,45 +370,42 @@ bool field(void* context, unsigned id, Field& f) {
   }
   if (id < Flex) {
     unsigned i = (id - Serial) / 2, part = (id - Serial) % 2;
-    snprintf(f.path, sizeof(f.path), "serialPort/%s/%s", ports[i], part ? "power" : "mode");
     const auto* port = serialGetPort(i);
     f.available = port && (!part || port->set_pwr);
-    if (part) return number(f, serialGetPower(i));
-    int mode = serialGetMode(i);
+    if (part) return number(f, ((radio.serialPort >> (i * SERIAL_CONF_BITS_PER_PORT + SERIAL_CONF_POWER_BIT)) & 1));
+    int mode = ((radio.serialPort >> (i * SERIAL_CONF_BITS_PER_PORT)) & SERIAL_CONF_MODE_MASK);
     strcpy(f.value, mode >= 0 && mode < UART_MODE_COUNT ? uartModes[mode] : "NONE"); return true;
   }
   if (id < Shortcuts) {
     unsigned i = id - Flex;
     if (int(i) >= int(MAX_FLEX_SWITCHES)) return false;
     const char* name = switchGetDefaultName(i + switchGetMaxSwitches()); if (!name) return false;
-    snprintf(f.path, sizeof(f.path), "flexSwitches/%s/channel", name);
-    int channel = switchGetFlexConfig_raw(i);
+    int channel = (pending ? pending->flex[i] : switchGetFlexConfig_raw(i));
     const char* input = channel >= 0 ? analogGetPhysicalName(ADC_INPUT_FLEX, channel) : nullptr;
     return quoted(f, input ? input : "NONE", 32);
   }
   if (id < Version) {
-    bool fav = id >= Favorites; unsigned i = id - (fav ? Favorites : Shortcuts);
-    snprintf(f.path, sizeof(f.path), "%s/%u/shortcut", fav ? "qmFavorites" : "keyShortcuts", i);
     f.available = available(Color);
     if (f.metadataOnly) return true;
 #if defined(COLORLCD)
-    unsigned page = fav ? g_eeGeneral.qmFavorites[i].shortcut : g_eeGeneral.keyShortcuts[i].shortcut;
+    bool fav = id >= Favorites; unsigned i = id - (fav ? Favorites : Shortcuts);
+    unsigned page = fav ? radio.qmFavorites[i].shortcut : radio.keyShortcuts[i].shortcut;
     if (page > QM_APP) return false;
     if (page == QM_APP) {
       char name[RadioData::ToolNameCapacity + 4];
-      snprintf(name, sizeof(name), "APP,%s", g_eeGeneral.configToolName(fav, i));
+      snprintf(name, sizeof(name), "APP,%s", (pending ? pending->tools[(fav ? MAX_KEY_SHORTCUTS : 0) + i] : radio.configToolName(fav, i)));
       return quoted(f, name, sizeof(name));
     } else strcpy(f.value, pages[page]);
 #endif
     return true;
   }
-  if (id == Version) { strcpy(f.path, "configVersion"); return number(f, configVersion); }
-  f.required = false;
+  if (id == Version) { return number(f, pending ? pending->version : configVersion); }
+
   if (id < LegacySliders) {
-    unsigned i = id - Aliases; strcpy(f.path, aliasKeys[i]);
-    if (i == 0) { f.available = available(InternalRf); return number(f, g_eeGeneral.internalModuleBaudrate); }
-    if (i == 1) return number(f, g_eeGeneral.noJitterFilter);
-    if (i == 2) { f.available = available(Encoder); return number(f, g_eeGeneral.rotEncMode); }
+    unsigned i = id - Aliases;
+    if (i == 0) { f.available = available(InternalRf); return number(f, radio.internalModuleBaudrate); }
+    if (i == 1) return number(f, radio.noJitterFilter);
+    if (i == 2) { f.available = available(Encoder); return number(f, radio.rotEncMode); }
     f.available = serialGetPort(i - 3);
     int mode = serialGetMode(i - 3);
     if (mode < 0 || mode >= UART_MODE_COUNT) return false;
@@ -422,9 +415,8 @@ bool field(void* context, unsigned id, Field& f) {
   if (i >= adcGetMaxInputs(ADC_INPUT_FLEX)) return false;
   const char* name = analogGetPhysicalName(ADC_INPUT_FLEX, i);
   if (!name) return false;
-  snprintf(f.path, sizeof(f.path), "slidersConfig/%s/%s", name, part ? "name" : "type");
-  if (part) return quoted(f, analogGetCustomLabel(ADC_INPUT_FLEX, i), LEN_ANA_NAME);
-  return number(f, getPotType(i));
+  if (part) return quoted(f, (pending ? pending->labels[adcGetInputOffset(ADC_INPUT_FLEX) + i] : analogGetCustomLabel(ADC_INPUT_FLEX, i)), LEN_ANA_NAME);
+  return number(f, potType(radio, i));
 }
 int choice(const char* text, const char* const* choices, unsigned count) {
   for (unsigned i = 0; i < count; ++i) if (!strcasecmp(text, choices[i])) return i;
@@ -481,8 +473,9 @@ bool set(void* context, unsigned id, const char* text) {
     else c.steps[part - 3] = n;
     return true; // Only the final pot type decides which representation is valid.
   }
-  char decoded[MaxValue] = {}; size_t len;
+  auto& decoded = scalarBuffer; size_t len;
   if (!string(text, decoded, sizeof(decoded) - 1, len)) return false;
+  decoded[len] = 0;
   if (id < Source) {
     size_t size = 0; char* dst = stringMember(id - Strings, size, radio);
     if (!dst || len > size || !isText(text, decoded)) return false;
@@ -628,128 +621,148 @@ bool set(void* context, unsigned id, const char* text) {
   }
   return true;
 }
-bool describe(void* context, unsigned id, Field& f) {
-  f.metadataOnly = true;
-  const bool found = field(context, id, f);
-  if (context && found && id >= Calib && id < Sticks) {
-    // Accept both semantic representations; availability/missing/invalid are
-    // resolved after EOF, when every hardware type is known.
-    f.required = false;
-    f.available = (id - Calib) % 9 < 3 || XPOTS_MULTIPOS_COUNT > 0;
-  }
-  return found;
-}
-int resolve(void* context, const char* path) {
-  if (!strchr(path, '/')) {
-    for (unsigned i = 0; i < ScalarCount; ++i) if (!strcmp(path, scalars[i].key)) return i;
-    for (unsigned i = 0; i < 5; ++i) if (!strcmp(path, stringKeys[i])) return Strings + i;
-    for (unsigned i = 0; i < 5; ++i) if (!strcmp(path, aliasKeys[i])) return Aliases + i;
-    if (!strcmp(path, "backlightSrc")) return Source;
-    if (!strcmp(path, "volumeSrc")) return Source + 1;
-    return !strcmp(path, "configVersion") ? Version : -1;
-  }
-  const char* first = strchr(path, '/');
-  const char* second = strchr(first + 1, '/');
-  if (!second) return -1;
-  char item[32]; size_t length = second - first - 1;
-  if (!length || length >= sizeof(item)) return -1;
-  memcpy(item, first + 1, length); item[length] = 0;
-  const char* leaf = second + 1;
-  int64_t numericIndex;
-  if (!strncmp(path, "sticksConfig/", 13) && integer(item, 0, 3, numericIndex))
-    return !strcmp(leaf, "name") ? Sticks + numericIndex * 2 : !strcmp(leaf, "inv") ? Sticks + numericIndex * 2 + 1 : -1;
-  if (!strncmp(path, "potsConfig/", 11)) {
-    int i = analogLookupPhysicalIdx(ADC_INPUT_FLEX, item, length);
-    if (i < 0 || i >= 16) return -1;
-    return !strcmp(leaf, "type") ? Pots + i * 3 : !strcmp(leaf, "inv") ? Pots + i * 3 + 1 : !strcmp(leaf, "name") ? Pots + i * 3 + 2 : -1;
-  }
-  if (!strncmp(path, "switchConfig/", 13)) {
-    int i = switchGetIndexFromName(item);
-    if (i < 0 || i >= 32) return -1;
-    for (unsigned part = 0; part < 11; ++part) if (!strcmp(leaf, switchKeys[part])) return Switches + i * 11 + part;
-    return -1;
-  }
-  if (!strncmp(path, "serialPort/", 11)) {
-    for (unsigned i = 0; i < 3; ++i) if (!strcmp(item, ports[i]))
-      return !strcmp(leaf, "mode") ? Serial + i * 2 : !strcmp(leaf, "power") ? Serial + i * 2 + 1 : -1;
-    return -1;
-  }
-  if (!strncmp(path, "flexSwitches/", 13) && !strcmp(leaf, "channel")) {
-    for (int i = 0; i < MAX_FLEX_SWITCHES; ++i) {
-      const char* name = switchGetDefaultName(switchGetMaxSwitches() + i);
-      if (name && !strcmp(item, name)) return Flex + i;
+static uint8_t seen[(FieldCount + MAX_CALIB_ANALOG_INPUTS + 7) / 8];
+enum Section { Root, Calibrations, SticksSection, PotsSection, SwitchesSection, SerialSection, FlexSection, ShortcutsSection, FavoritesSection, SlidersSection,
+  Calibration, Stick, Pot, Switch, SerialPort, FlexSwitch, Shortcut, Slider, Steps, OnColor, OffColor };
+void enter(void* ctx, const Node& parent, const char* key, const char* text, Node& child, Result& result)
+{
+  child = parent; child.section = -1;
+  int id = -1, index = -1; int64_t number;
+  unsigned i = parent.index[0];
+  switch (parent.section) {
+    case Root: {
+      for (unsigned n = 0; n < ScalarCount; ++n) if (!strcmp(key, scalars[n].key)) { id = n; break; }
+      for (unsigned n = 0; n < 5; ++n) {
+        if (!strcmp(key, stringKeys[n])) id = Strings + n;
+        if (!strcmp(key, aliasKeys[n])) id = Aliases + n;
+      }
+      if (!strcmp(key, "backlightSrc")) id = Source;
+      if (!strcmp(key, "volumeSrc")) id = Source + 1;
+      if (!strcmp(key, "configVersion")) id = Version;
+      const char* names[] = {"calib", "sticksConfig", "potsConfig", "switchConfig", "serialPort", "flexSwitches", "keyShortcuts", "qmFavorites", "slidersConfig"};
+      for (unsigned n = 0; n < 9; ++n) if (!strcmp(key, names[n])) child.section = Calibrations + n;
+      break;
     }
-    return -1;
-  }
-  if (!strcmp(leaf, "shortcut")) {
-    if (!strncmp(path, "keyShortcuts/", 13) && integer(item, 0, 5, numericIndex)) return Shortcuts + numericIndex;
-    if (!strncmp(path, "qmFavorites/", 12) && integer(item, 0, 11, numericIndex)) return Favorites + numericIndex;
-  }
-  if (!strncmp(path, "slidersConfig/", 14)) {
-    const char* end = strchr(path + 14, '/'); if (!end) return -1;
-    int index = analogLookupPhysicalIdx(ADC_INPUT_FLEX, path + 14, end - path - 14);
-    if (index < 0 && end - path == 16) {
-      const char* name = !strncmp(path + 14, "LS", 2) ? "SL1" : !strncmp(path + 14, "RS", 2) ? "SL2" : "";
-      index = analogLookupPhysicalIdx(ADC_INPUT_FLEX, name, strlen(name));
+    case Calibrations: {
+      index = adcGetInputIdx(key, strlen(key));
+      const char* old[] = {"Rud", "Ele", "Thr", "Ail"};
+      if (index < 0) for (unsigned n = 0; n < 4; ++n) if (!strcmp(key, old[n])) index = n;
+      if (index < 0 && integer(key, 0, 31, number)) index = number;
+      if (index >= 0 && index < adcGetMaxCalibratedInputs()) child.section = Calibration;
+      break;
     }
-    if (index < 0 || index >= 16) return -1;
-    if (!strcmp(end + 1, "type")) return LegacySliders + index * 2;
-    if (!strcmp(end + 1, "name")) return LegacySliders + index * 2 + 1;
-    return -1;
+    case SticksSection:
+      if (integer(key, 0, adcGetMaxInputs(ADC_INPUT_MAIN) - 1, number)) { index = number; child.section = Stick; }
+      break;
+    case PotsSection: case SlidersSection:
+      index = analogLookupPhysicalIdx(ADC_INPUT_FLEX, key, strlen(key));
+      if (index < 0 && parent.section == SlidersSection) {
+        const char* legacy = !strcmp(key, "LS") ? "SL1" : !strcmp(key, "RS") ? "SL2" : "";
+        index = analogLookupPhysicalIdx(ADC_INPUT_FLEX, legacy, strlen(legacy));
+      }
+      if (index >= 0) child.section = parent.section == PotsSection ? Pot : Slider;
+      break;
+    case SwitchesSection:
+      index = switchGetIndexFromName(key);
+      if (index >= 0 && index < switchGetMaxSwitches()) child.section = Switch;
+      break;
+    case SerialSection:
+      for (unsigned n = 0; n < 3; ++n) if (!strcmp(key, ports[n])) { index = n; child.section = SerialPort; }
+      break;
+    case FlexSection:
+      for (int n = 0; n < MAX_FLEX_SWITCHES; ++n) if (!strcmp(key, switchGetDefaultName(switchGetMaxSwitches() + n))) { index = n; child.section = FlexSwitch; }
+      break;
+    case ShortcutsSection: case FavoritesSection:
+      if (integer(key, 0, parent.section == ShortcutsSection ? 5 : 11, number)) {
+        index = (parent.section == ShortcutsSection ? Shortcuts : Favorites) + number; child.section = Shortcut;
+      }
+      break;
+    case Calibration:
+      for (unsigned n = 0; n < 4; ++n) if (!strcmp(key, calibKeys[n])) id = Calib + i * 9 + n;
+      if (!strcmp(key, "steps")) { child.section = Steps; if (ctx) id = FieldCount + i; }
+      break;
+    case Steps: if (integer(key, 0, 4, number)) id = Calib + i * 9 + 4 + number; break;
+    case Stick: if (!strcmp(key, "name")) id = Sticks + i * 2; if (!strcmp(key, "inv")) id = Sticks + i * 2 + 1; break;
+    case Pot: if (!strcmp(key, "type")) id = Pots + i * 3; if (!strcmp(key, "inv")) id = Pots + i * 3 + 1; if (!strcmp(key, "name")) id = Pots + i * 3 + 2; break;
+    case Slider: if (!strcmp(key, "type")) id = LegacySliders + i * 2; if (!strcmp(key, "name")) id = LegacySliders + i * 2 + 1; break;
+    case Switch:
+      for (unsigned n = 0; n < 5; ++n) if (!strcmp(key, switchKeys[n])) id = Switches + i * 11 + n;
+      if (!strcmp(key, "onColor")) child.section = OnColor;
+      if (!strcmp(key, "offColor")) child.section = OffColor;
+      break;
+    case OnColor: case OffColor:
+      for (unsigned n = 0; n < 3; ++n) if (key[0] == "rgb"[n] && !key[1]) id = Switches + i * 11 + (parent.section == OnColor ? 5 : 8) + n;
+      break;
+    case SerialPort: if (!strcmp(key, "mode")) id = Serial + i * 2; if (!strcmp(key, "power")) id = Serial + i * 2 + 1; break;
+    case FlexSwitch: if (!strcmp(key, "channel")) id = Flex + i; break;
+    case Shortcut: if (!strcmp(key, "shortcut")) id = i; break;
   }
-  if (strncmp(path, "calib/", 6)) return -1;
-  const char* end = strchr(path + 6, '/'); if (!end) return -1;
-  char name[32]; size_t len = end - (path + 6);
-  if (len >= sizeof(name)) return -1;
-  memcpy(name, path + 6, len); name[len] = 0;
-  int index = adcGetInputIdx(name, len);
-  if (index < 0) {
-    const char* oldNames[] = {"Rud", "Ele", "Thr", "Ail"};
-    for (unsigned i = 0; i < 4; ++i) if (!strcmp(name, oldNames[i])) index = i;
-  }
-  if (index < 0) { int64_t n; if (integer(name, 0, 31, n)) index = n; }
-  if (index < 0 || index >= adcGetMaxCalibratedInputs()) return -1;
-  if (context && !strcmp(end + 1, "steps")) return FieldCount + index;
-  for (unsigned p = 0; p < 9; ++p) if (!strcmp(end + 1, calibKeys[p])) return Calib + index * 9 + p;
-  return -1;
+  if (index >= 0) child.index[0] = index;
+  if (id >= 0) {
+    if (!mark(seen, id, sizeof(seen), result)) return;
+    auto& f = defaultField; f.reset(); f.metadataOnly = true;
+    bool availableField = field(ctx, id, f) && f.available;
+    if (ctx && id >= Calib && id < Sticks) availableField = (id - Calib) % 9 < 3 || XPOTS_MULTIPOS_COUNT > 0;
+    if (availableField && !set(ctx, id, text)) ++result.invalid;
+  } else if (child.section >= 0 && *text) result.error = "expected configuration mapping";
+  else if (*text) ++result.unknown;
 }
-bool known(void*, const char* path) {
-  for (const auto& s : scalars) if (!strcmp(path, s.key)) return true;
-  for (const char* key : aliasKeys) if (!strcmp(path, key)) return true;
-  for (const char* key : stringKeys) if (!strcmp(path, key)) return true;
-  struct Shape { const char* root; const char* leaves; };
-  const Shape shapes[] = {
-    {"calib", "mid|spanNeg|spanPos|count|steps|steps/0|steps/1|steps/2|steps/3|steps/4"},
-    {"sticksConfig", "name|inv"}, {"slidersConfig", "name|type"},
-    {"potsConfig", "name|type|inv"},
-    {"switchConfig", "name|type|start|onColorLuaOverride|offColorLuaOverride|onColor|offColor|onColor/r|onColor/g|onColor/b|offColor/r|offColor/g|offColor/b"},
-    {"serialPort", "mode|power"}, {"flexSwitches", "channel"},
-    {"keyShortcuts", "shortcut"}, {"qmFavorites", "shortcut"}
+void save(void*, Writer& writer, Field& value)
+{
+  beginRadioSettingsLoad(); // default baseline in the existing isolated candidate
+  auto leaf = [&](unsigned id, const char* key) {
+    value.reset(); defaultField.reset();
+    if (!field(nullptr, id, value)) { writer.error = "invalid runtime radio value"; return; }
+    if (!value.available) return;
+    if (!field(&candidate, id, defaultField)) { writer.error = "invalid radio default"; return; }
+    if (!defaultField.available || strcmp(value.value, defaultField.value)) writer.value(key, value.value);
   };
-  for (const auto& shape : shapes) {
-    size_t n = strlen(shape.root);
-    if (strncmp(path, shape.root, n)) continue;
-    if (!path[n]) return true;
-    if (path[n] != '/') continue;
-    const char* leaf = strchr(path + n + 1, '/');
-    if (!leaf) return true; // Hardware instance mapping, even on another target.
-    ++leaf;
-    size_t len = strlen(leaf);
-    for (const char* p = shape.leaves; *p;) {
-      const char* end = strchr(p, '|');
-      size_t count = end ? size_t(end - p) : strlen(p);
-      if (count == len && !strncmp(p, leaf, len)) return true;
-      if (!end) break;
-      p = end + 1;
-    }
-    return false;
+  for (unsigned id = 0; id < ScalarCount; ++id) leaf(id, scalars[id].key);
+  for (unsigned i = 0; i < 5; ++i) leaf(Strings + i, stringKeys[i]);
+  leaf(Source, "backlightSrc"); leaf(Source + 1, "volumeSrc"); leaf(Version, "configVersion");
+  writer.begin("calib");
+  for (unsigned i = 0; i < adcGetMaxCalibratedInputs(); ++i) {
+    writer.begin(adcGetInputName(i));
+    for (unsigned p = 0; p < 4; ++p) leaf(Calib + i * 9 + p, calibKeys[p]);
+    writer.begin("steps");
+    for (unsigned p = 0; p < 5; ++p) { char key[2] = {char('0' + p), 0}; leaf(Calib + i * 9 + 4 + p, key); }
+    writer.end(); writer.end();
   }
-  return !strcmp(path, "configVersion") || !strcmp(path, "backlightSrc") || !strcmp(path, "volumeSrc");
+  writer.end(); writer.begin("sticksConfig");
+  for (unsigned i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); ++i) {
+    writer.begin(i); leaf(Sticks + i * 2, "name"); leaf(Sticks + i * 2 + 1, "inv"); writer.end();
+  }
+  writer.end(); writer.begin("potsConfig");
+  for (unsigned i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); ++i) {
+    writer.begin(analogGetPhysicalName(ADC_INPUT_FLEX, i));
+    leaf(Pots + i * 3, "type"); leaf(Pots + i * 3 + 1, "inv"); leaf(Pots + i * 3 + 2, "name"); writer.end();
+  }
+  writer.end(); writer.begin("switchConfig");
+  for (unsigned i = 0; i < switchGetMaxSwitches(); ++i) {
+    writer.begin(switchGetDefaultName(i));
+    for (unsigned p = 0; p < 5; ++p) leaf(Switches + i * 11 + p, switchKeys[p]);
+    for (unsigned color = 0; color < 2; ++color) {
+      writer.begin(color ? "offColor" : "onColor");
+      for (unsigned p = 0; p < 3; ++p) { char key[2] = {"rgb"[p], 0}; leaf(Switches + i * 11 + 5 + color * 3 + p, key); }
+      writer.end();
+    }
+    writer.end();
+  }
+  writer.end(); writer.begin("serialPort");
+  for (unsigned i = 0; i < 3; ++i) { writer.begin(ports[i]); leaf(Serial + i * 2, "mode"); leaf(Serial + i * 2 + 1, "power"); writer.end(); }
+  writer.end(); writer.begin("flexSwitches");
+  for (int i = 0; i < MAX_FLEX_SWITCHES; ++i) { writer.begin(switchGetDefaultName(switchGetMaxSwitches() + i)); leaf(Flex + i, "channel"); writer.end(); }
+  writer.end();
+  for (unsigned fav = 0; fav < 2; ++fav) {
+    writer.begin(fav ? "qmFavorites" : "keyShortcuts");
+    for (unsigned i = 0; i < (fav ? 12u : 6u); ++i) { writer.begin(i); leaf((fav ? Favorites : Shortcuts) + i, "shortcut"); writer.end(); }
+    writer.end();
+  }
 }
 }
-config_stream::Schema radioSettingsSchema() { return {FieldCount, nullptr, field, set, known, resolve, describe}; }
+config_stream::Document radioSettingsDocument() { return {nullptr, enter, save, seen, sizeof(seen)}; }
 
-config_stream::Schema beginRadioSettingsLoad()
+config_stream::Document beginRadioSettingsLoad()
 {
   memset(&candidate, 0, sizeof(candidate));
   generalDefault(candidate.radio);
@@ -771,9 +784,8 @@ config_stream::Schema beginRadioSettingsLoad()
     }
 #endif
   }
-  auto schema = radioSettingsSchema();
+  auto schema = radioSettingsDocument();
   schema.context = &candidate;
-  schema.count += MAX_CALIB_ANALOG_INPUTS;
   static_assert(FieldCount + MAX_CALIB_ANALOG_INPUTS <= MaxFields, "candidate schema tracking capacity");
   return schema;
 }
@@ -806,7 +818,7 @@ void resolveRadioSettingsLoad(config_stream::Result& result)
       return;
     }
     const unsigned mask = multi ? (XPOTS_MULTIPOS_COUNT > 0 ? 0x1f8 : 0) : 7;
-    if ((c.seen & mask) != mask) result.missing = true;
+    // Omitted calibration components retain their initialized defaults.
     for (unsigned part = 0; part < 9; ++part)
       if (c.invalid & mask & (1u << part)) ++result.invalid;
     if (!multi) {

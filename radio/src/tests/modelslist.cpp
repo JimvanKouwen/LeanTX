@@ -45,7 +45,7 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
   auto result = config_stream::process({&cursor, [](void* ctx) {
     auto& p = *static_cast<const char**>(ctx);
     return *p ? int(static_cast<unsigned char>(*p++)) : -1;
-  }, nullptr}, {}, model_config::headerSchema(partial), workspace, true);
+  }, nullptr}, {}, model_config::headerDocument(partial), workspace, true);
   ASSERT_TRUE(result) << (result.error ? result.error : "");
   ASSERT_EQ(0u, result.invalid);
   loadModelYamlStr(yaml);
@@ -125,20 +125,14 @@ static size_t modelFileSize(const char* modelFilename)
   return std::filesystem::file_size(simuFatfsGetRealPath(path));
 }
 
-// Label edits stream through the generic engine. Valid unknown model data
-// must retain its size; malformed YAML must be rejected without replacing it.
-TEST(ModelsList, WriteModelLabelsPreservesBodySize)
+// Label edits regenerate the loaded candidate and discard unknown data.
+TEST(ModelsList, WriteModelLabelsDropsUnknownBody)
 {
   ModelMap map;
 
   const char* fileA = "wml_test_a.yml";
   const char* fileB = "wml_test_b.yml";
 
-  // Both fixtures are well under 512 bytes (a single short f_read/EOF), and
-  // differ only in body length. writeModelLabels() must reproduce that
-  // exact size difference in its output - if it instead always pads the
-  // first chunk out to sizeof(buf), both outputs collapse to the same size
-  // regardless of the real body length (the uninitialized-memory bug).
   std::string bodyA = "body:\n  marker: AAAA\n";
   std::string bodyB = "body:\n  marker: AAAA" + std::string(300, 'X') + "\n";
   ASSERT_LT(bodyA.size() + 40, 512u);
@@ -156,9 +150,8 @@ TEST(ModelsList, WriteModelLabelsPreservesBodySize)
   size_t sizeA = modelFileSize(fileA);
   size_t sizeB = modelFileSize(fileB);
 
-  // The two headers are updated identically, so the size
-  // delta between the outputs must equal the body length delta exactly.
-  EXPECT_EQ(sizeB - sizeA, bodyB.size() - bodyA.size());
+  // Unknown bodies do not affect canonical output.
+  EXPECT_EQ(sizeA, sizeB);
 
   std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + fileA));
   std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + fileB));

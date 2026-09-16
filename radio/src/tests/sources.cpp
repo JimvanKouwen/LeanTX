@@ -73,7 +73,7 @@ static void loadRadioYamlStr(const char* str)
   auto result = config_stream::process({&cursor, [](void* context) {
     auto& p = *static_cast<const char**>(context);
     return *p ? int((unsigned char)*p++) : -1;
-  }, nullptr}, {}, radioSettingsSchema(), workspace, true);
+  }, nullptr}, {}, radioSettingsDocument(), workspace, true);
   ASSERT_TRUE(result) << (result.error ? result.error : "");
 
 }

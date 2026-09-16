@@ -112,7 +112,7 @@ bool textValue(char (&value)[N], Field& f, const char* text)
 {
   if (!text) return quoted(f.value, sizeof(f.value), value, N);
   if (*text && strchr("[{|>", *text)) return false;
-  char decoded[MaxValue];
+  auto& decoded = scalarBuffer;
   size_t len;
   if (!string(text, decoded, sizeof(decoded), len)) return false;
   memset(value, 0, N);
@@ -121,7 +121,7 @@ bool textValue(char (&value)[N], Field& f, const char* text)
 }
 bool enumeration(const Enum* table, const char* text, int64_t& n)
 {
-  char decoded[MaxValue];
+  auto& decoded = scalarBuffer;
   size_t len;
   if (!string(text, decoded, sizeof(decoded) - 1, len)) return false;
   decoded[len] = 0;
@@ -193,7 +193,7 @@ bool sourceOutput(int n, char* out, size_t cap)
 }
 bool sourceInput(const char* text, int64_t& value)
 {
-  char s[MaxValue];
+  auto& s = scalarBuffer;
   size_t len;
   if (!string(text, s, sizeof(s) - 1, len)) return false;
   s[len] = 0;
@@ -291,7 +291,7 @@ bool switchOutput(int n, Field& f)
 }
 bool switchInput(const char* text, int64_t& value)
 {
-  char s[MaxValue];
+  auto& s = scalarBuffer;
   size_t len;
   if (!string(text, s, sizeof(s) - 1, len)) return false;
   s[len] = 0;
@@ -339,8 +339,11 @@ bool switchInput(const char* text, int64_t& value)
 struct Context {
   ModelData* model;
   bool loading;
+  unsigned points = 0;
 };
-static ModelData candidate;
+static ModelData candidate, defaults;
+static Field defaultField;
+void initialize(ModelData& model);
 static Context loadContext{&candidate, true}, saveContext;
 #if defined(COLORLCD)
 static uint8_t seen[8192];
@@ -421,7 +424,7 @@ bool relevant(const Context& c, const char* path, unsigned i, unsigned j,
   }
 #endif
   if (strstr(path, "scriptsData/") && strstr(path, "/inputs/")) {
-    bool source = (c.loading ? candidateScriptSource : scriptSource)[i][j];
+    bool source = (c.model == &candidate ? candidateScriptSource : scriptSource)[i][j];
     return (strstr(path, "/source") != nullptr) == source;
   }
   return true;
@@ -558,54 +561,6 @@ struct Descriptor {
   const char* codec;
   bool (*access)(ModelData&, unsigned, Field&, const char*);
 };
-#define CAP_Antenna(member) 0
-#define CAP_BooleanMode(member) 0
-#define CAP_ChannelCount(member) 0
-#define CAP_Formula(member) 0
-#define CAP_FunctionGroup(member) 0
-#define CAP_FunctionId(member) 0
-#define CAP_FunctionStart(member) 0
-#define CAP_FunctionType(member) 0
-#define CAP_Hats(member) 0
-#define CAP_JoystickChannel(member) 0
-#define CAP_JoystickMode(member) 0
-#define CAP_LayoutBool(member) 0
-#define CAP_LayoutColor(member) 0
-#define CAP_LayoutId(member) 0
-#define CAP_LayoutOptionType(member) 0
-#define CAP_LayoutUnsigned(member) 0
-#define CAP_ModelIds(member) 0
-#define CAP_Module(member) 0
-#define CAP_Multiplex(member) 0
-#define CAP_Number(member) 0
-#define CAP_Override(member) 0
-#define CAP_PotsMode(member) 0
-#define CAP_ScreenType(member) 0
-#define CAP_Sensor(member) 0
-#define CAP_SensorType(member) 0
-#define CAP_Source(member) 0
-#define CAP_Switch(member) 0
-#define CAP_SwitchWarning(member) 0
-#define CAP_Text(member) sizeof(m.member)
-#define CAP_Throttle(member) 0
-#define CAP_TimerMode(member) 0
-#define CAP_TopbarName(member) 0
-#define CAP_TopbarWidgetBool(member) 0
-#define CAP_TopbarWidgetColor(member) 0
-#define CAP_TopbarWidgetSigned(member) 0
-#define CAP_TopbarWidgetSource(member) 0
-#define CAP_TopbarWidgetString(member) 0
-#define CAP_TopbarWidgetType(member) 0
-#define CAP_TopbarWidgetUnsigned(member) 0
-#define CAP_WidgetBool(member) 0
-#define CAP_WidgetColor(member) 0
-#define CAP_WidgetName(member) 0
-#define CAP_WidgetSigned(member) 0
-#define CAP_WidgetSource(member) 0
-#define CAP_WidgetString(member) 0
-#define CAP_WidgetType(member) 0
-#define CAP_WidgetUnsigned(member) 0
-#define CAP_codec(member) 0
 #define ROW3(path, count, stride, inner, capability, member, lo, hi, codec)    \
   {path,                                                                       \
    count,                                                                      \
@@ -619,7 +574,6 @@ struct Descriptor {
      (void)k;                                                                  \
      FUNCTION_ACCESS(path) f.available = (capability);                         \
      if (!f.available) return true;                                            \
-     f.capacity = CAP_##codec(member);                                         \
      if (f.metadataOnly) return true;                                          \
      ACCESS_##codec(member, lo, hi)                                            \
    }},
@@ -739,7 +693,7 @@ struct Descriptor {
 #else
 #define MFUNCTIONRGB UNAVAILABLE
 #endif
-const Descriptor descriptors[] = {
+constexpr Descriptor descriptors[] = {
 #include "model_config_fields.inc"
 };
 constexpr unsigned DescriptorCount =
@@ -750,7 +704,7 @@ unsigned extent(const Descriptor& d)
 #if defined(FUNCTION_SWITCHES)
   if (!strncmp(d.path, "customSwitches/", 15)) return d.count;
 #endif
-  Field f{};
+  auto& f = defaultField; f.reset();
   f.metadataOnly = true;
   d.access(candidate, 0, f, nullptr);
   return f.available ? d.count : 0;
@@ -761,127 +715,11 @@ void prepare()
   for (unsigned i = 0; i < DescriptorCount; ++i)
     bases[i + 1] = bases[i] + extent(descriptors[i]);
 }
-unsigned count() { return bases[DescriptorCount]; }
-unsigned rowFor(unsigned id)
-{
-  unsigned lo = 0, hi = DescriptorCount;
-  while (lo < hi) {
-    unsigned mid = (lo + hi) / 2;
-    if (bases[mid + 1] <= id)
-      lo = mid + 1;
-    else
-      hi = mid;
-  }
-  return lo;
-}
-const Descriptor* descriptor(unsigned& id)
-{
-  unsigned row = rowFor(id);
-  if (row == DescriptorCount) return nullptr;
-  id -= bases[row];
-  return &descriptors[row];
-}
-unsigned next(void*, const char* prefix, unsigned begin)
-{
-  char translated[MaxPath];
-  if (!strncmp(prefix, "switchWarning/", 14)) {
-    const char* end = strchr(prefix + 14, '/');
-    size_t len = end ? size_t(end - prefix - 14) : strlen(prefix + 14);
-    if (len < 32) {
-      char name[32];
-      memcpy(name, prefix + 14, len);
-      name[len] = 0;
-      int i = switchLookupIdx(name, len);
-      if (i >= 0) {
-        snprintf(translated, sizeof(translated), "switchWarning/%d%s", i,
-                 end ? end : "");
-        prefix = translated;
-      }
-    }
-  }
-  for (unsigned row = rowFor(begin); row < DescriptorCount; ++row) {
-    auto& d = descriptors[row];
-    unsigned first = 0, last = d.count;
-    const char* p = prefix;
-    const char* q = d.path;
-    unsigned dimension = 0;
-    bool match = true;
-    while (*p && *q) {
-      if (q[0] == '%' && q[1] == 'u') {
-        if (*p < '0' || *p > '9') {
-          match = false;
-          break;
-        }
-        unsigned value = 0;
-        while (*p >= '0' && *p <= '9') {
-          value = value * 10 + *p++ - '0';
-          if (value > 65535) {
-            match = false;
-            break;
-          }
-        }
-        unsigned stride = dimension == 0   ? d.stride
-                          : dimension == 1 ? d.innerStride
-                                           : 1;
-        if (value >= (dimension == 0   ? d.count / d.stride
-                      : dimension == 1 ? d.stride / d.innerStride
-                                       : d.innerStride)) {
-          match = false;
-          break;
-        }
-        first += value * stride;
-        last = first + stride;
-        ++dimension;
-        q += 2;
-      } else {
-        if (*p != *q) {
-          match = false;
-          break;
-        }
-        ++p;
-        ++q;
-      }
-    }
-    if (!match || *p || (*prefix && *q && *q != '/')) continue;
-    unsigned id = begin > bases[row] + first ? begin : bases[row] + first;
-    if (id < bases[row + 1] && id < bases[row] + last) return id;
-  }
-  return count();
-}
-bool describe(void* ctx, unsigned id, Field& f)
+bool set(void* ctx, unsigned row, unsigned id, const char* text)
 {
   auto& c = *static_cast<Context*>(ctx);
-  auto d = descriptor(id);
-  if (!d) return false;
-  snprintf(f.path, sizeof(f.path), d->path, id / d->stride,
-           (id % d->stride) / d->innerStride, id % d->innerStride);
-  if (!strcmp(d->path, "switchWarning/%u/pos") &&
-      id < switchGetMaxAllSwitches())
-    snprintf(f.path, sizeof(f.path), "switchWarning/%s/pos",
-             switchGetDefaultName(id));
-  f.metadataOnly = true;
-  bool ok = d->access(*c.model, id, f, nullptr);
-  f.metadataOnly = false;
-  f.required = f.available &&
-               relevant(c, d->path, id / d->stride,
-                        (id % d->stride) / d->innerStride, id % d->innerStride);
-  if (!c.loading && strcmp(d->path, "header/modelId"))
-    f.available = f.available && f.required;
-  return ok;
-}
-bool field(void* ctx, unsigned id, Field& f)
-{
-  if (!describe(ctx, id, f)) return false;
-  auto& c = *static_cast<Context*>(ctx);
-  auto d = descriptor(id);
-  if (!f.available) return true;
-  return d->access(*c.model, id, f, nullptr);
-}
-bool set(void* ctx, unsigned id, const char* text)
-{
-  auto& c = *static_cast<Context*>(ctx);
-  auto d = descriptor(id);
-  Field f{};
+  auto d = &descriptors[row];
+  auto& f = defaultField; f.reset();
   if (!d) return false;
   unsigned i = id / d->stride, j = id % d->stride;
 #if !defined(COLORLCD)
@@ -914,106 +752,6 @@ bool set(void* ctx, unsigned id, const char* text)
     candidateScriptSource[i][j] = strstr(d->path, "/source") != nullptr;
   return true;
 }
-int resolve(void*, const char* path)
-{
-  char translated[MaxPath];
-  if (!strncmp(path, "switchWarning/", 14)) {
-    const char* end = strchr(path + 14, '/');
-    if (end) {
-      char name[32];
-      size_t len = end - path - 14;
-      if (len < sizeof(name)) {
-        memcpy(name, path + 14, len);
-        name[len] = 0;
-        int i = switchLookupIdx(name, len);
-        if (i >= 0) {
-          snprintf(translated, sizeof(translated), "switchWarning/%d%s", i,
-                   end);
-          path = translated;
-        }
-      }
-    }
-  }
-  unsigned base = 0;
-  for (auto& d : descriptors) {
-    const char* p = path;
-    const char* pattern = d.path;
-    unsigned indices[3] = {}, index = 0;
-    while (*pattern && *p) {
-      if (pattern[0] == '%' && pattern[1] == 'u') {
-        if (index == 3 || *p < '0' || *p > '9') break;
-        unsigned n = 0;
-        while (*p >= '0' && *p <= '9') {
-          n = n * 10 + *p++ - '0';
-          if (n > 65535) return -1;
-        }
-        indices[index++] = n;
-        pattern += 2;
-      } else {
-        if (*pattern != *p) break;
-        ++pattern;
-        ++p;
-      }
-    }
-    if ((!*pattern || !strcmp(pattern, "/val")) && !*p) {
-      unsigned n =
-          indices[0] * d.stride + indices[1] * d.innerStride + indices[2];
-      if (n < extent(d) &&
-          (d.stride == 1 || indices[1] * d.innerStride < d.stride) &&
-          indices[2] < d.innerStride)
-        return base + n;
-    }
-    base += extent(d);
-  }
-  return -1;
-}
-bool known(void* ctx, const char* path)
-{
-  if (resolve(ctx, path) >= 0) return true;
-  if (!strncmp(path, "switchWarning/", 14)) {
-    const char* p = strchr(path + 14, '/');
-    return !p || !strcmp(p, "/pos");
-  }
-  // Match structural prefixes against the same universal schema.
-  for (auto& d : descriptors) {
-    const char* p = path;
-    const char* q = d.path;
-    while (*p && *q) {
-      if (q[0] == '%' && q[1] == 'u') {
-        if (*p < '0' || *p > '9') break;
-        while (*p >= '0' && *p <= '9') ++p;
-        q += 2;
-      } else {
-        if (*p != *q) break;
-        ++p;
-        ++q;
-      }
-    }
-    if (!*p && (*q == '/' || !*q)) return true;
-  }
-  return !strcmp(path, "semver") || !strcmp(path, "checksum");
-}
-bool sequence(void*, const char* path)
-{
-  if (!strcmp(path, "switchWarning")) return false;
-  for (auto& d : descriptors) {
-    const char* p = path;
-    const char* q = d.path;
-    while (*p && *q) {
-      if (q[0] == '%' && q[1] == 'u') {
-        if (*p < '0' || *p > '9') break;
-        while (*p >= '0' && *p <= '9') ++p;
-        q += 2;
-      } else {
-        if (*p != *q) break;
-        ++p;
-        ++q;
-      }
-    }
-    if (!*p && !strncmp(q, "/%u/", 4)) return true;
-  }
-  return false;
-}
 bool portableUnavailable(const char* codec, const char* text)
 {
   if (!strcmp(codec, "Module")) {
@@ -1022,7 +760,7 @@ bool portableUnavailable(const char* codec, const char* text)
     // Empty legacy RF selections also mean off, including an unquoted null.
     if (!*text) return true;
     if (strchr("[{|>", *text)) return false;
-    char name[MaxValue];
+    auto& name = scalarBuffer;
     size_t length;
     if (!string(text, name, sizeof(name) - 1, length)) return false;
     name[length] = 0;
@@ -1034,7 +772,7 @@ bool portableUnavailable(const char* codec, const char* text)
   int64_t n;
   if (!strcmp(codec, "Switch") ? switchInput(text, n) : sourceInput(text, n))
     return false;
-  char s[MaxValue];
+  auto& s = scalarBuffer;
   size_t len;
   if (!string(text, s, sizeof(s) - 1, len)) return false;
   s[len] = 0;
@@ -1072,173 +810,133 @@ bool portableUnavailable(const char* codec, const char* text)
     return strlen(p) <= 3;
   return false;
 }
-// Serialized with the file transaction, so large quoted strings do not consume
-// the menus-task stack while checking whether a narrower target changed them.
-static struct {
-  char token[MaxLine];
-  Field field;
-} scalarScratch;
-bool preserve(void* ctx, unsigned id, const char* text)
+// Apply one leaf selected by its enclosing section. No path construction or search.
+void readLeaf(void* ctx, unsigned row, unsigned local, const char* text, Result& result)
 {
-  // The engine retains the original line for output; inspect an independent
-  // scalar token so an inline comment cannot hide an unavailable value.
-  auto& token = scalarScratch.token;
-  if (strchr(text, '#')) {
-    size_t length = strlen(text);
-    if (length >= sizeof(token)) return false;
-    memcpy(token, text, length + 1);
-    char quote = 0;
-    for (char* p = token; *p; ++p) {
-      if (quote) {
-        if (quote == '"' && *p == '\\' && p[1])
-          ++p;
-        else if (*p == quote) {
-          if (quote == '\'' && p[1] == '\'')
-            ++p;
-          else
-            quote = 0;
-        }
-      } else if (*p == '\'' || *p == '"')
-        quote = *p;
-      else if (*p == '#' && (p == token || p[-1] == ' ')) {
-        *p = 0;
-        break;
-      }
-    }
-    length = strlen(token);
-    while (length && token[length - 1] == ' ') token[--length] = 0;
-    text = token;
+  const auto& d = descriptors[row];
+  if (local >= bases[row + 1] - bases[row]) return;
+  unsigned id = bases[row] + local;
+  if (!mark(seen, id, sizeof(seen), result)) return;
+  auto& f = defaultField; f.reset(); f.metadataOnly = true;
+  if (!d.access(*static_cast<Context*>(ctx)->model, local, f, nullptr) || !f.available) return;
+  if (!strcmp(d.codec, "ModelIds")) {
+    for (unsigned n = 0; n < 2; ++n) if (!mark(seen, bases[3] + n, sizeof(seen), result)) return;
   }
-  unsigned local = id;
-  auto d = descriptor(local);
-  if (!d) return false;
-  // Preserve unavailable values during ordinary saves, but allow a user to
-  // replace the fallback with an available setting on this radio.
-  auto unchangedFallback = [&](const char* codec, int baseline = 0) {
-    auto& context = *static_cast<Context*>(ctx);
-    if (context.loading) return true;
-    auto& current = scalarScratch.field;
-    current = Field{};
-    if (!d->access(*context.model, local, current, nullptr)) return false;
-    int64_t value;
-    if (!strcmp(codec, "Sensor")) return !strcmp(current.value, "none");
-    if (!strcmp(codec, "Module"))
-      return enumeration(Module, current.value, value) && value == baseline;
-    if (!strcmp(codec, "Switch"))
-      return switchInput(current.value, value) && value == baseline;
-    if (!strcmp(codec, "Throttle"))
-      return sourceInput(current.value, value) &&
-             source2ThrottleSource(value) == baseline;
-    if (strstr(codec, "Source"))
-      return sourceInput(current.value, value) && value == baseline;
-    return integer(current.value, INT32_MIN, UINT32_MAX, value) &&
-           value == baseline;
-  };
-  if (!strcmp(d->codec, "ModelIds") && (!*text || *text == '#')) return true;
+  int64_t reference;
+  if (!strcmp(d.codec, "Sensor") && integer(text, 0, 98, reference) && reference >= MAX_TELEMETRY_SENSORS) return;
+  if (!strncmp(d.path, "telemetrySensors/", 17) &&
+      (strstr(d.path, "/cfg/cell/source") || strstr(d.path, "/cfg/consumption/source") ||
+       strstr(d.path, "/cfg/calc/sources/") || strstr(d.path, "/cfg/dist/")) &&
+      integer(text, -99, 99, reference) && (reference > MAX_TELEMETRY_SENSORS || reference < -MAX_TELEMETRY_SENSORS)) return;
+  if (portableUnavailable(d.codec, text)) return;
+  if (!set(ctx, row, local, text)) ++result.invalid;
+}
+// Drop empty runtime slots, even if their inactive union contains old data.
+bool used(const Context& c, const char* section, const unsigned* index)
+{
+  auto& m = *c.model; unsigned i = index[0];
+#if defined(COLORLCD)
+  unsigned j = index[1], k = index[2];
+#endif
 #if defined(FUNCTION_SWITCHES)
-  if (!strcmp(d->path, "customSwitches/%u/group")) {
-    int64_t group;
-    if (integer(text, 0, 7, group) && group > NUM_FUNCTIONS_GROUPS) {
-      int native = functionIndex(*static_cast<Context*>(ctx)->model, local);
-      const char* name =
-          native >= 0
-              ? switchGetDefaultName(switchGetSwitchFromCustomIdx(native))
-              : "";
-      return unchangedFallback("Number",
-                               name && !strncmp(name, "SW", 2) ? 1 : 0);
-    }
+  if (!strcmp(section, "customSwitches/%u")) {
+    int native = functionIndex(*c.model, i);
+    if (native < 0 || native >= NUM_FUNCTIONS_SWITCHES) return false;
+    const auto& a = m.customSwitches[native];
+    const auto& b = defaults.customSwitches[native];
+    return strncmp(a.name, b.name, LEN_SWITCH_NAME) || a.type != b.type ||
+           a.group != b.group || a.start != b.start || a.state != b.state
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+           || a.onColorLuaOverride != b.onColorLuaOverride ||
+           a.offColorLuaOverride != b.offColorLuaOverride ||
+           a.onColor.r != b.onColor.r || a.onColor.g != b.onColor.g || a.onColor.b != b.onColor.b ||
+           a.offColor.r != b.offColor.r || a.offColor.g != b.offColor.g || a.offColor.b != b.offColor.b
+#endif
+           ;
   }
 #endif
-  if (!strcmp(d->codec, "Sensor")) {
-    int64_t sensor;
-    if (integer(text, 0, 98, sensor) && sensor >= MAX_TELEMETRY_SENSORS)
-      return unchangedFallback("Sensor");
-  }
-  if (!strncmp(d->path, "telemetrySensors/", 17) &&
-      (strstr(d->path, "/cfg/cell/source") ||
-       strstr(d->path, "/cfg/consumption/source") ||
-       strstr(d->path, "/cfg/calc/sources/") ||
-       strstr(d->path, "/cfg/dist/"))) {
-    int64_t sensor;
-    if (integer(text, -99, 99, sensor) &&
-        (sensor > MAX_TELEMETRY_SENSORS || sensor < -MAX_TELEMETRY_SENSORS))
-      return unchangedFallback("Number");
-  }
-  if (portableUnavailable(d->codec, text)) {
-    if (static_cast<Context*>(ctx)->loading &&
-        !strncmp(d->path, "scriptsData/", 12) && strstr(d->path, "/inputs/") &&
-        strstr(d->path, "/source"))
-      candidateScriptSource[local / d->stride][local % d->stride] = true;
-    return unchangedFallback(d->codec);
-  }
-  if (!static_cast<Context*>(ctx)->loading && !strcmp(d->codec, "Text")) {
-    auto& f = scalarScratch.field;
-    f = Field{};
-    describe(ctx, id, f);
-    auto& original = scalarScratch.token;
-    if (text != original) {
-      size_t length = strlen(text);
-      if (length >= sizeof(original)) return false;
-      memcpy(original, text, length + 1);
-    }
-    auto& current = f.value;
-    size_t len, used;
-    if (string(original, original, sizeof(original), len) && len > f.capacity &&
-        d->access(*static_cast<Context*>(ctx)->model, local, f, nullptr) &&
-        string(f.value, current, sizeof(current), used))
-      return used == f.capacity && !memcmp(original, current, used);
-  }
-  return false;
-}
-bool cover(void* ctx, unsigned id, const char* text, uint8_t* bitmap)
-{
-  unsigned local = id;
-  auto d = descriptor(local);
-  if (!d || strcmp(d->codec, "ModelIds") || !*text || *text == '#') return true;
-  for (unsigned i = 0; i < 2; ++i) {
-    char p[48];
-    snprintf(p, sizeof(p), "header/modelId/%u/val", i);
-    int child = resolve(ctx, p);
-    if (child >= 0) {
-      unsigned mask = 1u << (child % 8);
-      if (bitmap[child / 8] & mask) return false;
-      bitmap[child / 8] |= mask;
+  if (!strcmp(section, "points/%u")) return i < c.points;
+  if (!strcmp(section, "mixData/%u")) return i < MAX_MIXERS && m.mixData[i].srcRaw;
+  if (!strcmp(section, "expoData/%u")) return i < MAX_EXPOS && m.expoData[i].mode;
+  if (!strcmp(section, "telemetrySensors/%u")) return i < MAX_TELEMETRY_SENSORS && (m.telemetrySensors[i].id || m.telemetrySensors[i].label[0] || m.telemetrySensors[i].type);
+  if (!strncmp(section, "scriptsData/", 12)) return i < MAX_SCRIPTS && m.scriptsData[i].file[0];
+#if !defined(COLORLCD)
+  if (!strncmp(section, "screenData/", 11) || !strncmp(section, "topbarData/", 11) || !strncmp(section, "topbarWidgetWidth/", 18)) return false;
+  if (!strncmp(section, "screens/", 8)) return i < MAX_TELEMETRY_SCREENS && m.getTelemetryScreenType(i);
+#else
+  if (!strncmp(section, "topbarWidgetWidth/", 18)) return i < MAX_TOPBAR_ZONES && !topbarFor(*c.model).zones[i].widgetName.empty();
+  if (!strncmp(section, "screens/", 8)) return false;
+  if (!strncmp(section, "screenData/", 11)) {
+    if (i >= MAX_CUSTOM_SCREENS || (&m == &candidate ? stagedScreens[i].LayoutId.empty() : (!m.hasScreenData(i) || m.getScreenData(i)->LayoutId.empty()))) return false;
+    if (strstr(section, "/zones/")) {
+      if (j >= MAX_LAYOUT_ZONES || screenFor(*c.model, i).layoutData.zones[j].widgetName.empty()) return false;
+      if (strstr(section, "/options/")) return k < screenFor(*c.model, i).layoutData.zones[j].widgetData.options.size();
     }
   }
+  if (!strncmp(section, "topbarData/", 11)) {
+    if (i >= MAX_TOPBAR_ZONES || topbarFor(*c.model).zones[i].widgetName.empty()) return false;
+    if (strstr(section, "/options/")) return j < topbarFor(*c.model).zones[i].widgetData.options.size();
+  }
+#endif
+  if (!strcmp(section, "switchWarning/%u")) return i < switchGetMaxAllSwitches();
   return true;
 }
-bool emitSequence(void*, const char* path)
+void writeLeaf(Context& context, unsigned row, unsigned local, const char* key, Writer& writer, Field& f)
 {
-  return !strcmp(path, "mixData") || !strcmp(path, "expoData") ||
-         !strcmp(path, "customSwitches");
+  auto& d = descriptors[row];
+  if (local >= bases[row + 1] - bases[row]) return;
+  unsigned i = local / d.stride, j = (local % d.stride) / d.innerStride, k = local % d.innerStride;
+  if (!relevant(context, d.path, i, j, k)) return;
+  f.reset();
+  if (!d.access(*context.model, local, f, nullptr)) { writer.error = "invalid runtime model value"; return; }
+  if (!f.available) return;
+  defaultField.reset();
+  if (!strncmp(d.path, "screenData/", 11) || !strncmp(d.path, "topbarData/", 11)) {
+    const char* baseline = "0";
+    if (strstr(d.codec, "Name") || strstr(d.codec, "String") || !strcmp(d.codec, "LayoutId")) baseline = "\"\"";
+    else if (!strcmp(d.codec, "LayoutOptionType")) baseline = "None";
+    else if (strstr(d.codec, "Color")) baseline = "COLIDX0";
+    else if (strstr(d.codec, "Source")) baseline = "\"NONE\"";
+    strcpy(defaultField.value, baseline);
+  } else if (!d.access(defaults, local, defaultField, nullptr)) { writer.error = "invalid model default"; return; }
+  // A widget option's type is its presence marker, including a zero-valued option.
+  bool presence = strstr(d.codec, "WidgetType") || !strcmp(d.codec, "WidgetType") || !strcmp(d.codec, "FunctionId");
+  if (presence || strcmp(f.value, defaultField.value)) writer.value(key, f.value);
 }
-Schema make(Context& c)
+constexpr bool sameKey(const char* a, const char* b) {
+  while (*a && *a == *b) { ++a; ++b; }
+  return *a == *b;
+}
+#include "model_config_sections.inc"
+void save(void* ctx, Writer& writer, Field& field)
+{
+  initialize(defaults);
+  auto& context = *static_cast<Context*>(ctx);
+  context.points = 0;
+  for (const auto& curve : context.model->curves) {
+    int n = curve.points + 5;
+    if (n < 2 || n > 17) { writer.error = "invalid runtime curve point count"; return; }
+    context.points += curve.type ? 2 * n - 2 : n;
+  }
+  if (context.points > MAX_CURVE_POINTS) { writer.error = "model curve capacity exceeded"; return; }
+  unsigned index[3]{};
+  writeSection(context, 0, index, writer, field);
+}
+Document make(Context& c)
 {
   prepare();
-  return {count(),  &c,   field,        set,  known,    resolve, describe,
-          sequence, seen, sizeof(seen), next, preserve, cover,   emitSequence};
+  return {&c, enter, save, seen, sizeof(seen)};
 }
-}  // namespace
-config_stream::Schema schema(ModelData& model)
+void initialize(ModelData& model)
 {
-  saveContext = {&model, false};
-  return make(saveContext);
-}
-config_stream::Schema beginLoad()
-{
-  candidate = ModelData{};
-#if defined(FUNCTION_SWITCHES)
-  beginFunctions();
-#endif
-  memset(sensorStage, 0, sizeof(sensorStage));
-  memset(candidateScriptSource, 0, sizeof(candidateScriptSource));
-  candidate.rfAlarms.warning = 45;
-  candidate.rfAlarms.critical = 42;
+  model = ModelData{};
+  model.rfAlarms.warning = 45;
+  model.rfAlarms.critical = 42;
 #if defined(FUNCTION_SWITCHES)
   for (unsigned x = 0; x < switchGetMaxSwitches(); ++x)
     if (switchIsCustomSwitch(x)) {
       unsigned i = switchGetCustomSwitchIdx(x);
-      auto& sw = candidate.customSwitches[i];
+      auto& sw = model.customSwitches[i];
       const char* name = switchGetDefaultName(x);
       bool grouped = !strncmp(name, "SW", 2);
       sw.type = grouped ? SWITCH_2POS : SWITCH_GLOBAL;
@@ -1249,8 +947,24 @@ config_stream::Schema beginLoad()
       sw.onColor.setColor(0xFFFFFF);
 #endif
     }
-  candidate.cfsSetGroupAlwaysOn(1, true);
+  model.cfsSetGroupAlwaysOn(1, true);
 #endif
+}
+}  // namespace
+ModelData& loadedCandidate() { return candidate; }
+config_stream::Document document(ModelData& model)
+{
+  saveContext = {&model, false};
+  return make(saveContext);
+}
+config_stream::Document beginLoad()
+{
+  initialize(candidate);
+#if defined(FUNCTION_SWITCHES)
+  beginFunctions();
+#endif
+  memset(sensorStage, 0, sizeof(sensorStage));
+  memset(candidateScriptSource, 0, sizeof(candidateScriptSource));
 #if !defined(COLORLCD)
   memset(monoStage, 0, sizeof(monoStage));
 #else
@@ -1331,55 +1045,10 @@ void commitLoad(ModelData& model)
 }
 namespace
 {
-const char* headerPaths[] = {"header/name",          "header/modelId",
-                             "header/bitmap",        "header/labels",
-                             "moduleData/0/type",    "moduleData/1/type",
-                             "header/modelId/0/val", "header/modelId/1/val"};
-bool headerField(void* ctx, unsigned id, Field& f)
-{
-  auto& h = *static_cast<Header*>(ctx);
-  strcpy(f.path, headerPaths[id]);
-  f.required = id != 1;
-  f.available = true;
-#if LEN_BITMAP_NAME == 0
-  if (id == 2) f.available = false;
-#endif
-#if !defined(STORAGE_MODELSLIST)
-  if (id == 3) f.available = false;
-#endif
-  if (!f.available || f.metadataOnly) return true;
-  if (id == 0) return textValue(h.header.name, f, nullptr);
-  if (id == 1) return modelIds(h.header.modelId, f, nullptr);
-#if LEN_BITMAP_NAME > 0
-  if (id == 2) return textValue(h.header.bitmap, f, nullptr);
-#endif
-#if defined(STORAGE_MODELSLIST)
-  if (id == 3) return textValue(h.header.labels, f, nullptr);
-#endif
-  if (id >= 6)
-    return formatInteger(f.value, sizeof(f.value), h.header.modelId[id - 6]);
-  return id >= 4 && enumOutput(Module, h.moduleData[id - 4].type, f);
-}
-bool headerDescribe(void* ctx, unsigned id, Field& f)
-{
-  f.metadataOnly = true;
-  return headerField(ctx, id, f);
-}
-bool headerLabelsField(void* ctx, unsigned id, Field& field)
-{
-  if (!headerField(ctx, id, field)) return false;
-  field.available = field.available && id == 3;
-  return true;
-}
-bool headerLabelsDescribe(void* ctx, unsigned id, Field& field)
-{
-  field.metadataOnly = true;
-  return headerLabelsField(ctx, id, field);
-}
 bool headerSet(void* ctx, unsigned id, const char* text)
 {
   auto& h = *static_cast<Header*>(ctx);
-  Field f{};
+  auto& f = defaultField; f.reset();
   if (id == 0) return textValue(h.header.name, f, text);
   if (id == 1) return modelIds(h.header.modelId, f, text);
 #if LEN_BITMAP_NAME > 0
@@ -1405,46 +1074,48 @@ bool headerSet(void* ctx, unsigned id, const char* text)
   }
   return false;
 }
-int headerResolve(void*, const char* path)
+void headerEnter(void* ctx, const Node& parent, const char* key, const char* text, Node& child, Result& result)
 {
-  if (!strcmp(path, "header/modelId/0")) return 6;
-  if (!strcmp(path, "header/modelId/1")) return 7;
-  for (unsigned i = 0; i < 8; ++i)
-    if (!strcmp(path, headerPaths[i])) return i;
-  return -1;
+  child = parent; child.section = -1;
+  int id = -1; int64_t i;
+  switch (parent.section) {
+    case 0:
+      if (!strcmp(key, "header")) child.section = 1;
+      if (!strcmp(key, "moduleData")) child.section = 2;
+      break;
+    case 1:
+      if (!strcmp(key, "name")) id = 0;
+      if (!strcmp(key, "modelId")) { child.section = 3; if (*text) id = 1; }
+      if (!strcmp(key, "bitmap")) id = 2;
+      if (!strcmp(key, "labels")) id = 3;
+      break;
+    case 2:
+      if (integer(key, 0, 1, i)) { child.section = 4; child.index[0] = i; }
+      break;
+    case 3:
+      if (integer(key, 0, 1, i)) {
+        child.section = 5; child.index[0] = i;
+        if (*text) id = 6 + i;
+      }
+      break;
+    case 4: if (!strcmp(key, "type")) id = 4 + parent.index[0]; break;
+    case 5: if (!strcmp(key, "val")) id = 6 + parent.index[0]; break;
+  }
+#if LEN_BITMAP_NAME == 0
+  if (id == 2) return;
+#endif
+#if !defined(STORAGE_MODELSLIST)
+  if (id == 3) return;
+#endif
+  if (id >= 0 && *text) {
+    if (!mark(seen, id, sizeof(seen), result)) return;
+    if (id == 1 && (!mark(seen, 6, sizeof(seen), result) || !mark(seen, 7, sizeof(seen), result))) return;
+    if (!headerSet(ctx, id, text)) ++result.invalid;
+  } else if (child.section >= 0 && *text) result.error = "expected configuration mapping";
 }
-bool headerKnown(void*, const char*) { return true; }
-bool headerSequence(void*, const char* path)
+} // namespace
+config_stream::Document headerDocument(Header& h)
 {
-  return !strcmp(path, "moduleData") || !strcmp(path, "header/modelId");
+  return {&h, headerEnter, nullptr, seen, sizeof(seen)};
 }
-bool headerPreserve(void*, unsigned id, const char* text)
-{
-  return id == 1 && (!*text || *text == '#');
-}
-bool headerCover(void*, unsigned id, const char* text, uint8_t* bitmap)
-{
-  if (id != 1 || !*text || *text == '#') return true;
-  if (bitmap[0] & 0xC0) return false;
-  bitmap[0] |= 0xC0;
-  return true;
-}
-}  // namespace
-config_stream::Schema headerSchema(Header& h, bool labelsOnly)
-{
-  return {8,
-          &h,
-          labelsOnly ? headerLabelsField : headerField,
-          headerSet,
-          headerKnown,
-          headerResolve,
-          labelsOnly ? headerLabelsDescribe : headerDescribe,
-          headerSequence,
-          nullptr,
-          0,
-          nullptr,
-          headerPreserve,
-          headerCover};
-}
-
-}  // namespace model_config
+} // namespace model_config

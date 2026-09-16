@@ -26,9 +26,7 @@ bool field(void* context, unsigned id, config_stream::Field& f)
 {
   if (id >= Count) return false;
   auto& theme = *static_cast<ThemeConfig*>(context);
-  strcpy(f.path, keys[id]);
   f.available = true;
-  f.required = true;
   if (id >= 3) {
     auto color = theme.colors[id - 3];
     snprintf(f.value, sizeof(f.value), "0x%02X%02X%02X",
@@ -78,58 +76,47 @@ bool set(void* context, unsigned id, const char* scalar)
   theme.colors[id - 3] = RGB((rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255);
   return true;
 }
-bool known(void*, const char* path)
+uint8_t seen[(Count + 7) / 8];
+void enter(void* ctx, const config_stream::Node& parent, const char* key, const char* text,
+           config_stream::Node& child, config_stream::Result& result)
 {
-  if (!strcmp(path, "summary") || !strcmp(path, "colors")) return true;
-  for (auto key : keys) if (!strcmp(key, path)) return true;
-  return false;
-}
-using config_file::workspace;
-int readByte(void*)
-{
-  auto& w = workspace;
-  if (w.position == w.length) {
-    if (f_read(&w.source, w.readBuffer, sizeof(w.readBuffer), &w.length) != FR_OK) return -2;
-    w.position = 0;
-    if (!w.length) return -1;
+  child.section = -1;
+  if (parent.section == 0) {
+    if (!strcmp(key, "summary")) child.section = 1;
+    if (!strcmp(key, "colors")) child.section = 2;
+    if (child.section >= 0 && *text) result.error = "expected theme mapping";
+    return;
   }
-  return static_cast<unsigned char>(w.readBuffer[w.position++]);
+  unsigned first = parent.section == 1 ? 0 : 3;
+  unsigned last = parent.section == 1 ? 3 : parent.section == 2 ? Count : 3;
+  for (unsigned id = first; id < last; ++id) if (!strcmp(key, strchr(keys[id], '/') + 1)) {
+    if (!config_stream::mark(seen, id, sizeof(seen), result)) return;
+    if (!set(ctx, id, text)) ++result.invalid;
+    return;
+  }
 }
-bool writeBytes(void*, const char* text, size_t size)
+void save(void* ctx, config_stream::Writer& writer, config_stream::Field& f)
 {
-  UINT count;
-  return f_write(&workspace.destination, text, size, &count) == FR_OK && count == size;
-}
-// One serialized transaction shares the existing fixed storage workspace.
-const char* recover(const char* path, char* swap)
-{
-  if (strlen(path) > FF_MAX_LFN) return "theme path too long";
-  strcpy(swap, path); strcat(swap, ".swap");
-  auto r = f_stat(path, &workspace.fileInfo);
-  if (r == FR_OK) return nullptr;
-  if (r != FR_NO_FILE && r != FR_NO_PATH) return SDCARD_ERROR(r);
-  r = f_stat(swap, &workspace.fileInfo);
-  if (r == FR_NO_FILE || r == FR_NO_PATH) return nullptr;
-  if (r == FR_OK) r = f_rename(swap, path);
-  return r == FR_OK ? nullptr : SDCARD_ERROR(r);
+  for (unsigned section = 0; section < 2; ++section) {
+    writer.begin(section ? "colors" : "summary");
+    for (unsigned id = section ? 3 : 0; id < (section ? Count : 3); ++id) {
+      if (!field(ctx, id, f)) { writer.error = "invalid theme value"; return; }
+      writer.value(strchr(keys[id], '/') + 1, f.value);
+    }
+    writer.end();
+  }
 }
 }
-
 const char* loadThemeConfig(const char* path, ThemeConfig& theme)
 {
   if (config_file::busy) return "configuration busy";
   config_file::Guard guard;
-  char swap[FF_MAX_LFN + 6];
-  if (auto error = recover(path, swap)) return error;
-  auto r = f_open(&workspace.source, path, FA_READ | FA_OPEN_EXISTING);
-  if (r != FR_OK) return SDCARD_ERROR(r);
+  if (const char* error = config_file::read(path)) return error;
+  auto& w = config_file::workspace;
   ThemeConfig candidate = theme;
-  workspace.position = workspace.length = 0;
-  config_stream::Schema schema{Count, &candidate, field, set, known};
-  auto result = config_stream::process({nullptr, readByte, nullptr}, {}, schema, workspace.parser, true);
-  r = f_close(&workspace.source);
+  config_stream::Document schema{&candidate, enter, save, seen, sizeof(seen)};
+  auto result = config_stream::parse(w.parser.document, w.length, schema, w.parser);
   if (!result) return result.error;
-  if (r != FR_OK) return SDCARD_ERROR(r);
   if (result.invalid) return "invalid theme value";
   theme = candidate;
   return nullptr;
@@ -138,35 +125,6 @@ const char* saveThemeConfig(const char* path, ThemeConfig& theme)
 {
   if (config_file::busy) return "configuration busy";
   config_file::Guard guard;
-  char swap[FF_MAX_LFN + 6], temporary[FF_MAX_LFN + 5];
-  if (auto error = recover(path, swap)) return error;
-  strcpy(temporary, path); strcat(temporary, ".tmp");
-  auto r = f_open(&workspace.destination, temporary, FA_CREATE_ALWAYS | FA_WRITE);
-  if (r != FR_OK) return SDCARD_ERROR(r);
-  config_stream::Schema schema{Count, &theme, field, set, known};
-  // Retain the document marker required by older theme readers.
-  bool ok = writeBytes(nullptr, "---\n", 4);
-  auto result = config_stream::process({}, {nullptr, nullptr, writeBytes}, schema, workspace.parser, false);
-  ok = ok && bool(result);
-  if (f_sync(&workspace.destination) != FR_OK) ok = false;
-  if (f_close(&workspace.destination) != FR_OK) ok = false;
-  if (!ok) { f_unlink(temporary); return "theme write failed"; }
-  r = f_stat(path, &workspace.fileInfo);
-  bool exists = r == FR_OK;
-  if (!exists && r != FR_NO_FILE && r != FR_NO_PATH) return SDCARD_ERROR(r);
-  if (exists) {
-    r = f_stat(swap, &workspace.fileInfo);
-    if (r == FR_OK) r = f_unlink(swap);
-    else if (r == FR_NO_FILE) r = FR_OK;
-    if (r != FR_OK) return SDCARD_ERROR(r);
-    r = f_rename(path, swap);
-    if (r != FR_OK) return SDCARD_ERROR(r);
-  }
-  r = f_rename(temporary, path);
-  if (r != FR_OK) {
-    if (exists) f_rename(swap, path);
-    return SDCARD_ERROR(r);
-  }
-  if (exists) f_unlink(swap);
-  return nullptr;
+  config_stream::Document schema{&theme, enter, save, seen, sizeof(seen)};
+  return config_file::save(path, schema);
 }

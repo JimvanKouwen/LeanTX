@@ -24,7 +24,7 @@ inline std::string saveModelYamlStr(ModelData& model)
     [](void* ctx, const char* text, size_t n) {
       static_cast<std::string*>(ctx)->append(text, n);
       return true;
-    }}, model_config::schema(model), workspace, false);
+    }}, model_config::document(model), workspace, false);
   EXPECT_TRUE(result) << (result.error ? result.error : "");
   return output;
 }

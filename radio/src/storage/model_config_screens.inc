@@ -88,7 +88,7 @@ bool stringValue(std::string& value, Field& f, const char* t)
 {
   if (!t) return quoted(f.value, sizeof(f.value), value.c_str(), value.size());
   if (*t && strchr("[{|>", *t)) return false;
-  char s[MaxValue];
+  auto& s = scalarBuffer;
   size_t len;
   if (!string(t, s, sizeof(s) - 1, len)) return false;
   value.assign(s, len);
@@ -216,7 +216,7 @@ bool screenRelevant(const Context& c, const char* path, unsigned i, unsigned j,
   ModelData& m = *c.model;
   if (!top) {
     bool exists =
-        c.loading ? !stagedScreens[i].LayoutId.empty() : m.hasScreenData(i);
+        &m == &candidate ? !stagedScreens[i].LayoutId.empty() : m.hasScreenData(i);
     if (!exists) return false;
     auto& s = screenFor(m, i);
     if (!strstr(path, "/zones/")) {

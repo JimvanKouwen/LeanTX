@@ -101,38 +101,44 @@ bool visitLabels(void* opaque, const char* path, const char* scalar)
   return true;
 }
 
-int readLabelsByte(void*)
+void enterLabels(void* ctx, const config_stream::Node& parent, const char* key,
+                 const char* scalar, config_stream::Node& child, config_stream::Result& result)
 {
-  auto& w = config_file::workspace;
-  if (w.position == w.length) {
-    if (f_read(&w.source, w.readBuffer, sizeof(w.readBuffer), &w.length) != FR_OK) return -2;
-    w.position = 0;
-    if (!w.length) return -1;
-  }
-  return static_cast<unsigned char>(w.readBuffer[w.position++]);
+  child = parent; child.section = -1;
+  char path[config_stream::MaxPath];
+  if (parent.section == 0) {
+    if (!strcasecmp(key, "labels")) child.section = 1;
+    else if (!strcasecmp(key, "models")) child.section = 2;
+    else if (strcasecmp(key, "sort")) return;
+    snprintf(path, sizeof(path), "%s", key);
+  } else if (parent.section == 1 || parent.section == 2) {
+    child.item = key; child.section = parent.section + 2;
+    snprintf(path, sizeof(path), "%s/%s", parent.section == 1 ? "labels" : "models", key);
+  } else if (parent.section == 3 || parent.section == 4) {
+    snprintf(path, sizeof(path), "%s/%s/%s", parent.section == 3 ? "labels" : "models", parent.item, key);
+  } else return;
+  if (!visitLabels(ctx, path, scalar)) ++result.invalid;
 }
-
 bool loadLabelsConfig()
 {
   if (config_file::busy) return false;
   config_file::Guard guard;
   auto& w = config_file::workspace;
-  FRESULT opened = f_open(&w.source, LABELSLIST_YAML_PATH, FA_READ | FA_OPEN_EXISTING);
-  if (opened != FR_OK) return opened == FR_NO_FILE || opened == FR_NO_PATH;
   LabelsReader reader;
-  config_stream::Schema schema{};
+  config_stream::Document schema{};
   schema.context = &reader;
-  schema.known = [](void*, const char*) { return false; };
-  schema.visit = visitLabels;
-  bool ok = true;
-  for (int pass = 0; pass < 2 && ok; ++pass) {
-    reader = {};
-    reader.commit = pass != 0;
-    w.position = w.length = 0;
-    if (f_lseek(&w.source, 0) != FR_OK) { ok = false; break; }
-    auto result = config_stream::process({nullptr, readLabelsByte, nullptr}, {}, schema, w.parser, true);
-    ok = bool(result) && !result.invalid;
+  schema.enter = enterLabels;
+  // Validate before publishing dynamic model-list objects. Radio/model files
+  // use one candidate and one parse; this separate cache keeps its two passes.
+  for (int pass = 0; pass < 2; ++pass) {
+    if (config_file::read(LABELSLIST_YAML_PATH)) {
+      FRESULT r = f_stat(LABELSLIST_YAML_PATH, &w.fileInfo);
+      return r == FR_NO_FILE || r == FR_NO_PATH;
+    }
+    reader = {}; reader.commit = pass != 0;
+    auto result = config_stream::parse(w.parser.document, w.length, schema, w.parser);
+    if (!result || result.invalid) return false;
   }
-  return f_close(&w.source) == FR_OK && ok;
+  return true;
 }
 } // namespace

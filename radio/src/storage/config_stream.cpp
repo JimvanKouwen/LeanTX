@@ -6,6 +6,7 @@
 #include <ctype.h>
 
 namespace config_stream {
+char scalarBuffer[MaxValue];
 bool formatInteger(char* output, size_t capacity, int64_t value)
 {
   // Unsigned subtraction also handles INT64_MIN without signed overflow.
@@ -102,395 +103,167 @@ bool string(const char* in, char* out, size_t cap, size_t& length)
   }
   return !quote;
 }
-namespace {
-struct Engine {
-  Stream in, out;
-  const Schema& schema;
-  Workspace& w;
-  Result result{};
-  unsigned depth = 0;
-  bool apply;
-  bool ended = false;
-  int blockIndent = -1;
-  int suppressIndent = -1;
 
-  bool fail(const char* error) { result.error = error; return false; }
-  bool write(const char* s, size_t n) {
-    return !out.write || out.write(out.context, s, n) || fail("configuration write failed");
-  }
-  bool write(const char* s) { return write(s, strlen(s)); }
-  bool spaces(unsigned n) {
-    while (n--) if (!write(" ", 1)) return false;
-    return true;
-  }
-  bool seen(unsigned i) const { return (schema.seen ? schema.seen : w.seen)[i / 8] & (1 << (i % 8)); }
-  void mark(unsigned i) { (schema.seen ? schema.seen : w.seen)[i / 8] |= 1 << (i % 8); }
-  bool get(unsigned i, bool values = true) {
-    memset(&w.field, 0, sizeof(w.field));
-    w.field.required = true;
-    auto describe = !values && schema.describe ? schema.describe : schema.field;
-    bool found = describe(schema.context, i, w.field);
-    if (!found && w.field.path[0]) fail("invalid runtime configuration value");
-    return found;
-  }
-  // Emit missing descendants grouped by path. Recursion uses only path offsets;
-  // the fixed path buffer and explicit depth bound limit temporary state.
-  bool missing(unsigned indent, unsigned nesting = 0) {
-    if (nesting >= MaxDepth) return fail("configuration nesting limit");
-    size_t prefix = strlen(w.path);
-    for (unsigned i = schema.next ? schema.next(schema.context, w.path, 0) : 0;
-         i < schema.count;
-         i = schema.next ? schema.next(schema.context, w.path, i + 1) : i + 1) {
-      if (seen(i) || !get(i, false) || !w.field.available || !w.field.required) continue;
-      const char* tail = w.field.path;
-      if (prefix) {
-        if (strncmp(tail, w.path, prefix) || tail[prefix] != '/') continue;
-        tail += prefix + 1;
+namespace {
+bool scalar(char* s) {
+  char quote = 0; unsigned brackets = 0;
+  if (*s && strchr("!&*|>%@`", *s)) return false;
+  for (char* p = s; *p; ++p) {
+    if (quote) {
+      if (quote == '"' && *p == '\\') {
+        const char* next = p + 1; uint32_t cp;
+        if (!escape(next, cp)) return false;
+        p = const_cast<char*>(next) - 1;
+      } else if (*p == quote) {
+        if (quote == '\'' && p[1] == '\'') ++p;
+        else quote = 0;
       }
-      result.missing = true;
-      if (!out.write) continue;
-      const char* slash = strchr(tail, '/');
-      if (!spaces(indent)) return false;
-      if (!slash) {
-        if (!get(i)) return fail("invalid runtime configuration value");
-        if (!write(tail) || !write(": ") || !write(w.field.value) || !write("\n")) return false;
-        mark(i);
-      } else {
-        size_t len = slash - tail;
-        auto collection = schema.emitSequence ? schema.emitSequence : schema.sequence;
-        bool sequence = collection && collection(schema.context, w.path);
-        if (depth && w.levels[depth-1].pathLength == prefix && w.levels[depth-1].kind)
-          sequence = w.levels[depth-1].kind == 2;
-        if (sequence) {
-          if (!write("-\n")) return false;
-        } else if (!write(tail, len) || !write(":\n")) return false;
-        if (prefix + (prefix ? 1 : 0) + len >= MaxPath) return fail("configuration path limit");
-        size_t p = prefix;
-        if (p) w.path[p++] = '/';
-        memcpy(w.path + p, tail, len);
-        w.path[p + len] = 0;
-        if (!missing(indent + 2, nesting + 1)) return false;
-        w.path[prefix] = 0;
-      }
-    }
-    return true;
+    } else if (*p == '#' && (p == s || p[-1] == ' ')) { *p = 0; break; }
+    else if ((*p == '"' || *p == '\'') && (p == s || (brackets && (p[-1] == ' ' || p[-1] == '[')))) quote = *p;
+    else if (*p == '[') { if (brackets++) return false; }
+    else if (*p == ']') { if (!brackets--) return false; }
+    else if (*p == '{') { if (p[1] != '}') return false; ++p; }
+    else if (*p == ':' && (!p[1] || p[1] == ' ')) return false;
   }
-  bool pop() {
-    auto level = w.levels[depth - 1];
-    if (suppressIndent < 0 && (level.kind != 2 || (schema.sequence && schema.sequence(schema.context, w.path))) && !missing(level.indent)) return false;
-    --depth;
-    w.path[depth ? w.levels[depth - 1].pathLength : 0] = 0;
-    return true;
-  }
-  bool flowToken(const char*& p, unsigned depth, bool key = false) {
-    while (*p == ' ') ++p;
-    if (depth >= MaxDepth) return fail("configuration flow nesting limit");
-    if (*p == '[' || *p == '{') {
-      if (key) return fail("complex YAML keys are unsupported");
-      bool map = *p++ == '{'; char end = map ? '}' : ']';
-      while (*p == ' ') ++p;
-      if (*p == end) { ++p; return true; }
-      for (;;) {
-        if (map) {
-          if (!flowToken(p, depth + 1, true)) return false;
-          while (*p == ' ') ++p;
-          if (*p++ != ':') return fail("expected flow mapping colon");
-          while (*p == ' ') ++p;
-        }
-        if (!map || (*p != ',' && *p != end))
-          if (!flowToken(p, depth + 1)) return false;
-        while (*p == ' ') ++p;
-        if (*p == end) { ++p; return true; }
-        if (*p++ != ',') return fail("expected flow collection separator");
-        while (*p == ' ') ++p;
-        if (*p == end) { ++p; return true; }
-      }
+  size_t n = strlen(s);
+  while (n && (s[n-1] == ' ' || s[n-1] == '\t')) s[--n] = 0;
+  size_t decoded;
+  return !quote && !brackets && ((*s != '"' && *s != '\'') || string(s, nullptr, size_t(-1), decoded));
+}
+}
+Result parse(char* data, size_t size, const Document& schema, Workspace& w)
+{
+  Result result{};
+  unsigned depth = 1;
+  w.levels[0] = {};
+  w.levels[0].node.section = 0;
+  if (schema.seen) memset(schema.seen, 0, schema.seenBytes);
+  bool documentStart = false, content = false;
+  auto fail = [&](const char* error) { result.error = error; return result; };
+  char* cursor = data;
+  char* end = data + size;
+  while (cursor < end) {
+    char* line = cursor;
+    while (cursor < end && *cursor != '\n') {
+      unsigned char c = *cursor++;
+      if (!c || (c < 32 && c != '\r' && c != '\t')) return fail("invalid YAML byte");
     }
-    if (*p == '\'' || *p == '"') {
-      char q = *p++;
-      while (*p) {
-        if (*p == q) {
-          ++p;
-          if (q == '\'' && *p == q) { ++p; continue; }
-          return true;
-        }
-        if (*p++ == '\\' && q == '"') {
-          if (!*p) return fail("unterminated flow escape");
-          ++p;
-        }
-      }
-      return fail("unterminated flow string");
-    }
-    const char* start = p;
-    while (*p && !strchr(",[]{}", *p) && !(key && *p == ':')) {
-      if (!key && *p == ':' && (p[1] == ' ' || !p[1])) return fail("invalid flow scalar colon");
-      ++p;
-    }
-    const char* end = p;
-    while (end > start && end[-1] == ' ') --end;
-    return end > start || fail("empty flow value");
-  }
-  // Validate a single-line scalar/flow collection without retaining its values.
-  // YAML aliases/tags/directives and multiline flow are deliberately rejected:
-  // they cannot be safely merged without retaining document-wide state.
-  bool value(char* s, bool& block) {
-    char brackets[MaxDepth]; unsigned n = 0; char quote = 0;
-    block = false;
-    if (*s == '|' || *s == '>') {
-      const char* p = s + 1;
-      if (*p == '+' || *p == '-') ++p;
-      if (*p >= '1' && *p <= '9') ++p;
-      while (*p == ' ') ++p;
-      if (*p && *p != '#') return fail("invalid block scalar");
-      block = true; return true;
-    }
-    if (*s != '[' && *s != '{' && *s != '\'' && *s != '"') {
-      if (*s && strchr("!&*", *s)) return fail("YAML anchors and tags are unsupported");
-      if (*s && (strchr("]},%@`", *s) || (strchr("-?:", *s) && (!s[1] || s[1] == ' '))))
-        return fail("invalid plain scalar indicator");
-      for (char* p = s; *p; ++p) {
-        if (*p == '#' && (p == s || p[-1] == ' ' || p[-1] == '\t')) { *p = 0; break; }
-        if (*p == ':' && (!p[1] || p[1] == ' ' || p[1] == '\t')) return fail("invalid scalar colon");
-      }
-      size_t len = strlen(s);
-      while (len && (s[len - 1] == ' ' || s[len - 1] == '\t')) s[--len] = 0;
-      return true;
-    }
-    for (char* p = s; *p; ++p) {
-      char c = *p;
-      if (quote) {
-        if (quote == '"' && c == '\\') {
-          const char* next = p + 1; uint32_t cp;
-          if (!escape(next, cp)) return fail("invalid YAML escape");
-          p = const_cast<char*>(next) - 1;
-        }
-        else if (c == quote) {
-          if (quote == '\'' && p[1] == '\'') ++p;
-          else quote = 0;
-        }
-      } else if (c == '#' && (p == s || p[-1] == ' ')) { *p = 0; break; }
-      else if ((c == '\'' || c == '"') && (p == s || strchr(" [{,:", p[-1]))) quote = c;
-      else if ((c == '&' || c == '*' || c == '!') && (p == s || strchr(" [{,: ", p[-1]))) return fail("YAML anchors and tags are unsupported");
-      else if (c == '[' || c == '{') {
-        if (n == MaxDepth) return fail("configuration flow nesting limit");
-        brackets[n++] = c;
-      } else if (c == ']' || c == '}') {
-        if (!n || brackets[--n] != (c == ']' ? '[' : '{')) return fail("unbalanced YAML collection");
-      } else if (!n && c == ':' && (!p[1] || p[1] == ' ')) return fail("invalid scalar colon");
-    }
-    if (quote || n) return fail("unterminated YAML value");
-    if (*s == '[' || *s == '{') {
-      const char* p = s;
-      if (!flowToken(p, 0)) return false;
-      while (*p == ' ') ++p;
-      if (*p) return fail("trailing flow content");
-    }
-    size_t len = strlen(s);
-    while (len && s[len - 1] == ' ') s[--len] = 0;
-    size_t decoded;
-    if ((*s == '\'' || *s == '"') && !string(s, nullptr, size_t(-1), decoded))
-      return fail("invalid quoted scalar");
-    return true;
-  }
-  bool line(size_t rawLen) {
-    unsigned indent = 0;
-    while (w.line[indent] == ' ') ++indent;
-    char* text = w.line + indent;
-    if (!*text || *text == '#') return write(w.line, rawLen) && write("\n");
-    if (blockIndent >= 0 && indent > (unsigned)blockIndent)
-      return suppressIndent >= 0 || (write(w.line, rawLen) && write("\n"));
-    blockIndent = -1;
+    if (cursor < end) *cursor++ = 0;
+    else *end = 0; // caller provides the terminator byte
+    size_t length = strlen(line);
+    if (length && line[length-1] == '\r') line[--length] = 0;
+    unsigned indent = 0; while (line[indent] == ' ') ++indent;
+    char* text = line + indent;
+    if (!*text || *text == '#') continue;
     if (*text == '\t') return fail("tabs in YAML indentation");
     if (!strcmp(text, "---")) {
-      if (depth || ended) return fail("multiple YAML documents");
-      ended = true; // only permit one document start
-      return write(w.line, rawLen) && write("\n");
+      if (indent || documentStart || content) return fail("multiple YAML documents");
+      documentStart = true; continue;
     }
-    if (*text == '%' || !strcmp(text, "...")) return fail("unsupported YAML document marker");
-    if (suppressIndent >= 0 && indent <= (unsigned)suppressIndent) suppressIndent = -1;
-    const bool startsList = *text == '-' && (!text[1] || text[1] == ' ');
-    while (depth) {
-      const auto& top = w.levels[depth - 1];
-      bool endIndentlessList = depth > 1 && top.kind == 2 &&
-          top.indent == w.levels[depth - 2].indent && indent == top.indent && !startsList;
-      if (indent >= top.indent && !endIndentlessList) break;
-      if (!pop()) return false;
+    content = true;
+    bool list = *text == '-' && (!text[1] || text[1] == ' ');
+    while (depth > 1) {
+      auto& top = w.levels[depth-1];
+      if (top.pending && (indent > w.levels[depth-2].indent ||
+          (list && indent == w.levels[depth-2].indent))) {
+        top.indent = indent; top.pending = false;
+      }
+      bool indentlessEnd = top.kind == 2 && top.indent == w.levels[depth-2].indent && !list && indent == top.indent;
+      if (!top.pending && indent >= top.indent && !indentlessEnd) break;
+      --depth;
     }
-    if (!depth) {
-      if (indent) return fail("indented YAML root");
-      w.levels[depth++] = {0, 0, 0, 0};
-    }
-    if (indent != w.levels[depth - 1].indent) return fail("unexpected YAML indentation");
-    bool list = startsList;
-    auto& level = w.levels[depth - 1];
+    auto& level = w.levels[depth-1];
+    if (indent != level.indent) return fail("unexpected YAML indentation");
     unsigned kind = list ? 2 : 1;
     if (level.kind && level.kind != kind) return fail("mixed YAML map and list");
     level.kind = kind;
-    size_t prefix = strlen(w.path);
+    Node parent = level.node;
     if (list) {
       ++text; while (*text == ' ') ++text;
-      // Known sequences address items semantically, without runtime layout data.
-      if (prefix + 8 >= MaxPath) return fail("configuration path limit");
-      if (schema.sequence && schema.sequence(schema.context, w.path)) {
-        if (prefix) strcat(w.path, "/");
-        formatInteger(w.path + strlen(w.path), MaxPath - strlen(w.path), level.nextIndex++);
-      } else strcat(w.path, "/@");
+      char key[12]; formatInteger(key, sizeof(key), level.nextIndex++);
+      Node item = parent; item.section = -1;
+      schema.enter(schema.context, parent, key, "", item, result);
+      parent = item;
     }
-    char* colon = nullptr;
-    char quote = 0;
+    char quote = 0; char* colon = nullptr;
     for (char* p = text; *p; ++p) {
       if (quote) {
-        if (quote == '"' && *p == '\\') { if (!*++p) break; }
-        else if (*p == quote) {
-          if (quote == '\'' && p[1] == '\'') ++p;
-          else quote = 0;
-        }
-      }
-      else if (*p == '\'' || *p == '"') quote = *p;
+        if (*p == '\\' && quote == '"' && p[1]) ++p;
+        else if (*p == quote) { if (quote == '\'' && p[1] == '\'') ++p; else quote = 0; }
+      } else if (*p == '\'' || *p == '"') quote = *p;
       else if (*p == ':' && (!p[1] || p[1] == ' ')) { colon = p; break; }
-      else if (*p == '[' || *p == '{') break;
     }
     if (!colon && !list) return fail("expected YAML mapping");
-    char* scalar = text;
-    if (colon && list) {
-      if (depth == MaxDepth) return fail("configuration nesting limit");
-      w.levels[depth++] = {uint16_t(indent + 2), uint16_t(strlen(w.path)), 0, 1};
-      prefix = strlen(w.path);
-    }
+    Node child = parent; child.section = -1;
+    char* value = text;
+    char* key = const_cast<char*>("val");
     if (colon) {
-      size_t keyLen = colon - text;
-      while (keyLen && text[keyLen - 1] == ' ') --keyLen;
-      if (!keyLen) return fail("empty YAML key");
-      size_t p = strlen(w.path);
-      if (p + 2 >= MaxPath) return fail("configuration path limit");
-      if (p) w.path[p++] = '/';
-      char saved = text[keyLen]; text[keyLen] = 0;
-      size_t decodedLength = 0;
-      bool validKey = string(text, w.path + p, MaxPath - p - 1, decodedLength);
-      text[keyLen] = saved;
-      if (!validKey || !decodedLength) return fail("invalid YAML key or path limit");
-      // '/' in unknown keys cannot impersonate a schema path.
-      for (size_t j = 0; j < decodedLength; ++j)
-        if (w.path[p + j] == '/') w.path[p + j] = '\x01';
-      w.path[p + decodedLength] = 0;
-      scalar = colon + 1; while (*scalar == ' ') ++scalar;
+      *colon = 0;
+      size_t n = strlen(text); while (n && text[n-1] == ' ') text[--n] = 0;
+      size_t decoded;
+      if (!n || !string(text, text, n, decoded) || !decoded) return fail("invalid YAML key");
+      text[decoded] = 0; key = text;
+      value = colon + 1; while (*value == ' ') ++value;
     }
-    // Preserve the source before stripping comments for typed parsing.
-    int field = -1;
-    {
-      if (schema.resolve) {
-        int id = schema.resolve(schema.context, w.path);
-        if (id >= 0 && unsigned(id) < schema.count && get(id, out.write != nullptr)) {
-          // A scalar-list alias (items/0 -> items/0/val) must not claim
-          // the same path when it introduces a mapping instead.
-          if (*scalar || !strcmp(w.field.path, w.path)) field = id;
-        }
-      } else {
-        for (unsigned i = 0; i < schema.count; ++i)
-          if (get(i) && !strcmp(w.field.path, w.path)) { field = i; break; }
-      }
-    }
-    bool emptyCollection = false;
-    if (field < 0 && (*scalar == '[' || *scalar == '{')) {
-      const char* p = scalar + 1;
-      while (*p == ' ') ++p;
-      if (*p == (*scalar == '[' ? ']' : '}')) {
-        ++p; while (*p == ' ') ++p;
-        if (!*p || *p == '#') {
-          size_t prefixLength = strlen(w.path);
-          for (unsigned i = schema.next ? schema.next(schema.context, w.path, 0) : 0;
-               i < schema.count;
-               i = schema.next ? schema.next(schema.context, w.path, i + 1) : i + 1) {
-            if (get(i, false) && w.field.available &&
-                !strncmp(w.field.path, w.path, prefixLength) && w.field.path[prefixLength] == '/') {
-              emptyCollection = true; break;
-            }
-          }
-        }
-      }
-    }
-    bool replace = field >= 0 && w.field.available;
-    if (replace && schema.preserve && schema.preserve(schema.context, field, scalar)) replace = false;
-    if (field >= 0) {
-      if (seen(field)) return fail("duplicate known configuration field");
-      mark(field);
-      if (schema.cover && !schema.cover(schema.context, field, scalar, schema.seen ? schema.seen : w.seen))
-        return fail("duplicate configuration representation");
-    } else if (colon && !schema.known(schema.context, w.path)) ++result.unknown;
-    if (suppressIndent < 0) {
-      if (emptyCollection && out.write) {
-        if (!spaces(indent)) return false;
-        if (colon) {
-          if (!write(w.line + indent, colon - (w.line + indent)) || !write(":\n")) return false;
-        } else if (!write("-\n")) return false;
-      } else if (replace && out.write) {
-        if (!spaces(indent)) return false;
-        if (colon) {
-          if (!write(w.line + indent, colon - (w.line + indent)) || !write(": ")) return false;
-        } else if (!write("- ")) return false;
-        if (!write(w.field.value) || !write("\n")) return false;
-      } else if (!write(w.line, rawLen) || !write("\n")) return false;
-    }
-    bool block;
-    if (!value(scalar, block)) return false;
-    if (emptyCollection) *scalar = 0;
-    if (field < 0 && *scalar && !list && schema.known(schema.context, w.path)) {
-      size_t plen = strlen(w.path);
-      for (unsigned i = 0; i < schema.count; ++i) {
-        if (get(i, false) && w.field.available && !strncmp(w.field.path, w.path, plen) && w.field.path[plen] == '/')
-          return fail("expected configuration mapping");
-      }
-    }
-    if (replace && apply && !schema.set(schema.context, field, scalar)) ++result.invalid;
-    if (apply && schema.visit && !schema.visit(schema.context, w.path, scalar))
-      ++result.invalid;
-    if (block) blockIndent = indent;
-    if (!*scalar || (!colon && list && !*text)) {
+    if (!scalar(value)) return fail("unsupported or malformed YAML scalar");
+    bool empty = !*value || !strcmp(value, "[]") || !strcmp(value, "{}");
+    if (colon || !empty) schema.enter(schema.context, parent, key, empty ? "" : value, child, result);
+    else child = parent;
+    if (result.error) return result;
+    if (list && colon) {
       if (depth == MaxDepth) return fail("configuration nesting limit");
-      // Child indentation is learned from the next nonempty line.
-      w.levels[depth++] = {uint16_t(indent + (list && colon ? 3 : 1)), uint16_t(strlen(w.path)), 0, 0};
-      if (replace && out.write) suppressIndent = indent;
-    } else {
-      if (replace && block && out.write) suppressIndent = indent;
-      w.path[prefix] = 0;
+      w.levels[depth++] = {parent, uint16_t(indent + 2), 0, 1, false};
     }
-    return true;
-  }
-  Result run() {
-    memset(&w, 0, sizeof(w));
-    if (schema.seen) memset(schema.seen, 0, schema.seenBytes);
-    if (schema.count > (schema.seen ? schema.seenBytes * 8 : MaxFields)) { fail("configuration schema capacity"); return result; }
-    for (;;) {
-      size_t n = 0; int c = -1;
-      while (in.read && (c = in.read(in.context)) >= 0 && c != '\n') {
-        if (c == '\r') continue;
-        if (!c || (c < 32 && c != '\t')) { fail("invalid YAML byte"); return result; }
-        if (n + 1 == MaxLine) { fail("configuration line limit"); return result; }
-        w.line[n++] = c;
-      }
-      if (c == -2) { fail("configuration read failed"); return result; }
-      if (!n && c == -1) break;
-      w.line[n] = 0;
-      unsigned indent = 0; while (w.line[indent] == ' ') ++indent;
-      if (depth && !w.levels[depth - 1].kind && * (w.line + indent) && w.line[indent] != '#') {
-        auto& pending = w.levels[depth - 1];
-        bool indentlessList = depth > 1 && indent == w.levels[depth - 2].indent &&
-            w.line[indent] == '-' && (!w.line[indent + 1] || w.line[indent + 1] == ' ');
-        if (indent >= pending.indent || indentlessList) pending.indent = indent;
-      }
-      if (!line(n)) return result;
-      if (c == -1) break;
+    if (empty && strcmp(value, "[]") && strcmp(value, "{}")) {
+      if (depth == MaxDepth) return fail("configuration nesting limit");
+      w.levels[depth++] = {child, uint16_t(indent + 1), 0, 0, true};
     }
-    while (depth) if (!pop()) return result;
-    w.path[0] = 0;
-    missing(0);
-    return result;
   }
-};
+  return result;
 }
-Result process(Stream in, Stream out, const Schema& schema, Workspace& w, bool apply)
+bool mark(uint8_t* seen, unsigned id, unsigned bytes, Result& result)
 {
-  Engine engine{in, out, schema, w, {}, 0, apply};
-  return engine.run();
+  if (id / 8 >= bytes) { result.error = "configuration field limit"; return false; }
+  unsigned mask = 1u << (id % 8);
+  if (seen[id/8] & mask) { result.error = "duplicate configuration field"; return false; }
+  seen[id/8] |= mask; return true;
 }
+bool Writer::write(const char* s, size_t n) {
+  if (!error && (!output.write || !output.write(output.context, s, n))) {
+    if (!error) error = "configuration write failed";
+  }
+  return !error;
 }
+void Writer::begin(const char* key) {
+  if (depth >= MaxDepth || strlen(key) >= sizeof(levels[0].key)) { error = "configuration nesting/key limit"; return; }
+  auto& level = levels[depth++]; strcpy(level.key, key); level.emitted = false;
+}
+void Writer::begin(unsigned index) { char key[12]; formatInteger(key, sizeof(key), index); begin(key); }
+void Writer::end() { if (depth) --depth; }
+void Writer::value(const char* key, const char* value) {
+  auto spaces = [&](unsigned n) { while (n--) write(" ", 1); };
+  for (unsigned i = 0; i < depth; ++i) if (!levels[i].emitted) {
+    spaces(i * 2); write(levels[i].key, strlen(levels[i].key)); write(":\n", 2); levels[i].emitted = true;
+  }
+  spaces(depth * 2); write(key, strlen(key)); write(": ", 2); write(value, strlen(value)); write("\n", 1);
+}
+#if defined(SIMU)
+// Compatibility bridge for host tests; firmware always reads/serializes RAM.
+Result process(Stream input, Stream output, const Document& schema, Workspace& w, bool apply)
+{
+  if (!apply) {
+    Writer writer{output};
+    if (schema.save) schema.save(schema.context, writer, w.field);
+    return {writer.error, 0, 0, false};
+  }
+  size_t size = 0; int c;
+  while (input.read && (c = input.read(input.context)) >= 0) {
+    if (size == DocumentCapacity) return {"configuration file too large", 0, 0, false};
+    w.document[size++] = char(c);
+  }
+  if (input.read && c == -2) return {"configuration read failed", 0, 0, false};
+  w.document[size] = 0;
+  return parse(w.document, size, schema, w);
+}
+#endif
+} // namespace config_stream

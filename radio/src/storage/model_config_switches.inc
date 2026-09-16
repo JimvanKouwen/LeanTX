@@ -11,9 +11,10 @@ static bool functionRecords[FunctionSlots];
 static bool functionMarkers[FunctionSlots];
 int functionIndex(ModelData& model, unsigned slot)
 {
-  return slot < FunctionSlots ? (&model == &candidate ? pendingFunctionSlots
-                                                      : functionSlots)[slot]
-                              : -1;
+  if (slot >= FunctionSlots) return -1;
+  bool staged = &model == &candidate ||
+                (&model == &defaults && saveContext.model == &candidate);
+  return (staged ? pendingFunctionSlots : functionSlots)[slot];
 }
 bool functionAccess(ModelData& model, unsigned slot, const char* path, Field& f,
                     const char* text)
@@ -73,7 +74,6 @@ bool functionAccess(ModelData& model, unsigned slot, const char* path, Field& f,
     return true;
   }
 #endif
-  f.capacity = field == 0 ? LEN_SWITCH_NAME : 0;
   if (f.metadataOnly) return true;
   if (text) {
     functionRecords[slot] = true;
