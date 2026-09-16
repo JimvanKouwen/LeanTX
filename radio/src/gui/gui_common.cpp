@@ -410,11 +410,16 @@ bool checkSwitchAvailable(int swtch, uint32_t swtchTypes)
 
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
+  return isSerialModeAvailable(port_nr, mode, g_eeGeneral);
+}
+
+bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings)
+{
   if (mode == UART_MODE_RESERVED_TELEMETRY || mode == UART_MODE_RESERVED_3 ||
       mode == UART_MODE_RESERVED_4) return false;
 #if defined(USB_SERIAL)
   // Do not list OFF on VCP if internal RF module is set to CROSSFIRE to allow pass-through flashing
-  if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
+  if (port_nr == SP_VCP && mode == UART_MODE_NONE && settings.internalModule == MODULE_TYPE_CROSSFIRE)
     return false;
 #endif
 
@@ -465,8 +470,10 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
-  auto p = serialGetModePort(mode);
-  if (p >= 0 && p != port_nr) return false;
+  for (unsigned p = 0; p < MAX_SERIAL_PORTS; ++p) {
+    const int configured = (settings.serialPort >> (p * SERIAL_CONF_BITS_PER_PORT)) & SERIAL_CONF_MODE_MASK;
+    if (configured == mode) return p == port_nr;
+  }
   return true;
 }
 

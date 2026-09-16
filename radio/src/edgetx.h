@@ -265,6 +265,7 @@ uint16_t isqrt32(uint32_t n);
 
 void setDefaultOwnerId();
 void generalDefault();
+void generalDefault(RadioData& settings);
 void generalDefaultSwitches();
 void generalDefaultUILanguage();
 

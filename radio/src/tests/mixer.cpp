@@ -766,7 +766,8 @@ TEST_F(MixerTest, RemovedTrimValueSourcesAreUnavailable)
   }
 }
 
-#if defined(AUTOSWITCH)
+// checkIncDecMovedSwitch belongs to monochrome menu navigation.
+#if defined(AUTOSWITCH) && !defined(COLORLCD)
 TEST_F(MixerTest, PhysicalTrimButtonsAutoSelectWithoutTrimModes)
 {
   getMovedSwitch(); // Establish the polling baseline.

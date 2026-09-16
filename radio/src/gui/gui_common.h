@@ -63,6 +63,7 @@ int timersSetupCount();
 bool isTimerSourceAvailable(int source);
 bool isSwitchAvailable(int swtch, SwitchContext context);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
+bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings);
 bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableInMixes(int swtch);
 bool isExternalModuleAvailable(int moduleType);

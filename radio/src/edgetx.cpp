@@ -251,125 +251,129 @@ void memswap(void * a, void * b, uint8_t size)
   }
 }
 
-void generalDefaultSwitches()
+static void generalDefaultSwitches(RadioData& settings)
 {
   for (uint8_t sw = 0; sw < switchGetMaxSwitches(); sw += 1) {
-    g_eeGeneral.switchConfig[sw].type = switchGetDefaultConfig(sw);
-    g_eeGeneral.switchConfig[sw].name[0] = 0;
+    settings.switchConfig[sw].type = switchGetDefaultConfig(sw);
+    settings.switchConfig[sw].name[0] = 0;
 #if defined(FUNCTION_SWITCHES)
     if (switchIsCustomSwitch(sw))
-      g_eeGeneral.switchConfig[sw].start = FS_START_PREVIOUS;
+      settings.switchConfig[sw].start = FS_START_PREVIOUS;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-      g_eeGeneral.switchConfig[sw].onColor.setColor(0xFFFFFF);
-      g_eeGeneral.switchConfig[sw].offColor.setColor(0);
+      settings.switchConfig[sw].onColor.setColor(0xFFFFFF);
+      settings.switchConfig[sw].offColor.setColor(0);
 #endif
 #endif
   }
 }
 
-void generalDefaultUILanguage()
+static void generalDefaultUILanguage(RadioData& settings)
 {
-  memcpy(g_eeGeneral.uiLanguage, TRANSLATIONS, 2);
-  g_eeGeneral.uiLanguage[0] = tolower(g_eeGeneral.uiLanguage[0]);
-  g_eeGeneral.uiLanguage[1] = tolower(g_eeGeneral.uiLanguage[1]);
+  memcpy(settings.uiLanguage, TRANSLATIONS, 2);
+  settings.uiLanguage[0] = tolower(settings.uiLanguage[0]);
+  settings.uiLanguage[1] = tolower(settings.uiLanguage[1]);
 }
 
-void generalDefault()
+void generalDefault(RadioData& settings)
 {
-  memclear(&g_eeGeneral, sizeof(g_eeGeneral));
+  memclear(&settings, sizeof(settings));
 
 #if defined(COLORLCD)
-  g_eeGeneral.blOffBright = 20;
+  settings.blOffBright = 20;
 #endif
 
 #if defined(LCD_CONTRAST_DEFAULT)
-  g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
+  settings.contrast = LCD_CONTRAST_DEFAULT;
 #endif
 
 #if defined(LCD_BRIGHTNESS_DEFAULT)
-  g_eeGeneral.backlightBright = LCD_BRIGHTNESS_DEFAULT;
+  settings.backlightBright = LCD_BRIGHTNESS_DEFAULT;
 #endif
 
 #if defined(DEFAULT_INTERNAL_MODULE)
-    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
-    if (g_eeGeneral.internalModule == MODULE_TYPE_CROSSFIRE)
-      g_eeGeneral.internalModuleBaudrate = min(1, (int)CROSSFIRE_MAX_INTERNAL_BAUDRATE);  // 921k if possible
+    settings.internalModule = DEFAULT_INTERNAL_MODULE;
+    if (settings.internalModule == MODULE_TYPE_CROSSFIRE)
+      settings.internalModuleBaudrate = min(1, (int)CROSSFIRE_MAX_INTERNAL_BAUDRATE);  // 921k if possible
 #endif
 
-  adcCalibDefaults();
+  adcCalibDefaults(settings);
 
-  g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
-  generalDefaultSwitches();
+  settings.potsConfig = adcGetDefaultPotsConfig();
+  generalDefaultSwitches(settings);
 #if defined(COLORLCD)
-  g_eeGeneral.defaultKeyShortcuts();
+  settings.defaultKeyShortcuts();
 #endif
 
 #if defined(STICK_DEAD_ZONE)
-  g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
+  settings.stickDeadZone = DEFAULT_STICK_DEADZONE;
 #endif
 
   // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset,
   // vBatMax has a -12V offset
-  g_eeGeneral.vBatWarn = BATTERY_WARN;
+  settings.vBatWarn = BATTERY_WARN;
   if (BATTERY_MIN != 90)
-    g_eeGeneral.vBatMin = BATTERY_MIN - 90;
+    settings.vBatMin = BATTERY_MIN - 90;
   if (BATTERY_MAX != 120)
-    g_eeGeneral.vBatMax = BATTERY_MAX - 120;
+    settings.vBatMax = BATTERY_MAX - 120;
 
-  g_eeGeneral.backlightMode = e_backlight_mode_all;
-  g_eeGeneral.lightAutoOff = 2;
-  g_eeGeneral.inactivityTimer = 10;
+  settings.backlightMode = e_backlight_mode_all;
+  settings.lightAutoOff = 2;
+  settings.inactivityTimer = 10;
 
-  generalDefaultUILanguage();
-  g_eeGeneral.ttsLanguage[0] = 'e';
-  g_eeGeneral.ttsLanguage[1] = 'n';
-  g_eeGeneral.wavVolume = 2;
-  g_eeGeneral.backgroundVolume = 1;
+  generalDefaultUILanguage(settings);
+  settings.ttsLanguage[0] = 'e';
+  settings.ttsLanguage[1] = 'n';
+  settings.wavVolume = 2;
+  settings.backgroundVolume = 1;
 
 #if defined(PCBX9E)
   const int8_t defaultName[] = { 20, -1, -18, -1, -14, -9, -19 };
-  memcpy(g_eeGeneral.bluetoothName, defaultName, sizeof(defaultName));
+  memcpy(settings.bluetoothName, defaultName, sizeof(defaultName));
 #endif
 
 #if defined(STORAGE_MODELSLIST)
-  strcpy(g_eeGeneral.currModelFilename, DEFAULT_MODEL_FILENAME);
+  strcpy(settings.currModelFilename, DEFAULT_MODEL_FILENAME);
 #endif
 
 #if defined(IFLIGHT_RELEASE)
-  g_eeGeneral.splashMode = 3;
-  g_eeGeneral.pwrOnSpeed = 2;
-  g_eeGeneral.pwrOffSpeed = 2;
+  settings.splashMode = 3;
+  settings.pwrOnSpeed = 2;
+  settings.pwrOffSpeed = 2;
 #endif
 
 #if defined(RADIO_C14)
-  g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
+  settings.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
 #endif
 
 #if defined(MANUFACTURER_RADIOMASTER)
-  g_eeGeneral.audioMuteEnable = 1;
+  settings.audioMuteEnable = 1;
 #if defined(RADIO_TX15) || defined(RADIO_GX15)
-  g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough
+  settings.backlightBright = 50; // Screen looks off if not set high enough
 #endif
 #endif
 
   // disable Custom Script
-  g_eeGeneral.modelCustomScriptsDisabled = true;
+  settings.modelCustomScriptsDisabled = true;
 
 #if defined(USE_HATS_AS_KEYS)
-  g_eeGeneral.hatsMode = HATSMODE_SWITCHABLE;
+  settings.hatsMode = HATSMODE_SWITCHABLE;
 #endif
 
 #if defined(DEFAULT_6POS_CALIB)
   uint8_t defaultCalib[] = DEFAULT_6POS_CALIB;
-  StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[DEFAULT_6POS_IDX];
+  StepsCalibData* calib = (StepsCalibData*)&settings.calib[DEFAULT_6POS_IDX];
 
   for (int i = 0; i < 5; i++) {
     calib->steps[i] = defaultCalib[i];
   }
 #endif
 
-  g_eeGeneral.chkSum = 0xFFFF;
+  settings.chkSum = 0xFFFF;
 }
+
+void generalDefaultSwitches() { generalDefaultSwitches(g_eeGeneral); }
+void generalDefaultUILanguage() { generalDefaultUILanguage(g_eeGeneral); }
+void generalDefault() { generalDefault(g_eeGeneral); }
 
 uint16_t evalChkSum()
 {

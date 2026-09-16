@@ -69,22 +69,6 @@ static inline void check_struct()
   #error CHKSIZE not set up
 #endif
 
-#if defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_GX15) || defined(RADIO_T15PRO) || defined(RADIO_TX16SMK3) || defined(RADIO_T22)
-  CHKSIZE(RadioData, 454);
-#elif defined(RADIO_V12)
-  CHKSIZE(RadioData, 451);
-#elif defined(COLORLCD)
-  #if defined(IMU)
-    CHKSIZE(RadioData, 334);
-  #else
-    CHKSIZE(RadioData, 333);
-  #endif
-#elif defined(RADIO_GX12)
-  CHKSIZE(RadioData, 339);
-#else
-  CHKSIZE(RadioData, 219);
-#endif
-
 #if defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
   CHKSIZE(ModelData, 4390);
 #elif defined(RADIO_FAMILY_T20)

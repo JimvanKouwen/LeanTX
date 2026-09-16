@@ -23,6 +23,7 @@
 #include "storage.h"
 #include "sdcard_common.h"
 #include "modelslist.h"
+#include "radio_config_file.h"
 #include "model_init.h"
 
 #include "hal/abnormal_reboot.h"
@@ -56,6 +57,7 @@ static void storageFormat()
   sdCheckAndCreateDirectory(RADIO_PATH);
   sdCheckAndCreateDirectory(MODELS_PATH);
   generalDefault();
+  postRadioSettingsLoad();
   setModelDefaults();
 }
 
@@ -214,17 +216,24 @@ void storageReadAll()
   g_eeGeneral.modelCustomScriptsDisabled = true;
   
   if (loadRadioSettings() != nullptr) {
+    // A malformed document or an I/O error is not a first-run request. Keep
+    // initialized radio defaults and existing models; saving will continue to
+    // refuse a malformed source until the user repairs it.
+    if (!radioSettingsMissing()) {
+      ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
+    } else {
 #if defined(SIMU)
-    if (simuCreateDefaultSettings) {
-      // Web simulator first run: silently create defaults without
-      // STORAGE WARNING alert or calibration screen.
-      simuCreateDefaultSettings = false;
-      storageFormat();
-      g_eeGeneral.chkSum = evalChkSum();
-      forceSave();
-    } else
+      if (simuCreateDefaultSettings) {
+        // Web simulator first run: silently create defaults without
+        // STORAGE WARNING alert or calibration screen.
+        simuCreateDefaultSettings = false;
+        storageFormat();
+        g_eeGeneral.chkSum = evalChkSum();
+        forceSave();
+      } else
 #endif
-    storageEraseAll();
+      storageEraseAll();
+    }
   }
 #if !defined(STORAGE_MODELSLIST)
   else {
