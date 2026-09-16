@@ -191,12 +191,12 @@ void RadioData::defaultKeyShortcuts()
   setKeyShortcut(EVT_KEY_LONG(KEY_TELE), QM_TOOLS_CHAN_MON);
 }
 
-static std::string _keyToolNames[MAX_KEY_SHORTCUTS];
+static char _keyToolNames[MAX_KEY_SHORTCUTS][RadioData::ToolNameCapacity];
 
 void RadioData::setKeyToolName(event_t event, const std::string name)
 {
   int n = getKeyShortcutNum(event);
-  if (n >= 0) _keyToolNames[n] = name;
+  if (n >= 0) configSetToolName(false, n, name.c_str());
 }
 
 const std::string RadioData::getKeyToolName(event_t event)
@@ -206,15 +206,29 @@ const std::string RadioData::getKeyToolName(event_t event)
   return "";
 }
 
-static std::string _favoriteToolNames[MAX_QM_FAVORITES];
+static char _favoriteToolNames[MAX_QM_FAVORITES][RadioData::ToolNameCapacity];
 
 void RadioData::setFavoriteToolName(int fav, const std::string name)
 {
-  _favoriteToolNames[fav] = name;
+  configSetToolName(true, fav, name.c_str());
 }
 
 const std::string RadioData::getFavoriteToolName(int fav)
 {
   return _favoriteToolNames[fav];
+}
+const char* RadioData::configToolName(bool favorite, unsigned index) const
+{
+  if (index >= unsigned(favorite ? MAX_QM_FAVORITES : MAX_KEY_SHORTCUTS)) return "";
+  return favorite ? _favoriteToolNames[index] : _keyToolNames[index];
+}
+
+bool RadioData::configSetToolName(bool favorite, unsigned index, const char* name)
+{
+  if (index >= unsigned(favorite ? MAX_QM_FAVORITES : MAX_KEY_SHORTCUTS) ||
+      strlen(name) >= ToolNameCapacity) return false;
+  char* dst = favorite ? _favoriteToolNames[index] : _keyToolNames[index];
+  strcpy(dst, name);
+  return true;
 }
 #endif

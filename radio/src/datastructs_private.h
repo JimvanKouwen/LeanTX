@@ -659,7 +659,7 @@ PACK(struct StepsCalibData {
 #endif
 
 PACK(struct CalibData {
-  CUST_IDX(calib, r_calib, w_calib);
+
   int16_t mid;
   int16_t spanNeg;
   int16_t spanPos;
@@ -677,22 +677,22 @@ PACK(struct CalibData {
 #endif
 
 PACK(struct switchDef {
-  CUST_IDX(sw, sw_idx_read, sw_idx_write);
+
   char name[LEN_SWITCH_NAME];
-  uint8_t type:3 ENUM(SwitchConfig);
+  uint8_t type:3;
 #if defined(FUNCTION_SWITCHES)
-  uint8_t start:2 ENUM(fsStartPositionType) FUNC(switch_is_cfs);
+  uint8_t start:2;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  uint8_t onColorLuaOverride:1 ENUM(booleanEnum) FUNC(switch_is_cfs);
-  uint8_t offColorLuaOverride:1 ENUM(booleanEnum) FUNC(switch_is_cfs);
-  uint8_t spare:1 SKIP;
-  RGBLedColor onColor FUNC(switch_is_cfs);
-  RGBLedColor offColor FUNC(switch_is_cfs);
+  uint8_t onColorLuaOverride:1;
+  uint8_t offColorLuaOverride:1;
+  uint8_t spare:1;
+  RGBLedColor onColor;
+  RGBLedColor offColor;
 #else
-  uint8_t spare:3 SKIP;
+  uint8_t spare:3;
 #endif
 #else
-  uint8_t spare:5 SKIP;
+  uint8_t spare:5;
 #endif
 });
 
@@ -700,12 +700,12 @@ PACK(struct switchDef {
 #define MAX_KEY_SHORTCUTS 6
 #define MAX_QM_FAVORITES 12
 PACK(struct KeyShortcut {
-  CUST_ATTR(shortcut, r_keyShortcut, w_keyShortcut);
-  uint8_t shortcut ENUM(QMPage) SKIP;
+
+  uint8_t shortcut;
 });
 PACK(struct QMFavorite {
-  CUST_ATTR(shortcut, r_qmFavorite, w_qmFavorite);
-  uint8_t shortcut ENUM(QMPage) SKIP;
+
+  uint8_t shortcut;
 });
 #endif
 
@@ -716,28 +716,28 @@ PACK(struct RadioData {
   int8_t timezoneMinutes:3;    // -3 to +3 ==> (-45 to 45 minutes in 15 minute increments)
   uint8_t ppmunit:2;  // PPMUnit enum
 #if defined(USE_HATS_AS_KEYS)
-  uint8_t hatsMode:2 ENUM(HatsMode);
+  uint8_t hatsMode:2;
 #else
-  uint8_t hatsModeSpare:2 SKIP;
+  uint8_t hatsModeSpare:2;
 #endif
-  CUST_ATTR(semver,nullptr,w_semver);
-  CUST_ATTR(board,nullptr,w_board);
-  CalibData calib[MAX_CALIB_ANALOG_INPUTS] NO_IDX;
-  uint16_t chkSum SKIP;
+
+
+  CalibData calib[MAX_CALIB_ANALOG_INPUTS];
+  uint16_t chkSum;
   N_HORUS_FIELD(int8_t currModel);
   N_HORUS_FIELD(uint8_t contrast);
   uint8_t vBatWarn;
   int8_t txVoltageCalibration;
-  uint8_t backlightMode:3 ENUM(BacklightMode);
-  int8_t antennaMode:2 ENUM(AntennaModes);
+  uint8_t backlightMode:3;
+  int8_t antennaMode:2;
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
   uint8_t dontPlayHello:1;
-  uint8_t internalModule ENUM(ModuleType);
+  uint8_t internalModule;
   uint8_t view;            // index of view in main screen
-  int8_t buzzerModeSkip:2 SKIP; // 2 bits for alignment
+  int8_t buzzerModeSkip:2; // 2 bits for alignment
   uint8_t fai:1;
-  int8_t beepMode:2 ENUM(BeeperMode) CUST(r_beeperMode,w_beeperMode);
+  int8_t beepMode:2;
   uint8_t alarmsFlash:1;
   uint8_t disableMemoryWarning:1;
   uint8_t disableAlarmWarning:1;
@@ -745,76 +745,72 @@ PACK(struct RadioData {
   int8_t timezone:5;
   uint8_t adjustRTC:1;
   uint8_t inactivityTimer;
-  CUST_ATTR(telemetryBaudrate, r_telemetryBaudrate, nullptr);
+
   uint8_t internalModuleBaudrate:3;
   int8_t splashMode:3; /* 3bits */
-  int8_t hapticMode:2 CUST(r_beeperMode,w_beeperMode);
+  int8_t hapticMode:2;
   int8_t switchesDelay;
   uint8_t lightAutoOff;
   uint8_t templateSetup;   // RETA order for receiver channels
-  int8_t hapticLength CUST(r_5pos,w_5pos);
-  int8_t beepLength:3 CUST(r_5pos,w_5pos);
-  int8_t hapticStrength:3 CUST(r_5pos,w_5pos);
+  int8_t hapticLength;
+  int8_t beepLength:3;
+  int8_t hapticStrength:3;
   uint8_t gpsFormat:1;
   uint8_t  audioMuteEnable:1;
-  uint8_t speakerPitch CUST(r_spPitch,w_spPitch);
-  int8_t speakerVolume CUST(r_vol,w_vol);
-  int8_t vBatMin CUST(r_vbat_min,w_vbat_min);
-  int8_t vBatMax CUST(r_vbat_max,w_vbat_max);
+  uint8_t speakerPitch;
+  int8_t speakerVolume;
+  int8_t vBatMin;
+  int8_t vBatMax;
 
   uint8_t  backlightBright;
   uint32_t globalTimer;
   uint8_t  bluetoothBaudrate:4;
-  uint8_t  bluetoothMode:4 ENUM(BluetoothModes);
+  uint8_t  bluetoothMode:4;
 
   uint8_t  countryCode:2;
   int8_t   pwrOnSpeed:3;
   int8_t   pwrOffSpeed:3;
 
-  CUST_ATTR(jitterFilter, r_jitterFilter, nullptr);
   uint8_t  noJitterFilter:1; /* 0 - Jitter filter active */
   uint8_t  imperial:1;
   uint8_t  disableRssiPoweroffAlarm:1;
   uint8_t  USBMode:2;
-  uint8_t  spareJackMode:2 SKIP;
-  uint8_t  reservedAccessoryPower:1 SKIP;
+  uint8_t  spareJackMode:2;
+  uint8_t  reservedAccessoryPower:1;
 
   char     ttsLanguage[2];
   char     uiLanguage[2];
-  int8_t   beepVolume:4 CUST(r_5pos,w_5pos);
-  int8_t   wavVolume:4 CUST(r_5pos,w_5pos);
-  int8_t   varioVolume:4 CUST(r_5pos,w_5pos);
-  int8_t   backgroundVolume:4 CUST(r_5pos,w_5pos);
-  int8_t   varioPitch CUST(r_vPitch,w_vPitch);
-  int8_t   varioRange CUST(r_vPitch,w_vPitch);
+  int8_t   beepVolume:4;
+  int8_t   wavVolume:4;
+  int8_t   varioVolume:4;
+  int8_t   backgroundVolume:4;
+  int8_t   varioPitch;
+  int8_t   varioRange;
   int8_t   varioRepeat;
 
-  CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
-  CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
-  uint32_t serialPort ARRAY(SERIAL_CONF_BITS_PER_PORT,struct_serialConfig,nullptr);
 
-  CUST_ARRAY(sticksConfig, struct_stickConfig, MAX_STICKS, stick_name_valid);
-  CUST_ARRAY(slidersConfig, struct_sliderConfig, MAX_POTS, nullptr);
-  uint8_t stickInvert SKIP;
-  potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
-  switchDef switchConfig[MAX_SWITCHES] FUNC(switchIsActive) NO_IDX;
-  CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
+  uint32_t serialPort;
+
+
+  uint8_t stickInvert;
+  potconfig_t potsConfig;
+  switchDef switchConfig[MAX_SWITCHES];
+
 
   EXTRA_GENERAL_FIELDS
 
-  CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   uint8_t  rotEncMode:3;
 
 #if defined(STM32F4)
   int8_t uartSampleMode:2; // See UartSampleModes
 #else
-  uint8_t uartSampleModeSpare:2 SKIP;
+  uint8_t uartSampleModeSpare:2;
 #endif
 
 #if defined(STICK_DEAD_ZONE)
   uint8_t  stickDeadZone:3;
 #else
-  uint8_t  stickDeadZoneSpare:3 SKIP;
+  uint8_t  stickDeadZoneSpare:3;
 #endif
 
 #if defined(IMU)
@@ -827,19 +823,19 @@ PACK(struct RadioData {
   char selectedTheme[SELECTED_THEME_NAME_LEN];
 #endif
 
-  int16_t backlightSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx);
+  int16_t backlightSrc:10;
 
-  int16_t spareRadioViewOption:1 SKIP;
-  int16_t reservedModelFeature:1 SKIP;
+  int16_t spareRadioViewOption:1;
+  int16_t reservedModelFeature:1;
   int16_t modelCurvesDisabled:1;
-  int16_t reservedVariableFeature:1 SKIP;
+  int16_t reservedVariableFeature:1;
 
-  int16_t volumeSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx);
+  int16_t volumeSrc:10;
 
-  int16_t reservedConditionFeature:1 SKIP;
+  int16_t reservedConditionFeature:1;
   int16_t modelCustomScriptsDisabled:1;
   int16_t modelTelemetryDisabled:1;
-  int16_t sparePoweroffAlarm:1 SKIP;
+  int16_t sparePoweroffAlarm:1;
   int16_t disablePwrOnOffHaptic:1;
 
   uint8_t modelQuickSelect:1;
@@ -857,15 +853,15 @@ PACK(struct RadioData {
   // 0 = charge while USB active (default), 1 = hold the charger off while USB
   // is plugged in SD/Joystick/VCP mode
   uint8_t usbChargeDisabled:1;
-  uint8_t spare:6 SKIP;
+  uint8_t spare:6;
 #else
-  uint8_t spare:7 SKIP;
+  uint8_t spare:7;
 #endif
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  uint8_t spare:4 SKIP;
+  uint8_t spare:4;
 #else
-  uint8_t spare:5 SKIP;
+  uint8_t spare:5;
 #endif
 
   uint8_t pwrOffIfInactive;
@@ -914,6 +910,10 @@ PACK(struct RadioData {
   const std::string getKeyToolName(event_t event);
   void setFavoriteToolName(int fav, const std::string name);
   const std::string getFavoriteToolName(int fav);
+  // Bounded, allocation-free access for the configuration adapter.
+  static constexpr unsigned ToolNameCapacity = 64;
+  const char* configToolName(bool favorite, unsigned index) const;
+  bool configSetToolName(bool favorite, unsigned index, const char* name);
 #endif
 });
 

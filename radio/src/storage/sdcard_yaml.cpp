@@ -119,82 +119,6 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 // SDCARD storage interface
 //
 
-static const char * attemptLoad(const char *filename, ChecksumResult* checksum_status)
-{
-  YamlTreeWalker tree;
-  tree.reset(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral);
-  return readYamlFile(filename, YamlTreeWalker::get_parser_calls(), &tree, checksum_status);
-}
-
-const char * loadRadioSettingsYaml(bool checks)
-{
-    // YAML reader
-    TRACE("YAML radio settings reader");
-
-    ChecksumResult checksum_status;
-    const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
-
-    if(!checks)
-      return p;
-
-    if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
-      // Read failed or checksum check failed
-      FRESULT result = FR_OK;
-      TRACE("radio settings: Reading failed");
-      if ( (p == NULL) && g_eeGeneral.manuallyEdited) {
-        // Read sussessfull, checksum failed, manuallyEdited set
-        TRACE("File has been manually edited - ignoring checksum mismatch");
-        g_eeGeneral.manuallyEdited = 0;
-        storageDirty(EE_GENERAL);   // Trigger a save on sucessfull recovery
-      } else {
-        TRACE("File is corrupted, attempting alternative file");
-        f_unlink(RADIO_SETTINGS_ERRORFILE_YAML_PATH);
-        result = f_rename(RADIO_SETTINGS_YAML_PATH, RADIO_SETTINGS_ERRORFILE_YAML_PATH); // Save corrupted file for later analysis
-        p = attemptLoad(RADIO_SETTINGS_TMPFILE_YAML_PATH, &checksum_status);
-        if (p == NULL && (checksum_status == ChecksumResult::Success)) {
-            f_unlink(RADIO_SETTINGS_YAML_PATH);
-            result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
-            if (result != FR_OK) {
-              ALERT(STR_STORAGE_WARNING, STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
-              return SDCARD_ERROR(result);
-            }
-        }
-        TRACE("Unable to recover radio data");
-        ALERT(STR_STORAGE_WARNING, p == NULL ? STR_RADIO_DATA_RECOVERED : STR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
-      }
-    }
-    return p;
-}
-
-const char * loadRadioSettings()
-{
-    FILINFO fno;
-
-    if ( (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) && ((f_stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, &fno) != FR_OK)) ) {
-      // If neither the radio configuraion YAML file or the temporary file generated on write exist, this must be a first run with YAML support.
-      // - thus requiring a conversion from binary to YAML.
-      return "no radio settings";
-    }
-
-#if defined(DEFAULT_INTERNAL_MODULE)
-    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
-#endif
-
-    adcCalibDefaults();
-    generalDefaultSwitches();
-#if defined(COLORLCD)
-    g_eeGeneral.defaultKeyShortcuts();
-#endif
-
-    const char* error = loadRadioSettingsYaml(true);
-    if (!error) {
-      g_eeGeneral.chkSum = evalChkSum();
-    }
-    postRadioSettingsLoad();
-
-    return error;
-}
-
 struct yaml_checksummer_ctx {
     FRESULT result;
     uint16_t checksum;
@@ -285,30 +209,6 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 
     f_close(&file);
     return NULL;
-}
-
-const char * writeGeneralSettings()
-{
-    TRACE("YAML radio settings writer");
-    uint16_t file_checksum = 0;
-
-    YamlFileChecksum(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral, &file_checksum);
-    g_eeGeneral.manuallyEdited = false;
-
-    const char *p = writeFileYaml(RADIO_SETTINGS_TMPFILE_YAML_PATH, get_radiodata_nodes(),
-                         (uint8_t*)&g_eeGeneral, file_checksum);
-    TRACE("generalSettings written with checksum %u", file_checksum);
-
-    if (p != NULL) {
-        return p;
-    }
-    f_unlink(RADIO_SETTINGS_YAML_PATH);
-
-    FRESULT result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);
-    if(result != FR_OK)
-        return SDCARD_ERROR(result);
-
-    return nullptr;
 }
 
 const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName)
@@ -590,9 +490,3 @@ const char * restoreModel(uint8_t idx, char *model_name)
 }
 
 #endif
-
-bool storageReadRadioSettings(bool checks)
-{
-  if (!sdMounted()) sdInit();
-  return loadRadioSettingsYaml(checks) == nullptr;
-}

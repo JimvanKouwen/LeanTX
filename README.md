@@ -13,6 +13,52 @@ supported by the module.
 Build the representative matrix with `./build-targets.sh lite`, or all current
 firmware presets plus the simulator with `./build-targets.sh full`.
 
+## Radio-settings storage redesign
+
+`radio.yml` persistence has been decoupled from the generated,
+target-specific `yaml_datastructs_*` / `YamlNode` / `YamlTreeWalker`
+machinery (that legacy system remains in place for model storage only, and
+is untouched by this change). The new engine, in
+`radio/src/storage/radio_config.h`/`.cpp`, treats `radio.yml` purely as a
+configuration document:
+
+- A single universal field table lists every known radio setting once,
+  independent of PCB/target. Hardware availability is decided separately
+  per field via a small capability predicate (e.g. IMU-only fields), not by
+  `#ifdef`-ing settings out of the schema.
+- Fields are classified at load/save time as known+available,
+  known+unavailable, missing+relevant, or unknown, per the rules in
+  `radio_config.h`. Unknown and known-but-unavailable data (including
+  nested maps/lists) is always preserved byte-for-byte across saves without
+  ever being parsed into memory.
+- Loading and saving are bounded-memory streaming operations: fixed-size
+  line buffers only, no YAML DOM, no heap growth with file size.
+- Saves write to `radio_new.yml`, then replace `radio.yml` only after the
+  temporary file is fully written, so a failed save never touches the
+  existing file.
+- A simple schema version (`RADIO_CONFIG_SCHEMA_VERSION`) is reserved for
+  future semantic migrations; ordinary field additions/removals need no
+  version bump.
+
+The schema now covers essentially all plain scalar/bitfield `RadioData`
+settings (roughly 60 fields: calibration targets, RF/haptic/audio/display
+preferences, RTC/timezone, per-target capability-gated fields such as
+`contrast`/`radioThemesDisabled`/`imuMax`/`stickDeadZone`, and two-letter
+language codes), plus a nested example: `switches:` persists each switch's
+type as an individually known+available/unavailable element (by hardware
+switch count), while unrecognised per-switch attributes (e.g. a custom
+`name`) are preserved unchanged.
+
+Still out of scope for this pass, and intentionally left as preserved
+"unknown" data rather than silently dropped: array/custom-encoded settings
+that need dedicated adapters (`sticksConfig`, `slidersConfig`,
+`potsConfig`, `serialPort`, analog `calib[]`, `flexSwitches`, color-LCD
+`keyShortcuts`/`qmFavorites`), and a handful of string-tag-encoded legacy
+fields (`semver`, `board`, `telemetryBaudrate`, `jitterFilter`,
+`auxSerialMode`/`aux2SerialMode`, `rotEncDirection`). These are documented
+follow-up work for the same engine. RTC Emergency Mode snapshot/restore is
+unrelated and was not touched.
+
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/releases/latest)
 [![GitHub all releases](https://img.shields.io/github/downloads/EdgeTX/edgetx/total)](https://github.com/EdgeTX/edgetx/releases)
 [![GitHub license](https://img.shields.io/github/license/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/blob/main/LICENSE)
@@ -174,3 +220,41 @@ interfaces. The simulator runs 54 selected model/storage/Lua/switch/timer/haptic
 regression tests and all 28 mixer tests successfully (the override test is in both
 runs). All 22 YAML layouts were regenerated. Hardware flight testing remains
 outside these build and simulator checks.
+
+## Standalone RTC Emergency Mode
+
+RTC recovery now uses explicit radio/control/CRSF snapshots, independent of the
+YAML schema and packed runtime layouts. Field-by-field capture and restore replace
+`BACKUP`/`NOBACKUP` alternate structures and generated copy helpers. Calibration,
+Inputs/Mixes/Outputs/curves, physical controls and module settings are retained;
+removed-feature reservations, timers and unrelated display/configuration data are
+excluded. Input filtering and HAL flex-switch mappings are also preserved.
+
+The 4,096-byte RTC area holds a 20-byte header and an RLC-compressed snapshot.
+Magic, format version, build/target tag, lengths, CRC-32 and strict decompression
+must all pass before runtime state changes. Failed boot recovery leaves RF off.
+The existing dirty-mask and one-second backup timing are unchanged. Pocket has
+no enabled hardware RTC-backup path; the simulator can exercise it with
+`-DRTC_BACKUP_RAM=YES`.
+
+See [the RTC field audit and validation report](docs/rtc-emergency.md) for retained
+fields, exclusions, sizes, test results and remaining limitations. YAML formats
+and the normal startup path are unchanged.
+
+## Universal radio configuration
+
+Radio settings now use a universal semantic schema and bounded streaming YAML
+load/merge, independent of generated layouts and packed `RadioData` offsets.
+Known available settings update runtime state; missing settings receive normal
+defaults. Unknown content and known settings unavailable on the current radio
+survive normal saves. Existing dirty/debounce and forced-flush behavior remains.
+
+Saves complete and flush `radio.yml.tmp` before replacement, with a transient
+swap file for rename recovery. No ordinary backup files are created. Model YAML
+still uses the legacy generated system; RTC emergency recovery is unchanged.
+
+Pocket, TX16S MK3 and simulator builds pass, alongside 105 monochrome and 106
+color regression tests and 18 sanitizer-tested core cases. See the
+[radio configuration report](docs/radio-configuration.md) for APIs, capabilities,
+YAML limits, transaction guarantees, and measured flash/RAM costs (2956 bytes
+of static configuration workspace on Pocket; 4096-byte compile-time ceiling).

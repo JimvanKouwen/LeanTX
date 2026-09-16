@@ -4,14 +4,6 @@
 // Enums first
 //
 
-const struct YamlIdStr enum_BacklightMode[] = {
-  {  e_backlight_mode_off, "backlight_mode_off"  },
-  {  e_backlight_mode_keys, "backlight_mode_keys"  },
-  {  e_backlight_mode_sticks, "backlight_mode_sticks"  },
-  {  e_backlight_mode_all, "backlight_mode_all"  },
-  {  e_backlight_mode_on, "backlight_mode_on"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_AntennaModes[] = {
   {  ANTENNA_MODE_INTERNAL, "MODE_INTERNAL"  },
   {  ANTENNA_MODE_ASK, "MODE_ASK"  },
@@ -22,18 +14,6 @@ const struct YamlIdStr enum_AntennaModes[] = {
 const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_NONE, "TYPE_NONE"  },
   {  MODULE_TYPE_CROSSFIRE, "TYPE_CROSSFIRE"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_BeeperMode[] = {
-  {  e_mode_quiet, "mode_quiet"  },
-  {  e_mode_alarms, "mode_alarms"  },
-  {  e_mode_nokeys, "mode_nokeys"  },
-  {  e_mode_all, "mode_all"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_BluetoothModes[] = {
-  {  BLUETOOTH_OFF, "OFF"  },
-  {  BLUETOOTH_TELEMETRY, "TELEMETRY"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_SwitchConfig[] = {
@@ -57,43 +37,6 @@ const struct YamlIdStr enum_fsStartPositionType[] = {
 const struct YamlIdStr enum_booleanEnum[] = {
   {  BOOL_OFF, "OFF"  },
   {  BOOL_ON, "ON"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_QMPage[] = {
-  {  QM_NONE, "NONE"  },
-  {  QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU"  },
-  {  QM_MANAGE_MODELS, "MANAGE_MODELS"  },
-  {  QM_MODEL_SETUP, "MODEL_SETUP"  },
-  {  QM_MODEL_INPUTS, "MODEL_INPUTS"  },
-  {  QM_MODEL_MIXES, "MODEL_MIXES"  },
-  {  QM_MODEL_OUTPUTS, "MODEL_OUTPUTS"  },
-  {  QM_MODEL_CURVES, "MODEL_CURVES"  },
-  {  QM_MODEL_SCRIPTS, "MODEL_SCRIPTS"  },
-  {  QM_MODEL_TELEMETRY, "MODEL_TELEMETRY"  },
-  {  QM_MODEL_NOTES, "MODEL_NOTES"  },
-  {  QM_RADIO_SETUP, "RADIO_SETUP"  },
-  {  QM_RADIO_HARDWARE, "RADIO_HARDWARE"  },
-  {  QM_RADIO_VERSION, "RADIO_VERSION"  },
-  {  QM_UI_THEMES, "UI_THEMES"  },
-  {  QM_UI_SETUP, "UI_SETUP"  },
-  {  QM_UI_SCREEN1, "UI_SCREEN1"  },
-  {  QM_UI_SCREEN2, "UI_SCREEN2"  },
-  {  QM_UI_SCREEN3, "UI_SCREEN3"  },
-  {  QM_UI_SCREEN4, "UI_SCREEN4"  },
-  {  QM_UI_SCREEN5, "UI_SCREEN5"  },
-  {  QM_UI_SCREEN6, "UI_SCREEN6"  },
-  {  QM_UI_SCREEN7, "UI_SCREEN7"  },
-  {  QM_UI_SCREEN8, "UI_SCREEN8"  },
-  {  QM_UI_SCREEN9, "UI_SCREEN9"  },
-  {  QM_UI_SCREEN10, "UI_SCREEN10"  },
-  {  QM_UI_ADD_PG, "UI_ADD_PG"  },
-  {  QM_TOOLS_APPS, "TOOLS_APPS"  },
-  {  QM_TOOLS_STORAGE, "TOOLS_STORAGE"  },
-  {  QM_TOOLS_RESET, "TOOLS_RESET"  },
-  {  QM_TOOLS_CHAN_MON, "TOOLS_CHAN_MON"  },
-  {  QM_TOOLS_STATS, "TOOLS_STATS"  },
-  {  QM_TOOLS_DEBUG, "TOOLS_DEBUG"  },
-  {  QM_APP, "APP"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_SwitchSources[] = {
@@ -182,150 +125,10 @@ const struct YamlIdStr enum_USBJoystickCh[] = {
 // Structs last
 //
 
-static const struct YamlNode struct_CalibData[] = {
-  YAML_IDX_CUST("calib",r_calib,w_calib),
-  YAML_SIGNED( "mid", 16 ),
-  YAML_SIGNED( "spanNeg", 16 ),
-  YAML_SIGNED( "spanPos", 16 ),
-  YAML_END
-};
 static const struct YamlNode struct_RGBLedColor[] = {
   YAML_UNSIGNED( "r", 8 ),
   YAML_UNSIGNED( "g", 8 ),
   YAML_UNSIGNED( "b", 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_switchDef[] = {
-  YAML_IDX_CUST("sw",sw_idx_read,sw_idx_write),
-  YAML_STRING("name", 3),
-  YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
-  YAML_ENUM("start", 2, enum_fsStartPositionType, switch_is_cfs),
-  YAML_ENUM("onColorLuaOverride", 1, enum_booleanEnum, switch_is_cfs),
-  YAML_ENUM("offColorLuaOverride", 1, enum_booleanEnum, switch_is_cfs),
-  YAML_PADDING( 1 ),
-  YAML_STRUCT("onColor", 24, struct_RGBLedColor, switch_is_cfs),
-  YAML_STRUCT("offColor", 24, struct_RGBLedColor, switch_is_cfs),
-  YAML_END
-};
-static const struct YamlNode struct_KeyShortcut[] = {
-  YAML_IDX,
-  YAML_CUSTOM("shortcut",r_keyShortcut,w_keyShortcut),
-  YAML_PADDING( 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_QMFavorite[] = {
-  YAML_IDX,
-  YAML_CUSTOM("shortcut",r_qmFavorite,w_qmFavorite),
-  YAML_PADDING( 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_RadioData[] = {
-  YAML_UNSIGNED( "manuallyEdited", 1 ),
-  YAML_SIGNED( "timezoneMinutes", 3 ),
-  YAML_UNSIGNED( "ppmunit", 2 ),
-  YAML_PADDING( 2 ),
-  YAML_CUSTOM("semver",nullptr,w_semver),
-  YAML_CUSTOM("board",nullptr,w_board),
-  YAML_ARRAY("calib", 48, 20, struct_CalibData, NULL),
-  YAML_PADDING( 16 ),
-  YAML_UNSIGNED( "vBatWarn", 8 ),
-  YAML_SIGNED( "txVoltageCalibration", 8 ),
-  YAML_ENUM("backlightMode", 3, enum_BacklightMode, NULL),
-  YAML_ENUM("antennaMode", 2, enum_AntennaModes, NULL),
-  YAML_UNSIGNED( "disableRtcWarning", 1 ),
-  YAML_UNSIGNED( "keysBacklight", 1 ),
-  YAML_UNSIGNED( "dontPlayHello", 1 ),
-  YAML_ENUM("internalModule", 8, enum_ModuleType, NULL),
-  YAML_UNSIGNED( "view", 8 ),
-  YAML_PADDING( 2 ),
-  YAML_UNSIGNED( "fai", 1 ),
-  YAML_SIGNED_CUST( "beepMode", 2, r_beeperMode, w_beeperMode ),
-  YAML_UNSIGNED( "alarmsFlash", 1 ),
-  YAML_UNSIGNED( "disableMemoryWarning", 1 ),
-  YAML_UNSIGNED( "disableAlarmWarning", 1 ),
-  YAML_UNSIGNED( "stickMode", 2 ),
-  YAML_SIGNED( "timezone", 5 ),
-  YAML_UNSIGNED( "adjustRTC", 1 ),
-  YAML_UNSIGNED( "inactivityTimer", 8 ),
-  YAML_CUSTOM("telemetryBaudrate",r_telemetryBaudrate,nullptr),
-  YAML_UNSIGNED( "internalModuleBaudrate", 3 ),
-  YAML_SIGNED( "splashMode", 3 ),
-  YAML_SIGNED_CUST( "hapticMode", 2, r_beeperMode, w_beeperMode ),
-  YAML_SIGNED( "switchesDelay", 8 ),
-  YAML_UNSIGNED( "lightAutoOff", 8 ),
-  YAML_UNSIGNED( "templateSetup", 8 ),
-  YAML_SIGNED_CUST( "hapticLength", 8, r_5pos, w_5pos ),
-  YAML_SIGNED_CUST( "beepLength", 3, r_5pos, w_5pos ),
-  YAML_SIGNED_CUST( "hapticStrength", 3, r_5pos, w_5pos ),
-  YAML_UNSIGNED( "gpsFormat", 1 ),
-  YAML_UNSIGNED( "audioMuteEnable", 1 ),
-  YAML_UNSIGNED_CUST( "speakerPitch", 8, r_spPitch, w_spPitch ),
-  YAML_SIGNED_CUST( "speakerVolume", 8, r_vol, w_vol ),
-  YAML_SIGNED_CUST( "vBatMin", 8, r_vbat_min, w_vbat_min ),
-  YAML_SIGNED_CUST( "vBatMax", 8, r_vbat_max, w_vbat_max ),
-  YAML_UNSIGNED( "backlightBright", 8 ),
-  YAML_UNSIGNED( "globalTimer", 32 ),
-  YAML_UNSIGNED( "bluetoothBaudrate", 4 ),
-  YAML_ENUM("bluetoothMode", 4, enum_BluetoothModes, NULL),
-  YAML_UNSIGNED( "countryCode", 2 ),
-  YAML_SIGNED( "pwrOnSpeed", 3 ),
-  YAML_SIGNED( "pwrOffSpeed", 3 ),
-  YAML_CUSTOM("jitterFilter",r_jitterFilter,nullptr),
-  YAML_UNSIGNED( "noJitterFilter", 1 ),
-  YAML_UNSIGNED( "imperial", 1 ),
-  YAML_UNSIGNED( "disableRssiPoweroffAlarm", 1 ),
-  YAML_UNSIGNED( "USBMode", 2 ),
-  YAML_PADDING( 2 ),
-  YAML_PADDING( 1 ),
-  YAML_STRING("ttsLanguage", 2),
-  YAML_STRING("uiLanguage", 2),
-  YAML_SIGNED_CUST( "beepVolume", 4, r_5pos, w_5pos ),
-  YAML_SIGNED_CUST( "wavVolume", 4, r_5pos, w_5pos ),
-  YAML_SIGNED_CUST( "varioVolume", 4, r_5pos, w_5pos ),
-  YAML_SIGNED_CUST( "backgroundVolume", 4, r_5pos, w_5pos ),
-  YAML_SIGNED_CUST( "varioPitch", 8, r_vPitch, w_vPitch ),
-  YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
-  YAML_SIGNED( "varioRepeat", 8 ),
-  YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
-  YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
-  YAML_ARRAY("serialPort", 8, 4, struct_serialConfig, nullptr),
-  YAML_ARRAY("sticksConfig", 0, MAX_STICKS, struct_stickConfig, stick_name_valid),
-  YAML_ARRAY("slidersConfig", 0, MAX_POTS, struct_sliderConfig, nullptr),
-  YAML_PADDING( 8 ),
-  YAML_ARRAY("potsConfig", 4, 16, struct_potConfig, nullptr),
-  YAML_ARRAY("switchConfig", 80, 20, struct_switchDef, switchIsActive),
-  YAML_ARRAY("flexSwitches", 0, MAX_FLEX_SWITCHES, struct_flexSwitch, flex_sw_valid),
-  YAML_STRING("currModelFilename", 17),
-  YAML_UNSIGNED( "blOffBright", 8 ),
-  YAML_STRING("bluetoothName", 10),
-  YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
-  YAML_UNSIGNED( "rotEncMode", 3 ),
-  YAML_PADDING( 2 ),
-  YAML_PADDING( 3 ),
-  YAML_STRING("selectedTheme", 26),
-  YAML_SIGNED_CUST( "backlightSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_PADDING( 1 ),
-  YAML_PADDING( 1 ),
-  YAML_SIGNED( "modelCurvesDisabled", 1 ),
-  YAML_PADDING( 1 ),
-  YAML_SIGNED_CUST( "volumeSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_PADDING( 1 ),
-  YAML_SIGNED( "modelCustomScriptsDisabled", 1 ),
-  YAML_SIGNED( "modelTelemetryDisabled", 1 ),
-  YAML_PADDING( 1 ),
-  YAML_SIGNED( "disablePwrOnOffHaptic", 1 ),
-  YAML_UNSIGNED( "modelQuickSelect", 1 ),
-  YAML_UNSIGNED( "oneLogPerDay", 1 ),
-  YAML_UNSIGNED( "keyLockEnabled", 1 ),
-  YAML_UNSIGNED( "labelSingleSelect", 1 ),
-  YAML_UNSIGNED( "labelMultiMode", 1 ),
-  YAML_UNSIGNED( "favMultiMode", 1 ),
-  YAML_UNSIGNED( "modelSelectLayout", 2 ),
-  YAML_UNSIGNED( "radioThemesDisabled", 1 ),
-  YAML_PADDING( 7 ),
-  YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
-  YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
-  YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -693,14 +496,8 @@ static const struct YamlNode struct_PartialModel[] = {
   YAML_END
 };
 
-#define MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN 29
+#define MAX_MODELDATA_PARTIALMODEL_STR_LEN 29
 
-static const struct YamlNode __RadioData_root_node = YAML_ROOT( struct_RadioData );
-
-const YamlNode* get_radiodata_nodes()
-{
-   return &__RadioData_root_node;
-}
 static const struct YamlNode __ModelData_root_node = YAML_ROOT( struct_ModelData );
 
 const YamlNode* get_modeldata_nodes()

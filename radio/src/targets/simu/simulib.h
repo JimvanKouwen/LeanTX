@@ -52,6 +52,9 @@ void WASM_EXPORT(simuStop)();
 bool WASM_EXPORT(simuIsRunning)();
 
 // Set SD card and settings paths before simuStart() to avoid STORAGE WARNING.
+// Test fault injection: negative disables; otherwise remaining writable bytes.
+void simuFatfsSetWriteBudget(int64_t bytes);
+void simuFatfsFailRenameAfter(int calls);
 void WASM_EXPORT(simuFatfsSetPaths)(const char * sdPath, const char * settingsPath);
 
 // Input: keys use Board::Keys enum, switches use Board switch indices,

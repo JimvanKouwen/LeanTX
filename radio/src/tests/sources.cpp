@@ -21,7 +21,7 @@
 
 #include "gtests.h"
 
-#include "storage/yaml/yaml_tree_walker.h"
+#include "storage/radio_config_adapter.h"
 #include "storage/yaml/yaml_parser.h"
 #include "storage/yaml/yaml_datastructs.h"
 #include "storage/yaml/yaml_bits.h"
@@ -71,14 +71,14 @@ static const char _radio_config[] =
 
 static void loadRadioYamlStr(const char* str)
 {
-  YamlTreeWalker tree;
-  tree.reset(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral);
+  const char* cursor = str;
+  radio_config::Workspace workspace;
+  auto result = radio_config::process({&cursor, [](void* context) {
+    auto& p = *static_cast<const char**>(context);
+    return *p ? int((unsigned char)*p++) : -1;
+  }, nullptr}, {}, radioSettingsSchema(), workspace, true);
+  ASSERT_TRUE(result) << (result.error ? result.error : "");
 
-  YamlParser yp;
-  yp.init(YamlTreeWalker::get_parser_calls(), &tree);
-
-  size_t len = strlen(str);
-  yp.parse(str, len);
 }
 
 TEST(Sources, getSourceString)

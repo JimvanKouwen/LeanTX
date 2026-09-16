@@ -272,20 +272,17 @@ TEST(Model, RemovedActionSettingsAreIgnored)
       "customFn:\n  0:\n    swtch: ON\n    func: OVERRIDE_CHANNEL\n"
       "    def: 0,100,1\nnoGlobalFunctions: 1\n"
       "radioGFDisabled: 1\nmodelSFDisabled: 1\n";
-  for (bool radio : {false, true}) {
+  {
     YamlTreeWalker tree;
-    auto nodes = radio ? get_radiodata_nodes() : get_modeldata_nodes();
-    auto data = radio ? (uint8_t*)&g_eeGeneral : (uint8_t*)&g_model;
+    auto nodes = get_modeldata_nodes();
+    auto data = (uint8_t*)&g_model;
     tree.reset(nodes, data);
     YamlParser parser;
     parser.init(YamlTreeWalker::get_parser_calls(), &tree);
     std::string input = obsolete;
-    input += radio ? "speakerVolume: 3\n" : "header:\n  name: NoActions\n";
+    input += "header:\n  name: NoActions\n";
     parser.parse(input.c_str(), input.size());
-    if (radio)
-      EXPECT_EQ(3 - VOLUME_LEVEL_DEF, g_eeGeneral.speakerVolume);
-    else
-      EXPECT_STREQ("NoActions", modelName());
+    EXPECT_STREQ("NoActions", modelName());
 
     std::string output;
     tree.reset(nodes, data);

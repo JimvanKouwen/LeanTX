@@ -192,7 +192,8 @@ include(gui/CMakeLists.txt)
 # TODO: move to storage/
 set(SRC ${SRC} storage/storage_common.cpp)
 set(SRC ${SRC} storage/sdcard_common.cpp)
-set(SRC ${SRC} storage/sdcard_yaml.cpp)
+set(SRC ${SRC} storage/sdcard_yaml.cpp storage/radio_config.cpp
+  storage/radio_config_adapter.cpp storage/radio_config_file.cpp)
 include(storage/yaml/CMakeLists.txt)
 if(STORAGE_MODELSLIST)
   set(SRC ${SRC} storage/modelslist.cpp)

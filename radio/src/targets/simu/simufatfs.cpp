@@ -186,9 +186,8 @@ FRESULT file_stat(const std::string& realPath, FILINFO* fno)
 
   // Check if file/directory exists
   auto status = fs::status(fsPath, ec);
-  if (ec || status.type() == fs::file_type::not_found) {
-    return FR_INVALID_NAME;
-  }
+  if (status.type() == fs::file_type::not_found || ec == std::errc::no_such_file_or_directory) return FR_NO_FILE;
+  if (ec) return FR_DISK_ERR;
 
   if (fno) {
     // Set attributes
@@ -298,9 +297,7 @@ FRESULT f_open(FIL* fil, const TCHAR* name, BYTE flag)
     mode |= std::ios::in;
 
     std::error_code ec;
-    if (!fs::exists(realPath, ec) || ec) {
-      return FR_INVALID_NAME;
-    }
+    if (!fs::exists(realPath, ec)) return ec ? FR_DISK_ERR : FR_NO_FILE;
 
     auto size = fs::file_size(realPath, ec);
     if (!ec) {
@@ -316,6 +313,15 @@ FRESULT f_open(FIL* fil, const TCHAR* name, BYTE flag)
     delete simuFil;
     return FR_INVALID_NAME;
   }
+}
+
+FRESULT f_sync(FIL* fil)
+{
+  if (!fil || !fil->obj.fs) return FR_INVALID_OBJECT;
+  auto* sf = reinterpret_cast<_simu_FIL*>(fil->obj.fs);
+  if (!sf->stream || !sf->stream->is_open()) return FR_INVALID_OBJECT;
+  sf->stream->flush();
+  return sf->stream->good() ? FR_OK : FR_DISK_ERR;
 }
 
 FRESULT f_close(FIL* fil)
@@ -342,9 +348,15 @@ FRESULT f_read(FIL* fil, void* data, UINT size, UINT* read)
   return FR_OK;
 }
 
+static int64_t writeBudget = -1;
+void simuFatfsSetWriteBudget(int64_t bytes) { writeBudget = bytes; }
+
 FRESULT f_write(FIL* fil, const void* data, UINT size, UINT* written)
 {
   *written = 0;
+  bool fail = writeBudget >= 0 && uint64_t(writeBudget) < size;
+  if (fail) size = writeBudget;
+  if (writeBudget >= 0) writeBudget -= size;
   if (fil && fil->obj.fs) {
     _simu_FIL* sf = reinterpret_cast<_simu_FIL*>(fil->obj.fs);
     if (sf->stream && sf->stream->is_open()) {
@@ -363,7 +375,7 @@ FRESULT f_write(FIL* fil, const void* data, UINT size, UINT* written)
       }
     }
   }
-  return FR_OK;
+  return fail ? FR_DISK_ERR : FR_OK;
 }
 
 FRESULT f_lseek(FIL* fil, DWORD offset)
@@ -542,8 +554,12 @@ FRESULT f_unlink(const TCHAR * name)
   return removed ? FR_OK : FR_INVALID_NAME;
 }
 
+static int renameFailureCountdown = -1;
+void simuFatfsFailRenameAfter(int calls) { renameFailureCountdown = calls; }
+
 FRESULT f_rename(const TCHAR *oldname, const TCHAR *newname)
 {
+  if (renameFailureCountdown >= 0 && renameFailureCountdown-- == 0) return FR_DISK_ERR;
   std::string old = resolveForWrite(oldname);
   std::string path = resolveForWrite(newname);
   std::error_code ec;
