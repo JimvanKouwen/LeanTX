@@ -37,7 +37,6 @@
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_MODEL_SETTINGS            "Model\nSettings"
 #define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
-#define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
 #define TR_QM_CURVES                    "Curves"
@@ -76,7 +75,6 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENUINPUTS                   TR_BW_COL("INPUTS", "Inputs")
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
 #define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
@@ -308,8 +306,6 @@
 #define TR_MODELNAME                   "Model name"
 #define TR_PHASENAME                   "Mode name"
 #define TR_MIXNAME                     "Mix name"
-#define TR_INPUTNAME                   TR("Input", "Input name")
-#define TR_EXPONAME                    TR("Name", "Line name")
 #define TR_BITMAP                      "Model image"
 #define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER                       TR("Timer", "Timer ")
@@ -346,7 +342,6 @@
 #define TR_MODE                        "Mode"
 #define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     "Subtype"
-#define TR_NOFREEEXPO                  "No free expo!"
 #define TR_NOFREEMIXER                 "No free mixer!"
 #define TR_SOURCE                       "Source"
 #define TR_WEIGHT                      "Weight"
@@ -536,7 +531,6 @@
 #define TR_BACKUP_MODEL                "Backup model"
 #define TR_DELETE_MODEL                "Delete model"
 #define TR_RESTORE_MODEL               "Restore model"
-#define TR_DELETE_INPUT_LINE           "Delete input line"
 #define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("SD error", "SD card error")
 #define TR_SDCARD                      "SD Card"
@@ -890,8 +884,6 @@
 // About screen
 #define TR_ABOUTUS                     TR(" ABOUT ", "ABOUT")
 
-#define TR_CHR_INPUT                   "I"   // Values between A-I will work
-
 #define TR_BEEP_VOLUME                 "Beep volume"
 #define TR_WAV_VOLUME                  "Wav volume"
 #define TR_BG_VOLUME                   TR("Bg volume", "Background volume")
@@ -939,7 +931,6 @@
 #define TR_THEME                       "Theme"
 #define TR_LAYOUT                      "Layout"
 #define TR_TEXT_COLOR                  "Text color"
-#define TR_MENU_INPUTS                 CHAR_INPUT "Inputs"
 #define TR_MENU_STICKS                 CHAR_STICK "Axis"
 #define TR_MENU_POTS                   CHAR_POT "Pots"
 #define TR_MENU_MIN                    CHAR_FUNCTION "MIN"
@@ -1105,7 +1096,6 @@
 #define TR_SORT_ORDERS_4          "Most used"
 #define TR_SORT_MODELS_BY         "Sort models by"
 #define TR_CREATE_NEW             "Create"
-
 
 #define TR_THEME_EXISTS           "A theme directory with the same name already exists."
 

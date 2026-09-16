@@ -28,28 +28,6 @@
 #include "layout.h"
 #endif
 
-void clearInputs()
-{
-  memset(g_model.expoData, 0, sizeof(g_model.expoData));
-}
-
-void setDefaultInputs()
-{
-  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
-  for (int i = 0; i < max_sticks; i++) {
-    uint8_t stick_index = inputMappingChannelOrder(i);
-    ExpoData *expo = expoAddress(i);
-    expo->srcRaw = MIXSRC_FIRST_STICK + stick_index;
-    expo->curve.type = CURVE_REF_EXPO;
-    expo->chn = i;
-    expo->weight = 100;
-
-    strncpy(g_model.inputNames[i], getMainControlLabel(stick_index), LEN_INPUT_NAME);
-  }
-
-  storageDirty(EE_MODEL);
-}
-
 void clearMixes()
 {
   memset(g_model.mixData, 0, sizeof(g_model.mixData));
@@ -62,7 +40,7 @@ void setDefaultMixes()
     MixData * mix = mixAddress(i);
     mix->destCh = i;
     mix->weight = 100;
-    mix->srcRaw = i+1;
+    mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(i);
   }
   storageDirty(EE_MODEL);
 }
@@ -112,7 +90,6 @@ void initCustomSwitches()
 
 void applyDefaultTemplate()
 {
-  setDefaultInputs();
   setDefaultMixes();
   setDefaultRSSIValues();
 

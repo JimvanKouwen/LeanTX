@@ -104,7 +104,6 @@ enum MenuRadioIndexes
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
   MENU_MODEL_SETUP,
-   MENU_MODEL_INPUTS,
   MENU_MODEL_MIXES,
   MENU_MODEL_OUTPUTS,
   MENU_MODEL_CURVES,
@@ -127,8 +126,6 @@ void menuServoPwmTool(event_t event);
 
 void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);
-void menuModelExpoOne(event_t event);
-void menuModelExposAll(event_t event);
 void menuModelMixOne(event_t event);
 void menuModelMixAll(event_t event);
 void menuModelLimits(event_t event);
@@ -166,10 +163,6 @@ void menuTextView(event_t event);
 void pushMenuTextView(const char *filename);
 void pushModelNotes();
 void readModelNotes();
-
-uint8_t getExposCount();
-void insertExpo(uint8_t idx);
-void deleteExpo(uint8_t idx);
 
 uint8_t switchToMix(uint8_t source);
 

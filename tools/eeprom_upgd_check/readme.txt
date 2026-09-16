@@ -1,5 +1,5 @@
 Use this two scripts to check eeprom upgrade on lua capale radio.
-Using create.lua on source version will create a predefined set of input, mixer, switche, timer and logical swictch
+Using create.lua on source version will create a predefined set of mixer, switche, timer and logical swictch
 Perform the eeprom upgrade
 On the target version, run check.lua, the debug output will give something like :
 OK 	source	1	1

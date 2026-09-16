@@ -5,7 +5,7 @@
 // These limits belong to the RTC format, not to storage. A runtime expansion
 // requires an explicit snapshot review rather than silently changing the format.
 static_assert(MAX_CALIB_ANALOG_INPUTS <= 20 && MAX_SWITCHES <= 20 && MAX_FLEX_SWITCHES <= 20, "RTC controls");
-static_assert(MAX_MIXERS <= 64 && MAX_EXPOS <= 64, "RTC mixer capacity");
+static_assert(MAX_MIXERS <= 64, "RTC mixer capacity");
 static_assert(MAX_OUTPUT_CHANNELS <= 32 && NUM_MODULES == 2, "RTC RF capacity");
 static_assert(MAX_CURVES <= 32 && MAX_CURVE_POINTS <= 512, "RTC curves");
 #if defined(FUNCTION_SWITCHES)
@@ -72,15 +72,7 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
     s.model.mixes[i].curveType = g_model.mixData[i].curve.type;
     s.model.mixes[i].curveValue = g_model.mixData[i].curve.value;
   }
-  for (unsigned i = 0; i < MAX_EXPOS; ++i) {
-    s.model.inputs[i].chn = g_model.expoData[i].chn;
-    s.model.inputs[i].scale = g_model.expoData[i].scale;
-    s.model.inputs[i].srcRaw = g_model.expoData[i].srcRaw;
-    s.model.inputs[i].weight = g_model.expoData[i].weight;
-    s.model.inputs[i].offset = g_model.expoData[i].offset;
-    s.model.inputs[i].curveType = g_model.expoData[i].curve.type;
-    s.model.inputs[i].curveValue = g_model.expoData[i].curve.value;
-  }
+
   for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
     s.model.limits[i].min = g_model.limitData[i].min;
     s.model.limits[i].max = g_model.limitData[i].max;
@@ -181,15 +173,7 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
     g_model.mixData[i].curve.type = s.model.mixes[i].curveType;
     g_model.mixData[i].curve.value = s.model.mixes[i].curveValue;
   }
-  for (unsigned i = 0; i < MAX_EXPOS; ++i) {
-    g_model.expoData[i].chn = s.model.inputs[i].chn;
-    g_model.expoData[i].scale = s.model.inputs[i].scale;
-    g_model.expoData[i].srcRaw = s.model.inputs[i].srcRaw;
-    g_model.expoData[i].weight = s.model.inputs[i].weight;
-    g_model.expoData[i].offset = s.model.inputs[i].offset;
-    g_model.expoData[i].curve.type = s.model.inputs[i].curveType;
-    g_model.expoData[i].curve.value = s.model.inputs[i].curveValue;
-  }
+
   for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
     g_model.limitData[i].min = s.model.limits[i].min;
     g_model.limitData[i].max = s.model.limits[i].max;
@@ -232,4 +216,3 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
   g_model.cfsGroupOn = s.model.cfsGroupOn;
 #endif
 }
-

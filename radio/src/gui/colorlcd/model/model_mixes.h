@@ -24,7 +24,7 @@
 #include "list_line_button.h"
 #include "pagegroup.h"
 
-class ModelMixesPage : public InputMixPageBase
+class ModelMixesPage : public MixPageBase
 {
  public:
   ModelMixesPage(const PageDef& pageDef);
@@ -34,15 +34,15 @@ class ModelMixesPage : public InputMixPageBase
  protected:
   bool showMonitors = false;
 
-  InputMixGroupBase* getGroupByIndex(uint8_t index) override;
+  MixGroupBase* getGroupByIndex(uint8_t index) override;
 
   void addLineButton(uint8_t index) override;
-  InputMixGroupBase* createGroup(Window* form, mixsrc_t src) override;
-  InputMixButtonBase* createLineButton(InputMixGroupBase* group, uint8_t index) override;
+  MixGroupBase* createGroup(Window* form, mixsrc_t src) override;
+  MixButtonBase* createLineButton(MixGroupBase* group, uint8_t index) override;
 
   void newMix();
-  void editMix(uint8_t input, uint8_t index);
-  void insertMix(uint8_t input, uint8_t index);
+  void editMix(uint8_t channel, uint8_t index);
+  void insertMix(uint8_t channel, uint8_t index);
   void deleteMix(uint8_t index);
 
   void pasteMix(uint8_t dst_idx, uint8_t channel);

@@ -22,7 +22,6 @@
 #include "gtests.h"
 #include "model_yaml_test.h"
 
-
 static const char* _model_config[] =
   {
     // As written by radio firmware - always enclosed in double quotes
@@ -215,7 +214,6 @@ TEST(Model, RemovedTrimSettingsAreIgnored)
     EXPECT_EQ(std::string::npos, yaml.find(field)) << field;
 }
 
-
 TEST(Model, RemovedActionSettingsAreIgnored)
 {
   MODEL_RESET();
@@ -244,15 +242,11 @@ TEST(Model, RemovedLineConditionsAreIgnored)
       "mixData:\n -\n    destCh: 4\n    srcRaw: MAX\n"
       "    weight: 50\n    swtch: ON\n    flightModes: 111111111\n"
       "    mltpx: REPL\n    mixWarn: 3\n    delayUp: 10\n    speedDown: 10\n"
-      "expoData:\n -\n    mode: 1\n    srcRaw: MAX\n"
-      "    weight: 25\n    swtch: \"!ON\"\n    flightModes: 111111111\n");
+      "");
   EXPECT_EQ(4u, g_model.mixData[0].destCh);
   EXPECT_EQ(MIXSRC_MAX, g_model.mixData[0].srcRaw);
   EXPECT_EQ((50), g_model.mixData[0].weight);
-  EXPECT_EQ(MIXSRC_MAX, g_model.expoData[0].srcRaw);
-  EXPECT_EQ((25), g_model.expoData[0].weight);
   evalMixes();
-  EXPECT_EQ(RESX / 4, anas[0]);
   EXPECT_EQ(RESX * 256 / 2, chans[4]);
   const auto yaml = saveModelYamlStr(g_model);
   for (const char* field : {"mltpx:", "mixWarn:", "delayUp:", "speedDown:", "flightModes:"})
@@ -263,10 +257,7 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
 {
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr("gvars:\n  0:\n    value: 123\n");
-  g_model.expoData[0].srcRaw = MIXSRC_MAX;
 
-  g_model.expoData[0].weight = -75;
-  g_model.expoData[0].offset = -25;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].weight = -500;
   g_model.mixData[0].offset = 500;
@@ -280,8 +271,6 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   EXPECT_EQ(std::string::npos, yaml.find("gvars"));
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
-  EXPECT_EQ(-75, g_model.expoData[0].weight);
-  EXPECT_EQ(-25, g_model.expoData[0].offset);
   EXPECT_EQ(-500, g_model.mixData[0].weight);
   EXPECT_EQ(500, g_model.mixData[0].offset);
   EXPECT_EQ(-70, g_model.mixData[0].curve.value);
@@ -301,7 +290,6 @@ TEST(Model, PhysicalSwitchSourceAndTimerConditionRoundTrip)
   const int position = SWSRC_FIRST_SWITCH + 3 * sw;
   loadModelYamlStr("logicalSw:\n  0:\n    func: AND\n    def: SA0,SB0\n");
 
-  g_model.expoData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
   g_model.timers[0].swtch = -position;
   std::string yaml = saveModelYamlStr(g_model);

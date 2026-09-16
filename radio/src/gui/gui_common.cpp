@@ -36,18 +36,6 @@ uint8_t switchToMix(uint8_t source)
   return qr.quot + MIXSRC_FIRST_SWITCH;
 }
 
-bool isInputAvailable(int input)
-{
-  for (int i=0; i<MAX_EXPOS; i++) {
-    ExpoData * expo = expoAddress(i);
-    if (!EXPO_VALID(expo))
-      break;
-    if (expo->chn == input)
-      return true;
-  }
-  return false;
-}
-
 bool isVarioSensorAvailable(int sensor)
 {
   if (sensor == 0)
@@ -153,7 +141,6 @@ int getChannelsUsed()
 
 static bool sourceIsAvailable(int source) { return true; }
 
-
 static bool isSourceStickAvailable(int source) {
   return source < adcGetMaxInputs(ADC_INPUT_MAIN);
 }
@@ -205,7 +192,6 @@ struct sourceAvailableCheck {
 };
 
 static struct sourceAvailableCheck sourceChecks[] = {
-  { MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SRC_INPUT, isInputAvailable },
   { MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SRC_STICK, isSourceStickAvailable },
   { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SRC_POT, isSourcePotAvailable },
 #if defined(IMU)
@@ -250,7 +236,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
+            SRC_COMMON | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
             );
 }
 

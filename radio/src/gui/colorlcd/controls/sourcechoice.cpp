@@ -31,8 +31,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
   SourceChoiceMenuToolbar(SourceChoice* choice, Menu* menu) :
       MenuToolbar(choice, menu, FILTER_COLUMNS)
   {
-    addButton(CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr,
-              STR_MENU_INPUTS);
     auto lastSource = MIXSRC_MIN - 1;
     addButton(
         CHAR_STICK, MIXSRC_FIRST_STICK, lastSource,

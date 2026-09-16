@@ -57,7 +57,7 @@ beepANACenter: 0
 mixData: 
  -
    destCh: 0
-   srcRaw: "I0"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -75,7 +75,7 @@ mixData:
    name: ""
  -
    destCh: 1
-   srcRaw: "I1"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -93,7 +93,7 @@ mixData:
    name: ""
  -
    destCh: 2
-   srcRaw: "I2"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -111,7 +111,7 @@ mixData:
    name: ""
  -
    destCh: 3
-   srcRaw: "I3"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -129,7 +129,7 @@ mixData:
    name: ""
  -
    destCh: 4
-   srcRaw: "I4"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -147,7 +147,7 @@ mixData:
    name: ""
  -
    destCh: 5
-   srcRaw: "I5"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -165,7 +165,7 @@ mixData:
    name: ""
  -
    destCh: 6
-   srcRaw: "I6"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -183,7 +183,7 @@ mixData:
    name: ""
  -
    destCh: 7
-   srcRaw: "I7"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -201,7 +201,7 @@ mixData:
    name: ""
  -
    destCh: 8
-   srcRaw: "I8"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -219,7 +219,7 @@ mixData:
    name: ""
  -
    destCh: 9
-   srcRaw: "I9"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -237,7 +237,7 @@ mixData:
    name: ""
  -
    destCh: 10
-   srcRaw: "I10"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -255,7 +255,7 @@ mixData:
    name: ""
  -
    destCh: 11
-   srcRaw: "I11"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -273,7 +273,7 @@ mixData:
    name: ""
  -
    destCh: 12
-   srcRaw: "I12"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -291,7 +291,7 @@ mixData:
    name: ""
  -
    destCh: 13
-   srcRaw: "I13"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -309,7 +309,7 @@ mixData:
    name: ""
  -
    destCh: 14
-   srcRaw: "I14"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -327,7 +327,7 @@ mixData:
    name: ""
  -
    destCh: 15
-   srcRaw: "I15"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -345,7 +345,7 @@ mixData:
    name: ""
  -
    destCh: 16
-   srcRaw: "I16"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -363,7 +363,7 @@ mixData:
    name: ""
  -
    destCh: 17
-   srcRaw: "I17"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -381,7 +381,7 @@ mixData:
    name: ""
  -
    destCh: 18
-   srcRaw: "I18"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -399,7 +399,7 @@ mixData:
    name: ""
  -
    destCh: 19
-   srcRaw: "I19"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -417,7 +417,7 @@ mixData:
    name: ""
  -
    destCh: 20
-   srcRaw: "I20"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -435,7 +435,7 @@ mixData:
    name: ""
  -
    destCh: 21
-   srcRaw: "I21"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -453,7 +453,7 @@ mixData:
    name: ""
  -
    destCh: 22
-   srcRaw: "I22"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -471,7 +471,7 @@ mixData:
    name: ""
  -
    destCh: 23
-   srcRaw: "I23"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -489,7 +489,7 @@ mixData:
    name: ""
  -
    destCh: 24
-   srcRaw: "I24"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -507,7 +507,7 @@ mixData:
    name: ""
  -
    destCh: 25
-   srcRaw: "I25"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -525,7 +525,7 @@ mixData:
    name: ""
  -
    destCh: 26
-   srcRaw: "I26"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -543,7 +543,7 @@ mixData:
    name: ""
  -
    destCh: 27
-   srcRaw: "I27"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -561,7 +561,7 @@ mixData:
    name: ""
  -
    destCh: 28
-   srcRaw: "I28"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -579,7 +579,7 @@ mixData:
    name: ""
  -
    destCh: 29
-   srcRaw: "I29"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -597,7 +597,7 @@ mixData:
    name: ""
  -
    destCh: 30
-   srcRaw: "I30"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -615,7 +615,7 @@ mixData:
    name: ""
  -
    destCh: 31
-   srcRaw: "I31"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -633,7 +633,7 @@ mixData:
    name: ""
  -
    destCh: 0
-   srcRaw: "I0"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -651,7 +651,7 @@ mixData:
    name: ""
  -
    destCh: 1
-   srcRaw: "I1"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -669,7 +669,7 @@ mixData:
    name: ""
  -
    destCh: 2
-   srcRaw: "I2"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -687,7 +687,7 @@ mixData:
    name: ""
  -
    destCh: 3
-   srcRaw: "I3"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -705,7 +705,7 @@ mixData:
    name: ""
  -
    destCh: 4
-   srcRaw: "I4"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -723,7 +723,7 @@ mixData:
    name: ""
  -
    destCh: 5
-   srcRaw: "I5"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -741,7 +741,7 @@ mixData:
    name: ""
  -
    destCh: 6
-   srcRaw: "I6"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -759,7 +759,7 @@ mixData:
    name: ""
  -
    destCh: 7
-   srcRaw: "I7"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -777,7 +777,7 @@ mixData:
    name: ""
  -
    destCh: 8
-   srcRaw: "I8"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -795,7 +795,7 @@ mixData:
    name: ""
  -
    destCh: 9
-   srcRaw: "I9"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -813,7 +813,7 @@ mixData:
    name: ""
  -
    destCh: 10
-   srcRaw: "I10"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -831,7 +831,7 @@ mixData:
    name: ""
  -
    destCh: 11
-   srcRaw: "I11"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -849,7 +849,7 @@ mixData:
    name: ""
  -
    destCh: 12
-   srcRaw: "I12"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -867,7 +867,7 @@ mixData:
    name: ""
  -
    destCh: 13
-   srcRaw: "I13"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -885,7 +885,7 @@ mixData:
    name: ""
  -
    destCh: 14
-   srcRaw: "I14"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -903,7 +903,7 @@ mixData:
    name: ""
  -
    destCh: 15
-   srcRaw: "I15"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -921,7 +921,7 @@ mixData:
    name: ""
  -
    destCh: 16
-   srcRaw: "I16"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -939,7 +939,7 @@ mixData:
    name: ""
  -
    destCh: 17
-   srcRaw: "I17"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -957,7 +957,7 @@ mixData:
    name: ""
  -
    destCh: 18
-   srcRaw: "I18"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -975,7 +975,7 @@ mixData:
    name: ""
  -
    destCh: 19
-   srcRaw: "I19"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -993,7 +993,7 @@ mixData:
    name: ""
  -
    destCh: 20
-   srcRaw: "I20"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1011,7 +1011,7 @@ mixData:
    name: ""
  -
    destCh: 21
-   srcRaw: "I21"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1029,7 +1029,7 @@ mixData:
    name: ""
  -
    destCh: 22
-   srcRaw: "I22"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1047,7 +1047,7 @@ mixData:
    name: ""
  -
    destCh: 23
-   srcRaw: "I23"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1065,7 +1065,7 @@ mixData:
    name: ""
  -
    destCh: 24
-   srcRaw: "I24"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1083,7 +1083,7 @@ mixData:
    name: ""
  -
    destCh: 25
-   srcRaw: "I25"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1101,7 +1101,7 @@ mixData:
    name: ""
  -
    destCh: 26
-   srcRaw: "I26"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1119,7 +1119,7 @@ mixData:
    name: ""
  -
    destCh: 27
-   srcRaw: "I27"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1137,7 +1137,7 @@ mixData:
    name: ""
  -
    destCh: 28
-   srcRaw: "I28"
+   srcRaw: "Rud"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1155,7 +1155,7 @@ mixData:
    name: ""
  -
    destCh: 29
-   srcRaw: "I29"
+   srcRaw: "Ele"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1173,7 +1173,7 @@ mixData:
    name: ""
  -
    destCh: 30
-   srcRaw: "I30"
+   srcRaw: "Thr"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1191,7 +1191,7 @@ mixData:
    name: ""
  -
    destCh: 31
-   srcRaw: "I31"
+   srcRaw: "Ail"
    mixWarn: 0
    mltpx: MUL
    delayPrec: 0
@@ -1496,583 +1496,6 @@ limitData:
       revert: 1
       curve: 0
       name: ""
-expoData: 
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 0
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 1
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 2
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 3
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 4
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 5
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 6
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 7
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 8
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 9
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 10
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 11
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 12
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 13
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 14
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 15
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 16
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 17
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 18
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 19
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 20
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 21
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 22
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 23
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 24
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 25
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 26
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 27
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 28
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 29
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 30
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 31
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 0
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 1
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 2
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 3
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 4
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 5
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 6
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 7
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 8
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 9
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 10
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 11
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 12
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 13
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 14
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 15
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 16
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 17
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 18
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 19
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 20
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 21
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 22
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 23
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 24
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 25
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 26
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 27
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 28
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 29
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 30
-   name: ""
- -
-   mode: 3
-   scale: 300
-   srcRaw: "Rud"
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   chn: 31
-   name: ""
 points: 
    1:
       val: 1

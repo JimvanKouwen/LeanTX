@@ -72,12 +72,8 @@ void onSwitchLongEnterPress(const char * result)
 
 void onSourceLongEnterPress(const char * result)
 {
-  if (result == STR_MENU_INPUTS) {
-    checkIncDecSelection =
-        getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT,
-                          isInputAvailable);
-  }
-  else if (result == STR_MENU_STICKS)
+
+  if (result == STR_MENU_STICKS)
     checkIncDecSelection = MIXSRC_FIRST_STICK;
   else if (result == STR_MENU_POTS)
     checkIncDecSelection = MIXSRC_FIRST_POT;

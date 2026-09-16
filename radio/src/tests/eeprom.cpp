@@ -50,7 +50,6 @@ void prepareBackup()
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
   g_model.mixData[0].weight = 87;
 
-  g_model.expoData[0].weight = 93;
   g_model.limitData[0].offset = -120;
   g_model.curves[0].points = 4;
   g_model.points[0] = -100;
@@ -180,7 +179,6 @@ TEST(EmergencySnapshot, DenseControlConfigurationFits) {
     }
   };
   fill(g_model.mixData, sizeof(g_model.mixData));
-  fill(g_model.expoData, sizeof(g_model.expoData));
   fill(g_model.limitData, sizeof(g_model.limitData));
   fill(g_model.points, sizeof(g_model.points));
   rambackupWrite();

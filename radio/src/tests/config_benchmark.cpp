@@ -20,11 +20,8 @@ TEST(ConfigBenchmark, FileTransactions) {
   g_model.rfAlarms.warning = 45; g_model.rfAlarms.critical = 42;
   strcpy(g_model.header.name, "FourCh");
   for (unsigned i = 0; i < 4; ++i) {
-    g_model.mixData[i].srcRaw = MIXSRC_FIRST_INPUT + i;
+    g_model.mixData[i].srcRaw = MIXSRC_FIRST_STICK + i;
     g_model.mixData[i].destCh = i; g_model.mixData[i].weight = 100;
-    g_model.expoData[i].srcRaw = MIXSRC_FIRST_STICK + i;
-    g_model.expoData[i].chn = i;
-    g_model.expoData[i].weight = 100;
   }
   ASSERT_EQ(nullptr, writeGeneralSettings());
   ASSERT_EQ(nullptr, saveModelConfig("/MODELS/bench.yml"));

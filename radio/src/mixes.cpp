@@ -38,16 +38,11 @@ void insertMix(uint8_t idx, uint8_t channel)
   memmove(mix + 1, mix, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
   memclear(mix, sizeof(MixData));
   mix->destCh = channel;
-  mix->srcRaw = channel + 1;
-  if (!isSourceAvailable(mix->srcRaw)) {
-    if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-      mix->srcRaw = MIXSRC_FIRST_STICK + channel;
-    } else {
-      mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(channel);
-    }
-    while (!isSourceAvailable(mix->srcRaw)) {
-      mix->srcRaw += 1;
-    }
+  mix->srcRaw = MIXSRC_FIRST_STICK +
+      (channel < adcGetMaxInputs(ADC_INPUT_MAIN)
+           ? inputMappingChannelOrder(channel) : channel);
+  while (!isSourceAvailable(mix->srcRaw)) {
+    mix->srcRaw += 1;
   }
   mix->weight = 100;
   mixerTaskStart();

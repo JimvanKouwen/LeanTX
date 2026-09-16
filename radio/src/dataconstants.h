@@ -21,7 +21,6 @@
 
 #pragma once
 
-
 #include "board.h"
 
 #if defined(EXPORT)
@@ -41,8 +40,6 @@
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
-  #define MAX_EXPOS                    64
-  #define MAX_INPUTS                   32
 #if defined(STM32H7)
   #define MAX_TELEMETRY_SENSORS        99
 #else
@@ -53,15 +50,11 @@
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
-  #define MAX_EXPOS                    64
-  #define MAX_INPUTS                   32
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
-  #define MAX_EXPOS                    64
-  #define MAX_INPUTS                   32
   #define MAX_TELEMETRY_SENSORS        40
 #else
   #warning "Unknown board!"
@@ -82,9 +75,8 @@ enum CurveType {
   #define LEN_MODEL_NAME               15
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              14
-  #define LEN_EXPOMIX_NAME             6
+  #define LEN_MIX_NAME                 6
   #define LEN_CHANNEL_NAME             6
-  #define LEN_INPUT_NAME               4
   #define LEN_CURVE_NAME               3
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
@@ -92,9 +84,8 @@ enum CurveType {
   #define LEN_MODEL_NAME               12
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              10
-  #define LEN_EXPOMIX_NAME             6
+  #define LEN_MIX_NAME                 6
   #define LEN_CHANNEL_NAME             6
-  #define LEN_INPUT_NAME               4
   #define LEN_CURVE_NAME               3
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
@@ -102,9 +93,8 @@ enum CurveType {
   #define LEN_MODEL_NAME               10
   #define LEN_TIMER_NAME               3
   #define LEN_BITMAP_NAME              0
-  #define LEN_EXPOMIX_NAME             6
+  #define LEN_MIX_NAME                 6
   #define LEN_CHANNEL_NAME             4
-  #define LEN_INPUT_NAME               3
   #define LEN_CURVE_NAME               3
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
@@ -394,12 +384,9 @@ enum MixSources {
   MIXSRC_NONE,
 
   MIXSRC_FIRST,
-  MIXSRC_FIRST_INPUT = MIXSRC_FIRST,
-  MIXSRC_LAST_INPUT = MIXSRC_FIRST_INPUT + MAX_INPUTS - 1,
-
 
   // Semantic sticks
-  MIXSRC_FIRST_STICK,
+  MIXSRC_FIRST_STICK = MIXSRC_FIRST,
   MIXSRC_LAST_STICK = MIXSRC_FIRST_STICK + MAX_STICKS - 1,
 
   MIXSRC_FIRST_POT,
@@ -456,8 +443,6 @@ enum MixSources {
 };
 
 #define MIXSRC_LAST                 MIXSRC_LAST_CH
-#define INPUTSRC_FIRST              MIXSRC_FIRST_STICK
-#define INPUTSRC_LAST               MIXSRC_LAST_TIMER
 
 #if defined(FUNCTION_SWITCHES)
 #define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1)
@@ -467,7 +452,6 @@ enum MixSources {
 constexpr int16_t MIXSRC_MAX_VALUE = 30000;
 
 enum SrcTypes {
-  SRC_INPUT = 1 << 0,
   SRC_STICK = 1 << 2,
   SRC_POT = 1 << 3,
   SRC_TILT = 1 << 4,

@@ -74,26 +74,16 @@ TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
   telemetryItems[0].valueMin = 123;
   telemetryItems[0].valueMax = 456;
   const int values[] = {321, 123, 456};
-  EXPECT_LT(INPUTSRC_LAST, MIXSRC_FIRST_TELEM);
   EXPECT_LT(MIXSRC_LAST, MIXSRC_FIRST_TELEM);
   for (int variant = 0; variant < 3; ++variant) {
     for (int sign : {-1, 1}) {
       const auto source = sign * (MIXSRC_FIRST_TELEM + variant);
       EXPECT_EQ(sign * values[variant], getValue(source));
-      auto &input = g_model.expoData[0];
-      input.srcRaw = source;
-
-      input.weight = 100;
-      input.offset = 50;
-      input.scale = 100;
       auto &mix = g_model.mixData[0];
       mix.srcRaw = source;
       mix.weight = 100;
       mix.offset = 50;
       for (auto mode : {e_perout_mode_normal, e_perout_mode_preview}) {
-        int16_t inputs[MAX_INPUTS] = {};
-        applyExpos(inputs, source, 700);
-        EXPECT_EQ(0, inputs[0]);
         evalChannelMixes(mode);
         EXPECT_EQ(0, chans[0]);
       }
@@ -241,7 +231,6 @@ TEST_F(MixerTest, SwitchSourceAndCascadedCurveApplyImmediately)
   }
 }
 
-
 // ==========================================================================
 // rc-soar.com documented behavior tests
 // https://rc-soar.com/edgetx/index.php
@@ -388,42 +377,6 @@ TEST_F(MixerTest, PhysicalTrimButtonsAutoSelectWithoutTrimModes)
 }
 #endif
 
-TEST_F(MixerTest, NegativeLiteralInputAndMixValues)
-{
-  g_model.expoData[0].srcRaw = MIXSRC_MAX;
-
-  g_model.expoData[0].weight = -50;
-  g_model.expoData[0].offset = -25;
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].srcRaw = MIXSRC_FIRST_INPUT;
-  g_model.mixData[0].weight = -100;
-  g_model.mixData[0].offset = -25;
-  evalMixes();
-  EXPECT_NEAR(anas[0], -3 * RESX / 4, 2);
-  EXPECT_NEAR(channelOutputs[0], RESX / 2, 2);
-}
-
-TEST_F(MixerTest, InputsSumTransformsAndClearRemovedMappings)
-{
-  MODEL_RESET();
-  auto& first = g_model.expoData[0];
-  first.srcRaw = MIXSRC_FIRST_STICK;
-  first.weight = 50;
-  first.offset = 25;
-  auto& second = g_model.expoData[1];
-  second.srcRaw = MIXSRC_MAX;
-  second.weight = -25;
-  for (int value : {-RESX, 0, RESX, -RESX}) {
-    applyExpos(anas, MIXSRC_FIRST_STICK, value);
-    EXPECT_EQ(value / 2, anas[0]);
-  }
-  // Removing all lines must not leave the previous frame's input value behind.
-  first = ExpoData{};
-  second = ExpoData{};
-  applyExpos(anas);
-  EXPECT_EQ(0, anas[0]);
-}
-
 TEST_F(MixerTest, MappingSumIsOrderIndependentAndEndpointsApplyLast)
 {
   MODEL_RESET();
@@ -457,17 +410,45 @@ TEST_F(MixerTest, InvertedChannelSourcesChainInBothDirections)
   }
 }
 
-TEST_F(MixerTest, InputCurveWeightAndOffsetApplyOnBothSides)
+TEST_F(MixerTest, DefaultQuadUsesPhysicalAETRControls)
+{
+  generalDefault();
+  setModelDefaults();
+  const int sticks[] = {3, 1, 2, 0}; // Ail, Ele, Thr, Rud
+#if defined(STICK_DEAD_ZONE)
+  g_eeGeneral.stickDeadZone = 0;
+#endif
+  for (int mode = 0; mode < 4; ++mode) {
+    g_eeGeneral.stickMode = mode;
+    for (int ch = 0; ch < 4; ++ch) {
+      EXPECT_EQ(MIXSRC_FIRST_STICK + sticks[ch], g_model.mixData[ch].srcRaw);
+      EXPECT_EQ(ch, g_model.mixData[ch].destCh);
+      anaSetFiltered(inputMappingConvertMode(sticks[ch]), (ch - 2) * 256);
+    }
+    evalMixes();
+    for (int ch = 0; ch < 4; ++ch)
+      EXPECT_EQ((ch - 2) * 256, channelOutputs[ch]);
+  }
+}
+
+TEST_F(MixerTest, PhysicalSourceCurveWeightOffsetAndRemoval)
 {
   MODEL_RESET();
-  auto& input = g_model.expoData[0];
-  input.srcRaw = MIXSRC_FIRST_STICK;
-  input.weight = 50;
-  input.offset = 25;
-  input.curve.type = CURVE_REF_EXPO;
-  input.curve.value = 50;
+#if defined(STICK_DEAD_ZONE)
+  g_eeGeneral.stickDeadZone = 0;
+#endif
+  auto& mix = g_model.mixData[0];
+  mix.srcRaw = MIXSRC_FIRST_STICK;
+  mix.weight = -50;
+  mix.offset = 25;
+  mix.curve.type = CURVE_REF_EXPO;
+  mix.curve.value = 50;
   for (int value : {-RESX, -RESX / 2, 0, RESX / 2, RESX}) {
-    applyExpos(anas, MIXSRC_FIRST_STICK, value);
-    EXPECT_NEAR(expo(value, 50) / 2 + RESX / 4, anas[0], 1);
+    anaSetFiltered(inputMappingConvertMode(0), value);
+    evalMixes();
+    EXPECT_NEAR(-expo(value, 50) / 2 + RESX / 4, channelOutputs[0], 1);
   }
+  mix = MixData{};
+  evalMixes();
+  EXPECT_EQ(0, channelOutputs[0]);
 }

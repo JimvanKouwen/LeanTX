@@ -308,18 +308,16 @@ int expo(int x, int k);
 
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 
-void applyExpos(int16_t * anas, int16_t ovwrIdx=0, int16_t ovwrValue=0);
 int16_t applyLimits(uint8_t channel, int32_t value);
 // Percent overrides bypass ordinary output limits, just as a direct output action.
 void setChannelOverride(uint8_t channel, int16_t percent, bool enabled = true);
 void clearChannelOverrides();
 
-void evalInputs(uint8_t mode);
+void evalAnalogControls(uint8_t mode);
 uint16_t anaIn(uint8_t chan);
 
 #define FLASH_DURATION 20 /*200ms*/
 
-ExpoData * expoAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 

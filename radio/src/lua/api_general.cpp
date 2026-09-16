@@ -387,7 +387,6 @@ struct LuaMultipleField {
 
 // The list of Lua fields that have a range of values
 const LuaMultipleField luaMultipleFields[] = {
-    {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
     {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
     {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
@@ -2318,10 +2317,10 @@ static int luaSources(lua_State * L)
 
   if (lua_isnumber(L, 2)) {
     last = luaL_checkinteger(L, 2);
-    if (last > INPUTSRC_LAST)
-      last = INPUTSRC_LAST;
+    if (last > MIXSRC_LAST_TIMER)
+      last = MIXSRC_LAST_TIMER;
   } else
-    last = INPUTSRC_LAST;
+    last = MIXSRC_LAST_TIMER;
 
   lua_pushcfunction(L, luaNextSource);
   lua_pushinteger(L, last);
@@ -2675,7 +2674,6 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( PREC2, PREC2 )
   LROT_NUMENTRY( MIXSRC_MIN, MIXSRC_MIN )
   LROT_NUMENTRY( MIXSRC_MAX, MIXSRC_MAX )
-  LROT_NUMENTRY( MIXSRC_FIRST_INPUT, MIXSRC_FIRST_INPUT )
   #include "lua_mixsrc.inc"
   LROT_NUMENTRY( MIXSRC_CH1, MIXSRC_FIRST_CH )
   LROT_NUMENTRY( SWSRC_LAST, SWSRC_LAST )
@@ -2798,7 +2796,6 @@ LROT_BEGIN(etxstr, NULL, 0)
   LROT_LUDENTRY( CHAR_SLIDER, CHAR_SLIDER )
   LROT_LUDENTRY( CHAR_SWITCH, CHAR_SWITCH )
   LROT_LUDENTRY( CHAR_TRIM, CHAR_TRIM )
-  LROT_LUDENTRY( CHAR_INPUT, CHAR_INPUT )
   LROT_LUDENTRY( CHAR_FUNCTION, CHAR_FUNCTION )
   LROT_LUDENTRY( CHAR_CYC, CHAR_CYC )
   LROT_LUDENTRY( CHAR_CHANNEL, CHAR_CHANNEL )

@@ -52,7 +52,6 @@ constexpr int g_use_plural2 = USE_PLURAL2;
 #define CHAR_BW_GREATEREQUAL '}'
 #define CHAR_BW_DEGREE       '@'
 
-
 #define STR_RX          "Rx"
 
 #define CHAR_RIGHT      "\302\200"
@@ -66,7 +65,6 @@ constexpr int g_use_plural2 = USE_PLURAL2;
 #define CHAR_SLIDER     "\302\213"
 #define CHAR_SWITCH     "\302\214"
 #define CHAR_TRIM       "\302\215"
-#define CHAR_INPUT      "\302\216"
 #define CHAR_FUNCTION   "\302\217"
 #define CHAR_CYC        "\302\220"
 #define CHAR_CHANNEL    "\302\222"

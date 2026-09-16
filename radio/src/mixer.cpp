@@ -41,7 +41,6 @@
 
 uint8_t s_mixer_first_run_done = false;
 
-int16_t anas [MAX_INPUTS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
 
 // Direct output overrides are transient and independent of model configuration.
@@ -178,24 +177,6 @@ int expo(int x, int k)
   return neg ? -y : y;
 }
 
-void applyExpos(int16_t * anas, int16_t ovwrIdx, int16_t ovwrValue)
-{
-  int32_t sums[MAX_INPUTS] = {};
-  for (uint8_t i = 0; i < MAX_EXPOS; ++i) {
-    ExpoData * ed = expoAddress(i);
-    if (!EXPO_VALID(ed)) break;
-    if (abs(ed->srcRaw) > INPUTSRC_LAST) continue;
-    int32_t v = ed->srcRaw == ovwrIdx ? ovwrValue :
-        limit<int32_t>(-RESX, getValue(ed->srcRaw), RESX);
-    if (ed->curve.value) v = applyCurve(v, ed->curve);
-    v = divRoundClosest(v * limit<int16_t>(-100, ed->weight, 100), 100);
-    v += divRoundClosest(calc100toRESX(10 * limit<int16_t>(-100, ed->offset, 100)), 10);
-    sums[ed->chn] += v;
-  }
-  for (uint8_t ch = 0; ch < MAX_INPUTS; ++ch)
-    anas[ch] = limit<int32_t>(INT16_MIN, sums[ch], INT16_MAX);
-}
-
 // @@@2 open.20.fsguruh ;
 // channel = channelnumber -1;
 // value = outputvalue with 100 mulitplied usual range -102400 to 102400; output -1024 to 1024
@@ -280,9 +261,6 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   if (i == MIXSRC_NONE) {
     if (valid != nullptr) *valid = false;
     return 0;
-  }
-  else if (i <= MIXSRC_LAST_INPUT) {
-    return anas[i - MIXSRC_FIRST_INPUT];
   }
 
   else if (i <= MIXSRC_LAST_STICK) {
@@ -403,7 +381,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
     return timersStates[i - MIXSRC_FIRST_TIMER].val;
   }
 
-  // Shared lookup for Lua/UI; ordinary Inputs and Mixers reject these IDs.
+  // Shared lookup for Lua/UI; ordinary Mixes reject these IDs.
   else if (i <= MIXSRC_LAST_TELEM) {
     if (IS_FAI_FORBIDDEN(i)) {
       if (valid != nullptr) *valid = false;
@@ -427,7 +405,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 }
 
 // TODO: move to analogs.cpp
-void evalInputs(uint8_t mode)
+void evalAnalogControls(uint8_t mode)
 {
   BeepANACenter anaCenter = 0;
 
@@ -466,7 +444,7 @@ void evalInputs(uint8_t mode)
 
     BeepANACenter mask = (BeepANACenter)1 << ch; // TODO
 
-    calibratedAnalogs[i] = v; // for show in expo
+    calibratedAnalogs[i] = v;
 
     // filtering for center beep
     uint8_t tmp = (uint16_t)abs(v) / 16;
@@ -490,9 +468,6 @@ void evalInputs(uint8_t mode)
       calibratedAnalogs[i] = v;
     }
   }
-
-  // EXPOs
-  applyExpos(anas);
 
   if (mode == e_perout_mode_normal) {
     bpanaCenter = anaCenter;
@@ -538,7 +513,7 @@ static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
 
 void evalChannelMixes(uint8_t mode)
 {
-  evalInputs(mode);
+  evalAnalogControls(mode);
 
   memclear(chans, sizeof(chans)); // all outputs to 0
 

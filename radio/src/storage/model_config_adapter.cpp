@@ -154,9 +154,7 @@ bool sourceOutput(int n, char* out, size_t cap)
       snprintf(out, cap, "%s", e->name);
       return true;
     }
-  if (n >= MIXSRC_FIRST_INPUT && n <= MIXSRC_LAST_INPUT)
-    snprintf(out, cap, "I%d", n - MIXSRC_FIRST_INPUT);
-  else if (n >= MIXSRC_FIRST_STICK && n <= MIXSRC_LAST_STICK)
+  if (n >= MIXSRC_FIRST_STICK && n <= MIXSRC_LAST_STICK)
     snprintf(out, cap, "%s",
              analogGetCanonicalName(ADC_INPUT_MAIN, n - MIXSRC_FIRST_STICK));
   else if (n >= MIXSRC_FIRST_POT && n <= MIXSRC_LAST_POT)
@@ -199,9 +197,6 @@ bool sourceInput(const char* text, int64_t& value)
   int n = -1, a = 0, used = 0;
   for (auto e = sources; e->name; ++e)
     if (!strcmp(p, e->name)) n = e->value;
-  if (n < 0 && sscanf(p, "I%d%n", &a, &used) == 1 && !p[used] && a >= 0 &&
-      a < MAX_INPUTS)
-    n = MIXSRC_FIRST_INPUT + a;
   used = 0;
   if (n < 0 && sscanf(p, "ch(%d)%n", &a, &used) == 1 && used && !p[used] &&
       a >= 0 && a < MAX_OUTPUT_CHANNELS)
@@ -823,7 +818,6 @@ bool used(const Context& c, const char* section, const unsigned* index)
 #endif
   if (!strcmp(section, "points/%u")) return i < c.points;
   if (!strcmp(section, "mixData/%u")) return i < MAX_MIXERS && m.mixData[i].srcRaw;
-  if (!strcmp(section, "expoData/%u")) return i < MAX_EXPOS && m.expoData[i].srcRaw;
   if (!strcmp(section, "telemetrySensors/%u")) return i < MAX_TELEMETRY_SENSORS && (m.telemetrySensors[i].id || m.telemetrySensors[i].label[0] || m.telemetrySensors[i].type);
 #if !defined(COLORLCD)
   if (!strncmp(section, "screenData/", 11) || !strncmp(section, "topbarData/", 11) || !strncmp(section, "topbarWidgetWidth/", 18)) return false;

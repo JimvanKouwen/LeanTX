@@ -390,35 +390,11 @@ void runFatalErrorScreen(const char * message)
 void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
 {
   uint16_t aidx = abs(idx);
-  bool inverted = idx < 0;
 
   if (aidx == MIXSRC_NONE) {
     lcdDrawText(x, y, STR_EMPTY, att);
   }
-  else if (aidx <= MIXSRC_LAST_INPUT) {
-    if (att & RIGHT) {
-      if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
-        lcdDrawSizedText(x, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
-      else
-        lcdDrawNumber(x, y, aidx, att|LEADING0, 2);
-      x = lcdLastLeftPos - 5;
-      if (inverted)
-        lcdDrawChar(x-5, y, '-');
-      lcdDrawText(x, y+1, STR_CHR_INPUT, RIGHT|TINSIZE);
-      lcdDrawSolidFilledRect(x-1, y, 5, 7);
-    } else {
-      if (inverted) {
-        lcdDrawChar(x-1, y, '-');
-        x += 3;
-      }
-      lcdDrawText(x+1, y+1, STR_CHR_INPUT, TINSIZE);
-      lcdDrawSolidFilledRect(x, y, 5, 7);
-      if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
-        lcdDrawSizedText(x+6, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
-      else
-        lcdDrawNumber(x+6, y, aidx, att|LEADING0, 2);
-    }
-  }
+
   else {
     const char* s = getSourceString(idx);
 #if LCD_W < 212

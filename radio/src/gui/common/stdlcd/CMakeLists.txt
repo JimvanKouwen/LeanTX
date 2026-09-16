@@ -7,7 +7,6 @@ set(GUI_SRC
   ../common/stdlcd/fonts.cpp
   ../common/stdlcd/utf8.cpp
   ../common/stdlcd/popups_common.cpp
-  ../common/stdlcd/model_inputs.cpp
   ../common/stdlcd/model_mixes.cpp
   ../common/stdlcd/view_text.cpp
   ../common/stdlcd/model_notes.cpp

@@ -46,17 +46,17 @@ class ListLineButton : public ButtonBase
   virtual bool isActive() const { return false; }
 };
 
-class InputMixButtonBase : public ListLineButton
+class MixButtonBase : public ListLineButton
 {
  public:
-  InputMixButtonBase(Window* parent, uint8_t index);
+  MixButtonBase(Window* parent, uint8_t index);
 
   void setWeight(int16_t value, int16_t min, int16_t max);
   void setSource(mixsrc_t idx);
   void setOpts(const char* s);
 
   virtual void updatePos(coord_t x, coord_t y) = 0;
-  virtual void swapLvglGroup(InputMixButtonBase* line2) = 0;
+  virtual void swapLvglGroup(MixButtonBase* line2) = 0;
 
 #if WIDE_LAYOUT
   static LAYOUT_VAL_SCALED(LN_X, 78)
@@ -88,51 +88,51 @@ class InputMixButtonBase : public ListLineButton
   lv_obj_t* opts = nullptr;
 };
 
-class InputMixGroupBase : public Window
+class MixGroupBase : public Window
 {
  public:
-  InputMixGroupBase(Window* parent, mixsrc_t idx);
+  MixGroupBase(Window* parent, mixsrc_t idx);
 
   mixsrc_t getMixSrc() { return idx; }
   size_t getLineCount() { return lines.size(); }
   int getLineNumber(uint8_t idx);
 
   virtual void adjustHeight();
-  void addLine(InputMixButtonBase* line);
-  bool removeLine(InputMixButtonBase* line);
+  void addLine(MixButtonBase* line);
+  bool removeLine(MixButtonBase* line);
 
   void refresh();
 
  protected:
   mixsrc_t idx;
   lv_obj_t* label;
-  std::list<InputMixButtonBase*> lines;
+  std::list<MixButtonBase*> lines;
 
   void _adjustHeight(coord_t y);
 };
 
-class InputMixPageBase : public PageGroupItem
+class MixPageBase : public PageGroupItem
 {
  public:
-  InputMixPageBase(const PageDef& pageDef) : PageGroupItem(pageDef) {}
+  MixPageBase(const PageDef& pageDef) : PageGroupItem(pageDef) {}
 
  protected:
-  std::list<InputMixButtonBase*> lines;
-  InputMixButtonBase* _copySrc = nullptr;
+  std::list<MixButtonBase*> lines;
+  MixButtonBase* _copySrc = nullptr;
   Window* form = nullptr;
   uint8_t _copyMode = 0;
-  std::list<InputMixGroupBase*> groups;
+  std::list<MixGroupBase*> groups;
 
   virtual void addLineButton(uint8_t index) = 0;
   void addLineButton(mixsrc_t src, uint8_t index);
 
-  InputMixButtonBase* getLineByIndex(uint8_t index);
-  InputMixGroupBase* getGroupBySrc(mixsrc_t src);
-  virtual InputMixGroupBase* getGroupByIndex(uint8_t index) = 0;
+  MixButtonBase* getLineByIndex(uint8_t index);
+  MixGroupBase* getGroupBySrc(mixsrc_t src);
+  virtual MixGroupBase* getGroupByIndex(uint8_t index) = 0;
 
-  virtual InputMixButtonBase* createLineButton(InputMixGroupBase* group, uint8_t index) = 0;
-  virtual InputMixGroupBase* createGroup(Window* form, mixsrc_t src) = 0;
+  virtual MixButtonBase* createLineButton(MixGroupBase* group, uint8_t index) = 0;
+  virtual MixGroupBase* createGroup(Window* form, mixsrc_t src) = 0;
 
-  void removeLine(InputMixButtonBase* l);
-  void removeGroup(InputMixGroupBase* g);
+  void removeLine(MixButtonBase* l);
+  void removeGroup(MixGroupBase* g);
 };

@@ -33,21 +33,20 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-class MixLineButton : public InputMixButtonBase
+class MixLineButton : public MixButtonBase
 {
  public:
   MixLineButton(Window* parent, uint8_t index) :
-    InputMixButtonBase(parent, index)
+    MixButtonBase(parent, index)
   {
 
     delayLoad();
   }
 
-
   void delayedInit() override
   {
     refresh();
-    ((InputMixGroupBase*)parent)->adjustHeight();
+    ((MixGroupBase*)parent)->adjustHeight();
   }
 
   void refresh() override
@@ -62,7 +61,7 @@ class MixLineButton : public InputMixButtonBase
     *s = '\0';
 
     if (line.name[0]) {
-      s = strAppend(s, line.name, LEN_EXPOMIX_NAME);
+      s = strAppend(s, line.name, LEN_MIX_NAME);
     }
 
     if (line.curve.value != 0) {
@@ -74,13 +73,12 @@ class MixLineButton : public InputMixButtonBase
 
   }
 
-
   void updatePos(coord_t x, coord_t y) override
   {
     setPos(x, y);
   }
 
-  void swapLvglGroup(InputMixButtonBase* line2) override
+  void swapLvglGroup(MixButtonBase* line2) override
   {
     MixLineButton* swapWith = (MixLineButton*)line2;
 
@@ -88,20 +86,20 @@ class MixLineButton : public InputMixButtonBase
     lv_obj_t* obj1 = getLvObj();
     lv_obj_t* obj2 = swapWith->getLvObj();
     if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
-      // same input group: swap obj + focus group
+      // same channel group: swap obj + focus group
       lv_obj_swap(obj1, obj2);
     } else {
-      // different input group: swap only focus group
+      // different channel group: swap only focus group
       lv_group_swap_obj(obj1, obj2);
     }
   }
 };
 
-class MixGroup : public InputMixGroupBase
+class MixGroup : public MixGroupBase
 {
  public:
   MixGroup(Window* parent, mixsrc_t idx) :
-    InputMixGroupBase(parent, idx)
+    MixGroupBase(parent, idx)
   {
     adjustHeight();
 
@@ -151,7 +149,7 @@ class MixGroup : public InputMixGroupBase
   bool monitorVisible = false;
 };
 
-ModelMixesPage::ModelMixesPage(const PageDef& pageDef) : InputMixPageBase(pageDef)
+ModelMixesPage::ModelMixesPage(const PageDef& pageDef) : MixPageBase(pageDef)
 {
 }
 
@@ -164,7 +162,7 @@ bool ModelMixesPage::reachMixesLimit()
   return false;
 }
 
-InputMixGroupBase* ModelMixesPage::getGroupByIndex(uint8_t index)
+MixGroupBase* ModelMixesPage::getGroupByIndex(uint8_t index)
 {
   MixData* mix = mixAddress(index);
   if (is_memclear(mix, sizeof(MixData))) return nullptr;
@@ -173,14 +171,14 @@ InputMixGroupBase* ModelMixesPage::getGroupByIndex(uint8_t index)
   return getGroupBySrc(MIXSRC_FIRST_CH + ch);
 }
 
-InputMixGroupBase* ModelMixesPage::createGroup(Window* form, mixsrc_t src)
+MixGroupBase* ModelMixesPage::createGroup(Window* form, mixsrc_t src)
 {
   auto group = new MixGroup(form, src);
   if (showMonitors) group->enableMixerMonitor();
   return group;
 }
 
-InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, uint8_t index)
+MixButtonBase* ModelMixesPage::createLineButton(MixGroupBase *group, uint8_t index)
 {
   auto button = new MixLineButton(group, index);
 
@@ -238,7 +236,7 @@ void ModelMixesPage::addLineButton(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return;
   int channel = mix->destCh;
 
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
+  MixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
 }
 
 void ModelMixesPage::newMix()
@@ -291,7 +289,7 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
   _copyMode = 0;
 
   ::insertMix(index, channel);
-  InputMixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
+  MixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
   editMix(channel, index);
 }
 
@@ -407,7 +405,7 @@ void ModelMixesPage::build(Window * window)
       auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
       groups.emplace_back(group);
       while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
-        // one button per input line
+        // one button per mix line
         auto btn = createLineButton(group, index);
         if (!focusSet) {
           focusSet = true;

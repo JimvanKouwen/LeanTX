@@ -39,7 +39,6 @@ extern uint16_t sessionTimer;
 extern uint16_t s_timeCumThr;
 extern uint16_t s_timeCum16ThrP;
 
-
 extern uint32_t maxMixerDuration;
 
 #if defined(AUDIO)
@@ -51,7 +50,6 @@ extern uint8_t requiredBacklightBright;
 // static variables used in evalChannelMixes - moved here so they don't interfere with the stack
 // It's also easier to initialize them here.
 
-extern int16_t anas [MAX_INPUTS];
 extern int32_t chans[MAX_OUTPUT_CHANNELS];
 extern int16_t ex_chans[MAX_OUTPUT_CHANNELS]; // Outputs (before LIMITS) of the last perMain
 extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];

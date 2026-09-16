@@ -96,7 +96,6 @@ uint32_t maxMixerDuration; // microseconds
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
 uint8_t heartbeat;
 
-
 union ReusableBuffer reusableBuffer __DMA;
 
 #if defined(DEBUG_LATENCY)
@@ -216,11 +215,6 @@ void per10ms()
   DEBUG_TIMER_STOP(debugTimerPer10ms);
 }
 
-ExpoData *expoAddress(uint8_t idx )
-{
-  return &g_model.expoData[idx];
-}
-
 LimitData *limitAddress(uint8_t idx)
 {
   return &g_model.limitData[idx];
@@ -289,6 +283,8 @@ void generalDefault(RadioData& settings)
       settings.internalModuleBaudrate = min(1, (int)CROSSFIRE_MAX_INTERNAL_BAUDRATE);  // 921k if possible
 #endif
 
+  // AETR: the default quad receiver mapping.
+  settings.templateSetup = 21;
   adcCalibDefaults(settings);
 
   settings.potsConfig = adcGetDefaultPotsConfig();
@@ -377,20 +373,6 @@ uint16_t evalChkSum()
   return sum;
 }
 
-bool isInputRecursive(int index)
-{
-  ExpoData * line = expoAddress(0);
-  for (int i=0; i<MAX_EXPOS; i++, line++) {
-    if (line->chn > index)
-      break;
-    else if (line->chn < index)
-      continue;
-    else if (line->srcRaw >= MIXSRC_FIRST_CH)
-      return true;
-  }
-  return false;
-}
-
 #if defined(AUTOSOURCE)
 constexpr int MULTIPOS_STEP_SIZE = (2 * RESX) / XPOTS_MULTIPOS_COUNT;
 
@@ -399,30 +381,16 @@ int8_t getMovedSource(uint8_t min)
   int8_t result = 0;
   static tmr10ms_t s_move_last_time = 0;
 
-  static int16_t inputsStates[MAX_INPUTS];
-  if (min <= MIXSRC_FIRST_INPUT) {
-    for (uint8_t i = 0; i < MAX_INPUTS; i++) {
-      if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
-        if (!isInputRecursive(i)) {
-          result = MIXSRC_FIRST_INPUT + i;
-          break;
-        }
-      }
-    }
-  }
-
   static int16_t sourcesStates[MAX_ANALOG_INPUTS];
-  if (result == 0) {
-    for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
-      if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
-        auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
-        if (i >= offset) {
-          result = MIXSRC_FIRST_POT + i - offset;
-          break;
-        }
-        result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
+  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+    if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
+      auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
+      if (i >= offset) {
+        result = MIXSRC_FIRST_POT + i - offset;
         break;
       }
+      result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
+      break;
     }
   }
 
@@ -432,13 +400,12 @@ int8_t getMovedSource(uint8_t min)
   }
 
   if (result || recent) {
-    memcpy(inputsStates, anas, sizeof(inputsStates));
     memcpy(sourcesStates, calibratedAnalogs, sizeof(sourcesStates));
   }
 
   s_move_last_time = get_tmr10ms();
 
-  return result;
+  return result >= min ? result : 0;
 }
 #endif
 
@@ -616,7 +583,7 @@ bool isThrottleWarningAlertNeeded()
   }
 
   if (!mixerTaskRunning()) getADC();
-  evalInputs(e_perout_mode_preview); // let do evalInputs do the job
+  evalAnalogControls(e_perout_mode_preview); // let do evalAnalogControls do the job
 
   int16_t v = getValue(thr_src);
 
@@ -1568,13 +1535,11 @@ bool radioThemesEnabled() {
 }
 #endif
 
-
 // Model menu tab state
 
 bool modelCurvesEnabled() {
   return FEATURE_ENABLED(modelCurvesDisabled);
 }
-
 
 bool modelTelemetryEnabled() {
   return FEATURE_ENABLED(modelTelemetryDisabled);

@@ -46,10 +46,8 @@ TEST_F(ModelConfig, Roundtrip)
   a.rfAlarms.critical = 42;
   strcpy(a.header.name, "Test");
   a.header.modelId[0] = 42;
-  a.mixData[0].srcRaw = MIXSRC_FIRST_INPUT;
+  a.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
   a.mixData[0].weight = 81;
-  a.expoData[0].srcRaw = MIXSRC_FIRST_STICK;
-  a.expoData[0].weight = 90;
 
   a.timers[0].start = 600;
   a.telemetrySensors[0].type = TELEM_TYPE_CALCULATED;
@@ -64,19 +62,18 @@ TEST_F(ModelConfig, Roundtrip)
   EXPECT_EQ(0u, r.invalid);
   EXPECT_STREQ("Test", b.header.name);
   EXPECT_EQ(81, b.mixData[0].weight);
-  EXPECT_EQ(90, b.expoData[0].weight);
   EXPECT_EQ(4, b.telemetrySensors[0].cell.source);
   EXPECT_EQ(600u, b.timers[0].start);
 }
 TEST_F(ModelConfig, LegacyMixerTimingIsDiscarded)
 {
-  input = "mixData:\n  - srcRaw: I0\n    weight: 75\n    offset: 12\n"
+  input = "mixData:\n  - srcRaw: Rud\n    weight: 75\n    offset: 12\n"
           "    delayPrec: 1\n    speedPrec: 1\n"
           "    delayUp: 250\n    delayDown: 250\n"
           "    speedUp: 250\n    speedDown: 250\n";
   ModelData model{};
   ASSERT_TRUE(load(model));
-  EXPECT_EQ(MIXSRC_FIRST_INPUT, model.mixData[0].srcRaw);
+  EXPECT_EQ(MIXSRC_FIRST_STICK, model.mixData[0].srcRaw);
   EXPECT_EQ(75, model.mixData[0].weight);
   EXPECT_EQ(12, model.mixData[0].offset);
   ASSERT_TRUE(save(model));
@@ -148,21 +145,14 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   }
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     auto& m = g_model.mixData[i];
-    m.srcRaw = MIXSRC_FIRST_INPUT + i % MAX_INPUTS;
+    m.srcRaw = MIXSRC_FIRST_STICK + i % MAX_STICKS;
     m.weight = i;
     m.offset = -int(i);
     m.destCh = i % MAX_OUTPUT_CHANNELS;
 
     m.curve.value = -10;
   }
-  for (unsigned i = 0; i < MAX_EXPOS; ++i) {
-    auto& e = g_model.expoData[i];
-    e.srcRaw = MIXSRC_FIRST_STICK;
 
-    e.chn = i % MAX_INPUTS;
-    e.weight = 100;
-    e.scale = 300;
-  }
   for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
     auto& o = g_model.limitData[i];
     o.min = -50;
@@ -202,8 +192,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(0,
             memcmp(expected.mixData, actual.mixData, sizeof(expected.mixData)));
-  EXPECT_EQ(
-      0, memcmp(expected.expoData, actual.expoData, sizeof(expected.expoData)));
   EXPECT_EQ(0, memcmp(expected.limitData, actual.limitData,
                       sizeof(expected.limitData)));
   EXPECT_EQ(0, memcmp(expected.points, actual.points, sizeof(expected.points)));
@@ -222,7 +210,7 @@ TEST_F(ModelConfig, NestedListsAndDefaults)
 {
   input =
       "timers:\n  - start: 321\n    future:\n      - nested: yes\nmixData:\n  "
-      "- srcRaw: I0\n    weight: 89\nscriptsData:\n  0:\n    file: mix\n    "
+      "- srcRaw: Rud\n    weight: 89\nscriptsData:\n  0:\n    file: mix\n    "
       "inputs:\n      0:\n        u:\n          source: ch(3)\n";
   ModelData m{};
   auto r = load(m);
@@ -504,7 +492,7 @@ namespace
 {
 TEST_F(ModelConfig, EmptyCollectionsUseDefaults)
 {
-  input = "header:\n  modelId: []\nmixData: []\nexpoData: []\ntimers: {}\n";
+  input = "header:\n  modelId: []\nmixData: []\ntimers: {}\n";
   ModelData model{};
   auto result = load(model);
   ASSERT_TRUE(result) << result.error;
@@ -665,26 +653,24 @@ TEST_F(ModelConfig, SparseSlotsKeepIndicesAndDefaultValues)
   ModelData model{};
   model.rfAlarms.warning = 45; model.rfAlarms.critical = 42;
   ASSERT_TRUE(save(model));
-  for (const char* section : {"mixData:", "expoData:", "limitData:", "telemetrySensors:", "scriptsData:", "screens:", "screenData:"})
+  for (const char* section : {"mixData:", "limitData:", "telemetrySensors:", "scriptsData:", "screens:", "screenData:"})
     EXPECT_EQ(std::string::npos, output.find(section)) << section;
-  model.mixData[7].srcRaw = MIXSRC_FIRST_INPUT;
+  model.mixData[7].srcRaw = MIXSRC_FIRST_STICK;
   model.mixData[7].destCh = 3;
   model.mixData[7].weight = 100;
   model.limitData[11].offset = 123;
   model.timers[2].start = 50;
   // Stale data in inactive slots must not create entries.
   model.mixData[6].weight = 80;
-  model.expoData[5].weight = 90;
   ASSERT_TRUE(save(model));
   EXPECT_EQ(std::string::npos, output.find("  6:"));
-  EXPECT_EQ(std::string::npos, output.find("expoData:"));
   EXPECT_EQ(std::string::npos, output.find("scriptsData:"));
   EXPECT_NE(std::string::npos, output.find("mixData:\n  7:"));
   EXPECT_NE(std::string::npos, output.find("limitData:\n  11:"));
   input = output;
   ModelData loaded{};
   ASSERT_TRUE(load(loaded));
-  EXPECT_EQ(MIXSRC_FIRST_INPUT, loaded.mixData[7].srcRaw);
+  EXPECT_EQ(MIXSRC_FIRST_STICK, loaded.mixData[7].srcRaw);
   EXPECT_EQ(0, loaded.mixData[6].weight);
   EXPECT_EQ(123, loaded.limitData[11].offset);
   EXPECT_EQ(50u, loaded.timers[2].start);
@@ -722,16 +708,12 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
   // A dense meaningful model exceeds the deliberately fixed 16 KiB document.
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     auto& mix = g_model.mixData[i];
-    mix.srcRaw = MIXSRC_FIRST_INPUT; mix.weight = 100; mix.offset = 99;
+    mix.srcRaw = MIXSRC_FIRST_STICK; mix.weight = 100; mix.offset = 99;
     mix.destCh = 15;
     mix.curve.value = 10;
     memset(mix.name, 'M', sizeof(mix.name));
   }
-  for (auto& expo : g_model.expoData) {
-    expo.srcRaw = MIXSRC_FIRST_STICK; expo.weight = 100;
-    memset(expo.name, 'I', sizeof(expo.name));
-    expo.offset = 20; expo.scale = 100;  expo.chn = 12;
-  }
+
   for (auto& limit : g_model.limitData) {
     memset(limit.name, 'C', sizeof(limit.name));
     limit.offset = 100;
@@ -739,7 +721,7 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
   // Populate curves too: basic routing lines serialize much more compactly.
   for (auto& curve : g_model.curves) {
     curve.type = CURVE_TYPE_STANDARD;
-    curve.points = 0;
+    curve.points = MAX_CURVE_POINTS / MAX_CURVES - 5;
     curve.smooth = 1;
   }
   memset(g_model.points, 100, sizeof(g_model.points));

@@ -60,9 +60,6 @@
   #define HORUS_FIELD(x)
 #endif
 
-
-
-
 /*
  * Mixer structure
  */
@@ -80,23 +77,7 @@ PACK(struct MixData {
   int32_t weight:11;
   int32_t offset:11;
   CurveRef curve;
-  char name[LEN_EXPOMIX_NAME];
-});
-
-/*
- * Expo/Input structure
- */
-
-PACK(struct ExpoData {
-  uint16_t scale:14; // Legacy telemetry input scale; retained for storage compatibility.
-  int16_t  reservedTrimSource:6;
-  int16_t  srcRaw:10;
-  int32_t weight:11;
-  int32_t offset:11;
-  CurveRef curve;
-  uint16_t chn:5;
-  uint16_t spare:3;
-  char name[LEN_EXPOMIX_NAME];
+  char name[LEN_MIX_NAME];
 });
 
 /*
@@ -144,7 +125,6 @@ PACK(struct TimerData {
   uint8_t  spare:6;
   char name[LEN_TIMER_NAME];
 });
-
 
 PACK(struct RFAlarmData {
   int8_t warning;
@@ -326,7 +306,6 @@ static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
   #define TOPBAR_DATA
 #endif
 
-
 struct RGBLedColor {
   uint8_t r;
   uint8_t g;
@@ -392,8 +371,6 @@ PACK(struct customSwitch {
 #else
   #define FUNCTION_SWITCHS_FIELDS
 #endif
-
-
 
 /*
  * USB Joystick channel structure
@@ -462,11 +439,9 @@ PACK(struct ModelData {
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS];
   LimitData limitData[MAX_OUTPUT_CHANNELS];
-  ExpoData  expoData[MAX_EXPOS];
 
   CurveHeader curves[MAX_CURVES];
   int8_t    points[MAX_CURVE_POINTS];
-
 
   uint8_t thrTraceSrc;
 
@@ -484,7 +459,6 @@ PACK(struct ModelData {
   uint8_t spare1:1;
 
   ModuleData moduleData[NUM_MODULES];
-  char inputNames[MAX_INPUTS][LEN_INPUT_NAME];
   potwarnen_t potsWarnEnabled;
   int8_t potsWarnPosition[MAX_POTS];
 
@@ -653,7 +627,6 @@ PACK(struct RadioData {
   uint8_t hatsModeSpare:2;
 #endif
 
-
   CalibData calib[MAX_CALIB_ANALOG_INPUTS];
   uint16_t chkSum;
   N_HORUS_FIELD(int8_t currModel);
@@ -720,14 +693,11 @@ PACK(struct RadioData {
   int8_t   varioRange;
   int8_t   varioRepeat;
 
-
   uint32_t serialPort;
-
 
   uint8_t stickInvert;
   potconfig_t potsConfig;
   switchDef switchConfig[MAX_SWITCHES];
-
 
   EXTRA_GENERAL_FIELDS
 

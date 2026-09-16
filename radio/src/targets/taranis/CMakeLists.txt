@@ -391,7 +391,6 @@ set(SRC ${SRC}
 )
 
 set(GUI_SRC ${GUI_SRC}
-  model_input_edit.cpp
   model_mix_edit.cpp
   model_display.cpp
   radio_diagkeys.cpp

@@ -213,59 +213,6 @@ TEST(Lua, testPanicProtection)
   EXPECT_EQ(passed, true);
 }
 
-TEST(Lua, testModelInputs)
-{
-  MODEL_RESET();
-  luaExecStr("noInputs = model.getInputsCount(0)");
-  luaExecStr("if noInputs > 0 then error('getInputsCount()') end");
-
-  // add one line on Input4
-  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3})");
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[0].weight);
-  EXPECT_EQ(3u, g_model.expoData[0].offset);
-
-  // add another one before existing line on Input4
-  luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_Rud, weight=-56})");
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(-56, g_model.expoData[0].weight);
-  EXPECT_EQ(0u, g_model.expoData[0].offset);
-
-  EXPECT_EQ(3u, g_model.expoData[1].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[1].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[1].weight);
-  EXPECT_EQ(3u, g_model.expoData[1].offset);
-
-  // add another line after existing lines on Input4
-  luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
-  EXPECT_EQ(3u, g_model.expoData[0].chn);
-  EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(-56, g_model.expoData[0].weight);
-  EXPECT_EQ(0u, g_model.expoData[0].offset);
-
-  EXPECT_EQ(3u, g_model.expoData[1].chn);
-  EXPECT_STRNEQ("test1", g_model.expoData[1].name);
-  EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56u, g_model.expoData[1].weight);
-  EXPECT_EQ(3u, g_model.expoData[1].offset);
-
-  EXPECT_EQ(3u, g_model.expoData[2].chn);
-  EXPECT_STRNEQ("test3", g_model.expoData[2].name);
-  EXPECT_EQ(MIXSRC_LAST_STICK, g_model.expoData[2].srcRaw);
-  EXPECT_EQ(100u, g_model.expoData[2].weight);
-  EXPECT_EQ(0u, g_model.expoData[2].offset);
-
-  // verify number of lines for Input4
-  luaExecStr("noInputs = model.getInputsCount(3)");
-  luaExecStr("if noInputs ~= 3 then error('getInputsCount()') end");
-}
-
 TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
@@ -318,7 +265,7 @@ TEST(Lua, testLegacyNames)
   MODEL_RESET();
   for (uint8_t i = 0; i < 4; i ++)
     anaSetFiltered(i, -1024);
-  evalInputs(e_perout_mode_normal);
+  evalAnalogControls(e_perout_mode_normal);
   luaExecStr("value = getValue('thr')");
   luaExecStr("if value ~= -1024 then error('thr not defined in Legacy') end");
   luaExecStr("value = getValue('ail')");
@@ -370,9 +317,7 @@ TEST(Lua, ActionConfigurationApisRemoved)
 
 TEST(Lua, BasicMappingFields)
 {
-  luaExecStr("model.deleteInputs(); model.deleteMixes()");
-  luaExecStr("model.insertInput(0, 0, {source=MIXSRC_Thr, weight=75, offset=10})");
+  luaExecStr("model.deleteMixes()");
   luaExecStr("model.insertMix(0, 0, {source=MIXSRC_Thr, weight=50, offset=-10})");
-  luaExecStr("local i=model.getInput(0,0); assert(i.weight==75 and i.offset==10); assert(i.switch==nil and i.side==nil)");
   luaExecStr("local m=model.getMix(0,0); assert(m.weight==50 and m.offset==-10); assert(m.switch==nil and m.multiplex==nil and m.mixWarn==nil)");
 }

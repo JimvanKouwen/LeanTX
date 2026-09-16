@@ -60,8 +60,6 @@ enum CurveRefType {
   CURVE_REF_CUSTOM
 };
 
-#define EXPO_VALID(ed)          ((ed)->srcRaw != 0)
-
 #define limit_min_max_t     int16_t
 #define LIMIT_EXT_PERCENT   150
 #define LIMIT_STD_PERCENT   100

@@ -87,7 +87,7 @@ models. Remaining packed trim positions and numeric source/action IDs are reserv
 to avoid shifting unrelated settings; reserved fields are not written to YAML.
 Ordinary output offsets and audio-recording trim tools are unaffected.
 
-Transmitter flight modes are removed. Inputs and Mixes have no switch conditions,
+Transmitter flight modes are removed. Mixes have no switch conditions,
 mode masks, fades, or mode-specific settings.
 Betaflight modes still work through AUX channels; received CRSF mode telemetry
 and assignable flight-controller mode sound prompts remain supported.
@@ -95,7 +95,7 @@ and assignable flight-controller mode sound prompts remain supported.
 Global Variables (GVars) are removed, including their storage, editors, special
 functions, Lua APIs, and simulator exports. Input and mixer weights/offsets,
 output limits/offsets, and curve parameters now hold literal numbers only.
-Source selection for Inputs and Mixes remains supported; numeric settings no
+Source selection for Mixes remains supported; numeric settings no
 longer encode references to sources or variables.
 
 These changes break compatibility with old packed model backups and models
@@ -107,7 +107,7 @@ Transmitter Logical Switches are removed: no L01–L64 conditions/sources, logic
 expressions, sticky/edge/timer evaluation, delay/duration state, monitors, audio
 prompts, log columns, or Logical Switch Lua APIs remain. Physical switch positions
 and their inversion, trim buttons, multiposition controls, function-switch hardware,
-and telemetry availability conditions remain supported. Timers retain switch conditions. Inputs and Mixes use physical switches only
+and telemetry availability conditions remain supported. Timers retain switch conditions. Mixes use physical switches only
 as numeric sources.
 
 This changes packed model layout and source/switch IDs after the removed ranges.
@@ -158,8 +158,7 @@ There is no longer switch-triggered/repeating sound, haptic, spoken-value,
 background-music/pause, screenshot, timer/reset, bind, backlight/volume override,
 channel-override, screen-selection, key/touch-disable, amplifier-mute, video-input,
 or customizable-switch-push action. Existing direct system/UI/Lua routes remain
-where provided. In particular, standalone/tools, telemetry, mixer scripts and
-widgets remain; function-scheduled scripts and RGB script scheduling are gone.
+where provided. In particular, standalone/tools, telemetry and widgets remain; function-scheduled scripts and RGB script scheduling are gone.
 Logging, automatic vario activation and function script scheduling need future
 user-facing entry points. The old Racing Mode action had no evaluator dispatch.
 
@@ -176,7 +175,7 @@ reusable audio/haptic patterns and remains.
 Possible later simplifications, deliberately deferred: consolidate the remaining
 switch-selection contexts; design explicit logging/vario controls; expose the
 preserved actions through Values/Events; review startup-audio timing and unused
-view-option padding; simplify now-sparser menus. Inputs and Mixes use basic numeric routing; Outputs retain endpoint processing.
+view-option padding; simplify now-sparser menus. Mixes use basic numeric routing; Outputs retain endpoint processing.
 
 ### Validation
 
@@ -192,7 +191,7 @@ outside these build and simulator checks.
 RTC recovery now uses explicit radio/control/CRSF snapshots, independent of the
 YAML schema and packed runtime layouts. Field-by-field capture and restore replace
 `BACKUP`/`NOBACKUP` alternate structures and generated copy helpers. Calibration,
-Inputs/Mixes/Outputs/curves, physical controls and module settings are retained;
+Mixes/Outputs/curves, physical controls and module settings are retained;
 removed-feature reservations, timers and unrelated display/configuration data are
 excluded. Input filtering and HAL flex-switch mappings are also preserved.
 
@@ -215,12 +214,28 @@ YAML subset, defaults, compatibility aliases, 16 KiB file limit, and replacement
 protocol. Rejected model loads block autosaves and list metadata updates for
 that file, so the previous active model cannot overwrite it.
 
-Inputs and Mixes now perform unconditional numeric routing: source, curve,
+Mixes now perform unconditional numeric routing: source, curve,
 weight, and offset. Multiple mappings to the same destination add together;
 there are no multiplex modes, side gates, first-active-line selection, delays,
 ramps, or mixer warnings. Outputs/endpoints and the RF path remain unchanged.
 Channel-as-source chaining and Lua mix sources remain supported. Failed Lua
 sources read as zero, and the mapping still applies its weight and offset.
 Old line activation, multiplex, and warning YAML fields are ignored and are
-not written back; models relying on them need to be recreated. Input source
+not written back; models relying on them need to be recreated. Mix source
 zero marks an empty line. The RTC recovery snapshot version is incremented.
+
+### Lua application scripting
+
+Lua remains available for tools/apps, widgets, telemetry scripts and telemetry
+access, including CRSF/ELRS tools and the LCD, audio and filesystem APIs.
+Legacy `/SCRIPTS/MIXES` scripts, their model configuration and input/output tables,
+and Lua mixer sources (`LUA1a`, etc.) are removed. Lua scripts no longer contribute
+outputs to the realtime mixer/source graph. There is no replacement control API.
+Old mix-script configuration is ignored when loading YAML and omitted on save;
+references to Lua output sources such as `lua(0,0)` are rejected as invalid sources.
+
+The Inputs/ExpoData stage has been removed. Mixes read physical controls or
+channels directly and retain weight, offset, and curves; Outputs/endpoints and
+the RF path are unchanged. New radio defaults use AETR (Ail → CH1, Ele → CH2,
+Thr → CH3, Rud → CH4), respecting the configured channel order for new models.
+Old models using `I0`/`I1` sources require manual adjustment; there is no migration.

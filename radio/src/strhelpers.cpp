@@ -567,21 +567,6 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 
   if (idx == MIXSRC_NONE) {
     strncpy(dest, STR_EMPTY, dest_len - 1);
-  } else if (idx <= MIXSRC_LAST_INPUT) {
-    idx -= MIXSRC_FIRST_INPUT;
-    static_assert(L > sizeof(CHAR_INPUT) - 1, "dest string too small");
-    dest_len -= sizeof(CHAR_INPUT) - 1;
-    char *pos = strAppend(dest, CHAR_INPUT, sizeof(CHAR_INPUT) - 1);
-    if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
-        (dest_len > sizeof(g_model.inputNames[idx]))) {
-      memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
-      size_t input_len =
-          std::min(dest_len - 1, sizeof(g_model.inputNames[idx]));
-      strncpy(pos, g_model.inputNames[idx], input_len);
-      pos[input_len] = '\0';
-    } else {
-      strAppendUnsigned(pos, idx + 1, 2);
-    }
   }
   else if (idx <= MIXSRC_LAST_POT) {
     char *pos = dest;
@@ -688,8 +673,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 
 bool sourceCanHaveCustomName(mixsrc_t idx)
 {
-  return (idx >= MIXSRC_FIRST_INPUT && idx <= MIXSRC_LAST_INPUT) ||
-         (idx >= MIXSRC_FIRST_STICK && idx <= MIXSRC_LAST_STICK) ||
+  return (idx >= MIXSRC_FIRST_STICK && idx <= MIXSRC_LAST_STICK) ||
          (idx >= MIXSRC_FIRST_POT && idx <= MIXSRC_LAST_POT) ||
          (idx >= MIXSRC_FIRST_RESERVED_TRIM && idx <= MIXSRC_LAST_RESERVED_TRIM) ||
          (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) ||

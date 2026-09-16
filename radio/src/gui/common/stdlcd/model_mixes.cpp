@@ -28,6 +28,8 @@
 #define _STRING_MAX(x)                     "/" #x
 #define STRING_MAX(x)                     _STRING_MAX(x)
 
+int8_t s_currCh;
+
 bool reachMixesLimit()
 {
   if (getMixCount() >= MAX_MIXERS) {
@@ -73,7 +75,7 @@ void onMixesMenu(const char * result)
 #define MIX_LINE_WEIGHT_POS            2*FW+34
 #define MIX_LINE_SRC_POS               7*FW+5
 #define MIX_LINE_CURVE_POS             13*FW+3
-#define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
+#define MIX_LINE_NAME_POS              LCD_W-LEN_MIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 #define MIX_HDR_GAUGE_POS_X            127
 
 void displayHeaderChannelName(uint8_t ch)
@@ -101,7 +103,7 @@ void displayMixLine(coord_t y, MixData * md)
 #define MIX_LINE_WEIGHT_POS            6*FW+8
 #define MIX_LINE_SRC_POS               7*FW+3
 #define MIX_LINE_CURVE_POS             12*FW+3
-#define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW
+#define MIX_LINE_NAME_POS              LCD_W-LEN_MIX_NAME*FW
 
 void displayHeaderChannelName(uint8_t ch)
 {

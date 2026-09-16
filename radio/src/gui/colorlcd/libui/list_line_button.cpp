@@ -26,15 +26,15 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 
-static void input_mix_line_constructor(const lv_obj_class_t* class_p,
+static void mix_line_constructor(const lv_obj_class_t* class_p,
                                        lv_obj_t* obj)
 {
   etx_std_style(obj, LV_PART_MAIN, PAD_TINY);
 }
 
-static const lv_obj_class_t input_mix_line_class = {
+static const lv_obj_class_t mix_line_class = {
     .base_class = &lv_btn_class,
-    .constructor_cb = input_mix_line_constructor,
+    .constructor_cb = mix_line_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -45,13 +45,13 @@ static const lv_obj_class_t input_mix_line_class = {
     .instance_size = sizeof(lv_btn_t),
 };
 
-static lv_obj_t* input_mix_line_create(lv_obj_t* parent)
+static lv_obj_t* mix_line_create(lv_obj_t* parent)
 {
-  return etx_create(&input_mix_line_class, parent);
+  return etx_create(&mix_line_class, parent);
 }
 
 ListLineButton::ListLineButton(Window* parent, uint8_t index) :
-    ButtonBase(parent, rect_t{}, nullptr, input_mix_line_create), index(index)
+    ButtonBase(parent, rect_t{}, nullptr, mix_line_create), index(index)
 {
 }
 
@@ -61,7 +61,7 @@ void ListLineButton::checkEvents()
   ButtonBase::checkEvents();
 }
 
-InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
+MixButtonBase::MixButtonBase(Window* parent, uint8_t index) :
     ListLineButton(parent, index)
 {
   setWidth(BTN_W);
@@ -69,7 +69,7 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   padAll(PAD_ZERO);
 }
 
-void InputMixButtonBase::setWeight(int16_t value, int16_t min, int16_t max)
+void MixButtonBase::setWeight(int16_t value, int16_t min, int16_t max)
 {
   if (!weight) {
     weight = etx_label_create(lvobj);
@@ -88,7 +88,7 @@ void InputMixButtonBase::setWeight(int16_t value, int16_t min, int16_t max)
   lv_label_set_text(weight, s);
 }
 
-void InputMixButtonBase::setSource(mixsrc_t idx)
+void MixButtonBase::setSource(mixsrc_t idx)
 {
   if (!source) {
     source = etx_label_create(lvobj);
@@ -106,7 +106,7 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
   lv_label_set_text(source, s);
 }
 
-void InputMixButtonBase::setOpts(const char* s)
+void MixButtonBase::setOpts(const char* s)
 {
   if (!opts) {
     opts = etx_label_create(lvobj);
@@ -146,7 +146,7 @@ static lv_obj_t* group_create(lv_obj_t* parent)
   return etx_create(&group_class, parent);
 }
 
-InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
+MixGroupBase::MixGroupBase(Window* parent, mixsrc_t idx) :
     Window(parent, rect_t{}, group_create), idx(idx)
 {
   setWindowFlag(NO_FOCUS | NO_CLICK);
@@ -155,27 +155,27 @@ InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
   etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);
 }
 
-void InputMixGroupBase::_adjustHeight(coord_t y)
+void MixGroupBase::_adjustHeight(coord_t y)
 {
   if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + PAD_SMALL * 2);
 
   for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
     auto line = *it;
-    line->updatePos(InputMixButtonBase::LN_X, y);
+    line->updatePos(MixButtonBase::LN_X, y);
     y += line->height() + PAD_OUTLINE;
   }
   setHeight(y + PAD_BORDER * 2 + PAD_OUTLINE);
 }
 
-void InputMixGroupBase::adjustHeight()
+void MixGroupBase::adjustHeight()
 {
   _adjustHeight(0);
 }
 
-void InputMixGroupBase::addLine(InputMixButtonBase* line)
+void MixGroupBase::addLine(MixButtonBase* line)
 {
   auto l = std::find_if(lines.begin(), lines.end(),
-                        [=](const InputMixButtonBase* l) -> bool {
+                        [=](const MixButtonBase* l) -> bool {
                           return line->getIndex() <= l->getIndex();
                         });
 
@@ -187,11 +187,11 @@ void InputMixGroupBase::addLine(InputMixButtonBase* line)
   adjustHeight();
 }
 
-bool InputMixGroupBase::removeLine(InputMixButtonBase* line)
+bool MixGroupBase::removeLine(MixButtonBase* line)
 {
   auto l = std::find_if(
       lines.begin(), lines.end(),
-      [=](const InputMixButtonBase* l) -> bool { return l == line; });
+      [=](const MixButtonBase* l) -> bool { return l == line; });
 
   if (l != lines.end()) {
     lines.erase(l);
@@ -202,20 +202,20 @@ bool InputMixGroupBase::removeLine(InputMixButtonBase* line)
   return false;
 }
 
-void InputMixGroupBase::refresh()
+void MixGroupBase::refresh()
 {
   char* s = getSourceString(idx);
-  if (getTextWidth(s, 0, FONT(STD)) > InputMixButtonBase::LN_X - PAD_TINY)
+  if (getTextWidth(s, 0, FONT(STD)) > MixButtonBase::LN_X - PAD_TINY)
     lv_obj_add_state(label, LV_STATE_USER_1);
   else
     lv_obj_clear_state(label, LV_STATE_USER_1);
   lv_label_set_text(label, s);
 }
 
-int InputMixGroupBase::getLineNumber(uint8_t index)
+int MixGroupBase::getLineNumber(uint8_t index)
 {
   int n = 0;
-  auto l = std::find_if(lines.begin(), lines.end(), [&](InputMixButtonBase* l) {
+  auto l = std::find_if(lines.begin(), lines.end(), [&](MixButtonBase* l) {
     n += 1;
     return l->getIndex() == index;
   });
@@ -225,27 +225,27 @@ int InputMixGroupBase::getLineNumber(uint8_t index)
   return -1;
 }
 
-InputMixGroupBase* InputMixPageBase::getGroupBySrc(mixsrc_t src)
+MixGroupBase* MixPageBase::getGroupBySrc(mixsrc_t src)
 {
   auto g = std::find_if(
       groups.begin(), groups.end(),
-      [=](InputMixGroupBase* g) -> bool { return g->getMixSrc() == src; });
+      [=](MixGroupBase* g) -> bool { return g->getMixSrc() == src; });
 
   if (g != groups.end()) return *g;
 
   return nullptr;
 }
 
-void InputMixPageBase::removeGroup(InputMixGroupBase* g)
+void MixPageBase::removeGroup(MixGroupBase* g)
 {
   auto group = std::find_if(groups.begin(), groups.end(),
-                            [=](InputMixGroupBase* lh) -> bool { return lh == g; });
+                            [=](MixGroupBase* lh) -> bool { return lh == g; });
   if (group != groups.end()) groups.erase(group);
 }
 
-InputMixButtonBase* InputMixPageBase::getLineByIndex(uint8_t index)
+MixButtonBase* MixPageBase::getLineByIndex(uint8_t index)
 {
-  auto l = std::find_if(lines.begin(), lines.end(), [=](InputMixButtonBase* l) {
+  auto l = std::find_if(lines.begin(), lines.end(), [=](MixButtonBase* l) {
     return l->getIndex() == index;
   });
 
@@ -254,10 +254,10 @@ InputMixButtonBase* InputMixPageBase::getLineByIndex(uint8_t index)
   return nullptr;
 }
 
-void InputMixPageBase::removeLine(InputMixButtonBase* l)
+void MixPageBase::removeLine(MixButtonBase* l)
 {
   auto line = std::find_if(lines.begin(), lines.end(),
-                           [=](InputMixButtonBase* lh) -> bool { return lh == l; });
+                           [=](MixButtonBase* lh) -> bool { return lh == l; });
   if (line == lines.end()) return;
 
   line = lines.erase(line);
@@ -267,9 +267,9 @@ void InputMixPageBase::removeLine(InputMixButtonBase* l)
   }
 }
 
-void InputMixPageBase::addLineButton(mixsrc_t src, uint8_t index)
+void MixPageBase::addLineButton(mixsrc_t src, uint8_t index)
 {
-  InputMixGroupBase* group_w = getGroupBySrc(src);
+  MixGroupBase* group_w = getGroupBySrc(src);
   if (!group_w) {
     group_w = createGroup(form, src);
     // insertion sort

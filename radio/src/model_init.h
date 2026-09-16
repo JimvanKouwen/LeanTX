@@ -21,9 +21,6 @@
 
 #pragma once
 
-void clearInputs();
-void setDefaultInputs();
-
 #if defined(STORAGE_MODELSLIST)
   #define DEFAULT_MODEL_IDX 1
 #else
