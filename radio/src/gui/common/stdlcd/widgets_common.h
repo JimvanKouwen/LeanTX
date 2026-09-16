@@ -56,7 +56,6 @@ void editSingleName(coord_t x, coord_t y, const char *label, char *name,
                     uint8_t size, event_t event, uint8_t active,
                     uint8_t old_editMode, coord_t lblX = 0);
 
-uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay, uint8_t prec);
 
 int editNumberField(const char* name, coord_t lx, coord_t vx, coord_t y, int val,
                     int min, int max, LcdFlags attr, event_t event, const char* zeroStr = nullptr, int ofst = 0);

@@ -600,7 +600,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   }
 
   if (g_model.potsWarnMode) {
-    evalChannelMixes(e_perout_mode_normal, 0);
+    evalChannelMixes(e_perout_mode_normal);
     bad_pots = 0;
     for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;

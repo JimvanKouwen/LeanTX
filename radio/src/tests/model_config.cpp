@@ -71,6 +71,24 @@ TEST_F(ModelConfig, Roundtrip)
   EXPECT_EQ(4, b.telemetrySensors[0].cell.source);
   EXPECT_EQ(600u, b.timers[0].start);
 }
+TEST_F(ModelConfig, LegacyMixerTimingIsDiscarded)
+{
+  input = "mixData:\n  - srcRaw: I0\n    weight: 75\n    offset: 12\n"
+          "    delayPrec: 1\n    speedPrec: 1\n"
+          "    delayUp: 250\n    delayDown: 250\n"
+          "    speedUp: 250\n    speedDown: 250\n";
+  ModelData model{};
+  ASSERT_TRUE(load(model));
+  EXPECT_EQ(MIXSRC_FIRST_INPUT, model.mixData[0].srcRaw);
+  EXPECT_EQ(75, model.mixData[0].weight);
+  EXPECT_EQ(12, model.mixData[0].offset);
+  ASSERT_TRUE(save(model));
+  for (const char* field : {"delayPrec:", "speedPrec:", "delayUp:",
+                            "delayDown:", "speedUp:", "speedDown:"}) {
+    EXPECT_EQ(std::string::npos, output.find(field)) << field;
+  }
+}
+
 TEST_F(ModelConfig, UnknownAndUnavailable)
 {
   input =
@@ -130,7 +148,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
     m.destCh = i % MAX_OUTPUT_CHANNELS;
     m.mltpx = MLTPX_MUL;
     m.swtch = SWSRC_ON;
-    m.delayUp = i;
     m.curve.value = -10;
   }
   for (unsigned i = 0; i < MAX_EXPOS; ++i) {
@@ -712,12 +729,18 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     auto& mix = g_model.mixData[i];
     mix.srcRaw = MIXSRC_FIRST_INPUT; mix.weight = 100; mix.offset = 99;
-    mix.destCh = 15; mix.swtch = SWSRC_ON; mix.delayUp = 20; mix.delayDown = 20;
-    mix.speedUp = 20; mix.speedDown = 20; mix.curve.value = 10;
+    mix.destCh = 15; mix.swtch = SWSRC_ON;
+    mix.curve.value = 10;
+    memset(mix.name, 'M', sizeof(mix.name));
   }
   for (auto& expo : g_model.expoData) {
     expo.mode = 3; expo.srcRaw = MIXSRC_FIRST_STICK; expo.weight = 100;
+    memset(expo.name, 'I', sizeof(expo.name));
     expo.offset = 20; expo.scale = 100; expo.swtch = SWSRC_ON; expo.chn = 12;
+  }
+  for (auto& limit : g_model.limitData) {
+    memset(limit.name, 'C', sizeof(limit.name));
+    limit.offset = 100;
   }
   EXPECT_STREQ("configuration file too large", saveModelConfig("/MODELS/test.yml"));
   EXPECT_EQ(original, get());

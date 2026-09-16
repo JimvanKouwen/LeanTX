@@ -94,7 +94,7 @@ TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
         int16_t inputs[MAX_INPUTS] = {};
         applyExpos(inputs, mode, source, 700);
         EXPECT_EQ(0, inputs[0]);
-        evalChannelMixes(mode, 0);
+        evalChannelMixes(mode);
         EXPECT_EQ(0, chans[0]);
       }
       EXPECT_FALSE(mixState[0].activeExpo);
@@ -103,30 +103,6 @@ TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
   }
   telemetryItems[0].clear();
 }
-
-#define CHECK_NO_MOVEMENT(channel, value, duration) \
-    for (int i=1; i<=(duration); i++) { \
-      evalChannelMixes(e_perout_mode_normal, 1); \
-      GTEST_ASSERT_EQ((value), chans[(channel)]); \
-    }
-
-#define CHECK_SLOW_MOVEMENT(channel, sign, duration, max_duration) \
-    do { \
-    for (int i=1; i<=(duration); i++) { \
-      evalChannelMixes(e_perout_mode_normal, 1); \
-      lastAct = lastAct + (sign) * (1<<19)/max_duration; \
-      GTEST_ASSERT_EQ(256 * (lastAct >> 8), chans[(channel)]); \
-    } \
-    } while (0)
-
-#define CHECK_DELAY(channel, duration) \
-    do { \
-      int32_t value = chans[(channel)]; \
-      for (int i=1; i<=(duration); i++) { \
-        evalChannelMixes(e_perout_mode_normal, 1); \
-        GTEST_ASSERT_EQ(chans[(channel)], value); \
-      } \
-    } while (0)
 
   #define ELE_CHAN          1
   #define THR_STICK_MIN_THR_POS -1024
@@ -146,28 +122,28 @@ TEST_F(MixerTest, throttleInvert)
   g_eeGeneral.stickMode = 0;
   g_model.throttleReversed = 1;
   anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
-  evalMixes(1);
+  evalMixes();
   EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
 
   // Mode 2 / reversed
   g_eeGeneral.stickMode = 1;
   g_model.throttleReversed = 1;
   anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
-  evalMixes(1);
+  evalMixes();
   EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
 
   // Mode 2 / normal
   g_eeGeneral.stickMode = 1;
   g_model.throttleReversed = 0;
   anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
-  evalMixes(1);
+  evalMixes();
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
 }
 
 TEST_F(MixerTest, CopySticksToOffset)
 {
   anaSetFiltered(inputMappingConvertMode(ELE_STICK), -100);
-  evalMixes(1);
+  evalMixes();
   copySticksToOffset(ELE_CHAN);
 #if defined(STICK_DEAD_ZONE)
   EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -93);
@@ -202,7 +178,7 @@ TEST_F(MixerTest, InfiniteRecursiveChannels)
   g_model.mixData[2].destCh = 2;
   g_model.mixData[2].srcRaw = MIXSRC_FIRST_CH;
   g_model.mixData[2].weight = (100);
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[2], 0);
   EXPECT_EQ(chans[1], 0);
   EXPECT_EQ(chans[0], 0);
@@ -213,7 +189,7 @@ TEST_F(MixerTest, BlockingChannel)
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_CH;
   g_model.mixData[0].weight = (100);
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[0], 0);
 }
 
@@ -232,230 +208,134 @@ TEST_F(MixerTest, RecursiveAddChannel)
   g_model.mixData[2].weight = (100);
 
   anaSetFiltered(0, 0);
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[0], CHANNEL_MAX/2);
   EXPECT_EQ(chans[1], 0);
 }
 
-TEST_F(MixerTest, SlowOnSwitchCondition)
+TEST_F(MixerTest, SwitchConditionAppliesImmediately)
 {
   int sw = findHwSwitch(SWITCH_3POS);
   ASSERT_GE(sw, 0);
-  g_model.mixData[0].swtch = SWSRC_FIRST_SWITCH + sw * 3;
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
+  auto& mix = g_model.mixData[0];
+  mix.srcRaw = MIXSRC_MAX;
+  mix.weight = 50;
+  mix.offset = 25;
+  mix.swtch = SWSRC_FIRST_SWITCH + sw * 3;
+  mix.mixWarn = 1;
 
-  s_mixer_first_run_done = true;
-  simuSetSwitch(sw, -1);
-  evalChannelMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], 0);
-
-  CHECK_SLOW_MOVEMENT(0, +1, 250, 500);
-
-  simuSetSwitch(sw, 1);
-  CHECK_SLOW_MOVEMENT(0, -1, 250, 500);
+  for (bool started : {false, true}) {
+    s_mixer_first_run_done = started;
+    for (int position : {1, -1, 1, -1}) {
+      simuSetSwitch(sw, position);
+      evalMixes();
+      const bool active = position == -1;
+      EXPECT_EQ(chans[0], active ? CHANNEL_MAX * 3 / 4 : 0);
+      EXPECT_EQ(mixState[0].activeMix, active);
+      EXPECT_EQ(mixWarning, active ? 1 : 0);
+    }
+  }
 }
 
-TEST_F(MixerTest, SlowOnSwitchSource)
-{
-  int sw = findHwSwitch(SWITCH_3POS);
-  if (sw < 0) return;
-
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
-
-  s_mixer_first_run_done = true;
-
-  simuSetSwitch(sw, -1);
-  CHECK_SLOW_MOVEMENT(0, -1, 250, 500);
-  EXPECT_EQ(chans[0], -CHANNEL_MAX);
-
-  simuSetSwitch(sw, 1);
-  CHECK_SLOW_MOVEMENT(0, +1, 500, 500);
-}
-
-TEST_F(MixerTest, SlowOnSwitchConditionPrec10ms)
+TEST_F(MixerTest, SwitchedMultiplexAppliesImmediately)
 {
   int sw = findHwSwitch(SWITCH_3POS);
   ASSERT_GE(sw, 0);
-  g_model.mixData[0].swtch = SWSRC_FIRST_SWITCH + sw * 3;
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
-  g_model.mixData[0].speedPrec = 1;
+  auto& base = g_model.mixData[0];
+  base.destCh = 0;
+  base.srcRaw = MIXSRC_MAX;
+  base.weight = 50;
+  auto& mix = g_model.mixData[1];
+  mix.destCh = 0;
+  mix.srcRaw = MIXSRC_MAX;
+  mix.weight = 25;
+  mix.swtch = SWSRC_FIRST_SWITCH + sw * 3;
 
-  s_mixer_first_run_done = true;
-  simuSetSwitch(sw, -1);
-  evalChannelMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], 0);
-
-  CHECK_SLOW_MOVEMENT(0, +1, 25, 50);
-
-  simuSetSwitch(sw, 1);
-  CHECK_SLOW_MOVEMENT(0, -1, 25, 50);
+  for (int multiplex : {MLTPX_ADD, MLTPX_MUL, MLTPX_REPL}) {
+    mix.mltpx = multiplex;
+    for (int position : {-1, 1, -1}) {
+      simuSetSwitch(sw, position);
+      evalMixes();
+      const bool active = position == -1;
+      int expected = CHANNEL_MAX / 2;
+      if (active) {
+        expected = multiplex == MLTPX_ADD ? CHANNEL_MAX * 3 / 4 :
+                   multiplex == MLTPX_MUL ? CHANNEL_MAX / 8 : CHANNEL_MAX / 4;
+      }
+      EXPECT_EQ(chans[0], expected);
+      EXPECT_EQ(mixState[1].activeMix, active);
+      EXPECT_EQ(mixState[0].activeMix, !active || multiplex != MLTPX_REPL);
+    }
+  }
 }
 
-TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
+TEST_F(MixerTest, SwitchSourceAndCascadedCurveApplyImmediately)
 {
   int sw = findHwSwitch(SWITCH_3POS);
-  if (sw < 0) return;
+  ASSERT_GE(sw, 0);
+  g_model.curves[0].type = CURVE_TYPE_STANDARD;
+  g_model.curves[0].points = 0;
+  int8_t* points = curveAddress(0);
+  points[0] = -50;
+  points[1] = -25;
+  points[2] = 25;
+  points[3] = 50;
+  points[4] = 100;
 
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
-  g_model.mixData[0].speedPrec = 1;
-
-  s_mixer_first_run_done = true;
-
-  simuSetSwitch(sw, -1);
-  CHECK_SLOW_MOVEMENT(0, -1, 25, 50);
-  EXPECT_EQ(chans[0], -CHANNEL_MAX);
-
-  simuSetSwitch(sw, 1);
-  CHECK_SLOW_MOVEMENT(0, +1, 50, 50);
-}
-
-TEST_F(MixerTest, SlowDisabledOnStartup)
-{
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].speedUp = 50;
-  g_model.mixData[0].speedDown = 50;
-
-  evalChannelMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], CHANNEL_MAX);
-}
-
-TEST_F(MixerTest, DelayOnSwitch)
-{
-  int sw = findHwSwitch(SWITCH_3POS);
-  if (sw < 0) return;
-  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
-
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].swtch = swPos;
-  g_model.mixData[0].delayUp = 50;
-  g_model.mixData[0].delayDown = 50;
-
-  simuSetSwitch(sw, -1);
-
-  evalChannelMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], 0);
-
-  simuSetSwitch(sw, 1);
-  CHECK_DELAY(0, 500);
-
-  evalChannelMixes(e_perout_mode_normal, 1);
-  EXPECT_EQ(chans[0], CHANNEL_MAX);
-
-  simuSetSwitch(sw, 0);
-  CHECK_DELAY(0, 500);
-
-  evalChannelMixes(e_perout_mode_normal, 1);
-  EXPECT_EQ(chans[0], 0);
-}
-
-TEST_F(MixerTest, DelayOnSwitch2)
-{
-  int sw = findHwSwitch(SWITCH_3POS);
-  if (sw < 0) return;
-
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].delayUp = 50;
-  g_model.mixData[0].delayDown = 50;
-
-  simuSetSwitch(sw, -1);
-
-  evalChannelMixes(e_perout_mode_normal, 0);
-  EXPECT_EQ(chans[0], 0);
-
-  simuSetSwitch(sw, 1);
-  CHECK_DELAY(0, 500);
-
-  evalChannelMixes(e_perout_mode_normal, 1);
-  EXPECT_EQ(chans[0], CHANNEL_MAX);
-
-  simuSetSwitch(sw, 0);
-  CHECK_DELAY(0, 500);
-
-  evalChannelMixes(e_perout_mode_normal, 1);
-  EXPECT_EQ(chans[0], 0);
-}
-
-TEST_F(MixerTest, SlowOnMultiply)
-{
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_MUL;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = (100);
-  g_model.mixData[1].swtch = SWSRC_FIRST_SWITCH;
-  g_model.mixData[1].speedUp = 50;
-  g_model.mixData[1].speedDown = 50;
+  g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
+  g_model.mixData[0].weight = 100;
+  auto& cascade = g_model.mixData[1];
+  cascade.destCh = 1;
+  cascade.srcRaw = MIXSRC_FIRST_CH;
+  cascade.weight = 100;
+  cascade.curve.type = CURVE_REF_CUSTOM;
+  cascade.curve.value = 1;
 
   s_mixer_first_run_done = true;
-
-  simuSetSwitch(0, 1);
-  CHECK_SLOW_MOVEMENT(0, 1, 250, 500);
-
-  simuSetSwitch(0, -1);
-  CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
-
-  simuSetSwitch(0, 1);
-  CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
+  for (int position : {-1, 1, 0, -1}) {
+    simuSetSwitch(sw, position);
+    evalMixes();
+    EXPECT_EQ(chans[0], position * CHANNEL_MAX);
+    EXPECT_EQ(chans[1], position < 0 ? -CHANNEL_MAX / 2 :
+                        position > 0 ? CHANNEL_MAX : CHANNEL_MAX / 4);
+    EXPECT_TRUE(mixState[0].activeMix);
+    EXPECT_TRUE(mixState[1].activeMix);
+  }
 }
 
-TEST_F(MixerTest, SlowOnMultiplyPrec10ms)
+#if defined(LUA_MODEL_SCRIPTS)
+TEST_F(MixerTest, LuaSourceAppliesImmediatelyAndStopsWhenScriptFails)
 {
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_MUL;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = (100);
-  g_model.mixData[1].swtch = SWSRC_FIRST_SWITCH;
-  g_model.mixData[1].speedUp = 50;
-  g_model.mixData[1].speedDown = 50;
-  g_model.mixData[1].speedPrec = 1;
-
+  ScriptInternalData saved[MAX_SCRIPTS];
+  memcpy(saved, scriptInternalData, sizeof(saved));
+  const auto savedValue = scriptInputsOutputs[0].outputs[0].value;
+  for (auto& script : scriptInternalData) {
+    script.reference = 0;
+    script.state = SCRIPT_OK;
+  }
+  g_model.mixData[0].srcRaw = MIXSRC_FIRST_LUA;
+  g_model.mixData[0].weight = 100;
   s_mixer_first_run_done = true;
 
-  simuSetSwitch(0, 1);
-  CHECK_SLOW_MOVEMENT(0, 1, 25, 50);
+  for (int value : {-RESX, RESX, 0, -RESX / 2}) {
+    scriptInputsOutputs[0].outputs[0].value = value;
+    evalMixes();
+    EXPECT_EQ(chans[0], value * 256);
+    EXPECT_TRUE(mixState[0].activeMix);
+  }
+  scriptInternalData[0].state = SCRIPT_PANIC;
+  evalMixes();
+  EXPECT_EQ(chans[0], 0);
+  EXPECT_FALSE(mixState[0].activeMix);
 
-  simuSetSwitch(0, -1);
-  CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
-
-  simuSetSwitch(0, 1);
-  CHECK_NO_MOVEMENT(0, CHANNEL_MAX, 250);
+  scriptInternalData[0].state = SCRIPT_OK;
+  evalMixes();
+  EXPECT_EQ(chans[0], -CHANNEL_MAX / 2);
+  EXPECT_TRUE(mixState[0].activeMix);
+  memcpy(scriptInternalData, saved, sizeof(saved));
+  scriptInputsOutputs[0].outputs[0].value = savedValue;
 }
+#endif
 
 // ==========================================================================
 // rc-soar.com documented behavior tests
@@ -476,7 +356,7 @@ TEST_F(MixerTest, MultiplexAdd)
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
   g_model.mixData[1].weight = (40);
 
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[0], CHANNEL_MAX);  // 60% + 40% = 100%
 }
 
@@ -492,7 +372,7 @@ TEST_F(MixerTest, MultiplexReplace)
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
   g_model.mixData[1].weight = (-50);
 
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[0], -CHANNEL_MAX / 2);  // REPL overwrites to -50%
 }
 
@@ -508,7 +388,7 @@ TEST_F(MixerTest, MultiplexMultiplyBasic)
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
   g_model.mixData[1].weight = (50);
 
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[0], CHANNEL_MAX / 2);  // 100% * 50% = 50%
 }
 
@@ -529,7 +409,7 @@ TEST_F(MixerTest, MultiplexMultiplyOrderSensitive)
   g_model.mixData[2].srcRaw = MIXSRC_MAX;
   g_model.mixData[2].weight = (50);
 
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   int32_t caseA = chans[0];
   EXPECT_EQ(caseA, CHANNEL_MAX / 2);  // 100% * 50% = 50%
 
@@ -548,7 +428,7 @@ TEST_F(MixerTest, MultiplexMultiplyOrderSensitive)
   g_model.mixData[2].srcRaw = MIXSRC_MAX;
   g_model.mixData[2].weight = (40);
 
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   int32_t caseB = chans[0];
 
   EXPECT_NE(caseA, caseB);  // order matters
@@ -564,17 +444,17 @@ TEST_F(MixerTest, WeightThenOffset)
 
   // Stick at +100%: 50% of 1024 + 50% offset
   anaSetFiltered(inputMappingConvertMode(0), +1024);
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   int32_t full = chans[0];
 
   // Stick at 0: 0 + 50% offset
   anaSetFiltered(inputMappingConvertMode(0), 0);
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   int32_t mid = chans[0];
 
   // Stick at -100%: -50% + 50% offset = 0
   anaSetFiltered(inputMappingConvertMode(0), -1024);
-  evalChannelMixes(e_perout_mode_normal, 0);
+  evalChannelMixes(e_perout_mode_normal);
   int32_t low = chans[0];
 
   // full should be ~100%, mid ~50%, low ~0%
@@ -597,7 +477,7 @@ TEST_F(MixerTest, CascadedChannelBypassesOutputClipping)
   g_model.mixData[1].weight = (50);
 
   anaSetFiltered(inputMappingConvertMode(0), +1024);
-  evalMixes(1);
+  evalMixes();
 
   // CH0 output is clipped to 100%
   EXPECT_EQ(channelOutputs[0], 1024);
@@ -619,130 +499,12 @@ TEST_F(MixerTest, CascadedWeightMultiplication)
   g_model.mixData[1].weight = (25);
 
   anaSetFiltered(inputMappingConvertMode(0), +1024);
-  evalMixes(1);
+  evalMixes();
 
   // CH0 = 80% of 1024 ≈ 819
   EXPECT_NEAR(channelOutputs[0], 1024 * 80 / 100, 2);
   // CH1 = 25% of CH0 = 20% of 1024 ≈ 205
   EXPECT_NEAR(channelOutputs[1], 1024 * 20 / 100, 2);
-}
-
-// Sequencer pattern (rc-soar.com/edgetx/setups/sequencer):
-// CH0 = timebase driven by a switch with slow up/down (linear ramp).
-// CH1 = servo channel reading CH0 through a custom curve.
-// A flat curve segment produces a "pause" where the servo holds position
-// while the timebase continues to ramp.
-TEST_F(MixerTest, SequencerSlowRampThroughCurve)
-{
-  int sw = findHwSwitch(SWITCH_3POS);
-  if (sw < 0) return;
-
-  // --- Curve setup: 5-point standard curve on slot 0 ---
-  // Points at x = -100, -50, 0, +50, +100 (standard = evenly spaced)
-  // y-values: -100, -100, 0, 0, +100
-  //   Segment 1 (-100..-50): flat at -100 (pause)
-  //   Segment 2 (-50..0):    ramp from -100 to 0
-  //   Segment 3 (0..+50):    flat at 0 (pause)
-  //   Segment 4 (+50..+100): ramp from 0 to +100
-  g_model.curves[0].type = CURVE_TYPE_STANDARD;
-  g_model.curves[0].smooth = 0;  // linear interpolation, no smoothing
-  g_model.curves[0].points = 0;  // 0 means 5 points (default)
-  int8_t *pts = curveAddress(0);
-  pts[0] = -100;  // x=-100%
-  pts[1] = -100;  // x=-50%  (flat: pause)
-  pts[2] =    0;  // x=0%
-  pts[3] =    0;  // x=+50%  (flat: pause)
-  pts[4] =  100;  // x=+100%
-
-  // --- CH0: timebase — switch source with slow ---
-  // speedUp=10 → 1.0s full traversal (-100% to +100%), 100 ticks
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = sw + MIXSRC_FIRST_SWITCH;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[0].speedUp = 10;    // 1.0s
-  g_model.mixData[0].speedDown = 10;  // 1.0s
-
-  // --- CH1: servo — reads CH0 through curve ---
-  g_model.mixData[1].destCh = 1;
-  g_model.mixData[1].mltpx = MLTPX_ADD;
-  g_model.mixData[1].srcRaw = MIXSRC_FIRST_CH;
-  g_model.mixData[1].weight = (100);
-  g_model.mixData[1].curve.type = CURVE_REF_CUSTOM;
-  g_model.mixData[1].curve.value = (1);  // curve index 0 (1-based)
-
-  s_mixer_first_run_done = true;
-
-  // Start: switch up → CH0 targets -100%
-  simuSetSwitch(sw, -1);
-  for (int i = 0; i < 110; i++)
-    evalChannelMixes(e_perout_mode_normal, 1);
-  evalMixes(1);  // run limits to populate channelOutputs
-
-  int16_t timebaseStart = channelOutputs[0];
-  int16_t servoStart = channelOutputs[1];
-  // Timebase at -100%, curve maps -100→-100
-  EXPECT_NEAR(timebaseStart, -1024, 20);
-  EXPECT_NEAR(servoStart, -1024, 20);
-
-  // Flip switch down → ramp begins from -100% toward +100%
-  simuSetSwitch(sw, 1);
-
-  // Advance 25 ticks (25% of 1.0s = timebase at ~-50%)
-  // Curve: flat from -100% to -50%, so servo should still be near -100%
-  for (int i = 0; i < 25; i++)
-    evalChannelMixes(e_perout_mode_normal, 1);
-  evalMixes(1);
-
-  int16_t timebaseQ1 = channelOutputs[0];
-  int16_t servoQ1 = channelOutputs[1];
-  EXPECT_GT(timebaseQ1, timebaseStart + 100) << "Timebase should have moved";
-  EXPECT_NEAR(servoQ1, -1024, 60) << "Servo should hold during flat segment (pause)";
-
-  // Advance to 50 ticks total (50% = timebase at ~0%)
-  // Curve: ramp from -100 to 0, so servo should be near 0%
-  for (int i = 0; i < 25; i++)
-    evalChannelMixes(e_perout_mode_normal, 1);
-  evalMixes(1);
-
-  int16_t timebaseMid = channelOutputs[0];
-  int16_t servoMid = channelOutputs[1];
-  EXPECT_NEAR(timebaseMid, 0, 60);
-  EXPECT_NEAR(servoMid, 0, 60);
-
-  // Advance to 75 ticks (75% = timebase at ~+50%)
-  // Curve: flat from 0 to +50%, so servo should hold near 0%
-  for (int i = 0; i < 25; i++)
-    evalChannelMixes(e_perout_mode_normal, 1);
-  evalMixes(1);
-
-  int16_t timebaseQ3 = channelOutputs[0];
-  int16_t servoQ3 = channelOutputs[1];
-  EXPECT_GT(timebaseQ3, timebaseMid + 100) << "Timebase should have advanced";
-  // Servo should be near the flat segment value (0), but may slightly
-  // overshoot into the final ramp segment due to discrete stepping.
-  EXPECT_NEAR(servoQ3, 0, 150) << "Servo should be near flat segment";
-  EXPECT_LT(servoQ3, 512) << "Servo must not yet reach the final ramp";
-
-  // Advance to ~100 ticks (100% = timebase at +100%)
-  // Curve: ramp from 0 to +100, so servo should be near +100%
-  for (int i = 0; i < 30; i++)
-    evalChannelMixes(e_perout_mode_normal, 1);
-  evalMixes(1);
-
-  int16_t timebaseEnd = channelOutputs[0];
-  int16_t servoEnd = channelOutputs[1];
-  EXPECT_NEAR(timebaseEnd, 1024, 20);
-  EXPECT_NEAR(servoEnd, 1024, 40);
-
-  // Reverse: flip switch up — sequence should reverse automatically
-  simuSetSwitch(sw, -1);
-  for (int i = 0; i < 110; i++)
-    evalChannelMixes(e_perout_mode_normal, 1);
-  evalMixes(1);
-
-  EXPECT_NEAR(channelOutputs[0], -1024, 20) << "Timebase should return to -100%";
-  EXPECT_NEAR(channelOutputs[1], -1024, 40) << "Servo should return to start via reversed curve";
 }
 
 TEST_F(MixerTest, PhysicalTrimButtonsDoNotOffsetSticks)
@@ -756,13 +518,13 @@ TEST_F(MixerTest, PhysicalTrimButtonsDoNotOffsetSticks)
     g_eeGeneral.stickMode = mode;
     for (int axis = 0; axis < 4; ++axis)
       anaSetFiltered(axis, -600 + axis * 350);
-    evalChannelMixes(e_perout_mode_normal, 1);
+    evalChannelMixes(e_perout_mode_normal);
     int32_t baseline[MAX_OUTPUT_CHANNELS];
     memcpy(baseline, chans, sizeof(baseline));
     for (int button = 0; button < keysGetMaxTrims() * 2; ++button) {
       simuSetTrim(button, true);
       for (int tick = 0; tick < 30; ++tick) {
-        evalChannelMixes(e_perout_mode_normal, 1);
+        evalChannelMixes(e_perout_mode_normal);
         for (int ch = 0; ch < MAX_OUTPUT_CHANNELS; ++ch)
           ASSERT_EQ(baseline[ch], chans[ch]) << "button=" << button;
       }
@@ -786,11 +548,11 @@ TEST_F(MixerTest, PhysicalTrimDirectionsAreIndependentMomentarySwitches)
       simuSetTrim(button, true);
       for (int other = 0; other < keysGetMaxTrims() * 2; ++other)
         EXPECT_EQ(other == button, getSwitch(SWSRC_FIRST_TRIM + other));
-      evalMixes(1);
+      evalMixes();
       EXPECT_EQ(RESX, channelOutputs[4]);
       simuSetTrim(button, false);
       EXPECT_FALSE(getSwitch(SWSRC_FIRST_TRIM + button));
-      evalMixes(1);
+      evalMixes();
       EXPECT_EQ(0, channelOutputs[4]);
     }
   }
@@ -832,7 +594,7 @@ TEST_F(MixerTest, NegativeLiteralInputAndMixValues)
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_INPUT;
   g_model.mixData[0].weight = -100;
   g_model.mixData[0].offset = -25;
-  evalMixes(1);
+  evalMixes();
   EXPECT_NEAR(anas[0], -3 * RESX / 4, 2);
   EXPECT_NEAR(channelOutputs[0], RESX / 2, 2);
 }

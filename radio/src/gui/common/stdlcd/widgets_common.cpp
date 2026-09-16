@@ -78,14 +78,6 @@ void editSingleName(coord_t x, coord_t y, const char * label, char *name, uint8_
   editName(x, y, name, size, event, active, 0, old_editMode);
 }
 
-uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay, uint8_t prec)
-{
-  lcdDrawTextAlignedLeft(y, str);
-  lcdDrawNumber(MIXES_2ND_COLUMN, y, delay, attr|prec|LEFT);
-  if (attr) CHECK_INCDEC_MODELVAR_ZERO(event, delay, DELAY_MAX);
-  return delay;
-}
-
 int editNumberField(const char* name, coord_t lx, coord_t vx, coord_t y, int val,
                     int min, int max, LcdFlags attr, event_t event, const char* zeroStr, int ofst)
 {

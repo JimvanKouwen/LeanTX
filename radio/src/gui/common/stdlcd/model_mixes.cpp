@@ -74,7 +74,6 @@ void onMixesMenu(const char * result)
 #define MIX_LINE_SRC_POS               7*FW+5
 #define MIX_LINE_CURVE_POS             13*FW+3
 #define MIX_LINE_SWITCH_POS            19*FW+1
-#define MIX_LINE_DELAY_POS             24*FW+3
 #define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 #define MIX_HDR_GAUGE_POS_X            127
 
@@ -101,19 +100,12 @@ void displayMixLine(coord_t y, MixData * md)
 
   displayMixInfos(y, md);
 
-  char cs = ' ';
-  if (md->speedDown || md->speedUp)
-    cs = 'S';
-  if (md->delayUp || md->delayDown)
-    cs = (cs == 'S' ? '*' : 'D');
-  lcdDrawChar(MIX_LINE_DELAY_POS, y, cs);
 }
 #else // LCD_W >= 212
 #define MIX_LINE_WEIGHT_POS            6*FW+8
 #define MIX_LINE_SRC_POS               7*FW+3
 #define MIX_LINE_CURVE_POS             12*FW+3
 #define MIX_LINE_SWITCH_POS            16*FW+5
-#define MIX_LINE_DELAY_POS             20*FW+2
 #define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW
 
 void displayHeaderChannelName(uint8_t ch)
@@ -132,12 +124,6 @@ void displayMixInfos(coord_t y, MixData * md)
     drawSwitch(MIX_LINE_SWITCH_POS, y, md->swtch);
   }
 
-  char cs = ' ';
-  if (md->speedDown || md->speedUp)
-    cs = 'S';
-  if (md->delayUp || md->delayDown)
-    cs = (cs == 'S' ? '*' : 'D');
-  lcdDrawChar(MIX_LINE_DELAY_POS, y, cs);
 }
 
 void displayMixLine(coord_t y, MixData * md, bool active)

@@ -26,7 +26,6 @@
 #include "curve.h"
 
 class Window;
-class NumberEdit;
 
 class MixEditAdvanced : public Page
 {
@@ -36,10 +35,6 @@ class MixEditAdvanced : public Page
  protected:
   uint8_t channel;
   uint8_t index;
-  NumberEdit* delayUp;
-  NumberEdit* delayDn;
-  NumberEdit* slowUp;
-  NumberEdit* slowDn;
 
   void buildHeader(Window *window);
   void buildBody(Window *window);

@@ -32,150 +32,90 @@ mixData:
    srcRaw: "I3"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 1
    srcRaw: "I1"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 2
    srcRaw: "I2"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 3
    srcRaw: "I0"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 4
    srcRaw: "SB"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 4
    srcRaw: "SA"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 6
    srcRaw: "SD"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 7
    srcRaw: "SC"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 9
    srcRaw: "SE"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
  -
    destCh: 9
    srcRaw: "P1"
    mixWarn: 0
    mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
    weight: 100
    offset: 0
    swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
    name: ""
 expoData: 
  -

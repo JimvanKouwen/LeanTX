@@ -208,7 +208,7 @@ TEST_F(EmergencyControlTest, MixerAndCRSFFrameAfterRecovery)
   g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_CROSSFIRE;
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_CH5;
   anaSetFiltered(inputMappingConvertMode(throttle), -1024);
-  evalMixes(1);
+  evalMixes();
   ASSERT_EQ(1024, channelOutputs[throttle]);
   int16_t expected[MAX_OUTPUT_CHANNELS];
   memcpy(expected, channelOutputs, sizeof(expected));
@@ -220,7 +220,7 @@ TEST_F(EmergencyControlTest, MixerAndCRSFFrameAfterRecovery)
   MIXER_RESET();
   ASSERT_TRUE(rambackupRestoreOrReset());
   anaSetFiltered(inputMappingConvertMode(throttle), -1024);
-  evalMixes(1);
+  evalMixes();
   ASSERT_EQ(1024, channelOutputs[throttle]);
   EXPECT_EQ(0, memcmp(expected, channelOutputs, sizeof(expected)));
   int16_t restored[MAX_OUTPUT_CHANNELS];

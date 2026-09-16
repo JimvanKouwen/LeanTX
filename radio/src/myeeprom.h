@@ -84,7 +84,6 @@ enum MixerMultiplex {
   MLTPX_REPL = 2,
 };
 
-#define DELAY_MAX       250 /* 25 seconds */
 #define SLOW_MAX        250 /* 25 seconds */
 
 #define MD_WEIGHT(md) (md->weight)

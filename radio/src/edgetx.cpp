@@ -912,7 +912,7 @@ void copySticksToOffset(uint8_t ch)
   mixerTaskStop();
   int32_t zero = (int32_t)channelOutputs[ch];
 
-  evalChannelMixes(e_perout_mode_nosticks+e_perout_mode_preview, 0);
+  evalChannelMixes(e_perout_mode_nosticks+e_perout_mode_preview);
   int32_t val = chans[ch];
   LimitData *ld = limitAddress(ch);
   limit_min_max_t lim = LIMIT_MIN(ld);

@@ -52,7 +52,6 @@ constexpr int g_use_plural2 = USE_PLURAL2;
 #define CHAR_BW_GREATEREQUAL '}'
 #define CHAR_BW_DEGREE       '@'
 
-#define STR_UPDATE_LIST STR_DELAYDOWN
 
 #define STR_RX          "Rx"
 

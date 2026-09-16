@@ -78,17 +78,11 @@ PACK(struct MixData {
   uint16_t reservedTrimCarry:1;
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2;
-  uint16_t delayPrec:1;
-  uint16_t speedPrec:1;
   uint16_t spare:2;
   int32_t weight:11;
   int32_t offset:11;
   int32_t  swtch:10;
   CurveRef curve;
-  uint8_t  delayUp;
-  uint8_t  delayDown;
-  uint8_t  speedUp;
-  uint8_t  speedDown;
   char name[LEN_EXPOMIX_NAME];
 });
 

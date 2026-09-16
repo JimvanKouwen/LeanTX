@@ -368,10 +368,6 @@
 #define TR_ANTENNA                     "Antenna"
 #define TR_NO_INFORMATION              TR("No info", "No information")
 #define TR_MULTPX                      "Multiplex"
-#define TR_DELAYDOWN                   TR("Delay dn", "Delay down")
-#define TR_DELAYUP                     "Delay up"
-#define TR_SLOWDOWN                    TR("Slow dn", "Slow down")
-#define TR_SLOWUP                      "Slow up"
 #define TR_CV                          "CV"
 #define TR_RANGE                       "Range"
 #define TR_CENTER                      "Center"
@@ -1125,8 +1121,6 @@
 #define TR_SORT_MODELS_BY         "Sort models by"
 #define TR_CREATE_NEW             "Create"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
-#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "A theme directory with the same name already exists."
 
@@ -1149,3 +1143,5 @@
 
 #define TR_LABEL_MATCH_ALL "AND"
 #define TR_LABEL_MATCH_ANY "OR"
+
+#define TR_UPDATE_LIST "[update list]"

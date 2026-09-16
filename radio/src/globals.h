@@ -49,15 +49,11 @@ extern uint8_t requiredSpeakerVolume;
 extern uint8_t requiredBacklightBright;
 
 PACK(struct MixState {
-  uint16_t delay:14; // max = 2550
   uint8_t  activeMix:1;
   uint8_t  activeExpo:1;
-  int16_t  now;  // timer trigger source -> off, abs, stk, stk%, sw/!sw, !m_sw/!m_sw
-  int16_t  prev;
 });
 
 extern MixState mixState[MAX_MIXERS];
-extern int32_t act[MAX_MIXERS];
 
 // static variables used in evalChannelMixes - moved here so they don't interfere with the stack
 // It's also easier to initialize them here.

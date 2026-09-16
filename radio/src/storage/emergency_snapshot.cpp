@@ -67,12 +67,6 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     s.model.mixes[i].destCh = g_model.mixData[i].destCh;
     s.model.mixes[i].mltpx = g_model.mixData[i].mltpx;
-    s.model.mixes[i].delayPrec = g_model.mixData[i].delayPrec;
-    s.model.mixes[i].speedPrec = g_model.mixData[i].speedPrec;
-    s.model.mixes[i].delayUp = g_model.mixData[i].delayUp;
-    s.model.mixes[i].delayDown = g_model.mixData[i].delayDown;
-    s.model.mixes[i].speedUp = g_model.mixData[i].speedUp;
-    s.model.mixes[i].speedDown = g_model.mixData[i].speedDown;
     s.model.mixes[i].srcRaw = g_model.mixData[i].srcRaw;
     s.model.mixes[i].weight = g_model.mixData[i].weight;
     s.model.mixes[i].offset = g_model.mixData[i].offset;
@@ -186,12 +180,6 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     g_model.mixData[i].destCh = s.model.mixes[i].destCh;
     g_model.mixData[i].mltpx = s.model.mixes[i].mltpx;
-    g_model.mixData[i].delayPrec = s.model.mixes[i].delayPrec;
-    g_model.mixData[i].speedPrec = s.model.mixes[i].speedPrec;
-    g_model.mixData[i].delayUp = s.model.mixes[i].delayUp;
-    g_model.mixData[i].delayDown = s.model.mixes[i].delayDown;
-    g_model.mixData[i].speedUp = s.model.mixes[i].speedUp;
-    g_model.mixData[i].speedDown = s.model.mixes[i].speedDown;
     g_model.mixData[i].srcRaw = s.model.mixes[i].srcRaw;
     g_model.mixData[i].weight = s.model.mixes[i].weight;
     g_model.mixData[i].offset = s.model.mixes[i].offset;

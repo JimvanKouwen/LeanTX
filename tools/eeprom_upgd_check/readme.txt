@@ -8,16 +8,12 @@ OK 	offset	10	10
 OK 	weight	50	50
 OK 	name	In1	In1
 OK 	weight	50	50
-OK 	speedDown	5	5
 OK 	curveValue	50	50
-OK 	speedUp	2	2
-OK 	delayDown	5	5
 OK 	mixWarn	1	1
 OK 	offset	10	10
 OK 	switch	3	3
 OK 	source	1	1
 OK 	curveType	1	1
-OK 	delayUp	5	5
 OK 	name	Mix1	Mix1
 OK 	multiplex	1	1
 OK 	min	-800	-800

@@ -218,8 +218,8 @@ enum PerOutMode {
 
 extern uint32_t availableMemory();
 
-void evalChannelMixes(uint8_t mode, uint8_t tick10ms);
-void evalMixes(uint8_t tick10ms);
+void evalChannelMixes(uint8_t mode);
+void evalMixes();
 void doMixerCalculations();
 void doMixerPeriodicUpdates();
 

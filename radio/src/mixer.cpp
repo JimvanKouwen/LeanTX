@@ -38,7 +38,6 @@
 #if defined(RADIO_GX12)
 #include "targets/taranis/gx12/bsp_io.h"
 #endif
-#define DELAY_POS_MARGIN   3
 
 uint8_t s_mixer_first_run_done = false;
 
@@ -73,7 +72,6 @@ void clearChannelOverrides()
 }
 BeepANACenter bpanaCenter = 0;
 
-int32_t act [MAX_MIXERS] = {0};
 MixState mixState [MAX_MIXERS];
 
 uint8_t mixWarning;
@@ -597,7 +595,7 @@ static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
   return ~(channel_bit(ch)) + 1;
 }
 
-void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
+void evalChannelMixes(uint8_t mode)
 {
   evalInputs(mode);
 
@@ -643,9 +641,7 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
       if (srcRawAbs > MIXSRC_LAST) continue;
 
       //========== SWITCH =====
-      bool mixCondition = (md->swtch != SWSRC_NONE);
       bool mixLineActive = getSwitch(md->swtch);
-      int16_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
 
       if (mixLineActive) {
 
@@ -655,22 +651,20 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
           div_t qr = div(int(srcRawAbs - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
           for (int n = 0; n < MAX_SCRIPTS; n += 1) {
             if ((scriptInternalData[n].reference == qr.quot) && (scriptInternalData[n].state != SCRIPT_OK)) {
-              mixCondition = true;
-              mixEnabled = 0;
+              mixLineActive = false;
             }
           }
         }
 #endif
       }
 
+      if (!mixLineActive) continue;
+
       //========== VALUE ===============
       getvalue_t v = 0;
 
       if (mode != e_perout_mode_normal) {
-        if (mixEnabled)
-          v = getValue(srcRaw);
-        else
-          continue;
+        v = getValue(srcRaw);
       } else {
         v = getValue(srcRaw);
 
@@ -697,100 +691,17 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
             }
           }
         }
-        if (!mixCondition)
-          mixEnabled = v;
       }
 
-      bool applyOffsetAndCurve = true;
-
-      //========== DELAYS ===============
-      int16_t _swOn = mixState[i].now;
-      int16_t _swPrev = mixState[i].prev;
-      bool swTog = (mixEnabled > _swOn+DELAY_POS_MARGIN || mixEnabled < _swOn-DELAY_POS_MARGIN);
-
-      if (mode == e_perout_mode_normal && swTog) {
-        if (!mixState[i].delay)
-          _swPrev = _swOn;
-        int32_t precMult = md->delayPrec ? 1 : 10;
-        mixState[i].delay = (mixEnabled > _swOn ? md->delayUp : md->delayDown) * precMult;
-        mixState[i].now = mixEnabled;
-        mixState[i].prev = _swPrev;
-      }
-      if (mode == e_perout_mode_normal && mixState[i].delay > 0) {
-        mixState[i].delay = max<int16_t>(0, (int16_t)mixState[i].delay - tick10ms);
-        // Freeze value until delay expires
-        if (!mixCondition)
-          v = _swPrev;
-        else if (mixEnabled)
-          continue;
-      }
-      else {
-        if (mode == e_perout_mode_normal) {
-          mixState[i].now = mixState[i].prev = mixEnabled;
-        }
-        if (!mixEnabled) {
-          if ((md->speedDown || md->speedUp) && md->mltpx != MLTPX_REPL) {
-            if (mixCondition) {
-              v = (md->mltpx == MLTPX_ADD ? 0 : RESX);
-              applyOffsetAndCurve = false;
-            }
-          } else if (mixCondition) {
-            continue;
-          }
-        }
-      }
-
-      if (mode == e_perout_mode_normal && (!mixCondition || mixEnabled || mixState[i].delay)) {
+      if (mode == e_perout_mode_normal) {
         if (md->mixWarn) lv_mixWarning |= 1 << (md->mixWarn - 1);
         activeMixes[i] = true;
       }
 
       int32_t weight = (10 * limit<int16_t>(-RESX, md->weight, RESX));
       weight = calc100to256_16Bits(weight);
-      //========== SPEED ===============
-      // now its on input side, but without weight compensation. More like other remote controls
-      // lower weight causes slower movement
-
-      if (mode == e_perout_mode_normal && (md->speedUp || md->speedDown)) { // there are delay values
-#define DEL_MULT_SHIFT 8
-        // we recale to a mult 256 higher value for calculation
-        int32_t tact = act[i];
-        int16_t diff = v - (tact>>DEL_MULT_SHIFT);
-        if (diff) {
-          // open.20.fsguruh: speed is defined in % movement per second; In menu we specify the full movement (-100% to 100%) = 200% in total
-          // the unit of the stored value is the value from md->speedUp or md->speedDown * 0.1s; e.g. value 4 means 0.4 seconds
-          // because we get a tick each 10msec, we need 100 ticks for one second
-          // the value in md->speedXXX gives the time it should take to do a full movement from -100 to 100 therefore 200%. This equals 2048 in recalculated internal range
-          if (tick10ms || !s_mixer_first_run_done) {
-            // only if already time is passed add or substract a value according the speed configured
-            int32_t rate = (int32_t) tick10ms << (DEL_MULT_SHIFT+11);  // = DEL_MULT*2048*tick10ms
-            // rate equals a full range for one second; if less time is passed rate is accordingly smaller
-            // if one second passed, rate would be 2048 (full motion)*256(recalculated weight)*100(100 ticks needed for one second)
-            int32_t currentValue = ((int32_t) v<<DEL_MULT_SHIFT);
-            int32_t precMult = md->speedPrec ? 1 : 10;
-            if (diff > 0) {
-              if (s_mixer_first_run_done && md->speedUp > 0) {
-                // if a speed upwards is defined recalculate the new value according configured speed; the higher the speed the smaller the add value is
-                int32_t newValue = tact+rate/((int16_t)precMult*md->speedUp);
-                if (newValue<currentValue) currentValue = newValue; // Endposition; prevent toggling around the destination
-              }
-            }
-            else {  // if is <0 because ==0 is not possible
-              if (s_mixer_first_run_done && md->speedDown > 0) {
-                // see explanation in speedUp
-                int32_t newValue = tact-rate/((int16_t)precMult*md->speedDown);
-                if (newValue>currentValue) currentValue = newValue; // Endposition; prevent toggling around the destination
-              }
-            }
-            act[i] = tact = currentValue;
-            // open.20.fsguruh: this implementation would save about 50 bytes code
-          } // endif tick10ms ; in case no time passed assign the old value, not the current value from source
-          v = (tact >> DEL_MULT_SHIFT);
-        }
-      }
-
       //========== CURVES ===============
-      if (applyOffsetAndCurve && md->curve.type != CURVE_REF_DIFF && md->curve.value) {
+      if (md->curve.type != CURVE_REF_DIFF && md->curve.value) {
         v = applyCurve(v, md->curve);
       }
 
@@ -799,7 +710,7 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
       dv = divRoundClosest(dv, 10);
 
       //========== OFFSET / AFTER ===============
-      if (applyOffsetAndCurve) {
+      {
         int32_t offset = (10 * limit<int16_t>(-RESX, md->offset, RESX));
         if (offset) dv += divRoundClosest(calc100toRESX_16Bits(offset), 10) << 8;
       }
@@ -876,7 +787,6 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
 #endif
     } //endfor mixers
 
-    tick10ms = 0;
     dirtyChannels &= passDirtyChannels;
 
   } while (++pass < 5 && dirtyChannels);
@@ -887,13 +797,13 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
   mixWarning = lv_mixWarning;
 }
 
-void evalMixes(uint8_t tick10ms)
+void evalMixes()
 {
 #if defined(RADIO_GX12)
   // see #6159
   _poll_switches();
 #endif
-  evalChannelMixes(e_perout_mode_normal, tick10ms);
+  evalChannelMixes(e_perout_mode_normal);
 
   //========== LIMITS ===============
   for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS; i++) {
