@@ -44,6 +44,31 @@
 
 #define luaExecStr(test)  EXPECT_TRUE(__luaExecStr(test))
 
+void luaGetValueAndPush(lua_State *L, int src);
+
+TEST(Lua, TelemetrySourceCompatibility)
+{
+  MODEL_RESET();
+  luaExecStr("assert(type(getValue) == 'function')");
+  auto &sensor = g_model.telemetrySensors[0];
+  sensor.unit = UNIT_VOLTS;
+  sensor.prec = 2;
+  telemetryItems[0].setValue(sensor, 1234, UNIT_VOLTS, 2);
+  telemetryStreaming = 100;
+  for (int variant = 0; variant < 3; ++variant) {
+    const int source = MIXSRC_FIRST_TELEM + variant;
+    const auto script = std::string("assert(math.abs(getValue(") +
+        std::to_string(source) + ") - 12.34) < 0.001)";
+    luaExecStr(script.c_str());
+    // The same helper supplies EdgeTX mix-script SOURCE arguments.
+    luaGetValueAndPush(lsScripts, source);
+    EXPECT_NEAR(12.34, lua_tonumber(lsScripts, -1), 0.001);
+    lua_pop(lsScripts, 1);
+  }
+  telemetryStreaming = 0;
+  telemetryItems[0].clear();
+}
+
 TEST(Lua, RemovedVariableApis)
 {
   luaExecStr("assert(model.getGlobalVariable == nil and model.setGlobalVariable == nil)");

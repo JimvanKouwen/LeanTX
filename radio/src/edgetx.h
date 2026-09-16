@@ -565,15 +565,6 @@ extern ReusableBuffer reusableBuffer;
 // Stick tolerance varies between transmitters, Higher is better
 #define STICK_TOLERANCE 64
 
-telemetry_value_t maxTelemValue(source_t channel);
-
-getvalue_t convert16bitsTelemValue(source_t channel, telemetry_value_t value);
-
-inline getvalue_t convertTelemValue(source_t channel, telemetry_value_t value)
-{
-  return convert16bitsTelemValue(channel, value);
-}
-
 extern uint8_t g_vbat100mV;
 
 inline uint8_t GET_TXBATT_BARS(uint8_t barsMax)

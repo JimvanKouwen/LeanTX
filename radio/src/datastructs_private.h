@@ -98,7 +98,7 @@ PACK(struct MixData {
 
 PACK(struct ExpoData {
   uint16_t mode:2;
-  uint16_t scale:14;
+  uint16_t scale:14; // Legacy telemetry input scale; retained for storage compatibility.
   int16_t  reservedTrimSource:6;
   int16_t  srcRaw:10;
   int32_t weight:11;

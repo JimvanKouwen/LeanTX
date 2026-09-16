@@ -452,16 +452,6 @@ int8_t getMovedSource(uint8_t min)
 }
 #endif
 
-getvalue_t convert16bitsTelemValue(source_t channel, telemetry_value_t value)
-{
-  return value;
-}
-
-telemetry_value_t maxTelemValue(source_t channel)
-{
-  return MIXSRC_MAX_VALUE;
-}
-
 void calcBacklightValue(int16_t source)
 {
   getvalue_t raw = getValue(source);

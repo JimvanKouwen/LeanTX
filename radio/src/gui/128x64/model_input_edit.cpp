@@ -35,7 +35,6 @@ enum ExposFields {
   EXPO_FIELD_INPUT_NAME,
   EXPO_FIELD_LINE_NAME,
   EXPO_FIELD_SOURCE,
-  EXPO_FIELD_SCALE,
   EXPO_FIELD_WEIGHT,
   EXPO_FIELD_OFFSET,
   EXPO_FIELD_CURVE_LABEL,
@@ -58,7 +57,7 @@ void menuModelExpoOne(event_t event)
   uint8_t old_editMode = s_editMode;
 
   SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
-          {0, 0, 0, abs(ed->srcRaw) >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
+          {0, 0, 0, 0, 0, LABEL(Curve), 1,
              0 /*, ...*/});
 
   int8_t sub = menuVerticalPosition;
@@ -94,13 +93,6 @@ void menuModelExpoOne(event_t event)
           ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
         break;
 
-      case EXPO_FIELD_SCALE:
-        lcdDrawTextAlignedLeft(y, STR_SCALE);
-        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, (abs(ed->srcRaw) - MIXSRC_FIRST_TELEM)/3, convertTelemValue(abs(ed->srcRaw) - MIXSRC_FIRST_TELEM + 1, ed->scale),  attr);
-        if (attr)
-          ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(abs(ed->srcRaw) - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
-        break;
-
       case EXPO_FIELD_WEIGHT:
         ed->weight = editLiteralFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, ed->weight,
                         -100, 100, attr, event);
@@ -134,6 +126,5 @@ void menuModelExpoOne(event_t event)
   drawFunction(expoFn);
   // those parameters are global so that they can be reused in the curve edit screen
   s_currSrcRaw = ed->srcRaw;
-  s_currScale = ed->scale;
   drawCursor(expoFn);
 }

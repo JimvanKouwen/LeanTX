@@ -160,17 +160,8 @@ void drawFunction(FnFuncP fn, uint8_t offset)
 
 void drawCursor(FnFuncP fn, uint8_t offset)
 {
-  int16_t src = abs(s_currSrcRaw);
-
-  int x512 = getValue(s_currSrcRaw);
-  if (src >= MIXSRC_FIRST_TELEM) {
-    if (s_currScale > 0)
-      x512 = (x512 * 1024) / convertTelemValue(src - MIXSRC_FIRST_TELEM + 1, s_currScale);
-    drawSensorCustomValue(LCD_W - FW - offset, 6 * FH, (src - MIXSRC_FIRST_TELEM) / 3, x512, 0);
-  }
-  else {
-    lcdDrawNumber(LCD_W - FW - offset, 6*FH, calcRESXto1000(x512), RIGHT | PREC1);
-  }
+  int x512 = abs(s_currSrcRaw) <= INPUTSRC_LAST ? getValue(s_currSrcRaw) : 0;
+  lcdDrawNumber(LCD_W - FW - offset, 6*FH, calcRESXto1000(x512), RIGHT | PREC1);
   x512 = limit(-1024, x512, 1024);
   int y512 = fn(x512);
   y512 = limit(-1024, y512, 1024);

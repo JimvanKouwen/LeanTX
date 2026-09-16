@@ -194,6 +194,8 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
     mixsrc_t srcRaw = ed->srcRaw;
     mixsrc_t src = abs(srcRaw);
     if (!EXPO_VALID(ed)) break; // end of list
+    // Ignore legacy or Lua-written direct telemetry inputs.
+    if (src > INPUTSRC_LAST) continue;
     if (ed->chn == cur_chn)
       continue;
     if (getSwitch(ed->swtch)) {
@@ -203,9 +205,6 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
       }
       else {
         v = getValue(srcRaw);
-        if (src >= MIXSRC_FIRST_TELEM && ed->scale > 0) {
-          v = (v * 1024) / convertTelemValue(src-MIXSRC_FIRST_TELEM+1, ed->scale);
-        }
         v = limit<int32_t>(-1024, v, 1024);
       }
       if (EXPO_MODE_ENABLE(ed, v)) {
@@ -465,6 +464,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
     return timersStates[i - MIXSRC_FIRST_TIMER].val;
   }
 
+  // Shared lookup for Lua/UI; ordinary Inputs and Mixers reject these IDs.
   else if (i <= MIXSRC_LAST_TELEM) {
     if (IS_FAI_FORBIDDEN(i)) {
       if (valid != nullptr) *valid = false;
@@ -638,6 +638,9 @@ void evalChannelMixes(uint8_t mode, uint8_t tick10ms)
       // initialize it with 0 (otherwise would be random)
       if (i == 0 || md->destCh != (md - 1)->destCh)
         chans[md->destCh] = 0;
+
+      // Ignore sources outside the ordinary mixer selector, including telemetry.
+      if (srcRawAbs > MIXSRC_LAST) continue;
 
       //========== SWITCH =====
       bool mixCondition = (md->swtch != SWSRC_NONE);

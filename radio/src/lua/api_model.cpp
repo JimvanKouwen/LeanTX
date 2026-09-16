@@ -377,7 +377,7 @@ Return input data for given input and line number
  * `name` (string) input line name
  * `inputName` (string) input input name
  * `source` (number) input source index
- * `scale` (number)  input scaling (for telemetry)
+ * `scale` (number)  legacy telemetry input scaling (retained for compatibility; ignored)
  * `weight` (number) input weight
  * `offset` (number) input offset
  * `switch` (number) input switch index

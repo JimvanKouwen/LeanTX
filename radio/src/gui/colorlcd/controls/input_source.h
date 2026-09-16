@@ -28,13 +28,6 @@ class Window;
 
 class InputSource : public Window
 {
-  ExpoData* input;
-  Window* sensor_form;
-
-  void update();
-
-  static LAYOUT_ORIENTATION(SENSOR_W, LV_PCT(60), LV_PCT(100))
-
  public:
   InputSource(Window* parent, ExpoData* input);
 };

@@ -64,6 +64,46 @@ TEST_F(MixerTest, DirectOutputOverrides)
   EXPECT_EQ(ordinary, applyLimits(0, 0));
 }
 
+// Telemetry IDs remain readable by Lua/UI, including min/max and inversion,
+// but cannot activate ordinary control lines loaded from older models or Lua.
+TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
+{
+  MODEL_RESET();
+  MIXER_RESET();
+  telemetryItems[0].value = 321;
+  telemetryItems[0].valueMin = 123;
+  telemetryItems[0].valueMax = 456;
+  const int values[] = {321, 123, 456};
+  EXPECT_LT(INPUTSRC_LAST, MIXSRC_FIRST_TELEM);
+  EXPECT_LT(MIXSRC_LAST, MIXSRC_FIRST_TELEM);
+  for (int variant = 0; variant < 3; ++variant) {
+    for (int sign : {-1, 1}) {
+      const auto source = sign * (MIXSRC_FIRST_TELEM + variant);
+      EXPECT_EQ(sign * values[variant], getValue(source));
+      auto &input = g_model.expoData[0];
+      input.srcRaw = source;
+      input.mode = 3;
+      input.weight = 100;
+      input.offset = 50;
+      input.scale = 100;
+      auto &mix = g_model.mixData[0];
+      mix.srcRaw = source;
+      mix.weight = 100;
+      mix.offset = 50;
+      for (auto mode : {e_perout_mode_normal, e_perout_mode_preview}) {
+        int16_t inputs[MAX_INPUTS] = {};
+        applyExpos(inputs, mode, source, 700);
+        EXPECT_EQ(0, inputs[0]);
+        evalChannelMixes(mode, 0);
+        EXPECT_EQ(0, chans[0]);
+      }
+      EXPECT_FALSE(mixState[0].activeExpo);
+      EXPECT_FALSE(mixState[0].activeMix);
+    }
+  }
+  telemetryItems[0].clear();
+}
+
 #define CHECK_NO_MOVEMENT(channel, value, duration) \
     for (int i=1; i<=(duration); i++) { \
       evalChannelMixes(e_perout_mode_normal, 1); \
