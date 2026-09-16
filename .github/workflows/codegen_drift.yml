@@ -15,17 +15,8 @@ on:
       - 'radio/src/fonts/**'
       # LVGL font character coverage
       - 'radio/src/translations/i18n/**'
-      # YAML parsers
-      - 'tools/generate-yaml.sh'
-      - 'tools/build-common.sh'
-      - 'radio/src/myeeprom.h'
-      - 'radio/src/datastructs.h'
-      - 'radio/src/storage/yaml/**'
-      - 'radio/util/generate_yaml.py'
-      - 'radio/util/yaml_parser.tmpl'
-      - 'radio/util/hw_defs/**'
+      # web simulator radio list
       - 'radio/src/boards/hw_defs/**'
-      # web simulator radio list (also fed by the hw_defs above)
       - 'fw.json'
       - 'web/scripts/gen-radios-json.js'
       - 'web/public/radios.json'
@@ -53,7 +44,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       fonts: ${{ steps.filter.outputs.fonts }}
-      yaml: ${{ steps.filter.outputs.yaml }}
       radios: ${{ steps.filter.outputs.radios }}
     steps:
       - name: Check out the repo
@@ -88,19 +78,6 @@ jobs:
               - '.github/actions/codegen_drift/action.yml'
               - 'radio/src/fonts/**'
               - 'radio/src/translations/i18n/**'
-            yaml:
-              - '.github/workflows/codegen_drift.yml'
-              - '.github/actions/codegen_drift/action.yml'
-              - 'tools/generate-yaml.sh'
-              - 'tools/build-common.sh'
-              - 'radio/src/myeeprom.h'
-              - 'radio/src/datastructs.h'
-              - 'radio/src/dataconstants.h'
-              - 'radio/src/storage/yaml/**'
-              - 'radio/util/generate_yaml.py'
-              - 'radio/util/yaml_parser.tmpl'
-              - 'radio/util/hw_defs/**'
-              - 'radio/src/boards/hw_defs/**'
             radios:
               - '.github/workflows/codegen_drift.yml'
               - '.github/actions/codegen_drift/action.yml'
@@ -131,29 +108,6 @@ jobs:
           recipe: gen-fonts
           paths: radio/src/fonts/lvgl
           label: LVGL fonts
-
-  yaml:
-    name: YAML parsers
-    needs: changes
-    if: needs.changes.outputs.yaml == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
-      volumes:
-        - ${{ github.workspace }}:/src
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v7
-        with:
-          submodules: recursive
-
-      - name: Check for drift
-        uses: ./.github/actions/codegen_drift
-        with:
-          recipe: gen-yaml
-          paths: radio/src/storage/yaml
-          label: YAML parsers
 
   radios:
     name: Web simulator radio list

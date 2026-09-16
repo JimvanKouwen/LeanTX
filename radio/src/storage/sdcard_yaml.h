@@ -21,18 +21,13 @@
 
 #pragma once
 
-enum class ChecksumResult {Success, Failed, None};
 
-struct YamlParserCalls;
 
 constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
 
 const char * writeModelYaml(const char* filename);
-const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName = MODELS_PATH);
-bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checksum);
+namespace model_config { struct Header; }
+const char* readModelYaml(const char* filename, ModelData& model, const char* pathName = MODELS_PATH);
+const char* readModelHeaderYaml(const char* filename, model_config::Header& header, const char* pathName = MODELS_PATH);
 
 void getModelNumberStr(uint8_t idx, char* model_idx);
-
-const char* readYamlFile(const char* fullpath,
-                         const YamlParserCalls* calls, void* parser_ctx,
-                         ChecksumResult* checksum_result);

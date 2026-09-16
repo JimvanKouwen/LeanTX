@@ -47,13 +47,10 @@ struct SimpleModuleData {
   uint8_t subType = 0;
 };
 
-typedef struct PACKED {
-  FSIZE_t fsize; /* File size */
-  WORD fdate;    /* Modified date */
-  WORD ftime;    /* Modified time */
-} FInfoH;
-
-#define FILE_HASH_LENGTH (sizeof(FInfoH) * 2)  // Hex string output
+// Legacy cache token: four size bytes, two date bytes and two time bytes,
+// encoded explicitly in little-endian order; independent of FILINFO layout.
+#define FILE_HASH_LENGTH 16
+char* FILInfoToHexStr(char buffer[FILE_HASH_LENGTH + 1], const FILINFO* finfo);
 
 class ModelCell
 {
@@ -183,6 +180,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 class ModelsList : public ModelsVector
 {
   bool loaded;
+  bool labelsLoadFailed = false;
 
   ModelCell *currentModel;
 

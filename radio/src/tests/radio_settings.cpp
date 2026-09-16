@@ -292,7 +292,7 @@ TEST_F(RadioSettings, CalibrationResolvesAfterHardwareRegardlessOfKeyOrder) {
   for (bool hardwareFirst : {false, true}) {
     put(hardwareFirst ? hardware + calibration : calibration + hardware);
     ASSERT_EQ(nullptr, loadRadioSettingsYaml(true));
-    const auto& steps = reinterpret_cast<const StepsCalibData&>(g_eeGeneral.calib[index]);
+    const auto& steps = g_eeGeneral.calib[index].multipos;
     EXPECT_EQ(FLEX_MULTIPOS, getPotType(0));
     EXPECT_EQ(3, steps.count);
     EXPECT_EQ(20, steps.steps[0]);

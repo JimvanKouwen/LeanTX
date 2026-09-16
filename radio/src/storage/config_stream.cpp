@@ -123,8 +123,8 @@ struct Engine {
     while (n--) if (!write(" ", 1)) return false;
     return true;
   }
-  bool seen(unsigned i) const { return w.seen[i / 8] & (1 << (i % 8)); }
-  void mark(unsigned i) { w.seen[i / 8] |= 1 << (i % 8); }
+  bool seen(unsigned i) const { return (schema.seen ? schema.seen : w.seen)[i / 8] & (1 << (i % 8)); }
+  void mark(unsigned i) { (schema.seen ? schema.seen : w.seen)[i / 8] |= 1 << (i % 8); }
   bool get(unsigned i, bool values = true) {
     memset(&w.field, 0, sizeof(w.field));
     w.field.required = true;
@@ -136,9 +136,11 @@ struct Engine {
   // Emit missing descendants grouped by path. Recursion uses only path offsets;
   // the fixed path buffer and explicit depth bound limit temporary state.
   bool missing(unsigned indent, unsigned nesting = 0) {
-    if (nesting >= 4) return fail("configuration nesting limit");
+    if (nesting >= MaxDepth) return fail("configuration nesting limit");
     size_t prefix = strlen(w.path);
-    for (unsigned i = 0; i < schema.count; ++i) {
+    for (unsigned i = schema.next ? schema.next(schema.context, w.path, 0) : 0;
+         i < schema.count;
+         i = schema.next ? schema.next(schema.context, w.path, i + 1) : i + 1) {
       if (seen(i) || !get(i, false) || !w.field.available || !w.field.required) continue;
       const char* tail = w.field.path;
       if (prefix) {
@@ -155,7 +157,13 @@ struct Engine {
         mark(i);
       } else {
         size_t len = slash - tail;
-        if (!write(tail, len) || !write(":\n")) return false;
+        auto collection = schema.emitSequence ? schema.emitSequence : schema.sequence;
+        bool sequence = collection && collection(schema.context, w.path);
+        if (depth && w.levels[depth-1].pathLength == prefix && w.levels[depth-1].kind)
+          sequence = w.levels[depth-1].kind == 2;
+        if (sequence) {
+          if (!write("-\n")) return false;
+        } else if (!write(tail, len) || !write(":\n")) return false;
         if (prefix + (prefix ? 1 : 0) + len >= MaxPath) return fail("configuration path limit");
         size_t p = prefix;
         if (p) w.path[p++] = '/';
@@ -169,7 +177,7 @@ struct Engine {
   }
   bool pop() {
     auto level = w.levels[depth - 1];
-    if (suppressIndent < 0 && level.kind != 2 && !missing(level.indent)) return false;
+    if (suppressIndent < 0 && (level.kind != 2 || (schema.sequence && schema.sequence(schema.context, w.path))) && !missing(level.indent)) return false;
     --depth;
     w.path[depth ? w.levels[depth - 1].pathLength : 0] = 0;
     return true;
@@ -310,7 +318,7 @@ struct Engine {
     }
     if (!depth) {
       if (indent) return fail("indented YAML root");
-      w.levels[depth++] = {0, 0, 0};
+      w.levels[depth++] = {0, 0, 0, 0};
     }
     if (indent != w.levels[depth - 1].indent) return fail("unexpected YAML indentation");
     bool list = startsList;
@@ -321,9 +329,12 @@ struct Engine {
     size_t prefix = strlen(w.path);
     if (list) {
       ++text; while (*text == ' ') ++text;
-      // Unknown list items are opaque to the schema but still structurally checked.
-      if (prefix + 2 >= MaxPath) return fail("configuration path limit");
-      strcat(w.path, "/@");
+      // Known sequences address items semantically, without runtime layout data.
+      if (prefix + 8 >= MaxPath) return fail("configuration path limit");
+      if (schema.sequence && schema.sequence(schema.context, w.path)) {
+        if (prefix) strcat(w.path, "/");
+        formatInteger(w.path + strlen(w.path), MaxPath - strlen(w.path), level.nextIndex++);
+      } else strcat(w.path, "/@");
     }
     char* colon = nullptr;
     char quote = 0;
@@ -343,7 +354,7 @@ struct Engine {
     char* scalar = text;
     if (colon && list) {
       if (depth == MaxDepth) return fail("configuration nesting limit");
-      w.levels[depth++] = {uint16_t(indent + 2), uint16_t(strlen(w.path)), 1};
+      w.levels[depth++] = {uint16_t(indent + 2), uint16_t(strlen(w.path)), 0, 1};
       prefix = strlen(w.path);
     }
     if (colon) {
@@ -366,27 +377,63 @@ struct Engine {
     }
     // Preserve the source before stripping comments for typed parsing.
     int field = -1;
-    if (!list) {
+    {
       if (schema.resolve) {
         int id = schema.resolve(schema.context, w.path);
-        if (id >= 0 && unsigned(id) < schema.count && get(id, out.write != nullptr)) field = id;
+        if (id >= 0 && unsigned(id) < schema.count && get(id, out.write != nullptr)) {
+          // A scalar-list alias (items/0 -> items/0/val) must not claim
+          // the same path when it introduces a mapping instead.
+          if (*scalar || !strcmp(w.field.path, w.path)) field = id;
+        }
       } else {
         for (unsigned i = 0; i < schema.count; ++i)
           if (get(i) && !strcmp(w.field.path, w.path)) { field = i; break; }
       }
     }
+    bool emptyCollection = false;
+    if (field < 0 && (*scalar == '[' || *scalar == '{')) {
+      const char* p = scalar + 1;
+      while (*p == ' ') ++p;
+      if (*p == (*scalar == '[' ? ']' : '}')) {
+        ++p; while (*p == ' ') ++p;
+        if (!*p || *p == '#') {
+          size_t prefixLength = strlen(w.path);
+          for (unsigned i = schema.next ? schema.next(schema.context, w.path, 0) : 0;
+               i < schema.count;
+               i = schema.next ? schema.next(schema.context, w.path, i + 1) : i + 1) {
+            if (get(i, false) && w.field.available &&
+                !strncmp(w.field.path, w.path, prefixLength) && w.field.path[prefixLength] == '/') {
+              emptyCollection = true; break;
+            }
+          }
+        }
+      }
+    }
     bool replace = field >= 0 && w.field.available;
+    if (replace && schema.preserve && schema.preserve(schema.context, field, scalar)) replace = false;
     if (field >= 0) {
       if (seen(field)) return fail("duplicate known configuration field");
       mark(field);
+      if (schema.cover && !schema.cover(schema.context, field, scalar, schema.seen ? schema.seen : w.seen))
+        return fail("duplicate configuration representation");
     } else if (colon && !schema.known(schema.context, w.path)) ++result.unknown;
     if (suppressIndent < 0) {
-      if (replace && out.write) {
-        if (!spaces(indent) || !write(w.line + indent, colon - (w.line + indent)) || !write(": ") || !write(w.field.value) || !write("\n")) return false;
+      if (emptyCollection && out.write) {
+        if (!spaces(indent)) return false;
+        if (colon) {
+          if (!write(w.line + indent, colon - (w.line + indent)) || !write(":\n")) return false;
+        } else if (!write("-\n")) return false;
+      } else if (replace && out.write) {
+        if (!spaces(indent)) return false;
+        if (colon) {
+          if (!write(w.line + indent, colon - (w.line + indent)) || !write(": ")) return false;
+        } else if (!write("- ")) return false;
+        if (!write(w.field.value) || !write("\n")) return false;
       } else if (!write(w.line, rawLen) || !write("\n")) return false;
     }
     bool block;
     if (!value(scalar, block)) return false;
+    if (emptyCollection) *scalar = 0;
     if (field < 0 && *scalar && !list && schema.known(schema.context, w.path)) {
       size_t plen = strlen(w.path);
       for (unsigned i = 0; i < schema.count; ++i) {
@@ -395,11 +442,13 @@ struct Engine {
       }
     }
     if (replace && apply && !schema.set(schema.context, field, scalar)) ++result.invalid;
+    if (apply && schema.visit && !schema.visit(schema.context, w.path, scalar))
+      ++result.invalid;
     if (block) blockIndent = indent;
     if (!*scalar || (!colon && list && !*text)) {
       if (depth == MaxDepth) return fail("configuration nesting limit");
       // Child indentation is learned from the next nonempty line.
-      w.levels[depth++] = {uint16_t(indent + (list && colon ? 3 : 1)), uint16_t(strlen(w.path)), 0};
+      w.levels[depth++] = {uint16_t(indent + (list && colon ? 3 : 1)), uint16_t(strlen(w.path)), 0, 0};
       if (replace && out.write) suppressIndent = indent;
     } else {
       if (replace && block && out.write) suppressIndent = indent;
@@ -409,7 +458,8 @@ struct Engine {
   }
   Result run() {
     memset(&w, 0, sizeof(w));
-    if (schema.count > MaxFields) { fail("configuration schema capacity"); return result; }
+    if (schema.seen) memset(schema.seen, 0, schema.seenBytes);
+    if (schema.count > (schema.seen ? schema.seenBytes * 8 : MaxFields)) { fail("configuration schema capacity"); return result; }
     for (;;) {
       size_t n = 0; int c = -1;
       while (in.read && (c = in.read(in.context)) >= 0 && c != '\n') {

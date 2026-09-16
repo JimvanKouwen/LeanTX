@@ -24,7 +24,6 @@
 
 #include "datastructs.h"
 #include "bitfield.h"
-#include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 
 // stick config
@@ -113,7 +112,7 @@ enum TelemetrySensorFormula
   TELEM_FORMULA_CELL,
   TELEM_FORMULA_CONSUMPTION,
   TELEM_FORMULA_DIST,
-  TELEM_FORMULA_LAST SKIP = TELEM_FORMULA_DIST
+  TELEM_FORMULA_LAST = TELEM_FORMULA_DIST
 };
 
 #define IS_MANUAL_RESET_TIMER(idx)     (g_model.timers[idx].persistent == 2)

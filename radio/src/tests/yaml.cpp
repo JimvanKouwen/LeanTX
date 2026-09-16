@@ -20,51 +20,12 @@
  */
 
 #include "gtests.h"
+#include "model_yaml_test.h"
 
-#include <storage/yaml/yaml_node.h>
-#include <storage/yaml/yaml_parser.h>
-#include <storage/yaml/yaml_tree_walker.h>
-
-struct TestStruct {
-  uint8_t foo;
-  uint8_t bar;
-
-  TestStruct() : foo(0), bar(0) {}
-};
-
-static const struct YamlNode struct_TestStruct[] = {
-  YAML_UNSIGNED( "foo", 8 ),
-  YAML_UNSIGNED( "bar", 8 ),
-  YAML_END
-};
-
-static const struct YamlNode struct_test[] = {
-  YAML_STRUCT("testStruct", sizeof(TestStruct) * 8, struct_TestStruct, NULL),
-  YAML_END
-};
-
-static const struct YamlNode _root_node = YAML_ROOT( struct_test );
-    
-TEST(Yaml, SkipBlankLines)
+TEST(Yaml, SkipBlankLinesAndReadFinalUnterminatedLine)
 {
-  TestStruct t;
-
-  YamlTreeWalker tree;
-  tree.reset(&_root_node, (uint8_t*)&t);
-
-  const char chunk_1[] = "testStruct:\n  foo: 12\n";
-  const char chunk_2[] = "\n  bar: 34\n\n  fo";
-  const char chunk_3[] = "o: 45";
-  
-  YamlParser yp;
-  yp.init(YamlTreeWalker::get_parser_calls(), &tree);
-  EXPECT_EQ(YamlParser::CONTINUE_PARSING, yp.parse(chunk_1, sizeof(chunk_1) - 1));
-  EXPECT_EQ(12, t.foo);
-  
-  EXPECT_EQ(YamlParser::CONTINUE_PARSING, yp.parse(chunk_2, sizeof(chunk_2) - 1));
-  EXPECT_EQ(34, t.bar);
-
-  yp.set_eof();
-  EXPECT_EQ(YamlParser::CONTINUE_PARSING, yp.parse(chunk_3, sizeof(chunk_3) - 1));
-  EXPECT_EQ(45, t.foo);
+  loadModelYamlStr("header:\n  name: Test\n\ntimers:\n  0:\n    start: 34\n\n    value: 45");
+  EXPECT_STREQ("Test", g_model.header.name);
+  EXPECT_EQ(34, g_model.timers[0].start);
+  EXPECT_EQ(45, g_model.timers[0].value);
 }

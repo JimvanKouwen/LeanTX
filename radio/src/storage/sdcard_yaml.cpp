@@ -27,244 +27,33 @@
 #include "sdcard_common.h"
 #include "sdcard_yaml.h"
 #include "modelslist.h"
+#include "model_config_file.h"
+#include "model_config_adapter.h"
 
-#include "yaml/yaml_tree_walker.h"
-#include "yaml/yaml_parser.h"
-#include "yaml/yaml_datastructs.h"
-#include "yaml/yaml_bits.h"
-
-const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result)
+const char* readModelYaml(const char* filename, ModelData& model, const char* pathName)
 {
-    FIL  file;
-    UINT bytes_read;
-    UINT total_bytes = 0;
-
-    FRESULT result = f_open(&file, fullpath, FA_OPEN_EXISTING | FA_READ);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
-    }
-
-    YamlParser yp; //TODO: move to re-usable buffer
-    yp.init(calls, parser_ctx);
-
-    uint16_t calculated_checksum = 0xFFFF;
-    uint16_t file_checksum = 0;
-
-    bool first_block = true;
-    char buffer[32];
-    while (f_read(&file, buffer, sizeof(buffer)-1, &bytes_read) == FR_OK) {
-      if (bytes_read == 0)  // EOF
-        break;
-      total_bytes += bytes_read;
-
-      uint16_t skip = 0;
-      if(first_block) {
-        // Get the 'checksum' value and skip from further YAML processing
-        // The checksum must be first in the first buffer read from file
-        first_block = false;
-        const char *skipValue = "checksum: ";
-        if(strncmp(buffer, skipValue, strlen(skipValue)) == 0) {
-          skip = 10;
-          char* startPos = buffer + strlen(skipValue);
-          char* endPos = startPos;
-          // Advance through the value
-          while((*endPos != '\r') && (*endPos != '\n')) {
-            if (endPos > buffer + bytes_read) {
-              return SDCARD_ERROR(	FR_INT_ERR );
-            }
-            endPos++;
-          }
-          // Skip trailing newline
-          while((*endPos == '\r') || (*endPos == '\n')) {
-            *endPos = 0;
-            endPos++;
-          }
-
-          file_checksum = atoi(startPos);
-          skip = endPos - buffer;
-        }
-      }
-
-      // Calculate checksum on read block only if we are called with a pointer to write the resulting checksum
-      if (checksum_result != NULL) {
-        calculated_checksum = crc16(0, (const uint8_t *)buffer + skip, bytes_read - skip, calculated_checksum);
-      }
-
-      if (f_eof(&file)) yp.set_eof();
-      if (yp.parse(buffer + skip, bytes_read - skip) != YamlParser::CONTINUE_PARSING)
-        break;
-    }
-    f_close(&file);
-
-    if (checksum_result != NULL) {
-      // Special case to handle "old" files with no checksum field
-      // 25 was arbitrarily chosen as the minimum realistic file size
-      // - The issue is to allow old files to pass, while still detecting garbled files
-      if ( (file_checksum == 0) && (total_bytes > 25) ) {
-        *checksum_result = ChecksumResult::Success;
-      } else {
-        // Normal case - compare read and calculated checksum
-        if (calculated_checksum == file_checksum) {
-          *checksum_result = ChecksumResult::Success;
-        } else {
-          *checksum_result = ChecksumResult::Failed;
-        }
-      }
-    }
-
-    return NULL;
+  char path[256];
+  getModelPath(path, filename, pathName);
+  return loadModelConfig(path, model);
 }
 
-//
-// SDCARD storage interface
-//
-
-struct yaml_checksummer_ctx {
-    FRESULT result;
-    uint16_t checksum;
-    bool checksum_invalid;
-};
-
-static bool yaml_checksummer(void* opaque, const char* str, size_t len)
+const char* readModelHeaderYaml(const char* filename, model_config::Header& header, const char* pathName)
 {
-    yaml_checksummer_ctx* ctx = (yaml_checksummer_ctx*)opaque;
-
-    ctx->checksum = crc16(0, (const uint8_t *) str, len, ctx->checksum);
-    return true;
-}
-
-bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checksum)
-{
-    YamlTreeWalker tree;
-    tree.reset(root_node, data);
-
-    yaml_checksummer_ctx ctx;
-    ctx.result = FR_OK;
-    ctx.checksum = 0xFFFF;
-    ctx.checksum_invalid = false;
-
-    if (!tree.generate(yaml_checksummer, &ctx)) {
-        if (ctx.result != FR_OK) {
-          ctx.checksum_invalid = true;
-          return false;
-        }
-    }
-
-    if(checksum != NULL) {
-      *checksum = ctx.checksum;
-    }
-
-    return true;
-}
-
-struct yaml_writer_ctx {
-    FIL*    file;
-    FRESULT result;
-};
-
-static bool yaml_writer(void* opaque, const char* str, size_t len)
-{
-    UINT bytes_written;
-    yaml_writer_ctx* ctx = (yaml_writer_ctx*)opaque;
-
-#if defined(DEBUG_YAML)
-    TRACE_NOCRLF("%.*s",len,str);
-#endif
-
-    ctx->result = f_write(ctx->file, str, len, &bytes_written);
-    return (ctx->result == FR_OK) && (bytes_written == len);
-}
-
-const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data, uint16_t checksum)
-{
-    FIL file;
-
-    FRESULT result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
-    }
-    YamlTreeWalker tree;
-    tree.reset(root_node, data);
-
-    yaml_writer_ctx ctx;
-    ctx.file = &file;
-    ctx.result = FR_OK;
-
-    // Try to add CRC
-    if (checksum != 0) {
-      if (!yaml_writer(&ctx, YAMLFILE_CHECKSUM_TAG_NAME, strlen(YAMLFILE_CHECKSUM_TAG_NAME))) return NULL;
-      if (!yaml_writer(&ctx, ": ", 2)) return SDCARD_ERROR(FR_INVALID_PARAMETER);
-      const char* p_out = NULL;
-      p_out = yaml_unsigned2str((int)checksum);
-      if (p_out && !yaml_writer(&ctx, p_out, strlen(p_out))) return SDCARD_ERROR(FR_INVALID_PARAMETER);
-      yaml_writer(&ctx, "\r\n", 2);
-    }
-
-    if (!tree.generate(yaml_writer, &ctx)) {
-        if (ctx.result != FR_OK) {
-            f_close(&file);
-            return SDCARD_ERROR(ctx.result);
-        }
-    }
-
-    f_close(&file);
-    return NULL;
-}
-
-const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName)
-{
-    // YAML reader
-    TRACE("YAML model reader");
-
-    bool init_model = true;
-    const YamlNode* data_nodes = nullptr;
-    if (size == sizeof(g_model)) {
-        data_nodes = get_modeldata_nodes();
-    }
-    else if (size == sizeof(PartialModel)) {
-        data_nodes = get_partialmodel_nodes();
-        init_model = false;
-    }
-    else {
-        TRACE("cannot find YAML data nodes for object size (size=%d)", size);
-        return "YAML size error";
-    }
-
-    char path[256];
-    getModelPath(path, filename, pathName);
-
-    YamlTreeWalker tree;
-    tree.reset(data_nodes, buffer);
-
-    // wipe memory before reading YAML
-    memset(buffer,0,size);
-
-    if (init_model) {
-#if defined(FUNCTION_SWITCHES)
-      extern void initCustomSwitches();
-      initCustomSwitches();
-#endif
-#if defined(COLORLCD)
-      g_model.resetScreenData();
-#endif
-      auto md = reinterpret_cast<ModelData*>(buffer);
-      md->rfAlarms.warning = 45;
-      md->rfAlarms.critical = 42;
-    }
-
-    return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);
+  char path[256];
+  getModelPath(path, filename, pathName);
+  return loadModelConfigHeader(path, header);
 }
 
 static const char _wrongExtentionError[] = "wrong file extension";
 
-const char* readModel(const char* filename, uint8_t* buffer, uint32_t size, const char* pathName)
+const char* readModel(const char* filename, ModelData& model, const char* pathName)
 {
   const char* ext = strrchr(filename, '.');
   if (!ext || strncmp(ext, YAML_EXT, 4) != 0) {
     return _wrongExtentionError;
   }
 
-  return readModelYaml(filename, buffer, size, pathName);
+  return readModelYaml(filename, model, pathName);
 }
 
 const char * writeModelYaml(const char* filename)
@@ -272,7 +61,7 @@ const char * writeModelYaml(const char* filename)
     TRACE("YAML model writer");
     char path[256];
     getModelPath(path, filename);
-    return writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)&g_model,0 );
+    return saveModelConfig(path);
 }
 
 #if !defined(STORAGE_MODELSLIST)
@@ -303,15 +92,14 @@ const char * writeModel()
 #if !defined(STORAGE_MODELSLIST)
 void loadModelHeader(uint8_t id, ModelHeader* header)
 {
-  PartialModel partial;
-  memclear(&partial, sizeof(PartialModel));
+  model_config::Header partial{};
+  *header = ModelHeader{};
 
   if (modelExists(id)) {
     char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
     getModelNumberStr(id, fname);
     strcat(fname, YAML_EXT);
-    readModelYaml(fname, reinterpret_cast<uint8_t*>(&partial), sizeof(partial));
-    memcpy(header, &partial, sizeof(ModelHeader));
+    if (!readModelHeaderYaml(fname, partial)) *header = partial.header;
   }
 }
 

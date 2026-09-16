@@ -23,14 +23,6 @@ default:
 gen-fonts:
     radio/src/fonts/lvgl/make_fonts.sh
 
-# FLAVOR is a semicolon-separated target list; empty uses the script's default.
-# Recreates ./build from scratch, and needs the libclang version from the
-# edgetx-dev container.
-[doc('Regenerate the YAML parsers (radio/src/storage/yaml/yaml_datastructs_*.cpp)')]
-[group('codegen')]
-gen-yaml FLAVOR='':
-    FLAVOR="{{ FLAVOR }}" tools/generate-yaml.sh
-
 # Needs: node. Which radios are included comes from fw.json, so this only
 # picks up a new target once it is listed there.
 [doc('Regenerate the web simulator radio list (web/public/radios.json)')]
@@ -38,9 +30,9 @@ gen-yaml FLAVOR='':
 gen-radios:
     node web/scripts/gen-radios-json.js
 
-[doc('Regenerate the YAML parsers, LVGL fonts and radio list')]
+[doc('Regenerate the LVGL fonts and radio list')]
 [group('codegen')]
-codegen: gen-fonts gen-yaml gen-radios
+codegen: gen-fonts gen-radios
 
 # Needs: python3 only.
 [doc('Check every referenced RADIO_* macro can be defined')]
@@ -64,15 +56,6 @@ check: check-radio-macros check-hw-defs
 docker-gen-fonts:
     {{ _docker }} radio/src/fonts/lvgl/make_fonts.sh
 
-# Uses its own FetchContent cache: the default one is inside the repo, so it
-# would be shared with host builds and their CMake state is not portable here.
-[doc('Regenerate the YAML parsers in the dev container')]
-[group('codegen (docker)')]
-docker-gen-yaml FLAVOR='':
-    {{ _docker }} env FLAVOR="{{ FLAVOR }}" \
-        FETCHCONTENT_BASE_DIR=/src/.cache/fetchcontent-docker \
-        tools/generate-yaml.sh
-
 [doc('Regenerate the web simulator radio list in the dev container')]
 [group('codegen (docker)')]
 docker-gen-radios:
@@ -80,7 +63,7 @@ docker-gen-radios:
 
 [doc('Regenerate everything in the dev container')]
 [group('codegen (docker)')]
-docker-codegen: docker-gen-fonts docker-gen-yaml docker-gen-radios
+docker-codegen: docker-gen-fonts docker-gen-radios
 
 [doc('Run the checks in the dev container')]
 [group('checks (docker)')]

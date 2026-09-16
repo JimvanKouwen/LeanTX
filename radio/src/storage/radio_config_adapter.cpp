@@ -329,7 +329,7 @@ bool field(void* context, unsigned id, Field& f) {
     f.available = (part >= 3) == multi;
     if (part < 3) return number(f, part == 0 ? c.mid : part == 1 ? c.spanNeg : c.spanPos);
 #if XPOTS_MULTIPOS_COUNT > 0
-    const auto& steps = reinterpret_cast<const StepsCalibData&>(c);
+    const auto& steps = c.multipos;
     return number(f, part == 3 ? (steps.count < XPOTS_MULTIPOS_COUNT ? steps.count : 0) : steps.steps[part - 4]);
 #else
     f.available = false; return true;
@@ -516,7 +516,7 @@ bool set(void* context, unsigned id, const char* text) {
     if (part >= 3) {
 #if XPOTS_MULTIPOS_COUNT > 0
       if (!integer(text, 0, part == 3 ? XPOTS_MULTIPOS_COUNT - 1 : 255, n)) return false;
-      auto& steps = reinterpret_cast<StepsCalibData&>(c);
+      auto& steps = c.multipos;
       if (part == 3) steps.count = n; else steps.steps[part - 4] = n;
       return true;
 #else
@@ -765,7 +765,7 @@ config_stream::Schema beginRadioSettingsLoad()
     const int pot = int(i) - adcGetInputOffset(ADC_INPUT_FLEX);
     if (pot >= 0 && pot < adcGetMaxInputs(ADC_INPUT_FLEX) &&
         potType(candidate.radio, pot) == FLEX_MULTIPOS) {
-      const auto& steps = reinterpret_cast<const StepsCalibData&>(defaults);
+      const auto& steps = defaults.multipos;
       c.steps[0] = steps.count < XPOTS_MULTIPOS_COUNT ? steps.count : 0;
       memcpy(c.steps + 1, steps.steps, 5);
     }
@@ -814,7 +814,7 @@ void resolveRadioSettingsLoad(config_stream::Result& result)
     }
 #if XPOTS_MULTIPOS_COUNT > 0
     else {
-      auto& steps = reinterpret_cast<StepsCalibData&>(target);
+      auto& steps = target.multipos;
       steps.count = c.steps[0];
       memcpy(steps.steps, c.steps + 1, 5);
     }

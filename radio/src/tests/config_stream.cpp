@@ -98,7 +98,7 @@ TEST_F(ConfigFixture, DeepUnknownAndBounds) {
   source = "future: " + std::string(MaxLine, 'x'); EXPECT_FALSE(run(true));
   source.clear();
   for (unsigned i = 0; i < MaxDepth + 2; ++i) source += std::string(i, ' ') + "x:\n";
-  EXPECT_FALSE(run(true)); EXPECT_LE(sizeof(Workspace), 2048u);
+  EXPECT_FALSE(run(true)); EXPECT_LE(sizeof(Workspace), 3072u);
 }
 TEST_F(ConfigFixture, UnknownBlockScalar) {
   source = "future: |\n  hello: [this is text\n  world\nbrightness: 4\n";

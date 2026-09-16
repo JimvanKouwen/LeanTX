@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "model_config_file.h"
 #include "modelslist.h"
 
 #include <algorithm>
@@ -26,11 +27,10 @@
 using std::list;
 
 #include "edgetx.h"
+#include "model_config_adapter.h"
 #include "storage/sdcard_yaml.h"
-#include "yaml/yaml_datastructs.h"
-#include "yaml/yaml_labelslist.h"
-#include "yaml/yaml_modelslist.h"
-#include "yaml/yaml_parser.h"
+#include "config_file_workspace.h"
+
 #include "os/sleep.h"
 
 #if defined(USBJ_EX)
@@ -51,6 +51,12 @@ using std::list;
 #endif
 
 LAYOUT_SIZE(LABEL_TRUNCATE_LENGTH, 21, 16)
+
+#define MODULE_ID_STR "mod%did"
+#define MODULE_TYPE_STR "mod%dtype"
+#define MODULE_RFPROTOCOL_STR "mod%drf"
+
+#include "labels_config.inc"
 
 ModelsList modelslist;
 ModelMap modelslabels;
@@ -337,7 +343,7 @@ bool ModelMap::addLabelToModel(const std::string &lbl, ModelCell *cell,
 }
 
 /**
- * @brief Adds a label to the filter, used in yaml_labelslist on load
+ * @brief Adds a label to the filter, used when loading labels.yml
  *
  * @param label Label to be added
  */
@@ -600,9 +606,8 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
       progress(modcell->modelFilename, (i++) * 100 / mods.size());
     }
 
-    PartialModel partial;
-    memclear(&partial, sizeof(PartialModel));
-    readModelYaml(modcell->modelFilename, (uint8_t*)&partial, sizeof(PartialModel));
+    model_config::Header partial{};
+    if (readModelHeaderYaml(modcell->modelFilename, partial)) { fault = true; continue; }
 
     // Separate Curent CSV
     LabelsVector lbls = ModelMap::fromCSV(partial.header.labels);
@@ -714,125 +719,9 @@ bool ModelMap::removeModels(ModelCell *cell)
  */
 bool ModelMap::writeModelLabels(ModelCell* cell, const char* labels)
 {
-  TRACE("Updating labels in %s",cell->modelFilename);
-
-  UINT bytes_cnt;
-  char buf[512];
-  char tempPath[256];
-  FIL out;
-  FIL file;
-
-  // Read exiting model header
-  PartialModel partial;
-  memclear(&partial, sizeof(PartialModel));
-  readModelYaml(cell->modelFilename, (uint8_t*)&partial, sizeof(PartialModel));
-
-  // Update header with new labels
-  strAppend(partial.header.labels, labels, LABELS_LENGTH - 1);
-  // Remove module data - only want to write the header
-  memclear(&partial.moduleData, sizeof(ModuleData) * NUM_MODULES);
-
-  // Write new header to a temp file
-  getModelPath(tempPath, "tmp.yml");
-  if (writeFileYaml(tempPath, get_partialmodel_nodes(), (uint8_t *)&partial, 0) != NULL) {
-    TRACE("ERROR writing temp model file");
-    f_unlink(tempPath);
-    return false;
-  }
-
-  // Open tmp file for appending
-  FRESULT result = f_open(&out, tempPath, FA_OPEN_EXISTING | FA_WRITE | FA_OPEN_APPEND);
-  if (result != FR_OK) {
-    TRACE("ERROR opening temp file");
-    f_unlink(tempPath);
-    return false;
-  }
-
-  // Copy rest of model yaml from original file to temp file
-  getModelPath(buf, cell->modelFilename);
-  result = f_open(&file, buf, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
-    f_close(&out);
-    f_unlink(tempPath);
-    return false;
-  }
-
-  // Read old header - assumes header fits within first 512 bytes
-  // header has not changed significantly for a long time so should be safe
-  result = f_read(&file, buf, sizeof(buf), &bytes_cnt);
-  if (result != FR_OK) {
-    f_close(&out);
-    f_close(&file);
-    f_unlink(tempPath);
-    return false;
-  }
-
-  // Bound searches/writes below by bytes actually read, not sizeof(buf) -
-  // the rest of buf is uninitialized for a file shorter than 512 bytes.
-  int len = (int)bytes_cnt;
-
-  // Find header section
-  int n = 0;
-  while (n < len - 7 && strncmp(&buf[n], "header:", 7) != 0)
-    n += 1;
-
-  if (n >= len - 7) {
-    TRACE("ERROR model header not found in %s", cell->modelFilename);
-    f_close(&out);
-    f_close(&file);
-    f_unlink(tempPath);
-    return false;
-  }
-
-  // Skip header section - look for next section after 'header:'
-  do {
-    // Skip current line
-    while (n < len && buf[n] != '\n') n += 1;
-    n += 1;
-  } while ((n < len) && buf[n] == ' ');
-
-  if (n >= len) {
-    TRACE("ERROR could not match model header in %s", cell->modelFilename);
-    f_close(&out);
-    f_close(&file);
-    f_unlink(tempPath);
-    return false;
-  }
-
-  // Write remainder of first buffer after header - check for short
-  // writes (e.g. SD full), which f_write() can return FR_OK for.
-  UINT written;
-  UINT to_write = (UINT)(len - n);
-  result = f_write(&out, &buf[n], to_write, &written);
-  bool short_write = (result == FR_OK && written != to_write);
-
-  // Block copy the rest of the original file to the temp file
-  while (result == FR_OK && !short_write && bytes_cnt != 0) {
-    result = f_read(&file, buf, sizeof(buf), &bytes_cnt);
-    if (result == FR_OK && bytes_cnt != 0) {
-      result = f_write(&out, buf, bytes_cnt, &written);
-      short_write = (result == FR_OK && written != bytes_cnt);
-    }
-  }
-
-  f_close(&out);
-  f_close(&file);
-
-  if (result != FR_OK || short_write) {
-    TRACE("ERROR copying to temp file");
-    f_unlink(tempPath);
-    return false;
-  }
-
-  // Delete original file and rename temp file
-  getModelPath(buf, cell->modelFilename);
-  f_unlink(buf);
-  if (f_rename(tempPath, buf) != FR_OK) {
-    TRACE("ERROR renaming temp file to %s", cell->modelFilename);
-    return false;
-  }
-
-  return true;
+  char path[256];
+  getModelPath(path, cell->modelFilename);
+  return saveModelConfigLabels(path, labels) == nullptr;
 }
 
 /**
@@ -941,9 +830,8 @@ void ModelMap::updateModelCell(ModelCell *cell)
 
   TRACE("Labels: Updating model %s", cell->modelFilename);
 
-  PartialModel partial;
-  memclear(&partial, sizeof(PartialModel));
-  readModelYaml(cell->modelFilename, (uint8_t*)&partial, sizeof(PartialModel));
+  model_config::Header partial{};
+  if (readModelHeaderYaml(cell->modelFilename, partial)) return;
 
   strAppend(cell->modelName, partial.header.name, LEN_MODEL_NAME);
   strAppend(cell->modelBitmap, partial.header.bitmap, LEN_BITMAP_NAME);
@@ -966,13 +854,18 @@ void ModelMap::updateModelCell(ModelCell *cell)
  * @return char* Pointer to buffer supplied
  */
 
-char *FILInfoToHexStr(char buffer[17], FILINFO *finfo)
+char* FILInfoToHexStr(char buffer[FILE_HASH_LENGTH + 1], const FILINFO* finfo)
 {
-  char *str = buffer;
-  for (unsigned int i = 0; i < sizeof(FInfoH); i++) {
-    sprintf(str, "%02x", *((uint8_t *)finfo + i));
-    str += 2;
+  const uint64_t token = uint64_t(uint32_t(finfo->fsize)) |
+                         (uint64_t(finfo->fdate) << 32) |
+                         (uint64_t(finfo->ftime) << 48);
+  constexpr char hex[] = "0123456789abcdef";
+  for (unsigned i = 0; i < 8; ++i) {
+    unsigned byte = (token >> (8 * i)) & 255;
+    buffer[2 * i] = hex[byte >> 4];
+    buffer[2 * i + 1] = hex[byte & 15];
   }
+  buffer[FILE_HASH_LENGTH] = 0;
   return buffer;
 }
 
@@ -1038,28 +931,19 @@ bool ModelsList::loadYaml()
     f_closedir(&moddir);
   }
 
-  FRESULT result;
-
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
   TRACE("Labels: Time to scan models folder %luus",
         debugTimers[debugTimerYamlScan].getLast());
 #endif
 
-  // Scan labels.yml
-  result = f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    char line[32];
-    YamlParser yp;
-    void *ctx = get_labelslist_iter();
-    yp.init(get_labelslist_parser_calls(), ctx);
-    UINT bytes_read = 0;
-    while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
-      if (bytes_read == 0) break;
-      if (f_eof(&file)) yp.set_eof();
-      if (yp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING) break;
-    }
-    f_close(&file);
+  // Validate first, then apply without retaining a document or duplicate cache.
+  labelsLoadFailed = !loadLabelsConfig();
+  if (labelsLoadFailed) {
+    modelslist.clear();
+    modelslabels.clear();
+    modelslabels.clearFilter();
+    for (auto& entry : fileHashInfo) entry.celladded = false;
   }
 
 #if defined(DEBUG_TIMERS)
@@ -1157,6 +1041,7 @@ bool ModelsList::load()
 
 const char *ModelsList::save(LabelsVector newOrder)
 {
+  if (labelsLoadFailed) return "Labels load failed; save blocked";
   FRESULT result =
       f_open(&file, LABELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
   if (result != FR_OK) return "Couldn't open labels.yml for writing";
@@ -1247,6 +1132,9 @@ void ModelsList::setCurrentModel(ModelCell *cell)
 
 void ModelsList::updateCurrentModelCell()
 {
+  char path[256];
+  getModelPath(path, g_eeGeneral.currModelFilename);
+  if (!modelConfigCanSave(path)) return;
   if (currentModel) {
 #if LEN_BITMAP_NAME > 0
     strAppend(currentModel->modelBitmap, g_model.header.bitmap, LEN_BITMAP_NAME);

@@ -19,73 +19,11 @@
  * GNU General Public License for more details.
  */
 
-// Targeted tests for the PartialModel/ModelHeader restructuring in PR #7709
-// ("fix(color): modifying model labels may corrupt model yaml files").
-//
-// These deliberately avoid FatFS/SD-card I/O and instead exercise the two
-// things that PR touches which can silently drift out of sync across the
-// 27 hand-edited yaml_datastructs_*.cpp files: the PartialModel YAML node
-// table, and the strAppend() length constants used to write header.labels.
-
+// Header metadata and full-model decoding must agree independently of layout.
 #include "gtests.h"
+#include "model_yaml_test.h"
 
-#include "storage/yaml/yaml_tree_walker.h"
-#include "storage/yaml/yaml_parser.h"
-#include "storage/yaml/yaml_datastructs.h"
-
-// Find an immediate child of an array/struct YamlNode by tag.
-static const YamlNode* findChild(const YamlNode* root, const char* tag)
-{
-  const YamlNode* child = root->u._array.child;
-  for (; child->type != YDT_NONE; child++) {
-    if (child->tag && strcmp(child->tag, tag) == 0) return child;
-  }
-  return nullptr;
-}
-
-// The PR hand-edited struct_PartialModel's "moduleData" YAML_ARRAY entry in
-// 27 generated files to read `YAML_ARRAY("moduleData", <bits>, <NUM_MODULES>,
-// struct_ModuleData, NULL)`, replacing the old "timers" entry. <bits> must
-// equal sizeof(ModuleData)*8 and the element count must equal NUM_MODULES,
-// or the YAML (de)serializer will misalign every field after moduleData in
-// any file that uses struct_PartialModel (readModelYaml/writeModelLabels).
-TEST(PartialModel, ModuleDataNodeMatchesStructLayout)
-{
-  const YamlNode* root = get_partialmodel_nodes();
-  const YamlNode* moduleData = findChild(root, "moduleData");
-  ASSERT_NE(moduleData, nullptr);
-
-  EXPECT_EQ(moduleData->elmts, NUM_MODULES);
-  EXPECT_EQ(moduleData->size, sizeof(ModuleData) * 8);
-}
-
-// Same idea for the "header" entry: its declared bit size must equal
-// sizeof(ModelHeader)*8, or moduleData (and thus every array element after
-// it) parses starting at the wrong bit offset.
-TEST(PartialModel, HeaderNodeMatchesStructLayout)
-{
-  const YamlNode* root = get_partialmodel_nodes();
-  const YamlNode* header = findChild(root, "header");
-  ASSERT_NE(header, nullptr);
-
-  EXPECT_EQ(header->size, sizeof(ModelHeader) * 8);
-}
-
-// PartialModel must be layout-compatible with the start of ModelData, per
-// the comment added at datastructs_private.h ModelData::header ("Must match
-// start of PartialModel") -- readModelCell()/updateModelCell() rely on this
-// so that data read into a PartialModel (a stack buffer) reflects the same
-// bytes that would land in the corresponding fields of a full ModelData.
-TEST(PartialModel, HeaderOffsetMatchesModelData)
-{
-  EXPECT_EQ(offsetof(PartialModel, header), offsetof(ModelData, header));
-}
-
-// End-to-end: parse the same YAML "header:" block once into a PartialModel
-// and once into a full ModelData, and check they agree field-for-field.
-// This is the strongest guard against the two generated tables silently
-// drifting apart, because it doesn't hardcode any bit offsets itself -- it
-// just requires both parsers to produce the same result for the same input.
+// Parse the same legacy header with both semantic adapters and compare values.
 TEST(PartialModel, HeaderParsesIdenticallyToModelData)
 {
   static const char yaml[] =
@@ -98,27 +36,20 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
 #if defined(STORAGE_MODELSLIST)
       "   labels: \"alpha,bravo\"\n"
 #endif
-      ;
+      "moduleData:\n  1:\n    type: TYPE_CROSSFIRE\n";
 
-  PartialModel partial;
+  model_config::Header partial;
   memclear(&partial, sizeof(partial));
-  {
-    YamlTreeWalker tree;
-    tree.reset(get_partialmodel_nodes(), (uint8_t*)&partial);
-    YamlParser yp;
-    yp.init(YamlTreeWalker::get_parser_calls(), &tree);
-    yp.parse(yaml, sizeof(yaml) - 1);
-  }
-
-  ModelData model;
-  memclear(&model, sizeof(model));
-  {
-    YamlTreeWalker tree;
-    tree.reset(get_modeldata_nodes(), (uint8_t*)&model);
-    YamlParser yp;
-    yp.init(YamlTreeWalker::get_parser_calls(), &tree);
-    yp.parse(yaml, sizeof(yaml) - 1);
-  }
+  config_stream::Workspace workspace;
+  const char* cursor = yaml;
+  auto result = config_stream::process({&cursor, [](void* ctx) {
+    auto& p = *static_cast<const char**>(ctx);
+    return *p ? int(static_cast<unsigned char>(*p++)) : -1;
+  }, nullptr}, {}, model_config::headerSchema(partial), workspace, true);
+  ASSERT_TRUE(result) << (result.error ? result.error : "");
+  ASSERT_EQ(0u, result.invalid);
+  loadModelYamlStr(yaml);
+  const ModelData& model = g_model;
 
   EXPECT_STREQ(partial.header.name, model.header.name);
   EXPECT_EQ(0, memcmp(partial.header.modelId, model.header.modelId,
@@ -133,6 +64,8 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
   // Sanity: the fixture actually populated something non-zero, otherwise a
   // parser that silently no-ops on both sides would pass trivially.
   EXPECT_STREQ("Tst Name", partial.header.name);
+  EXPECT_EQ(MODULE_TYPE_CROSSFIRE, partial.moduleData[1].type);
+  EXPECT_EQ(model.moduleData[1].type, partial.moduleData[1].type);
 }
 
 // Behavioural contract for ModelHeader::labels: it holds the CSV-joined
@@ -147,7 +80,7 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
 #if defined(STORAGE_MODELSLIST)
 TEST(PartialModel, LabelsFieldRetainsFullCsvUpToItsOwnCapacity)
 {
-  PartialModel partial;
+  model_config::Header partial;
   memclear(&partial, sizeof(partial));
 
   // A multi-label CSV comfortably inside LABELS_LENGTH, but longer than a
@@ -192,10 +125,8 @@ static size_t modelFileSize(const char* modelFilename)
   return std::filesystem::file_size(simuFatfsGetRealPath(path));
 }
 
-// writeModelLabels() locates "header:" then raw-copies everything from the
-// next unindented line onward, so a top-level "body:" key after the header
-// is enough to pin that boundary without needing a real, schema-valid
-// model file.
+// Label edits stream through the generic engine. Valid unknown model data
+// must retain its size; malformed YAML must be rejected without replacing it.
 TEST(ModelsList, WriteModelLabelsPreservesBodySize)
 {
   ModelMap map;
@@ -209,7 +140,7 @@ TEST(ModelsList, WriteModelLabelsPreservesBodySize)
   // first chunk out to sizeof(buf), both outputs collapse to the same size
   // regardless of the real body length (the uninitialized-memory bug).
   std::string bodyA = "body:\n  marker: AAAA\n";
-  std::string bodyB = bodyA + std::string(300, 'X');
+  std::string bodyB = "body:\n  marker: AAAA" + std::string(300, 'X') + "\n";
   ASSERT_LT(bodyA.size() + 40, 512u);
   ASSERT_LT(bodyB.size() + 40, 512u);
 
@@ -225,7 +156,7 @@ TEST(ModelsList, WriteModelLabelsPreservesBodySize)
   size_t sizeA = modelFileSize(fileA);
   size_t sizeB = modelFileSize(fileB);
 
-  // The two headers are generated from identical inputs, so the size
+  // The two headers are updated identically, so the size
   // delta between the outputs must equal the body length delta exactly.
   EXPECT_EQ(sizeB - sizeA, bodyB.size() - bodyA.size());
 
@@ -233,15 +164,15 @@ TEST(ModelsList, WriteModelLabelsPreservesBodySize)
   std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + fileB));
 }
 
-TEST(ModelsList, WriteModelLabelsFailsCleanlyWithoutHeader)
+TEST(ModelsList, WriteModelLabelsInsertsMissingHeader)
 {
   ModelMap map;
-  const char* file = "wml_test_noheader.yml";
+  const char* file = "wml_empty.yml";
 
   writeRawModelFile(file, "notheader:\n  foo: bar\n");
   ModelCell cell(file);
 
-  EXPECT_FALSE(map.writeModelLabels(&cell, "NewLabel"));
+  EXPECT_TRUE(map.writeModelLabels(&cell, "NewLabel"));
 
   std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + file));
 }

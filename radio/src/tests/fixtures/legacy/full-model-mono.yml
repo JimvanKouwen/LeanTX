@@ -1,0 +1,4418 @@
+semver: 3.0.0
+header: 
+   name: "Legacy"
+   modelId: 
+      1:
+         val: 72
+   bitmap: ""
+timers: 
+   0:
+      start: 1234
+      swtch: "NONE"
+      value: -25
+      mode: ON
+      countdownBeep: 0
+      minuteBeep: 0
+      persistent: 0
+      countdownStart: 0
+      showElapsed: 0
+      extraHaptic: 0
+      name: ""
+   1:
+      start: 1235
+      swtch: "NONE"
+      value: -25
+      mode: ON
+      countdownBeep: 0
+      minuteBeep: 0
+      persistent: 0
+      countdownStart: 0
+      showElapsed: 0
+      extraHaptic: 0
+      name: ""
+   2:
+      start: 1236
+      swtch: "NONE"
+      value: -25
+      mode: ON
+      countdownBeep: 0
+      minuteBeep: 0
+      persistent: 0
+      countdownStart: 0
+      showElapsed: 0
+      extraHaptic: 0
+      name: ""
+telemetryProtocol: 0
+ignoreSensorIds: 0
+disableThrottleWarning: 0
+displayChecklist: 0
+extendedLimits: 0
+throttleReversed: 0
+enableCustomThrottleWarning: 0
+disableTelemetryWarning: 0
+showInstanceIds: 0
+checklistInteractive: 0
+customThrottleWarningPosition: 0
+beepANACenter: 0
+mixData: 
+ -
+   destCh: 0
+   srcRaw: "I0"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 0
+   offset: 0
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 1
+   srcRaw: "I1"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 1
+   offset: -1
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 1
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 2
+   srcRaw: "I2"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 2
+   offset: -2
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 2
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 3
+   srcRaw: "I3"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 3
+   offset: -3
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 3
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 4
+   srcRaw: "I4"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 4
+   offset: -4
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 4
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 5
+   srcRaw: "I5"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 5
+   offset: -5
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 5
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 6
+   srcRaw: "I6"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 6
+   offset: -6
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 6
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 7
+   srcRaw: "I7"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 7
+   offset: -7
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 7
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 8
+   srcRaw: "I8"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 8
+   offset: -8
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 8
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 9
+   srcRaw: "I9"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 9
+   offset: -9
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 9
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 10
+   srcRaw: "I10"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 10
+   offset: -10
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 10
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 11
+   srcRaw: "I11"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 11
+   offset: -11
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 11
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 12
+   srcRaw: "I12"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 12
+   offset: -12
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 12
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 13
+   srcRaw: "I13"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 13
+   offset: -13
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 13
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 14
+   srcRaw: "I14"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 14
+   offset: -14
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 14
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 15
+   srcRaw: "I15"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 15
+   offset: -15
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 15
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 16
+   srcRaw: "I16"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 16
+   offset: -16
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 16
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 17
+   srcRaw: "I17"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 17
+   offset: -17
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 17
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 18
+   srcRaw: "I18"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 18
+   offset: -18
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 18
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 19
+   srcRaw: "I19"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 19
+   offset: -19
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 19
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 20
+   srcRaw: "I20"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 20
+   offset: -20
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 20
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 21
+   srcRaw: "I21"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 21
+   offset: -21
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 21
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 22
+   srcRaw: "I22"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 22
+   offset: -22
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 22
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 23
+   srcRaw: "I23"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 23
+   offset: -23
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 23
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 24
+   srcRaw: "I24"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 24
+   offset: -24
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 24
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 25
+   srcRaw: "I25"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 25
+   offset: -25
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 25
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 26
+   srcRaw: "I26"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 26
+   offset: -26
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 26
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 27
+   srcRaw: "I27"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 27
+   offset: -27
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 27
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 28
+   srcRaw: "I28"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 28
+   offset: -28
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 28
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 29
+   srcRaw: "I29"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 29
+   offset: -29
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 29
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 30
+   srcRaw: "I30"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 30
+   offset: -30
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 30
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 31
+   srcRaw: "I31"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 31
+   offset: -31
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 31
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 0
+   srcRaw: "I0"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 32
+   offset: -32
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 32
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 1
+   srcRaw: "I1"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 33
+   offset: -33
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 33
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 2
+   srcRaw: "I2"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 34
+   offset: -34
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 34
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 3
+   srcRaw: "I3"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 35
+   offset: -35
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 35
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 4
+   srcRaw: "I4"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 36
+   offset: -36
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 36
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 5
+   srcRaw: "I5"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 37
+   offset: -37
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 37
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 6
+   srcRaw: "I6"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 38
+   offset: -38
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 38
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 7
+   srcRaw: "I7"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 39
+   offset: -39
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 39
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 8
+   srcRaw: "I8"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 40
+   offset: -40
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 40
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 9
+   srcRaw: "I9"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 41
+   offset: -41
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 41
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 10
+   srcRaw: "I10"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 42
+   offset: -42
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 42
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 11
+   srcRaw: "I11"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 43
+   offset: -43
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 43
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 12
+   srcRaw: "I12"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 44
+   offset: -44
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 44
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 13
+   srcRaw: "I13"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 45
+   offset: -45
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 45
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 14
+   srcRaw: "I14"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 46
+   offset: -46
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 46
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 15
+   srcRaw: "I15"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 47
+   offset: -47
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 47
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 16
+   srcRaw: "I16"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 48
+   offset: -48
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 48
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 17
+   srcRaw: "I17"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 49
+   offset: -49
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 49
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 18
+   srcRaw: "I18"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 50
+   offset: -50
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 50
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 19
+   srcRaw: "I19"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 51
+   offset: -51
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 51
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 20
+   srcRaw: "I20"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 52
+   offset: -52
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 52
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 21
+   srcRaw: "I21"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 53
+   offset: -53
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 53
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 22
+   srcRaw: "I22"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 54
+   offset: -54
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 54
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 23
+   srcRaw: "I23"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 55
+   offset: -55
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 55
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 24
+   srcRaw: "I24"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 56
+   offset: -56
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 56
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 25
+   srcRaw: "I25"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 57
+   offset: -57
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 57
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 26
+   srcRaw: "I26"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 58
+   offset: -58
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 58
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 27
+   srcRaw: "I27"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 59
+   offset: -59
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 59
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 28
+   srcRaw: "I28"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 60
+   offset: -60
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 60
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 29
+   srcRaw: "I29"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 61
+   offset: -61
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 61
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 30
+   srcRaw: "I30"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 62
+   offset: -62
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 62
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 31
+   srcRaw: "I31"
+   mixWarn: 0
+   mltpx: MUL
+   delayPrec: 0
+   speedPrec: 0
+   weight: 63
+   offset: -63
+   swtch: "ON"
+   curve: 
+      type: 0
+      value: -10
+   delayUp: 63
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+limitData: 
+   0:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   1:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   2:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   3:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   4:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   5:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   6:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   7:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   8:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   9:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   10:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   11:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   12:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   13:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   14:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   15:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   16:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   17:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   18:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   19:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   20:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   21:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   22:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   23:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   24:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   25:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   26:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   27:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   28:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   29:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+   30:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 0
+      curve: 0
+      name: ""
+   31:
+      min: -50
+      max: 80
+      ppmCenter: 5
+      offset: -34
+      symetrical: 0
+      revert: 1
+      curve: 0
+      name: ""
+expoData: 
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 0
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 1
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 2
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 3
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 4
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 5
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 6
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 7
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 8
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 9
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 10
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 11
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 12
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 13
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 14
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 15
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 16
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 17
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 18
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 19
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 20
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 21
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 22
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 23
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 24
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 25
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 26
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 27
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 28
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 29
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 30
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 31
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 0
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 1
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 2
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 3
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 4
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 5
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 6
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 7
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 8
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 9
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 10
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 11
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 12
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 13
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 14
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 15
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 16
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 17
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 18
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 19
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 20
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 21
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 22
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 23
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 24
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 25
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 26
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 27
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 28
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 29
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 30
+   name: ""
+ -
+   mode: 3
+   scale: 300
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   chn: 31
+   name: ""
+points: 
+   1:
+      val: 1
+   2:
+      val: 2
+   3:
+      val: 3
+   4:
+      val: 4
+   5:
+      val: 5
+   6:
+      val: 6
+   7:
+      val: 7
+   8:
+      val: 8
+   9:
+      val: 9
+   10:
+      val: 10
+   11:
+      val: 11
+   12:
+      val: 12
+   13:
+      val: 13
+   14:
+      val: 14
+   15:
+      val: 15
+   16:
+      val: 16
+   17:
+      val: 17
+   18:
+      val: 18
+   19:
+      val: 19
+   20:
+      val: 20
+   21:
+      val: 21
+   22:
+      val: 22
+   23:
+      val: 23
+   24:
+      val: 24
+   25:
+      val: 25
+   26:
+      val: 26
+   27:
+      val: 27
+   28:
+      val: 28
+   29:
+      val: 29
+   30:
+      val: 30
+   31:
+      val: 31
+   32:
+      val: 32
+   33:
+      val: 33
+   34:
+      val: 34
+   35:
+      val: 35
+   36:
+      val: 36
+   37:
+      val: 37
+   38:
+      val: 38
+   39:
+      val: 39
+   40:
+      val: 40
+   41:
+      val: 41
+   42:
+      val: 42
+   43:
+      val: 43
+   44:
+      val: 44
+   45:
+      val: 45
+   46:
+      val: 46
+   47:
+      val: 47
+   48:
+      val: 48
+   49:
+      val: 49
+   50:
+      val: 50
+   51:
+      val: 51
+   52:
+      val: 52
+   53:
+      val: 53
+   54:
+      val: 54
+   55:
+      val: 55
+   56:
+      val: 56
+   57:
+      val: 57
+   58:
+      val: 58
+   59:
+      val: 59
+   60:
+      val: 60
+   61:
+      val: 61
+   62:
+      val: 62
+   63:
+      val: 63
+   64:
+      val: 64
+   65:
+      val: 65
+   66:
+      val: 66
+   67:
+      val: 67
+   68:
+      val: 68
+   69:
+      val: 69
+   70:
+      val: 70
+   71:
+      val: 71
+   72:
+      val: 72
+   73:
+      val: 73
+   74:
+      val: 74
+   75:
+      val: 75
+   76:
+      val: 76
+   77:
+      val: 77
+   78:
+      val: 78
+   79:
+      val: 79
+   80:
+      val: 80
+   81:
+      val: 81
+   82:
+      val: 82
+   83:
+      val: 83
+   84:
+      val: 84
+   85:
+      val: 85
+   86:
+      val: 86
+   87:
+      val: 87
+   88:
+      val: 88
+   89:
+      val: 89
+   90:
+      val: 90
+   91:
+      val: 91
+   92:
+      val: 92
+   93:
+      val: 93
+   94:
+      val: 94
+   95:
+      val: 95
+   96:
+      val: 96
+   97:
+      val: 97
+   98:
+      val: 98
+   99:
+      val: 99
+   100:
+      val: 100
+   102:
+      val: 1
+   103:
+      val: 2
+   104:
+      val: 3
+   105:
+      val: 4
+   106:
+      val: 5
+   107:
+      val: 6
+   108:
+      val: 7
+   109:
+      val: 8
+   110:
+      val: 9
+   111:
+      val: 10
+   112:
+      val: 11
+   113:
+      val: 12
+   114:
+      val: 13
+   115:
+      val: 14
+   116:
+      val: 15
+   117:
+      val: 16
+   118:
+      val: 17
+   119:
+      val: 18
+   120:
+      val: 19
+   121:
+      val: 20
+   122:
+      val: 21
+   123:
+      val: 22
+   124:
+      val: 23
+   125:
+      val: 24
+   126:
+      val: 25
+   127:
+      val: 26
+   128:
+      val: 27
+   129:
+      val: 28
+   130:
+      val: 29
+   131:
+      val: 30
+   132:
+      val: 31
+   133:
+      val: 32
+   134:
+      val: 33
+   135:
+      val: 34
+   136:
+      val: 35
+   137:
+      val: 36
+   138:
+      val: 37
+   139:
+      val: 38
+   140:
+      val: 39
+   141:
+      val: 40
+   142:
+      val: 41
+   143:
+      val: 42
+   144:
+      val: 43
+   145:
+      val: 44
+   146:
+      val: 45
+   147:
+      val: 46
+   148:
+      val: 47
+   149:
+      val: 48
+   150:
+      val: 49
+   151:
+      val: 50
+   152:
+      val: 51
+   153:
+      val: 52
+   154:
+      val: 53
+   155:
+      val: 54
+   156:
+      val: 55
+   157:
+      val: 56
+   158:
+      val: 57
+   159:
+      val: 58
+   160:
+      val: 59
+   161:
+      val: 60
+   162:
+      val: 61
+   163:
+      val: 62
+   164:
+      val: 63
+   165:
+      val: 64
+   166:
+      val: 65
+   167:
+      val: 66
+   168:
+      val: 67
+   169:
+      val: 68
+   170:
+      val: 69
+   171:
+      val: 70
+   172:
+      val: 71
+   173:
+      val: 72
+   174:
+      val: 73
+   175:
+      val: 74
+   176:
+      val: 75
+   177:
+      val: 76
+   178:
+      val: 77
+   179:
+      val: 78
+   180:
+      val: 79
+   181:
+      val: 80
+   182:
+      val: 81
+   183:
+      val: 82
+   184:
+      val: 83
+   185:
+      val: 84
+   186:
+      val: 85
+   187:
+      val: 86
+   188:
+      val: 87
+   189:
+      val: 88
+   190:
+      val: 89
+   191:
+      val: 90
+   192:
+      val: 91
+   193:
+      val: 92
+   194:
+      val: 93
+   195:
+      val: 94
+   196:
+      val: 95
+   197:
+      val: 96
+   198:
+      val: 97
+   199:
+      val: 98
+   200:
+      val: 99
+   201:
+      val: 100
+   203:
+      val: 1
+   204:
+      val: 2
+   205:
+      val: 3
+   206:
+      val: 4
+   207:
+      val: 5
+   208:
+      val: 6
+   209:
+      val: 7
+   210:
+      val: 8
+   211:
+      val: 9
+   212:
+      val: 10
+   213:
+      val: 11
+   214:
+      val: 12
+   215:
+      val: 13
+   216:
+      val: 14
+   217:
+      val: 15
+   218:
+      val: 16
+   219:
+      val: 17
+   220:
+      val: 18
+   221:
+      val: 19
+   222:
+      val: 20
+   223:
+      val: 21
+   224:
+      val: 22
+   225:
+      val: 23
+   226:
+      val: 24
+   227:
+      val: 25
+   228:
+      val: 26
+   229:
+      val: 27
+   230:
+      val: 28
+   231:
+      val: 29
+   232:
+      val: 30
+   233:
+      val: 31
+   234:
+      val: 32
+   235:
+      val: 33
+   236:
+      val: 34
+   237:
+      val: 35
+   238:
+      val: 36
+   239:
+      val: 37
+   240:
+      val: 38
+   241:
+      val: 39
+   242:
+      val: 40
+   243:
+      val: 41
+   244:
+      val: 42
+   245:
+      val: 43
+   246:
+      val: 44
+   247:
+      val: 45
+   248:
+      val: 46
+   249:
+      val: 47
+   250:
+      val: 48
+   251:
+      val: 49
+   252:
+      val: 50
+   253:
+      val: 51
+   254:
+      val: 52
+   255:
+      val: 53
+   256:
+      val: 54
+   257:
+      val: 55
+   258:
+      val: 56
+   259:
+      val: 57
+   260:
+      val: 58
+   261:
+      val: 59
+   262:
+      val: 60
+   263:
+      val: 61
+   264:
+      val: 62
+   265:
+      val: 63
+   266:
+      val: 64
+   267:
+      val: 65
+   268:
+      val: 66
+   269:
+      val: 67
+   270:
+      val: 68
+   271:
+      val: 69
+   272:
+      val: 70
+   273:
+      val: 71
+   274:
+      val: 72
+   275:
+      val: 73
+   276:
+      val: 74
+   277:
+      val: 75
+   278:
+      val: 76
+   279:
+      val: 77
+   280:
+      val: 78
+   281:
+      val: 79
+   282:
+      val: 80
+   283:
+      val: 81
+   284:
+      val: 82
+   285:
+      val: 83
+   286:
+      val: 84
+   287:
+      val: 85
+   288:
+      val: 86
+   289:
+      val: 87
+   290:
+      val: 88
+   291:
+      val: 89
+   292:
+      val: 90
+   293:
+      val: 91
+   294:
+      val: 92
+   295:
+      val: 93
+   296:
+      val: 94
+   297:
+      val: 95
+   298:
+      val: 96
+   299:
+      val: 97
+   300:
+      val: 98
+   301:
+      val: 99
+   302:
+      val: 100
+   304:
+      val: 1
+   305:
+      val: 2
+   306:
+      val: 3
+   307:
+      val: 4
+   308:
+      val: 5
+   309:
+      val: 6
+   310:
+      val: 7
+   311:
+      val: 8
+   312:
+      val: 9
+   313:
+      val: 10
+   314:
+      val: 11
+   315:
+      val: 12
+   316:
+      val: 13
+   317:
+      val: 14
+   318:
+      val: 15
+   319:
+      val: 16
+   320:
+      val: 17
+   321:
+      val: 18
+   322:
+      val: 19
+   323:
+      val: 20
+   324:
+      val: 21
+   325:
+      val: 22
+   326:
+      val: 23
+   327:
+      val: 24
+   328:
+      val: 25
+   329:
+      val: 26
+   330:
+      val: 27
+   331:
+      val: 28
+   332:
+      val: 29
+   333:
+      val: 30
+   334:
+      val: 31
+   335:
+      val: 32
+   336:
+      val: 33
+   337:
+      val: 34
+   338:
+      val: 35
+   339:
+      val: 36
+   340:
+      val: 37
+   341:
+      val: 38
+   342:
+      val: 39
+   343:
+      val: 40
+   344:
+      val: 41
+   345:
+      val: 42
+   346:
+      val: 43
+   347:
+      val: 44
+   348:
+      val: 45
+   349:
+      val: 46
+   350:
+      val: 47
+   351:
+      val: 48
+   352:
+      val: 49
+   353:
+      val: 50
+   354:
+      val: 51
+   355:
+      val: 52
+   356:
+      val: 53
+   357:
+      val: 54
+   358:
+      val: 55
+   359:
+      val: 56
+   360:
+      val: 57
+   361:
+      val: 58
+   362:
+      val: 59
+   363:
+      val: 60
+   364:
+      val: 61
+   365:
+      val: 62
+   366:
+      val: 63
+   367:
+      val: 64
+   368:
+      val: 65
+   369:
+      val: 66
+   370:
+      val: 67
+   371:
+      val: 68
+   372:
+      val: 69
+   373:
+      val: 70
+   374:
+      val: 71
+   375:
+      val: 72
+   376:
+      val: 73
+   377:
+      val: 74
+   378:
+      val: 75
+   379:
+      val: 76
+   380:
+      val: 77
+   381:
+      val: 78
+   382:
+      val: 79
+   383:
+      val: 80
+   384:
+      val: 81
+   385:
+      val: 82
+   386:
+      val: 83
+   387:
+      val: 84
+   388:
+      val: 85
+   389:
+      val: 86
+   390:
+      val: 87
+   391:
+      val: 88
+   392:
+      val: 89
+   393:
+      val: 90
+   394:
+      val: 91
+   395:
+      val: 92
+   396:
+      val: 93
+   397:
+      val: 94
+   398:
+      val: 95
+   399:
+      val: 96
+   400:
+      val: 97
+   401:
+      val: 98
+   402:
+      val: 99
+   403:
+      val: 100
+   405:
+      val: 1
+   406:
+      val: 2
+   407:
+      val: 3
+   408:
+      val: 4
+   409:
+      val: 5
+   410:
+      val: 6
+   411:
+      val: 7
+   412:
+      val: 8
+   413:
+      val: 9
+   414:
+      val: 10
+   415:
+      val: 11
+   416:
+      val: 12
+   417:
+      val: 13
+   418:
+      val: 14
+   419:
+      val: 15
+   420:
+      val: 16
+   421:
+      val: 17
+   422:
+      val: 18
+   423:
+      val: 19
+   424:
+      val: 20
+   425:
+      val: 21
+   426:
+      val: 22
+   427:
+      val: 23
+   428:
+      val: 24
+   429:
+      val: 25
+   430:
+      val: 26
+   431:
+      val: 27
+   432:
+      val: 28
+   433:
+      val: 29
+   434:
+      val: 30
+   435:
+      val: 31
+   436:
+      val: 32
+   437:
+      val: 33
+   438:
+      val: 34
+   439:
+      val: 35
+   440:
+      val: 36
+   441:
+      val: 37
+   442:
+      val: 38
+   443:
+      val: 39
+   444:
+      val: 40
+   445:
+      val: 41
+   446:
+      val: 42
+   447:
+      val: 43
+   448:
+      val: 44
+   449:
+      val: 45
+   450:
+      val: 46
+   451:
+      val: 47
+   452:
+      val: 48
+   453:
+      val: 49
+   454:
+      val: 50
+   455:
+      val: 51
+   456:
+      val: 52
+   457:
+      val: 53
+   458:
+      val: 54
+   459:
+      val: 55
+   460:
+      val: 56
+   461:
+      val: 57
+   462:
+      val: 58
+   463:
+      val: 59
+   464:
+      val: 60
+   465:
+      val: 61
+   466:
+      val: 62
+   467:
+      val: 63
+   468:
+      val: 64
+   469:
+      val: 65
+   470:
+      val: 66
+   471:
+      val: 67
+   472:
+      val: 68
+   473:
+      val: 69
+   474:
+      val: 70
+   475:
+      val: 71
+   476:
+      val: 72
+   477:
+      val: 73
+   478:
+      val: 74
+   479:
+      val: 75
+   480:
+      val: 76
+   481:
+      val: 77
+   482:
+      val: 78
+   483:
+      val: 79
+   484:
+      val: 80
+   485:
+      val: 81
+   486:
+      val: 82
+   487:
+      val: 83
+   488:
+      val: 84
+   489:
+      val: 85
+   490:
+      val: 86
+   491:
+      val: 87
+   492:
+      val: 88
+   493:
+      val: 89
+   494:
+      val: 90
+   495:
+      val: 91
+   496:
+      val: 92
+   497:
+      val: 93
+   498:
+      val: 94
+   499:
+      val: 95
+   500:
+      val: 96
+   501:
+      val: 97
+   502:
+      val: 98
+   503:
+      val: 99
+   504:
+      val: 100
+   506:
+      val: 1
+   507:
+      val: 2
+   508:
+      val: 3
+   509:
+      val: 4
+   510:
+      val: 5
+   511:
+      val: 6
+thrTraceSrc: Thr
+voltsSource: none
+altitudeSource: none
+rfAlarms: 
+   warning: 45
+   critical: 42
+potsWarnMode: WARN_OFF
+jitterFilter: GLOBAL
+moduleData: 
+   1:
+      type: TYPE_CROSSFIRE
+      antennaMode: MODE_PER_MODEL
+      channelsStart: 0
+      channelsCount: 16
+      mod: 
+         crsf: 
+            telemetryBaudrate: 0
+            crsfArmingMode: 0
+            crsfArmingTrigger: "ON"
+            spare3: 0
+scriptsData: 
+   0:
+      file: "mix"
+      name: ""
+      inputs: 
+         1:
+            u: 
+               value: 1
+         2:
+            u: 
+               value: 2
+         3:
+            u: 
+               value: 3
+         4:
+            u: 
+               value: 4
+         5:
+            u: 
+               value: 5
+   1:
+      file: "mix"
+      name: ""
+      inputs: 
+         0:
+            u: 
+               value: 100
+         1:
+            u: 
+               value: 101
+         2:
+            u: 
+               value: 102
+         3:
+            u: 
+               value: 103
+         4:
+            u: 
+               value: 104
+         5:
+            u: 
+               value: 105
+   2:
+      file: "mix"
+      name: ""
+      inputs: 
+         0:
+            u: 
+               value: 200
+         1:
+            u: 
+               value: 201
+         2:
+            u: 
+               value: 202
+         3:
+            u: 
+               value: 203
+         4:
+            u: 
+               value: 204
+         5:
+            u: 
+               value: 205
+   3:
+      file: "mix"
+      name: ""
+      inputs: 
+         0:
+            u: 
+               value: 300
+         1:
+            u: 
+               value: 301
+         2:
+            u: 
+               value: 302
+         3:
+            u: 
+               value: 303
+         4:
+            u: 
+               value: 304
+         5:
+            u: 
+               value: 305
+   4:
+      file: "mix"
+      name: ""
+      inputs: 
+         0:
+            u: 
+               value: 400
+         1:
+            u: 
+               value: 401
+         2:
+            u: 
+               value: 402
+         3:
+            u: 
+               value: 403
+         4:
+            u: 
+               value: 404
+         5:
+            u: 
+               value: 405
+   5:
+      file: "mix"
+      name: ""
+      inputs: 
+         0:
+            u: 
+               value: 500
+         1:
+            u: 
+               value: 501
+         2:
+            u: 
+               value: 502
+         3:
+            u: 
+               value: 503
+         4:
+            u: 
+               value: 504
+         5:
+            u: 
+               value: 505
+   6:
+      file: "mix"
+      name: ""
+      inputs: 
+         0:
+            u: 
+               value: 600
+         1:
+            u: 
+               value: 601
+         2:
+            u: 
+               value: 602
+         3:
+            u: 
+               value: 603
+         4:
+            u: 
+               value: 604
+         5:
+            u: 
+               value: 605
+potsWarnEnabled: 0
+telemetrySensors: 
+   0:
+      id1: 
+         id: 400
+      id2: 
+         instance: 0
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   1:
+      id1: 
+         id: 401
+      id2: 
+         instance: 1
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   2:
+      id1: 
+         id: 402
+      id2: 
+         instance: 2
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   3:
+      id1: 
+         id: 403
+      id2: 
+         instance: 3
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   4:
+      id1: 
+         id: 404
+      id2: 
+         instance: 4
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   5:
+      id1: 
+         id: 405
+      id2: 
+         instance: 5
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   6:
+      id1: 
+         id: 406
+      id2: 
+         instance: 6
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   7:
+      id1: 
+         id: 407
+      id2: 
+         instance: 7
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   8:
+      id1: 
+         id: 408
+      id2: 
+         instance: 8
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   9:
+      id1: 
+         id: 409
+      id2: 
+         instance: 9
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   10:
+      id1: 
+         id: 410
+      id2: 
+         instance: 10
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   11:
+      id1: 
+         id: 411
+      id2: 
+         instance: 11
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   12:
+      id1: 
+         id: 412
+      id2: 
+         instance: 12
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   13:
+      id1: 
+         id: 413
+      id2: 
+         instance: 13
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   14:
+      id1: 
+         id: 414
+      id2: 
+         instance: 14
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   15:
+      id1: 
+         id: 415
+      id2: 
+         instance: 15
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   16:
+      id1: 
+         id: 416
+      id2: 
+         instance: 16
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   17:
+      id1: 
+         id: 417
+      id2: 
+         instance: 17
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   18:
+      id1: 
+         id: 418
+      id2: 
+         instance: 18
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   19:
+      id1: 
+         id: 419
+      id2: 
+         instance: 19
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   20:
+      id1: 
+         id: 420
+      id2: 
+         instance: 20
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   21:
+      id1: 
+         id: 421
+      id2: 
+         instance: 21
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   22:
+      id1: 
+         id: 422
+      id2: 
+         instance: 22
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   23:
+      id1: 
+         id: 423
+      id2: 
+         instance: 23
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   24:
+      id1: 
+         id: 424
+      id2: 
+         instance: 24
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   25:
+      id1: 
+         id: 425
+      id2: 
+         instance: 25
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   26:
+      id1: 
+         id: 426
+      id2: 
+         instance: 26
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   27:
+      id1: 
+         id: 427
+      id2: 
+         instance: 27
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   28:
+      id1: 
+         id: 428
+      id2: 
+         instance: 28
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   29:
+      id1: 
+         id: 429
+      id2: 
+         instance: 29
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   30:
+      id1: 
+         id: 430
+      id2: 
+         instance: 30
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   31:
+      id1: 
+         id: 431
+      id2: 
+         instance: 31
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   32:
+      id1: 
+         id: 432
+      id2: 
+         instance: 32
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   33:
+      id1: 
+         id: 433
+      id2: 
+         instance: 33
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   34:
+      id1: 
+         id: 434
+      id2: 
+         instance: 34
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   35:
+      id1: 
+         id: 435
+      id2: 
+         instance: 35
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   36:
+      id1: 
+         id: 436
+      id2: 
+         instance: 36
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   37:
+      id1: 
+         id: 437
+      id2: 
+         instance: 37
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   38:
+      id1: 
+         id: 438
+      id2: 
+         instance: 38
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   39:
+      id1: 
+         id: 439
+      id2: 
+         instance: 39
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   40:
+      id1: 
+         id: 440
+      id2: 
+         instance: 40
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   41:
+      id1: 
+         id: 441
+      id2: 
+         instance: 41
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   42:
+      id1: 
+         id: 442
+      id2: 
+         instance: 42
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   43:
+      id1: 
+         id: 443
+      id2: 
+         instance: 43
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   44:
+      id1: 
+         id: 444
+      id2: 
+         instance: 44
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   45:
+      id1: 
+         id: 445
+      id2: 
+         instance: 45
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   46:
+      id1: 
+         id: 446
+      id2: 
+         instance: 46
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   47:
+      id1: 
+         id: 447
+      id2: 
+         instance: 47
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   48:
+      id1: 
+         id: 448
+      id2: 
+         instance: 48
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   49:
+      id1: 
+         id: 449
+      id2: 
+         instance: 49
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   50:
+      id1: 
+         id: 450
+      id2: 
+         instance: 50
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   51:
+      id1: 
+         id: 451
+      id2: 
+         instance: 51
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   52:
+      id1: 
+         id: 452
+      id2: 
+         instance: 52
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   53:
+      id1: 
+         id: 453
+      id2: 
+         instance: 53
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   54:
+      id1: 
+         id: 454
+      id2: 
+         instance: 54
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   55:
+      id1: 
+         id: 455
+      id2: 
+         instance: 55
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   56:
+      id1: 
+         id: 456
+      id2: 
+         instance: 56
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   57:
+      id1: 
+         id: 457
+      id2: 
+         instance: 57
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   58:
+      id1: 
+         id: 458
+      id2: 
+         instance: 58
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+   59:
+      id1: 
+         id: 459
+      id2: 
+         instance: 59
+      label: "V"
+      subId: 0
+      type: TYPE_CUSTOM
+      unit: 1
+      prec: 2
+      autoOffset: 0
+      filter: 0
+      logs: 0
+      persistent: 0
+      onlyPositive: 0
+      cfg: 
+         custom: 
+            ratio: 100
+            offset: -15
+screens: 
+   0:
+      type: BARS
+      u: 
+         bars: 
+            0:
+               source: tele(0)
+               barMin: -30
+               barMax: 100
+view: 0
+usbJoystickExtMode: 0
+usbJoystickIfMode: JOYSTICK
+usbJoystickCircularCut: 0
+modelCurvesDisabled: GLOBAL
+modelCustomScriptsDisabled: GLOBAL
+modelTelemetryDisabled: GLOBAL

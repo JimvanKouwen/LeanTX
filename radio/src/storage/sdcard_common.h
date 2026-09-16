@@ -30,12 +30,10 @@
 #define MODEL_FILENAME_PATTERN   MODEL_FILENAME_PREFIX MODEL_FILENAME_SUFFIX
 
 // writes a complete YAML file
-struct YamlNode;
-const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data, uint16_t checksum);
 
 void getModelPath(char * path, const char * filename, const char* pathName = MODELS_PATH);
 
-const char * readModel(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName = MODELS_PATH);
+const char* readModel(const char* filename, ModelData& model, const char* pathName = MODELS_PATH);
 const char * loadModel(const char * filename, bool alarms = true, const char* filePath = MODELS_PATH);
 const char * createModel();
 const char * writeModel();

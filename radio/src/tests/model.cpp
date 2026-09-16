@@ -20,11 +20,8 @@
  */
 
 #include "gtests.h"
+#include "model_yaml_test.h"
 
-#include "storage/yaml/yaml_tree_walker.h"
-#include "storage/yaml/yaml_parser.h"
-#include "storage/yaml/yaml_datastructs.h"
-#include "storage/yaml/yaml_bits.h"
 
 static const char* _model_config[] =
   {
@@ -45,18 +42,6 @@ static const char* _model_config[] =
     "header: \n"
     "   name: \"\\\"Tst Name\"\n",     // embedded double quote at start of string
   };
-
-static void loadModelYamlStr(const char* str)
-{
-  YamlTreeWalker tree;
-  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-
-  YamlParser yp;
-  yp.init(YamlTreeWalker::get_parser_calls(), &tree);
-
-  size_t len = strlen(str);
-  yp.parse(str, len);
-}
 
 static char* modelName()
 {
@@ -190,13 +175,7 @@ TEST(Model, CompactCrsfSettingsRoundTrip)
   g_model.rfAlarms.warning = 45;
   g_model.rfAlarms.critical = 42;
 
-  std::string yaml;
-  YamlTreeWalker tree;
-  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
-    static_cast<std::string*>(opaque)->append(str, len);
-    return true;
-  }, &yaml));
+  std::string yaml = saveModelYamlStr(g_model);
 
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
@@ -229,13 +208,7 @@ TEST(Model, RemovedTrimSettingsAreIgnored)
   EXPECT_EQ(0, g_model.reservedThrTrim);
   EXPECT_EQ(0, g_model.reservedExtendedTrims);
 
-  std::string yaml;
-  YamlTreeWalker tree;
-  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
-    static_cast<std::string*>(opaque)->append(str, len);
-    return true;
-  }, &yaml));
+  std::string yaml = saveModelYamlStr(g_model);
   for (const char* field : {"thrTrim:", "displayTrims:", "trimInc:",
                             "extendedTrims:", "thrTrimSw:", "trim:",
                             "flightModeData:", "flightModes:", "reservedTrims:", "trimSource:", "carryTrim:"})
@@ -249,13 +222,7 @@ TEST(Model, PhysicalTrimSwitchesRoundTrip)
     g_model.mixData[i].swtch = SWSRC_FIRST_TRIM + i;
     g_model.mixData[i].srcRaw = MIXSRC_MAX;
   }
-  std::string yaml;
-  YamlTreeWalker tree;
-  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
-    static_cast<std::string*>(opaque)->append(str, len);
-    return true;
-  }, &yaml));
+  std::string yaml = saveModelYamlStr(g_model);
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
   for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
@@ -273,23 +240,11 @@ TEST(Model, RemovedActionSettingsAreIgnored)
       "    def: 0,100,1\nnoGlobalFunctions: 1\n"
       "radioGFDisabled: 1\nmodelSFDisabled: 1\n";
   {
-    YamlTreeWalker tree;
-    auto nodes = get_modeldata_nodes();
-    auto data = (uint8_t*)&g_model;
-    tree.reset(nodes, data);
-    YamlParser parser;
-    parser.init(YamlTreeWalker::get_parser_calls(), &tree);
     std::string input = obsolete;
     input += "header:\n  name: NoActions\n";
-    parser.parse(input.c_str(), input.size());
+    loadModelYamlStr(input.c_str());
     EXPECT_STREQ("NoActions", modelName());
-
-    std::string output;
-    tree.reset(nodes, data);
-    ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
-      static_cast<std::string*>(opaque)->append(str, len);
-      return true;
-    }, &output));
+    std::string output = saveModelYamlStr(g_model);
     for (const char* field : {"customFn:", "noGlobalFunctions:",
                               "radioGFDisabled:", "modelSFDisabled:"})
       EXPECT_EQ(std::string::npos, output.find(field)) << field;
@@ -331,13 +286,7 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   g_model.limitData[0].max = 250;
   g_model.limitData[0].offset = -1000;
   g_model.limitData[1].offset = 1000;
-  std::string yaml;
-  YamlTreeWalker tree;
-  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
-    static_cast<std::string*>(opaque)->append(str, len);
-    return true;
-  }, &yaml));
+  std::string yaml = saveModelYamlStr(g_model);
   EXPECT_EQ(std::string::npos, yaml.find("gvars"));
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
@@ -367,13 +316,7 @@ TEST(Model, PhysicalSwitchConditionsRoundTripWithoutLogicalSwitchStorage)
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
   g_model.mixData[0].swtch = -position;
   g_model.timers[0].swtch = -position;
-  std::string yaml;
-  YamlTreeWalker tree;
-  tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
-  ASSERT_TRUE(tree.generate([](void* opaque, const char* str, size_t len) {
-    static_cast<std::string*>(opaque)->append(str, len);
-    return true;
-  }, &yaml));
+  std::string yaml = saveModelYamlStr(g_model);
   EXPECT_EQ(std::string::npos, yaml.find("logicalSw"));
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());

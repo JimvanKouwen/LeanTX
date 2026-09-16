@@ -3,6 +3,7 @@
 #include "storage.h"
 #include "radio_config_file.h"
 #include "radio_config_adapter.h"
+#include "config_file_workspace.h"
 #include "analogs.h"
 #include "hal/adc_driver.h"
 
@@ -10,24 +11,10 @@ namespace {
 // FatFs cannot rename over an existing file. This is a short-lived transaction
 // recovery name, removed after commit, never an ordinary configuration backup.
 const char transactionPath[] = RADIO_PATH PATH_SEPARATOR "radio.yml.swap";
-struct FileWorkspace {
-  config_stream::Workspace parser;
-  FIL source, destination;
-  FILINFO fileInfo;
-  char readBuffer[128];
-  char writeBuffer[512];
-  UINT written;
-  UINT position, length;
-  bool eof;
-};
-static FileWorkspace workspace;
-static bool busy;
+using config_file::workspace;
+using config_file::busy;
+using config_file::Guard;
 static bool missingFile;
-static_assert(sizeof(FileWorkspace) <= 4096, "radio storage fixed RAM budget");
-struct Guard {
-  Guard() { busy = true; }
-  ~Guard() { busy = false; }
-};
 int readByte(void*) {
   auto& w = workspace;
   if (w.position == w.length) {

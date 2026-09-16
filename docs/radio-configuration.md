@@ -2,9 +2,10 @@
 
 `radio.yml` is a configuration document with explicit semantic bindings to
 `g_eeGeneral`. Radio persistence no longer uses generated descriptors, bit
-offsets, `YamlNode`, `yaml_bits`, layout annotations, or `sizeof(RadioData)`.
-The packed runtime representation remains in place. Model YAML still uses the
-legacy generated system. RTC emergency recovery is unchanged and independent.
+offsets, layout annotations, or `sizeof(RadioData)`. Model, header, labels, and
+theme persistence also use semantic adapters and the streaming engine. The
+packed runtime representation remains in place. RTC emergency recovery is
+separate from YAML persistence.
 
 ## Implementation and behavior
 
@@ -109,7 +110,8 @@ containers use block mappings. Unknown data is passed through rather than
 normalized into a document tree.
 
 Limits are explicit: 1023 bytes per line, 255 bytes per path, 24 nesting levels,
-1024 schema fields and a 128-byte formatted scalar buffer. Individual settings
+1024 inline-tracked schema fields (larger schemas provide a bounded bitmap)
+and a 1024-byte formatted scalar buffer shared with model storage. Individual settings
 have smaller type/string bounds. Color tool names have fixed 64-byte slots
 (63 bytes plus terminator), replacing auxiliary heap strings outside RadioData.
 
@@ -140,16 +142,16 @@ successful operations, not arbitrary filesystem corruption.
 ## RAM and flash
 
 No document-size-dependent allocation is used by the configuration engine or
-adapter. One serialized static file workspace contains the parser state, two
+adapter. One serialized static file workspace, shared with model storage, contains the parser state, two
 FatFs file objects, file-info scratch, a 128-byte read buffer and a 512-byte write
-buffer. Compile-time assertions cap the core workspace at 2048 bytes and the
+buffer. Compile-time assertions cap the core workspace at 3072 bytes and the
 complete file workspace at 4096 bytes. The final Pocket object measures the
-complete workspace at **2956 bytes**. A busy guard rejects overlapping calls.
+complete workspace at **3908 bytes**. A busy guard rejects overlapping calls.
 
 The transactional candidate has its own 4096-byte compile-time ceiling and is
 static, not allocated on the menus-task stack. The Pocket build uses 504 bytes
-for this candidate, in addition to the 2956-byte file workspace. Combined actual
-static storage is 3460 bytes; the two working-state ceilings total 8192 bytes,
+for this candidate, in addition to the 3908-byte file workspace. Combined actual
+static storage is 4412 bytes; the two working-state ceilings total 8192 bytes,
 excluding call stack.
 There is no document-size-dependent RAM growth or heap allocation.
 
@@ -204,12 +206,11 @@ of every bound field. Both capability sets load the shared compatibility
 fixture. Bounds have assertions and overflow tests. Simulator FatFs fault hooks
 exercise write and rename failures.
 
-Searches find no generated-layout dependencies in the new radio configuration
-files and no RadioData roots in the remaining generated YAML files. Radio-only
-annotations, size checks, descriptor roots and conversion helpers were removed.
-Model descriptors, `YamlNode`, `YamlTreeWalker`, `yaml_bits`, generator selection
-and model size checks remain because model persistence still uses them. No RTC
-or emergency-recovery source files changed. `git diff --check` passes.
+Radio configuration has no generated-layout dependencies. The completed
+[reflection removal](generated-yaml-removal.md) also migrated model, header,
+labels, and theme persistence and removed the generator, descriptors,
+annotations, conversion helpers, and persistent storage-size checks.
+RTC recovery remains a separate, build-bound format.
 
 ## Deferred runtime simplifications
 

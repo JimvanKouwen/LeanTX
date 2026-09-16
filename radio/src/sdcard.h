@@ -67,7 +67,6 @@ const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
 const char RADIO_SETTINGS_TMPFILE_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml.tmp";
 const char RADIO_SETTINGS_ERRORFILE_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio_error.yml";
 
-const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #define    SPLASH_FILE             "splash.png"
 #define    SHUTDOWN_SPLASH_FILE    "shutdown.png"
 

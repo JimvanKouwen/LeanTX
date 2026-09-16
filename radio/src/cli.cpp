@@ -1623,7 +1623,7 @@ int cliShowJitter(const char ** argv)
                    rawJitter[i].get(), avgJitter[i].get());
 
     if (i >= MAX_STICKS && IS_POT_MULTIPOS(i - MAX_STICKS)) {
-      StepsCalibData *calib = (StepsCalibData *)&g_eeGeneral.calib[i];
+      StepsCalibData *calib = &g_eeGeneral.calib[i].multipos;
       for (int j = 0; j < calib->count; j++) {
         cliSerialPrint("    s%d %04X", j, calib->steps[j]);
       }

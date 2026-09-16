@@ -373,7 +373,7 @@ void getSwitchesPosition(bool startup)
   for (int i = 0; i < max_pots; i++) {
     if (IS_POT_MULTIPOS(i)) {
       auto analog_idx = offset + i;
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[analog_idx];
+      StepsCalibData * calib = &g_eeGeneral.calib[analog_idx].multipos;
 #if defined(SIMU)
       {
         uint8_t count = XPOTS_MULTIPOS_COUNT - 1;
@@ -548,7 +548,7 @@ swsrc_t getMovedSwitch()
   // Multipos
   for (int i = 0; i < MAX_POTS; i++) {
     if (IS_POT_MULTIPOS(i)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[MAX_STICKS + i];
+      StepsCalibData * calib = &g_eeGeneral.calib[MAX_STICKS + i].multipos;
 #if defined(SIMU)
       {
         uint8_t count = XPOTS_MULTIPOS_COUNT - 1;

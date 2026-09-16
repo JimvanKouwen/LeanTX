@@ -183,19 +183,16 @@ const char* loadModel(const char* filename, bool alarms, const char* filePath)
 {
   preModelLoad();
 
-  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model), filePath);
+  const char* error = readModel(filename, g_model, filePath);
   if (error) {
     TRACE("loadModel error=%s", error);
 
-    // just get some clean memory state in "g_model"
-    // so the mixer can run safely
-    memset(&g_model, 0, sizeof(g_model));
-    applyDefaultTemplate();
+    // The candidate was rejected; retain the previously committed model.
 
-    storageCheck(true);
   }
 
   postModelLoad(error ? false : alarms);
+  if (error) POPUP_WARNING(error);
   return error;
 }
 

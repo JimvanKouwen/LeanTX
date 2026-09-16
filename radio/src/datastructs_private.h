@@ -62,7 +62,6 @@
 
 
 
-#include "storage/yaml/yaml_defs.h"
 
 /*
  * Mixer structure
@@ -75,16 +74,16 @@ PACK(struct CurveRef {
 
 PACK(struct MixData {
   uint16_t destCh:5;
-  int16_t  srcRaw:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx); // srcRaw=0 means not used
-  uint16_t reservedTrimCarry:1 SKIP;
+  int16_t  srcRaw:10; // srcRaw=0 means not used
+  uint16_t reservedTrimCarry:1;
   uint16_t mixWarn:2;       // mixer warning
-  uint16_t mltpx:2 ENUM(MixerMultiplex);
+  uint16_t mltpx:2;
   uint16_t delayPrec:1;
   uint16_t speedPrec:1;
-  uint16_t spare:2 SKIP;
+  uint16_t spare:2;
   int32_t weight:11;
   int32_t offset:11;
-  int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10;
   CurveRef curve;
   uint8_t  delayUp;
   uint8_t  delayDown;
@@ -100,14 +99,14 @@ PACK(struct MixData {
 PACK(struct ExpoData {
   uint16_t mode:2;
   uint16_t scale:14;
-  int16_t  reservedTrimSource:6 SKIP;
-  int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
+  int16_t  reservedTrimSource:6;
+  int16_t  srcRaw:10;
   int32_t weight:11;
   int32_t offset:11;
-  int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10;
   CurveRef curve;
   uint16_t chn:5;
-  uint16_t spare:3 SKIP;
+  uint16_t spare:3;
   char name[LEN_EXPOMIX_NAME];
 });
 
@@ -122,7 +121,7 @@ PACK(struct LimitData {
   int16_t offset:11;
   uint16_t symetrical:1;
   uint16_t revert:1;
-  uint16_t spare:3 SKIP;
+  uint16_t spare:3;
   int8_t curve;
   char name[LEN_CHANNEL_NAME];
 });
@@ -144,24 +143,24 @@ PACK(struct CurveHeader {
 
 PACK(struct TimerData {
   uint32_t start:22;
-  int32_t  swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10;
   int32_t  value:22;
-  uint32_t mode:3 ENUM(TimerModes);
+  uint32_t mode:3;
   uint32_t countdownBeep:2;
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
   uint8_t  showElapsed:1;
   uint8_t  extraHaptic:1;
-  uint8_t  spare:6 SKIP;
+  uint8_t  spare:6;
   char name[LEN_TIMER_NAME];
 });
 
 #if MAX_SCRIPTS > 0
 union ScriptDataInput {
   int16_t value;
-  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
-} FUNC(select_script_input);
+  source_t source;
+};
 
 PACK(struct ScriptData {
   char            file[LEN_SCRIPT_FILENAME];
@@ -179,28 +178,14 @@ typedef int16_t telemetry_value_t;
 
 #if !defined(COLORLCD)
 PACK(struct TelemetryBarData {
-  source_t source CUST(r_mixSrcRaw,w_mixSrcRaw);
+  source_t source;
   telemetry_value_t barMin;           // minimum for bar display
   telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
 });
 
-// This is used to be able to use
-// custom read/write functions in
-// an array made of typdef'ed literal types
-// (YAML generator)
-#if defined(YAML_GENERATOR)
-PACK(struct LineDataSource {
-  source_t val CUST(r_mixSrcRaw,w_mixSrcRaw);
-});
-PACK(struct TelemetryLineData {
-  LineDataSource sources[NUM_LINE_ITEMS];
-});
-#else
-// This here is the real structure used at run-time
 PACK(struct TelemetryLineData {
   source_t sources[NUM_LINE_ITEMS];
 });
-#endif
 
 #if defined(PCBTARANIS)
 PACK(struct TelemetryScriptData {
@@ -209,32 +194,18 @@ PACK(struct TelemetryScriptData {
 });
 #endif
 
-#if defined(YAML_GENERATOR)
-union TelemetryScreenData_u {
-  TelemetryBarData  bars[4];
-  TelemetryLineData lines[4];
-#if defined(PCBTARANIS)
-  TelemetryScriptData script;
-#endif
-};
-PACK(struct TelemetryScreenData {
-  CUST_ATTR(type,r_tele_screen_type,w_tele_screen_type);
-  TelemetryScreenData_u u FUNC(select_tele_screen_data);
-});
-#else
 union TelemetryScreenData {
   TelemetryBarData  bars[4];
   TelemetryLineData lines[4];
 #if defined(PCBTARANIS)
   TelemetryScriptData script;
 #endif
-} FUNC(select_tele_screen_data);
-#endif
+};
 
 #endif
 
 PACK(struct VarioData {
-  uint8_t source:7 CUST(r_tele_sensor,w_tele_sensor); // telemetry sensor idx + 1
+  uint8_t source:7; // telemetry sensor idx + 1
   uint8_t centerSilent:1;
   int8_t  centerMax;
   int8_t  centerMin;
@@ -253,16 +224,16 @@ PACK(struct TelemetrySensor {
   union {
     uint16_t id;  // Telemetry data identifier; source unit is derived from type.
     uint16_t persistentValue;
-  } NAME(id1) FUNC(select_id1);
+  };
   union {
     uint8_t instance;
-    uint8_t formula ENUM(TelemetrySensorFormula);
-  } NAME(id2) FUNC(select_id2);
+    uint8_t formula;
+  };
   char label[TELEM_LABEL_LEN]; // user defined label
   uint8_t  subId;
-  uint8_t  type:1 ENUM(TelemetrySensorType); // 0=custom / 1=calculated
+  uint8_t  type:1; // 0=custom / 1=calculated
                    // user can choose what unit to display each value in
-  uint8_t  spare1:1 SKIP;
+  uint8_t  spare1:1;
   uint8_t  unit:6;
   uint8_t  prec:2;
   uint8_t  autoOffset:1;
@@ -270,7 +241,7 @@ PACK(struct TelemetrySensor {
   uint8_t  logs:1;
   uint8_t  persistent:1;
   uint8_t  onlyPositive:1;
-  uint8_t  spare2:1 SKIP;
+  uint8_t  spare2:1;
   union {
     PACK(struct {
       uint16_t ratio;
@@ -279,22 +250,22 @@ PACK(struct TelemetrySensor {
     PACK(struct {
       uint8_t source;
       uint8_t index;
-      uint16_t spare SKIP;
+      uint16_t spare;
     }) cell;
     PACK(struct {
       int8_t sources[4];
     }) calc;
     PACK(struct {
       uint8_t source;
-      uint8_t spare[3] SKIP;
+      uint8_t spare[3];
     }) consumption;
     PACK(struct {
       uint8_t gps;
       uint8_t alt;
-      uint16_t spare SKIP;
+      uint16_t spare;
     }) dist;
     uint32_t param;
-  } NAME(cfg) FUNC(select_sensor_cfg);
+  };
 
     void init(const char *label, uint8_t unit=UNIT_RAW, uint8_t prec=0);
     void init(uint16_t id);
@@ -313,22 +284,21 @@ PACK(struct TelemetrySensor {
  */
 
 PACK(struct ModuleData {
-  // antennaMode stays unconditional as boards differing on EXTERNAL_ANTENNA share
-  // generated YAML descriptors.
-  uint8_t type:6 ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
-  int8_t  antennaMode:2 ENUM(AntennaModes);
+  // Runtime RF state retains the same shape on boards without an external antenna.
+  uint8_t type:6;
+  int8_t  antennaMode:2;
   uint8_t channelsStart;
-  int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
+  int8_t  channelsCount; // 0=8 channels
 
   union {
     PACK(struct {
       uint8_t telemetryBaudrate:3;
       uint8_t crsfArmingMode:1;
-      uint8_t spare2:4 SKIP;
-      int16_t crsfArmingTrigger:10 CUST(r_swtchSrc,w_swtchSrc);
+      uint8_t spare2:4;
+      int16_t crsfArmingTrigger:10;
       int16_t spare3:6;
     }) crsf;
-  } NAME(mod) FUNC(select_mod_type);
+  };
 
   inline uint8_t getChannelsCount() const
   {
@@ -373,8 +343,8 @@ static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
 #if defined(PCBX9DP) || defined(PCBX9E)
   // telemetry sensor idx + 1
   #define TOPBAR_DATA \
-    uint8_t voltsSource CUST(r_tele_sensor,w_tele_sensor); \
-    uint8_t altitudeSource CUST(r_tele_sensor,w_tele_sensor);
+    uint8_t voltsSource; \
+    uint8_t altitudeSource;
 #else
   #define TOPBAR_DATA
 #endif
@@ -409,29 +379,29 @@ enum booleanEnum {
 };
 
 PACK(struct customSwitch {
-  CUST_IDX(sw, cfs_idx_read, cfs_idx_write);
+
   char name[LEN_SWITCH_NAME];
-  uint8_t type:3 ENUM(SwitchConfig);
+  uint8_t type:3;
 #if NUM_FUNCTIONS_GROUPS > 3
   uint8_t group:3;
 #else
   uint8_t group:2;
 #endif
-  uint8_t start:2 ENUM(fsStartPositionType);
+  uint8_t start:2;
   uint8_t state:1;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  uint8_t onColorLuaOverride:1 ENUM(booleanEnum);
-  uint8_t offColorLuaOverride:1 ENUM(booleanEnum);
+  uint8_t onColorLuaOverride:1;
+  uint8_t offColorLuaOverride:1;
 #if NUM_FUNCTIONS_GROUPS > 3
-  uint8_t spare:5 SKIP;
+  uint8_t spare:5;
 #else
-  uint8_t spare:6 SKIP;
+  uint8_t spare:6;
 #endif
-  RGBLedColor onColor FUNC(isAlwaysActive);
-  RGBLedColor offColor FUNC(isAlwaysActive);
+  RGBLedColor onColor;
+  RGBLedColor offColor;
 #else
 #if NUM_FUNCTIONS_GROUPS > 3
-  uint8_t spare:7 SKIP;
+  uint8_t spare:7;
 #endif
 #endif
 });
@@ -440,36 +410,26 @@ PACK(struct customSwitch {
 #if defined(FUNCTION_SWITCHES)
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
-    CUST_ARRAY(functionSwitchLedONColor, struct_cfsOnColorConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
-    CUST_ARRAY(functionSwitchLedOFFColor, struct_cfsOffColorConfig, NUM_FUNCTIONS_SWITCHES, nullptr);
+
 #else
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS
 #endif
   #define FUNCTION_SWITCHS_FIELDS \
-    CUST_ATTR(functionSwitchConfig, r_functionSwitchConfig, nullptr); \
-    CUST_ATTR(functionSwitchGroup, r_functionSwitchGroup, nullptr); \
-    CUST_ATTR(functionSwitchStartConfig, r_functionSwitchStartConfig, nullptr); \
-    CUST_ATTR(functionSwitchLogicalState, r_functionSwitchLogicalState, nullptr); \
-    CUST_ARRAY(switchNames, struct_cfsNameConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
     FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
-    customSwitch customSwitches[NUM_FUNCTIONS_SWITCHES] FUNC(isAlwaysActive) NO_IDX; \
-    uint8_t cfsGroupOn ARRAY(1, struct_cfsGroupOn, cfsGroupIsActive);
+    customSwitch customSwitches[NUM_FUNCTIONS_SWITCHES]; \
+    uint8_t cfsGroupOn;
 #else
   #define FUNCTION_SWITCHS_FIELDS
 #endif
 
-PACK(struct PartialModel {
-  CUST_ATTR(semver,nullptr,w_semver);
-  ModelHeader header;
-  ModuleData moduleData[NUM_MODULES];
-});
+
 
 /*
  * USB Joystick channel structure
  */
 
 PACK(struct USBJoystickChData {
-  uint8_t mode:3 ENUM(USBJoystickCh);
+  uint8_t mode:3;
   uint8_t inversion:1;
   uint8_t param:4;
   uint8_t btn_num:5;
@@ -501,46 +461,45 @@ PACK(struct USBJoystickChData {
 });
 
 PACK(struct ModelData {
-  // Must match start of PartialModel
-  CUST_ATTR(semver,nullptr,w_semver);
+
   ModelHeader header;
 
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
-  uint8_t   reservedThrTrim:1 SKIP;
-  // Complete this byte so the following signed bitfields match YAML offsets.
-  uint8_t   spareModelFlags:1 SKIP;
-  uint8_t   reservedDisplayTrims:2 SKIP;
+  uint8_t   reservedThrTrim:1;
+  // Retained runtime padding; it is no longer part of a storage layout contract.
+  uint8_t   spareModelFlags:1;
+  uint8_t   reservedDisplayTrims:2;
   uint8_t   ignoreSensorIds:1;
-  int8_t    reservedTrimInc:3 SKIP;
+  int8_t    reservedTrimInc:3;
   uint8_t   disableThrottleWarning:1;
   uint8_t   displayChecklist:1;
   uint8_t   extendedLimits:1;
-  uint8_t   reservedExtendedTrims:1 SKIP;
+  uint8_t   reservedExtendedTrims:1;
   uint8_t   throttleReversed:1;
   uint8_t   enableCustomThrottleWarning:1;
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
   uint8_t   checklistInteractive:1;
 #if defined(USE_HATS_AS_KEYS)
-  uint8_t hatsMode:2 ENUM(HatsMode);
-  uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
+  uint8_t hatsMode:2;
+  uint8_t   spare3:2;  // padding to 8-bit aligment
 #else
-  uint8_t   spare3:4 SKIP;  // padding to 8-bit aligment
+  uint8_t   spare3:4;  // padding to 8-bit aligment
 #endif
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
-  MixData   mixData[MAX_MIXERS] NO_IDX;
+  MixData   mixData[MAX_MIXERS];
   LimitData limitData[MAX_OUTPUT_CHANNELS];
-  ExpoData  expoData[MAX_EXPOS] NO_IDX;
+  ExpoData  expoData[MAX_EXPOS];
 
   CurveHeader curves[MAX_CURVES];
   int8_t    points[MAX_CURVE_POINTS];
 
 
-  uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc);
-  CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
-  swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr);
+  uint8_t thrTraceSrc;
+
+  swarnstate_t switchWarning;
 
   VarioData varioData;
 
@@ -548,10 +507,10 @@ PACK(struct ModelData {
 
   RFAlarmData rfAlarms;
 
-  uint8_t reservedThrTrimSw:3 SKIP;
-  uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
-  uint8_t jitterFilter:2 ENUM(ModelOverridableEnable);
-  uint8_t spare1:1 SKIP;
+  uint8_t reservedThrTrimSw:3;
+  uint8_t potsWarnMode:2;
+  uint8_t jitterFilter:2;
+  uint8_t spare1:1;
 
   ModuleData moduleData[NUM_MODULES];
 
@@ -566,10 +525,6 @@ PACK(struct ModelData {
   TARANIS_PCBX9E_FIELD(uint8_t toplcdTimer)
 
 #if defined(COLORLCD)
-#if defined(YAML_GENERATOR)
-  CustomScreenData screenData[MAX_CUSTOM_SCREENS] FUNC(screen_is_active);
-  TopBarPersistentData topbarData FUNC(isAlwaysActive);
-#endif
   uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES];
   uint8_t view;
 
@@ -583,30 +538,32 @@ PACK(struct ModelData {
   WidgetPersistentData* getWidgetData(int screenNum, int zoneNum);
   void removeScreenLayout(int idx);
 #else
-  uint8_t screensType SKIP; /* 2bits per screen (None/Gauges/Numbers/Script) */
+  uint8_t screensType; /* 2bits per screen (None/Gauges/Numbers/Script) */
   TelemetryScreenData screens[MAX_TELEMETRY_SCREENS];
+  uint8_t getTelemetryScreenType(unsigned screen) const { return bfGet<uint8_t>(screensType, screen * 2, 2); }
+  void setTelemetryScreenType(unsigned screen, uint8_t type) { screensType = bfSet<uint8_t>(screensType, type, screen * 2, 2); }
   uint8_t view;
 #endif
 
   FUNCTION_SWITCHS_FIELDS
 
   uint8_t usbJoystickExtMode:1;
-  uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode);
+  uint8_t usbJoystickIfMode:3;
   uint8_t usbJoystickCircularCut:4;
   USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS];
 
   // Radio level tabs control (model settings)
 #if defined(COLORLCD)
-  uint8_t radioThemesDisabled:2 ENUM(ModelOverridableEnable);
+  uint8_t radioThemesDisabled:2;
 #endif
-  uint8_t spareViewOption:2 SKIP;
+  uint8_t spareViewOption:2;
   // Model level tabs control (model setting)
-  uint8_t reservedModelFeature:2 SKIP;
-  uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
-  uint8_t reservedVariableFeature:2 SKIP;
-  uint8_t reservedConditionFeature:2 SKIP;
-  uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
-  uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
+  uint8_t reservedModelFeature:2;
+  uint8_t modelCurvesDisabled:2;
+  uint8_t reservedVariableFeature:2;
+  uint8_t reservedConditionFeature:2;
+  uint8_t modelCustomScriptsDisabled:2;
+  uint8_t modelTelemetryDisabled:2;
 
   SwitchConfig getSwitchType(uint8_t n);
   void setSwitchType(uint8_t n, SwitchConfig v);
@@ -658,11 +615,19 @@ PACK(struct StepsCalibData {
 });
 #endif
 
+// Continuous and multiposition calibration share runtime storage. The named
+// union member lets semantic storage use fields without casting byte layouts.
 PACK(struct CalibData {
-
-  int16_t mid;
-  int16_t spanNeg;
-  int16_t spanPos;
+  union {
+    struct {
+      int16_t mid;
+      int16_t spanNeg;
+      int16_t spanPos;
+    };
+#if XPOTS_MULTIPOS_COUNT > 0
+    StepsCalibData multipos;
+#endif
+  };
 });
 
 #if defined(COLORLCD)

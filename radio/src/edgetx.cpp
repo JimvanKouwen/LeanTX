@@ -361,7 +361,7 @@ void generalDefault(RadioData& settings)
 
 #if defined(DEFAULT_6POS_CALIB)
   uint8_t defaultCalib[] = DEFAULT_6POS_CALIB;
-  StepsCalibData* calib = (StepsCalibData*)&settings.calib[DEFAULT_6POS_IDX];
+  StepsCalibData* calib = &settings.calib[DEFAULT_6POS_IDX].multipos;
 
   for (int i = 0; i < 5; i++) {
     calib->steps[i] = defaultCalib[i];

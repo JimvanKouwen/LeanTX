@@ -1,0 +1,6 @@
+curves: 
+   31:
+      type: 1
+      smooth: 1
+      points: 6
+      name: "CNT"

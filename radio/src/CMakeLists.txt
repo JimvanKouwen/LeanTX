@@ -113,7 +113,6 @@ AddHWGenTarget(${HW_DESC_JSON} hal_pwm_sticks hal_pwm_sticks.h)
 AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
 
-AddHWGenTarget(${HW_DESC_JSON} yaml_inputs yaml_inputs.inc)
 
 AddHWGenTarget(${HW_DESC_JSON} lua_inputs lua_inputs.inc)
 AddHWGenTarget(${HW_DESC_JSON} lua_mixsrc lua_mixsrc.inc)
@@ -129,7 +128,7 @@ AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 
 AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
 
-add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
+add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs lua_inputs lua_mixsrc lua_keys)
 add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys stm32_keys)
 
 include(hal/CMakeLists.txt)
@@ -192,9 +191,9 @@ include(gui/CMakeLists.txt)
 # TODO: move to storage/
 set(SRC ${SRC} storage/storage_common.cpp)
 set(SRC ${SRC} storage/sdcard_common.cpp)
-set(SRC ${SRC} storage/sdcard_yaml.cpp storage/config_stream.cpp
-  storage/radio_config_adapter.cpp storage/radio_config_file.cpp)
-include(storage/yaml/CMakeLists.txt)
+set(SRC ${SRC} storage/sdcard_yaml.cpp storage/config_stream.cpp storage/config_file_workspace.cpp
+  storage/radio_config_adapter.cpp storage/radio_config_file.cpp
+  storage/model_config_adapter.cpp storage/model_config_file.cpp)
 if(STORAGE_MODELSLIST)
   set(SRC ${SRC} storage/modelslist.cpp)
   add_definitions(-DSTORAGE_MODELSLIST)
@@ -477,7 +476,7 @@ if(NATIVE_BUILD)
   )
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES}
     hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs
-    yaml_inputs lua_inputs lua_mixsrc lua_keys)
+    lua_inputs lua_mixsrc lua_keys)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   add_subdirectory(targets/simu)

@@ -35,14 +35,16 @@
 // what label edits are made to other models on disk.
 
 #include "gtests.h"
+#include "storage/model_config_adapter.h"
 #include "location.h"
 
 #include <filesystem>
+#include <fstream>
 
 #include "storage/modelslist.h"
 #include "storage/sdcard_common.h"
 #include "storage/sdcard_yaml.h"
-#include "storage/yaml/yaml_datastructs.h"
+#include "model_yaml_test.h"
 
 #if defined(COLORLCD)
 
@@ -66,6 +68,7 @@ class ModelMapFsTest : public ::testing::Test
 
     modelslist.clear();
     modelslabels.clear();
+    modelslabels.clearFilter();
     memclear(&g_model, sizeof(g_model));
   }
 
@@ -73,6 +76,7 @@ class ModelMapFsTest : public ::testing::Test
   {
     modelslist.clear();
     modelslabels.clear();
+    modelslabels.clearFilter();
 
     simuFatfsSetPaths(TESTS_PATH, nullptr);
 
@@ -106,9 +110,8 @@ class ModelMapFsTest : public ::testing::Test
 
     char path[256];
     getModelPath(path, filename);
-    ASSERT_EQ(writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)&model, 0),
-              (const char*)nullptr)
-        << "failed writing fixture model " << filename;
+    std::ofstream(scratchDir / "MODELS" / filename, std::ios::binary)
+        << saveModelYamlStr(model);
   }
 };
 
@@ -141,9 +144,9 @@ TEST_F(ModelMapFsTest, RenamingLabelOnOtherModelLeavesActiveScreenDataUntouched)
   // The other model's file on disk should reflect the renamed label. Read
   // back only the header (PartialModel), not a full ModelData, so this
   // verification step doesn't itself touch the shared screen/topbar globals.
-  PartialModel partial;
+  model_config::Header partial{};
   memclear(&partial, sizeof(partial));
-  readModelYaml("model0002.yml", (uint8_t*)&partial, sizeof(PartialModel));
+  readModelHeaderYaml("model0002.yml", partial);
   EXPECT_STREQ(partial.header.labels, "Bar");
 }
 
@@ -168,10 +171,129 @@ TEST_F(ModelMapFsTest,
   EXPECT_STREQ(g_model.getTopbarData()->zones[0].widgetName.c_str(),
                "ActiveWidget");
 
-  PartialModel partial;
+  model_config::Header partial{};
   memclear(&partial, sizeof(partial));
-  readModelYaml("model0002.yml", (uint8_t*)&partial, sizeof(PartialModel));
+  readModelHeaderYaml("model0002.yml", partial);
   EXPECT_STREQ(partial.header.labels, "Baz");
+}
+
+
+TEST(ModelsList, LegacyFileHashHasExplicitByteOrder)
+{
+  FILINFO info{};
+  info.fsize = 0x12345678;
+  info.fdate = 0x9abc;
+  info.ftime = 0xdef0;
+  char hash[FILE_HASH_LENGTH + 1];
+  EXPECT_STREQ("78563412bc9af0de", FILInfoToHexStr(hash, &info));
+}
+
+TEST_F(ModelMapFsTest, LabelsCacheRoundTripAndStartup)
+{
+  writeFixtureModel("model0002.yml", "Plane", "Layout", "Widget");
+  strcpy(g_eeGeneral.currModelFilename, "model0002.yml");
+  ASSERT_TRUE(modelslist.load());
+  ASSERT_EQ(modelslist.size(), 1u);
+  auto* cell = modelslist.at(0);
+  ASSERT_EQ(modelslist.getCurrentModel(), cell);
+  cell->lastOpened = 123456;
+  cell->modelId[0] = 42;
+  cell->moduleData[0].type = 3;
+  cell->moduleData[0].subType = 2;
+  modelslabels.addLabel("Empty");
+  modelslabels.addFilteredLabel("Plane");
+  modelslabels.setSortOrder(DATE_DES);
+  ASSERT_EQ(modelslist.save(), nullptr);
+  modelslist.clear();
+  modelslabels.clear();
+  modelslabels.clearFilter();
+  modelslabels.setSortOrder(NO_SORT);
+  ASSERT_TRUE(modelslist.load());
+  ASSERT_EQ(modelslist.size(), 1u);
+  cell = modelslist.at(0);
+  EXPECT_EQ(modelslist.getCurrentModel(), cell);
+  EXPECT_EQ(cell->lastOpened, 123456);
+  EXPECT_EQ(cell->modelId[0], 42);
+  EXPECT_EQ(cell->moduleData[0].type, 3);
+  EXPECT_EQ(cell->moduleData[0].subType, 2);
+  EXPECT_FALSE(cell->_isDirty);
+  EXPECT_TRUE(modelslabels.isLabelSelected("Plane", cell));
+  EXPECT_TRUE(modelslabels.isLabelFiltered("Plane"));
+  EXPECT_EQ(modelslabels.sortOrder(), DATE_DES);
+  EXPECT_EQ(modelslabels.getLabels(), (LabelsVector{"Plane", "Empty"}));
+}
+
+TEST_F(ModelMapFsTest, LegacyCaseSelectionAndStaleCache)
+{
+  writeFixtureModel("model0002.yml", "Actual", "Layout", "Widget");
+  std::ofstream(scratchDir / "MODELS/labels.yml") <<
+      "lAbElS:\n  Empty:\n  Plane:\n    SeLeCtEd: false\n"
+      "sOrT: 2\nModels:\n  missing.yml:\n    hash: bad\n"
+      "  model0002.yml:\n    hash: stale\n    name: Wrong\n"
+      "    labels: Wrong\n    lastopen: 0x123\n";
+  strcpy(g_eeGeneral.currModelFilename, "model0002.yml");
+  ASSERT_TRUE(modelslist.load());
+  ASSERT_EQ(modelslist.size(), 1u);
+  EXPECT_EQ(modelslist.getCurrentModel(), modelslist.at(0));
+  EXPECT_STREQ(g_eeGeneral.currModelFilename, "model0002.yml");
+  EXPECT_EQ(modelslist.at(0)->lastOpened, 0x123);
+  EXPECT_TRUE(modelslabels.isLabelFiltered("Plane"));
+  EXPECT_TRUE(modelslabels.isLabelSelected("Actual", modelslist.at(0)));
+  EXPECT_FALSE(modelslabels.isLabelSelected("Wrong", modelslist.at(0)));
+  EXPECT_EQ(modelslabels.sortOrder(), NAME_DES);
+}
+
+TEST_F(ModelMapFsTest, StartupFallsBackToExistingModelAndLoadsOnlyOnce)
+{
+  writeFixtureModel("model0002.yml", "Actual", "Layout", "Widget");
+  strcpy(g_eeGeneral.currModelFilename, "missing.yml");
+  ASSERT_TRUE(modelslist.load());
+  ASSERT_EQ(modelslist.size(), 1u);
+  auto* current = modelslist.getCurrentModel();
+  EXPECT_EQ(current, modelslist.at(0));
+  EXPECT_STREQ(g_eeGeneral.currModelFilename, "model0002.yml");
+  ASSERT_TRUE(modelslist.load());
+  EXPECT_EQ(modelslist.getCurrentModel(), current);
+  EXPECT_EQ(modelslist.size(), 1u);
+}
+
+TEST_F(ModelMapFsTest, LabelsStreamHasNoFixedSchemaEntryLimit)
+{
+  writeFixtureModel("model0002.yml", "", "Layout", "Widget");
+  {
+    std::ofstream file(scratchDir / "MODELS/labels.yml");
+    file << "Labels:\n";
+    for (int i = 0; i < 1100; ++i) file << "  Label" << i << ":\n";
+    file << "Sort: 0\n";
+  }
+  ASSERT_TRUE(modelslist.load());
+  EXPECT_EQ(modelslabels.getLabels().size(), 1100u);
+  EXPECT_EQ(modelslabels.getLabels().back(), "Label1099");
+  EXPECT_EQ(modelslist.save(), nullptr);
+}
+
+TEST_F(ModelMapFsTest, MalformedLabelsDoNotApplyOrOverwrite)
+{
+  writeFixtureModel("model0002.yml", "Actual", "Layout", "Widget");
+  const std::vector<std::string> documents = {
+      "Labels:\n  Partial:\n    selected: true\nSort: [unterminated\n",
+      "Labels:\n  " + std::string(1100, 'x') + ":\n",
+      "Sort: 999\n",
+      "Models:\n  model0002.yml:\n    bitmap: " + std::string(100, 'x') + "\n",
+      "Models:\n  model0002.yml:\n    lastopen: garbage\n"};
+  for (const auto& document : documents) {
+    modelslist.clear();
+    modelslabels.clear();
+    modelslabels.clearFilter();
+    std::ofstream(scratchDir / "MODELS/labels.yml") << document;
+    ASSERT_TRUE(modelslist.load());
+    ASSERT_EQ(modelslist.size(), 1u);
+    EXPECT_TRUE(modelslabels.isLabelSelected("Actual", modelslist.at(0)));
+    EXPECT_FALSE(modelslabels.isLabelFiltered("Partial"));
+    EXPECT_NE(modelslist.save(), nullptr);
+    std::ifstream file(scratchDir / "MODELS/labels.yml");
+    EXPECT_EQ(std::string(std::istreambuf_iterator<char>(file), {}), document);
+  }
 }
 
 #endif // defined(COLORLCD)

@@ -21,14 +21,12 @@
 #include "theme_manager.h"
 
 #include "../../storage/sdcard_common.h"
-#include "../../storage/yaml/yaml_bits.h"
-#include "../../storage/yaml/yaml_tree_walker.h"
+#include "theme_config.h"
 #include "etx_lv_theme.h"
 #include "hal/abnormal_reboot.h"
 #include "lib_file.h"
 #include "mainwindow.h"
 #include "pagegroup.h"
-#include "storage/sdcard_yaml.h"
 #include "topbar.h"
 #include "view_main.h"
 
@@ -36,97 +34,7 @@
 
 #define MAX_FILES 9
 
-constexpr const char* RGBSTRING = "RGB(";
-
 ThemePersistance ThemePersistance::themePersistance;
-
-static uint32_t r_color(const YamlNode* node, const char* val, uint8_t val_len)
-{
-  if ((strncmp(val, RGBSTRING, strlen(RGBSTRING)) == 0) &&
-      (val[val_len - 1] == ')')) {
-    int r, g, b;
-    int numTokens = sscanf(val, "RGB(%i,%i,%i)", &r, &g, &b);
-
-    if (numTokens == 3) return RGB(r, g, b);
-
-  } else if (val_len > 2 && val[0] == '0' && (val[1] == 'x' || val[1] == 'X')) {
-    val += 2;
-    val_len -= 2;
-
-    auto rgb24 = yaml_hex2uint(val, val_len);
-    return RGB((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
-  }
-
-  TRACE("Theme: Invalid color value");
-  return 0;
-}
-
-static bool w_color(const YamlNode* node, uint32_t val, yaml_writer_func wf,
-                    void* opaque)
-{
-  uint32_t color = (uint32_t)GET_RED(val) << 16 |
-                   (uint32_t)GET_GREEN(val) << 8 | (uint32_t)GET_BLUE(val);
-
-  if (!wf(opaque, "0x", 2)) return false;
-  return wf(opaque, yaml_rgb2hex(color), 3 * 2);
-}
-
-PACK(struct YAMLThemeSummary {
-  char name[SELECTED_THEME_NAME_LEN + 1];
-  char author[ThemeFile::AUTHOR_LENGTH + 1];
-  char info[ThemeFile::INFO_LENGTH + 1];
-});
-
-PACK(struct YAMLThemeColors {
-  uint32_t colors[THEME_COLOR_COUNT - 1];  // We don't use CUSTOM
-});
-
-PACK(struct YAMLTheme {
-  struct YAMLThemeSummary summary;
-  struct YAMLThemeColors colors;
-
-  YAMLTheme() { memset(this, 0, sizeof(YAMLTheme)); }
-});
-
-static const struct YamlNode struct_YAMLThemeSummary[] = {
-    YAML_STRING("name", (SELECTED_THEME_NAME_LEN + 1)),
-    YAML_STRING("author", (ThemeFile::AUTHOR_LENGTH + 1)),
-    YAML_STRING("info", (ThemeFile::INFO_LENGTH + 1)), YAML_END};
-
-static const struct YamlNode struct_YAMLThemeColors[] = {
-    YAML_UNSIGNED_CUST("PRIMARY1", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("PRIMARY2", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("PRIMARY3", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("SECONDARY1", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("SECONDARY2", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("SECONDARY3", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("FOCUS", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("EDIT", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("ACTIVE", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("WARNING", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("DISABLED", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("QM_BG", 32, r_color, w_color),
-    YAML_UNSIGNED_CUST("QM_FG", 32, r_color, w_color),
-    YAML_END};
-
-// This hack is required to ensure the YAML file written is backward compatible
-// with the old parser. Otherwise older versions of EdgeTX will not load the
-// theme files.
-// TODO: Remove this sometime in the future
-static const struct YamlNode w_struct_YAMLTheme[] = {
-    YAML_STRUCT("---\r\nsummary",
-                (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
-                struct_YAMLThemeSummary, NULL),
-    YAML_STRUCT("colors", (THEME_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
-                NULL),
-    YAML_END};
-static const struct YamlNode r_struct_YAMLTheme[] = {
-    YAML_STRUCT("summary",
-                (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
-                struct_YAMLThemeSummary, NULL),
-    YAML_STRUCT("colors", (THEME_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
-                NULL),
-    YAML_END};
 
 static const char* const colorNames[THEME_COLOR_COUNT] = {
     STR_THEME_COLOR_PRIMARY1,   STR_THEME_COLOR_PRIMARY2,
@@ -184,17 +92,17 @@ std::vector<std::string> ThemeFile::getThemeImageFileNames()
 
 void ThemeFile::serialize()
 {
-  struct YAMLTheme yt;
-  struct YamlNode themeRootNode = YAML_ROOT(w_struct_YAMLTheme);
+  ThemeConfig yt;
 
-  strAppend(yt.summary.name, name.c_str(), SELECTED_THEME_NAME_LEN);
-  strAppend(yt.summary.author, author.c_str(), ThemeFile::AUTHOR_LENGTH);
-  strAppend(yt.summary.info, info.c_str(), ThemeFile::INFO_LENGTH);
+  strAppend(yt.name, name.c_str(), SELECTED_THEME_NAME_LEN);
+  strAppend(yt.author, author.c_str(), ThemeFile::AUTHOR_LENGTH);
+  strAppend(yt.info, info.c_str(), ThemeFile::INFO_LENGTH);
   for (auto colorEntry : colorList) {
-    yt.colors.colors[colorEntry.colorNumber] = colorEntry.colorValue;
+    if (colorEntry.colorNumber >= 0 && colorEntry.colorNumber < THEME_COLOR_COUNT - 1)
+      yt.colors[colorEntry.colorNumber] = colorEntry.colorValue;
   }
 
-  auto err = writeFileYaml(path.c_str(), &themeRootNode, (uint8_t*)&yt, 0);
+  auto err = saveThemeConfig(path.c_str(), yt);
   if (err != nullptr) {
     ALERT(STR_WARNING, err, AU_WARNING1);
   }
@@ -202,25 +110,21 @@ void ThemeFile::serialize()
 
 void ThemeFile::deSerialize()
 {
-  struct YAMLTheme yt;
-  struct YamlNode themeRootNode = YAML_ROOT(r_struct_YAMLTheme);
+  ThemeConfig yt;
 
   // initialize the color table to defaults (in case of missing entries)
   for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i < THEME_COLOR_COUNT - 1; i += 1)
-    yt.colors.colors[i] = defaultColors[i];
+    yt.colors[i] = defaultColors[i];
 
-  YamlTreeWalker tree;
-  tree.reset(&themeRootNode, (uint8_t*)&yt);
-  auto err = readYamlFile(path.c_str(), YamlTreeWalker::get_parser_calls(),
-                          &tree, nullptr);
+  auto err = loadThemeConfig(path.c_str(), yt);
 
   if (err == nullptr) {
-    name = yt.summary.name;
-    author = yt.summary.author;
-    info = yt.summary.info;
+    name = yt.name;
+    author = yt.author;
+    info = yt.info;
     for (int i = 0; i < THEME_COLOR_COUNT - 1; i += 1) {
       colorList.emplace_back(
-          ColorEntry{(LcdColorIndex)(i), yt.colors.colors[i]});
+          ColorEntry{(LcdColorIndex)(i), yt.colors[i]});
     }
   } else {
     ALERT(STR_WARNING, err, AU_WARNING1);

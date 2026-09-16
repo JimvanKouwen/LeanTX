@@ -22,9 +22,6 @@
 #include "gtests.h"
 
 #include "storage/radio_config_adapter.h"
-#include "storage/yaml/yaml_parser.h"
-#include "storage/yaml/yaml_datastructs.h"
-#include "storage/yaml/yaml_bits.h"
 
 static const char _radio_config[] =
     "potsConfig: \n"

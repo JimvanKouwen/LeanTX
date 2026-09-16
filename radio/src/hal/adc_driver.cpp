@@ -132,7 +132,7 @@ static void writeXPotCalib(uint8_t input, int16_t* steps, uint8_t n_steps)
 {
   if (n_steps < 1) return;
 
-  StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[input];
+  StepsCalibData* calib = &g_eeGeneral.calib[input].multipos;
   calib->count = n_steps - 1;
 
   for (int i = 0; i < calib->count; i++) {
@@ -217,7 +217,7 @@ static void disableUncalibratedXPots()
 
   for (uint8_t i = 0; i < max_pots; i++) {
     if (IS_POT_MULTIPOS(i)) {
-      StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[i + pot_offset];
+      StepsCalibData* calib = &g_eeGeneral.calib[i + pot_offset].multipos;
       if(!IS_MULTIPOS_CALIBRATED(calib)) {
         // not enough config points
 #if defined(XPOS_CALIB_DEFAULT)
@@ -469,7 +469,7 @@ void getADC()
 #if defined(SIMU)
       s_anaFilt[x] = apply_multipos_simu(s_anaFilt[x]);
 #else
-      const auto* calib = (const StepsCalibData*)&g_eeGeneral.calib[x];
+      const auto* calib = &g_eeGeneral.calib[x].multipos;
       if (IS_MULTIPOS_CALIBRATED(calib)) {
         s_anaFilt[x] = apply_multipos(calib, s_anaFilt[x]);
       }
