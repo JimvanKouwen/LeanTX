@@ -151,12 +151,6 @@ class ValueWidget : public Widget
                                          LcdFlags flags);
         valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3,
                                         newValue, valueFlags);
-#if defined(LUA_INPUTS)
-      }
-      else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
-        valueTxt =
-            getSourceCustomValueString(field, calcRESXto1000(newValue), valueFlags | PREC1);
-#endif
       } else {
         valueTxt =
             getSourceCustomValueString(field, newValue, valueFlags);

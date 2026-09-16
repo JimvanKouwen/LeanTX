@@ -77,12 +77,6 @@ void onSourceLongEnterPress(const char * result)
         getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT,
                           isInputAvailable);
   }
-#if defined(LUA_MODEL_SCRIPTS)
-  else if (result == STR_MENU_LUA) {
-    checkIncDecSelection =
-        getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable);
-  }
-#endif
   else if (result == STR_MENU_STICKS)
     checkIncDecSelection = MIXSRC_FIRST_STICK;
   else if (result == STR_MENU_POTS)

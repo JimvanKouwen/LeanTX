@@ -161,9 +161,6 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
   ITEM_VIEW_OPTIONS_CURVES,
-#if defined(LUA_MODEL_SCRIPTS)
-  ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS,
-#endif
   ITEM_VIEW_OPTIONS_TELEMETRY,
 
 #if defined(USBJ_EX)
@@ -642,7 +639,7 @@ void menuModelSetup(event_t event)
 
       VIEWOPT_ROW(0),
 
-      CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0))
+
       VIEWOPT_ROW(0),
 
     USB_JOYSTICK_ROWS
@@ -1262,11 +1259,6 @@ void menuModelSetup(event_t event)
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
         break;
-#if defined(LUA_MODEL_SCRIPTS)
-      case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
-        g_model.modelCustomScriptsDisabled = viewOptChoice(y, STR_MENUCUSTOMSCRIPTS, g_model.modelCustomScriptsDisabled, attr, event);
-        break;
-#endif
       case ITEM_VIEW_OPTIONS_TELEMETRY:
         g_model.modelTelemetryDisabled = viewOptChoice(y, STR_MENUTELEMETRY, g_model.modelTelemetryDisabled, attr, event);
         break;

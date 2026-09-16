@@ -583,34 +583,6 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
       strAppendUnsigned(pos, idx + 1, 2);
     }
   }
-#if defined(LUA_INPUTS)
-  else if (idx <= MIXSRC_LAST_LUA) {
-#if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div((uint16_t)(idx - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-    if (qr.quot < MAX_SCRIPTS &&
-        qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      static_assert(L > sizeof(CHAR_LUA) - 1, "dest string too small");
-      dest_len -= sizeof(CHAR_LUA) - 1;
-      char *pos = strAppend(dest, CHAR_LUA, sizeof(CHAR_LUA) - 1);
-
-      if (g_model.scriptsData[qr.quot].name[0] != '\0') {
-        // instance Name is not empty : dest = InstanceName/OutputName
-        pos = strAppend(pos, g_model.scriptsData[qr.quot].name, LEN_SCRIPT_NAME);
-      } else {
-        // instance Name is empty : dest = n-ScriptFileName/OutputName
-        pos = strAppendUnsigned(pos, qr.quot + 1);
-        pos = strAppend(pos, "-");
-        pos = strAppend(pos, g_model.scriptsData[qr.quot].file, LEN_SCRIPT_FILENAME);
-      }
-      pos = strAppend(pos, "/");
-      dest_len = L - (pos - dest);
-      strAppend(pos, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, dest_len);
-    }
-#else
-    strncpy(dest, "N/A", dest_len-1);
-#endif
-  }
-#endif
   else if (idx <= MIXSRC_LAST_POT) {
     char *pos = dest;
     idx -= MIXSRC_FIRST_STICK;
@@ -855,11 +827,6 @@ char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
       formatNumberAsString(dest, L, gpsData.numSat, flags, len, "sats: ");
     }
     return dest;
-  }
-#endif
-#if defined(LUA_INPUTS)
-  else if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
-    formatNumberAsString(dest, len, val, flags);
   }
 #endif
   else if (source < MIXSRC_FIRST_CH) {

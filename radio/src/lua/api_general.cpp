@@ -296,7 +296,7 @@ static void luaPushCells(lua_State* L, TelemetrySensor & telemetrySensor, Teleme
   }
 }
 
-void luaGetValueAndPush(lua_State* L, int src)
+static void luaGetValueAndPush(lua_State* L, int src)
 {
   getvalue_t value = getValue(src); // ignored for GPS, DATETIME, and CELLS
 
@@ -388,7 +388,6 @@ struct LuaMultipleField {
 // The list of Lua fields that have a range of values
 const LuaMultipleField luaMultipleFields[] = {
     {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
-    {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
     {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
     {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
@@ -2674,8 +2673,6 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( CENTER, CENTERED )
   LROT_NUMENTRY( PREC1, PREC1 )
   LROT_NUMENTRY( PREC2, PREC2 )
-  LROT_NUMENTRY( VALUE, INPUT_TYPE_VALUE )
-  LROT_NUMENTRY( SOURCE, INPUT_TYPE_SOURCE )
   LROT_NUMENTRY( MIXSRC_MIN, MIXSRC_MIN )
   LROT_NUMENTRY( MIXSRC_MAX, MIXSRC_MAX )
   LROT_NUMENTRY( MIXSRC_FIRST_INPUT, MIXSRC_FIRST_INPUT )
@@ -2692,8 +2689,8 @@ LROT_BEGIN(etxcst, NULL, 0)
 #if defined(COLORLCD)
 
   LROT_NUMENTRY( SHADOWED, SHADOWED )
-  // WidgetOption::Integer == INPUT_TYPE_VALUE - use VALUE in widget options
-  // WidgetOption::Source == INPUT_TYPE_SOURCE - use SOURCE in widget options
+  LROT_NUMENTRY( VALUE, WidgetOption::Integer )
+  LROT_NUMENTRY( SOURCE, WidgetOption::Source )
   LROT_NUMENTRY( COLOR, WidgetOption::Color )
   LROT_NUMENTRY( BOOL, WidgetOption::Bool )
   LROT_NUMENTRY( STRING, WidgetOption::String )

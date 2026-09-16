@@ -42,7 +42,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_SCRIPTS                  9
   #define MAX_INPUTS                   32
 #if defined(STM32H7)
   #define MAX_TELEMETRY_SENSORS        99
@@ -55,7 +54,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
@@ -63,7 +61,6 @@
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_MIXERS                   64
   #define MAX_EXPOS                    64
-  #define MAX_SCRIPTS                  7
   #define MAX_INPUTS                   32
   #define MAX_TELEMETRY_SENSORS        40
 #else
@@ -313,9 +310,6 @@ enum TelemetryScreenType {
   (TELEMETRY_SCREEN_TYPE(screenIndex) == TELEMETRY_SCREEN_TYPE_BARS)
 
 #define LEN_SCRIPT_FILENAME            6
-#define LEN_SCRIPT_NAME                6
-#define MAX_SCRIPT_INPUTS              6
-#define MAX_SCRIPT_OUTPUTS             6
 
 enum PotsWarnMode {
   POTS_WARN_OFF,
@@ -403,11 +397,6 @@ enum MixSources {
   MIXSRC_FIRST_INPUT = MIXSRC_FIRST,
   MIXSRC_LAST_INPUT = MIXSRC_FIRST_INPUT + MAX_INPUTS - 1,
 
-#if defined(LUA_INPUTS)
-  MIXSRC_FIRST_LUA,
-  MIXSRC_LAST_LUA =
-      MIXSRC_FIRST_LUA + (MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS) - 1,
-#endif
 
   // Semantic sticks
   MIXSRC_FIRST_STICK,
@@ -479,7 +468,6 @@ constexpr int16_t MIXSRC_MAX_VALUE = 30000;
 
 enum SrcTypes {
   SRC_INPUT = 1 << 0,
-  SRC_LUA = 1 << 1,
   SRC_STICK = 1 << 2,
   SRC_POT = 1 << 3,
   SRC_TILT = 1 << 4,

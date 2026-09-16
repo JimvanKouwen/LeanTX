@@ -33,11 +33,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
   {
     addButton(CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr,
               STR_MENU_INPUTS);
-#if defined(LUA_MODEL_SCRIPTS)
-    if (modelCustomScriptsEnabled())
-      addButton(CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, nullptr,
-                STR_MENU_LUA);
-#endif
     auto lastSource = MIXSRC_MIN - 1;
     addButton(
         CHAR_STICK, MIXSRC_FIRST_STICK, lastSource,

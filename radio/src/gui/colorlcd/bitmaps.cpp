@@ -113,9 +113,6 @@ static const uint8_t mask_model_inputs[] __FLASH = {
 static const uint8_t mask_model_mixer[] __FLASH = {
 #include "mask_icon_model_mixer.lbm"
 };
-static const uint8_t mask_model_mixer_scripts[] __FLASH = {
-#include "mask_icon_model_mixer_scripts.lbm"
-};
 static const uint8_t mask_model_notes[] __FLASH = {
 #include "mask_icon_model_notes.lbm"
 };
@@ -378,7 +375,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_MODEL_NOTES, mask_model_notes),
     BI(ICON_MODEL_OUTPUTS, mask_model_outputs),
     BI(ICON_MODEL_CURVES, mask_model_curves),
-    BI(ICON_MODEL_LUA_SCRIPTS, mask_model_mixer_scripts),
     BI(ICON_MODEL_TELEMETRY, mask_model_telemetry),
     BI(ICON_MODEL_USB, mask_model_usb),
     BI(ICON_MODEL_SELECT, mask_menu_manage_models),

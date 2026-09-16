@@ -40,7 +40,6 @@ option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
-option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
 else()
@@ -211,9 +210,6 @@ if(RTC_BACKUP_RAM AND NOT WASI)
 
 endif()
 
-if (LUA_MIXER AND NOT LUA)
-  message(FATAL_ERROR "LUA_MIXER requires LUA!!")
-endif()
 
 if(LUA)
   include(lua/CMakeLists.txt)

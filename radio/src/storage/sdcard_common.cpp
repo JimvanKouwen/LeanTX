@@ -208,10 +208,6 @@ void storageReadAll()
   modelslist.clear();
 #endif
 
-  // Some radio defaults overriden by config loading:
-  // - screens disabled by default:
-  g_eeGeneral.modelCustomScriptsDisabled = true;
-  
   if (loadRadioSettings() != nullptr) {
     // A malformed document or an I/O error is not a first-run request. Keep
     // initialized radio defaults and existing models; saving will continue to

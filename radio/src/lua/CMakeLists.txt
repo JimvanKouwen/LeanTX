@@ -15,9 +15,6 @@ endif()
 
 include_directories(${LUA_DIR})
 
-if(LUA_MIXER)
-  add_definitions(-DLUA_MODEL_SCRIPTS)
-endif()
 
 set(SRC ${SRC}
   lua/interface.cpp

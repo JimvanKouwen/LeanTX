@@ -419,49 +419,6 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
         lcdDrawNumber(x+6, y, aidx, att|LEADING0, 2);
     }
   }
-#if defined(LUA_INPUTS)
-  else if (aidx <= MIXSRC_LAST_LUA) {
-    div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-    if (att & RIGHT) {
-#if defined(LUA_MODEL_SCRIPTS)
-      if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-        lcdDrawSizedText(x, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
-        x = lcdLastLeftPos - 4;
-        if (inverted)
-          lcdDrawChar(x-5, y, '-');
-        lcdDrawChar(x, y+1, '1'+qr.quot, TINSIZE);
-        lcdDrawFilledRect(x-1, y, 5, 7, SOLID);
-      }
-      else
-#endif
-      {
-        lcdDrawChar(x, y, 'a' + qr.rem, att);
-        drawStringWithIndex(lcdLastLeftPos, y, "LUA", qr.quot+1, att);
-#if defined(LUA_MODEL_SCRIPTS)
-        if (inverted)
-          lcdDrawChar(lcdLastLeftPos, y, '-', att);
-#endif
-      }
-    } else {
-#if defined(LUA_MODEL_SCRIPTS)
-      if (inverted) {
-        lcdDrawChar(x-1, y, '-');
-        x += 3;
-      }
-      if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-        lcdDrawChar(x+1, y+1, '1'+qr.quot, TINSIZE);
-        lcdDrawFilledRect(x, y, 5, 7, SOLID);
-        lcdDrawSizedText(x+5, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
-      }
-      else
-#endif
-      {
-        drawStringWithIndex(x, y, "LUA", qr.quot+1, att);
-        lcdDrawChar(lcdLastRightPos, y, 'a' + qr.rem, att);
-      }
-    }
-  }
-#endif
   else {
     const char* s = getSourceString(idx);
 #if LCD_W < 212

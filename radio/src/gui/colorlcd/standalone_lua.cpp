@@ -168,7 +168,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
   lua_gc(lsStandalone, LUA_GCCOLLECT, 0);
 
-  // Pause function and mixer scripts
+  // Pause the shared script interpreter
   prevLuaState = luaState;
   luaState = INTERPRETER_PAUSED;
 

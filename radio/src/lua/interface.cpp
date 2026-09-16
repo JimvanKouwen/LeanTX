@@ -61,8 +61,7 @@ lua_State *lsScripts = nullptr;
 uint8_t luaState = 0;
 uint8_t luaScriptsCount = 0;
 bool    luaLcdAllowed = false;
-ScriptInternalData scriptInternalData[MAX_SCRIPTS];
-ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
+ScriptInternalData scriptInternalData[MAX_LOADED_SCRIPTS];
 
 uint16_t maxLuaInterval = 0;
 uint16_t maxLuaDuration = 0;
@@ -142,96 +141,6 @@ static void luaHook(lua_State * L, lua_Debug *ar)
 #endif // #if defined(LUA_ALLOCATOR_TRACER)
 }
 
-#if defined(LUA_MODEL_SCRIPTS)
-void luaGetInputs(ScriptInputsOutputs & sid)
-{
-  if (!lua_istable(lsScripts, -1))
-    return;
-
-  memclear(sid.inputs, sizeof(sid.inputs));
-  sid.inputsCount = 0;
-  for (lua_pushnil(lsScripts); lua_next(lsScripts, -2); lua_pop(lsScripts, 1)) {
-    luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
-    luaL_checktype(lsScripts, -1, LUA_TTABLE); // value is table
-    if (sid.inputsCount<MAX_SCRIPT_INPUTS) {
-      uint8_t field = 0;
-      int type = 0;
-      ScriptInput * si = &sid.inputs[sid.inputsCount];
-      for (lua_pushnil(lsScripts); lua_next(lsScripts, -2) && field<5; lua_pop(lsScripts, 1), field++) {
-        switch (field) {
-          case 0:
-            luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
-            luaL_checktype(lsScripts, -1, LUA_TSTRING); // value is string
-            lua_xmove(lsScripts, mainState, 1);          // To preserve the string value, move it to the main stack
-            lua_pushnil(lsScripts);              // Keep the stack balanced
-            lua_insert(mainState, -2);           // Keep the coroutine at the top of the main stack
-            si->name = lua_tostring(mainState, -2);
-            break;
-          case 1:
-            luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
-            luaL_checktype(lsScripts, -1, LUA_TNUMBER); // value is number
-            type = lua_tointeger(lsScripts, -1);
-            if (type >= INPUT_TYPE_FIRST && type <= INPUT_TYPE_LAST) {
-              si->type = type;
-            }
-            if (si->type == INPUT_TYPE_VALUE) {
-              si->min = -100;
-              si->max = 100;
-            }
-            else {
-              si->max = MIXSRC_LAST_TELEM;
-            }
-            break;
-          case 2:
-            luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
-            luaL_checktype(lsScripts, -1, LUA_TNUMBER); // value is number
-            if (si->type == INPUT_TYPE_VALUE) {
-              si->min = lua_tointeger(lsScripts, -1);
-            }
-            break;
-          case 3:
-            luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
-            luaL_checktype(lsScripts, -1, LUA_TNUMBER); // value is number
-            if (si->type == INPUT_TYPE_VALUE) {
-              si->max = lua_tointeger(lsScripts, -1);
-            }
-            break;
-          case 4:
-            luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
-            luaL_checktype(lsScripts, -1, LUA_TNUMBER); // value is number
-            if (si->type == INPUT_TYPE_VALUE) {
-              si->def = lua_tointeger(lsScripts, -1);
-            }
-            break;
-        }
-      }
-      sid.inputsCount++;
-    }
-  }
-}
-
-void luaGetOutputs(ScriptInputsOutputs & sid)
-{
-  if (!lua_istable(lsScripts, -1))
-    return;
-
-  sid.outputsCount = 0;
-  for (lua_pushnil(lsScripts); lua_next(lsScripts, -2); ) {
-    luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
-    luaL_checktype(lsScripts, -1, LUA_TSTRING); // value is string
-    if (sid.outputsCount < MAX_SCRIPT_OUTPUTS) {
-      // To preserve the string value, truncate to 6 chars and move it to the main stack
-      char str[7] = {0};
-      strncpy(str, lua_tostring(lsScripts, -1), 6);
-      lua_pushstring(mainState, &str[0]);
-      // Keep the coroutine at the top of the main stack
-      lua_insert(mainState, -2);
-      sid.outputs[sid.outputsCount++].name = lua_tostring(mainState, -2);
-    }
-    lua_pop(lsScripts, 1);
-  }
-}
-#endif
 
 void luaDisable()
 {
@@ -589,11 +498,6 @@ static const char * getScriptName(uint8_t idx)
 {
   int ref = scriptInternalData[idx].reference;
 
-#if defined(LUA_MODEL_SCRIPTS)
-  if (ref <= SCRIPT_MIX_LAST) {
-    return g_model.scriptsData[ref - SCRIPT_MIX_FIRST].file;
-  }
-#endif
 #if defined(PCBTARANIS)
   if (ref <= SCRIPT_TELEMETRY_LAST) {
     return g_model.screens[ref - SCRIPT_TELEMETRY_FIRST].script.file;
@@ -623,25 +527,6 @@ static bool luaLoadFile(const char (&dirname)[LD], const char (&filename)[LF], S
   return luaLoad(pathname, sid);
 }
 
-#if defined(LUA_MODEL_SCRIPTS)
-static bool luaLoadMixScript(uint8_t ref)
-{
-#ifdef DEBUG
-    if (ref < SCRIPT_MIX_FIRST) {
-        return false;
-    }
-#endif
-  uint8_t idx = ref - SCRIPT_MIX_FIRST;
-  ScriptData & sd = g_model.scriptsData[idx];
-
-  if (ZEXIST(sd.file)) {
-    ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
-    sid.reference = ref;
-    return luaLoadFile(SCRIPTS_MIXES_PATH, sd.file, sid);
-  }
-  return false;
-}
-#endif
 
 #if defined(PCBTARANIS)
 static bool luaLoadTelemetryScript(uint8_t ref)
@@ -653,15 +538,9 @@ static bool luaLoadTelemetryScript(uint8_t ref)
     TelemetryScriptData & script = g_model.screens[idx].script;
 
     if (ZEXIST(script.file)) {
-      if (luaScriptsCount < MAX_SCRIPTS) {
-        ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
-        sid.reference = ref;
-        return luaLoadFile(SCRIPTS_TELEM_PATH, script.file, sid);
-      }
-      else {
-        POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
-        return true;
-      }
+      ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
+      sid.reference = ref;
+      return luaLoadFile(SCRIPTS_TELEM_PATH, script.file, sid);
     }
   }
   return false;
@@ -838,14 +717,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 
     // If Lua is not yielded, then find the next script to load
     if (luaStatus == LUA_OK) {
-#if defined(LUA_MODEL_SCRIPTS)
-      if (ref <= SCRIPT_MIX_LAST) {
-        if (luaLoadMixScript(ref)) {
-          luaError(lsScripts, scriptInternalData[luaScriptsCount - 1].state);
-          continue; // If error then skip the rest of the loop
-        }
-      } else
-#endif
 #if defined(PCBTARANIS)
       if (ref <= SCRIPT_TELEMETRY_LAST) {
         if (luaLoadTelemetryScript(ref)) {
@@ -906,18 +777,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
               sid.state = SCRIPT_SYNTAX_ERROR;
               initFunction = LUA_REFNIL;
             }
-#if defined(LUA_MODEL_SCRIPTS)
-            // Get input/output tables for mixer scripts
-            if (ref <= SCRIPT_MIX_LAST) {
-              ScriptInputsOutputs * sio = & scriptInputsOutputs[ref - SCRIPT_MIX_FIRST];
-              lua_getfield(lsScripts, -1, "input");
-              luaGetInputs(*sio);
-              lua_pop(lsScripts, 1);
-              lua_getfield(lsScripts, -1, "output");
-              luaGetOutputs(*sio);
-              lua_pop(lsScripts, 1);
-            }
-#endif
           }
           else {
             snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
@@ -961,8 +820,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
   luaState = INTERPRETER_START_RUNNING;
 
 } // luaLoadScripts
-
-void luaGetValueAndPush(lua_State *L, int src);
 
 #if !defined(COLORLCD)
 void luaExec(const char * filename)
@@ -1045,23 +902,6 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       } else
 #endif
       {
-#if defined(LUA_MODEL_SCRIPTS)
-        if (ref <= SCRIPT_MIX_LAST) {
-          lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
-
-          ScriptData & sd = g_model.scriptsData[ref - SCRIPT_MIX_FIRST];
-          ScriptInputsOutputs * sio = & scriptInputsOutputs[ref - SCRIPT_MIX_FIRST];
-          inputsCount = sio -> inputsCount;
-
-          for (int j = 0; j < inputsCount; j++) {
-            if (sio->inputs[j].type == INPUT_TYPE_SOURCE)
-              luaGetValueAndPush(lsScripts, sd.inputs[j].source);
-            else
-              lua_pushinteger(lsScripts,
-                              sd.inputs[j].value + sio->inputs[j].def);
-          }
-        } else
-#endif
 #if defined(PCBTARANIS)
         if (ref <= SCRIPT_TELEMETRY_LAST) {
           if (sid.background == LUA_REFNIL) continue;
@@ -1087,23 +927,6 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       // Coroutine returned
       scriptWasRun = true;
 
-#if defined(LUA_MODEL_SCRIPTS)
-      if (ref <= SCRIPT_MIX_LAST) {
-        ScriptInputsOutputs * sio = & scriptInputsOutputs[ref - SCRIPT_MIX_FIRST];
-        lua_settop(lsScripts, sio -> outputsCount);
-
-        for (int j = sio -> outputsCount - 1; j >= 0; j--) {
-          if (!lua_isnumber(lsScripts, -1)) {
-            sid.state = SCRIPT_SYNTAX_ERROR;
-            snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "Script %.*s: run function did not return a number\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
-            luaError(lsScripts, sid.state);
-            break;
-          }
-          sio -> outputs[j].value = lua_tointeger(lsScripts, -1);
-          lua_pop(lsScripts, 1);
-        }
-      } else
-#endif
 #if !defined(COLORLCD)
       if (ref == SCRIPT_STANDALONE) {
         lua_settop(lsScripts, 1);
@@ -1289,7 +1112,6 @@ void luaInit()
 
       // Clear loaded scripts
       memclear(scriptInternalData, sizeof(scriptInternalData));
-      memclear(scriptInputsOutputs, sizeof(scriptInputsOutputs));
       luaScriptsCount = 0;
 
       // protect libs and constants registration

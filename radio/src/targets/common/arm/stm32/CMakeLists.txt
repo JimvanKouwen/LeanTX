@@ -1,5 +1,5 @@
-set(LUA "NO" CACHE STRING "Lua scripts (YES/NO/NO_MODEL_SCRIPTS)")
-set_property(CACHE LUA PROPERTY STRINGS YES NO NO_MODEL_SCRIPTS)
+set(LUA "NO" CACHE STRING "Lua scripts (YES/NO)")
+set_property(CACHE LUA PROPERTY STRINGS YES NO)
 set(LUA_SCRIPT_LOAD_MODE "" CACHE STRING "Script loading mode and compilation flags [btTxcd] (see loadScript() API docs). Blank for default ('bt' on radio, 'T' on SIMU/DEBUG builds)")
 option(LUA_COMPILER "Pre-compile and save Lua scripts" ON)
 option(LUA_ALLOCATOR_TRACER "Trace Lua memory (de)allocations to debug port (also needs DEBUG=YES NANO=NO)" OFF)
@@ -7,7 +7,7 @@ option(LUA_ALLOCATOR_TRACER "Trace Lua memory (de)allocations to debug port (als
 option(USB_SERIAL "Enable USB serial (CDC)" OFF)
 
 set(ARCH ARM)
-add_definitions(-DSTM32 -DLUA_INPUTS -DVARIO)
+add_definitions(-DSTM32 -DVARIO)
 
 set(LINKER_DIR ${RADIO_SRC_DIR}/boards/generic_stm32/linker)
 add_link_options(-L${LINKER_DIR} -L${LINKER_DIR}/${TARGET_LINKER_DIR})

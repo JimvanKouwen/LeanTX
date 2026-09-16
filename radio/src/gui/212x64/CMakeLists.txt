@@ -16,12 +16,6 @@ set(GUI_SRC
   view_statistics.cpp
   )
 
-if(LUA_MIXER)
-  set(GUI_SRC
-    ${GUI_SRC}
-    model_custom_scripts.cpp
-    )
-endif()
 
 include(gui/common/stdlcd/CMakeLists.txt)
 

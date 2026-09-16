@@ -1,6 +1,5 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
-option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(BLUETOOTH "FrSky BT module support" OFF)
 option(FLYSKY_GIMBAL "Serial gimbal support" OFF)

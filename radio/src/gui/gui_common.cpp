@@ -153,15 +153,6 @@ int getChannelsUsed()
 
 static bool sourceIsAvailable(int source) { return true; }
 
-static bool isSourceLuaAvailable(int source) {
-#if defined(LUA_MODEL_SCRIPTS)
-  if (modelCustomScriptsEnabled()) {
-    div_t qr = div(source, MAX_SCRIPT_OUTPUTS);
-    return (qr.rem < scriptInputsOutputs[qr.quot].outputsCount);
-  }
-#endif
-  return false;
-}
 
 static bool isSourceStickAvailable(int source) {
   return source < adcGetMaxInputs(ADC_INPUT_MAIN);
@@ -215,7 +206,6 @@ struct sourceAvailableCheck {
 
 static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SRC_INPUT, isInputAvailable },
-  { MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, SRC_LUA, isSourceLuaAvailable },
   { MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SRC_STICK, isSourceStickAvailable },
   { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SRC_POT, isSourcePotAvailable },
 #if defined(IMU)
@@ -260,7 +250,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
+            SRC_COMMON | SRC_INPUT | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
             );
 }
 

@@ -92,28 +92,6 @@ void luaEmptyEventBuffer();
 
 #define lua_registerlib(L, name, tab)  (luaL_newmetatable(L, name), luaL_setfuncs(L, tab, 0), lua_setglobal(L, name))
 
-// Must match first two entries in ZoneOpton::Type enum
-// TODO: should be cleaned up
-enum luaScriptInputType {
-  INPUT_TYPE_FIRST = 0,
-  INPUT_TYPE_VALUE = INPUT_TYPE_FIRST,
-  INPUT_TYPE_SOURCE,
-  INPUT_TYPE_LAST = INPUT_TYPE_SOURCE
-};
-
-struct ScriptInput {
-  const char *name;
-  uint8_t type;
-  int16_t min;
-  int16_t max;
-  int16_t def;
-};
-
-struct ScriptOutput {
-  const char *name;
-  int16_t value;
-};
-
 enum ScriptState {
   SCRIPT_OK,
   SCRIPT_NOFILE,
@@ -123,20 +101,10 @@ enum ScriptState {
 
 enum ScriptReference {
   SCRIPT_REF_FIRST = 0,
-#if defined(LUA_MODEL_SCRIPTS)
-  SCRIPT_MIX_FIRST = SCRIPT_REF_FIRST,
-  SCRIPT_MIX_LAST = SCRIPT_MIX_FIRST + MAX_SCRIPTS - 1,
-#endif
 #if defined(PCBTARANIS)
-#if defined(LUA_MODEL_SCRIPTS)
-  SCRIPT_TELEMETRY_FIRST = SCRIPT_MIX_LAST + 1,
-#else
   SCRIPT_TELEMETRY_FIRST = SCRIPT_REF_FIRST,
-#endif
-  SCRIPT_TELEMETRY_LAST = SCRIPT_TELEMETRY_FIRST + MAX_SCRIPTS,
+  SCRIPT_TELEMETRY_LAST = SCRIPT_TELEMETRY_FIRST + MAX_TELEMETRY_SCREENS - 1,
   SCRIPT_REF_LAST = SCRIPT_TELEMETRY_LAST + 1,
-#elif defined(LUA_MODEL_SCRIPTS)
-  SCRIPT_REF_LAST = SCRIPT_MIX_LAST + 1,
 #else
   SCRIPT_REF_LAST = SCRIPT_REF_FIRST,
 #endif
@@ -150,18 +118,11 @@ struct ScriptInternalData {
   uint8_t state;
   int run;
   int background;
-  uint8_t instructions;
 #if defined(COLORLCD)  
   bool useLvgl;
 #endif
 };
 
-struct ScriptInputsOutputs {
-  uint8_t inputsCount;
-  ScriptInput inputs[MAX_SCRIPT_INPUTS];
-  uint8_t outputsCount;
-  ScriptOutput outputs[MAX_SCRIPT_OUTPUTS];
-};
 
 
 enum InterpreterState {
@@ -179,17 +140,20 @@ extern uint8_t luaState;
 extern uint8_t luaScriptsCount;
 extern bool    luaLcdAllowed;
 
-extern ScriptInternalData scriptInternalData[MAX_SCRIPTS];
-extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
+#if defined(PCBTARANIS)
+constexpr unsigned MAX_LOADED_SCRIPTS = MAX_TELEMETRY_SCREENS;
+#else
+constexpr unsigned MAX_LOADED_SCRIPTS = 1;
+#endif
+
+extern ScriptInternalData scriptInternalData[MAX_LOADED_SCRIPTS];
 
 bool luaTask(bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
 bool isTelemetryScriptAvailable();
 
-#define luaGetCpuUsed(idx) scriptInternalData[idx].instructions
 #define LUA_LOAD_MODEL_SCRIPTS()   luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS
-#define LUA_LOAD_MODEL_SCRIPT(idx) luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS
 
 // Lua PROTECT/UNPROTECT
 #include <setjmp.h>

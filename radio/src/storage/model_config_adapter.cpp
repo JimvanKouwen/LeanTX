@@ -156,12 +156,6 @@ bool sourceOutput(int n, char* out, size_t cap)
     }
   if (n >= MIXSRC_FIRST_INPUT && n <= MIXSRC_LAST_INPUT)
     snprintf(out, cap, "I%d", n - MIXSRC_FIRST_INPUT);
-#if defined(LUA_INPUTS)
-  else if (n >= MIXSRC_FIRST_LUA && n <= MIXSRC_LAST_LUA)
-    snprintf(out, cap, "lua(%d,%d)",
-             (n - MIXSRC_FIRST_LUA) / MAX_SCRIPT_OUTPUTS,
-             (n - MIXSRC_FIRST_LUA) % MAX_SCRIPT_OUTPUTS);
-#endif
   else if (n >= MIXSRC_FIRST_STICK && n <= MIXSRC_LAST_STICK)
     snprintf(out, cap, "%s",
              analogGetCanonicalName(ADC_INPUT_MAIN, n - MIXSRC_FIRST_STICK));
@@ -202,18 +196,12 @@ bool sourceInput(const char* text, int64_t& value)
     sign = -1;
     ++p;
   }
-  int n = -1, a = 0, b = 0, used = 0;
+  int n = -1, a = 0, used = 0;
   for (auto e = sources; e->name; ++e)
     if (!strcmp(p, e->name)) n = e->value;
   if (n < 0 && sscanf(p, "I%d%n", &a, &used) == 1 && !p[used] && a >= 0 &&
       a < MAX_INPUTS)
     n = MIXSRC_FIRST_INPUT + a;
-  used = 0;
-#if defined(LUA_INPUTS)
-  if (n < 0 && sscanf(p, "lua(%d,%d)%n", &a, &b, &used) == 2 && used &&
-      !p[used] && a >= 0 && a < MAX_SCRIPTS && b >= 0 && b < MAX_SCRIPT_OUTPUTS)
-    n = MIXSRC_FIRST_LUA + a * MAX_SCRIPT_OUTPUTS + b;
-#endif
   used = 0;
   if (n < 0 && sscanf(p, "ch(%d)%n", &a, &used) == 1 && used && !p[used] &&
       a >= 0 && a < MAX_OUTPUT_CHANNELS)
@@ -365,8 +353,6 @@ int screenVariant(const char* path)
          : strstr(path, "/u/script/") ? 2
                                       : -1;
 }
-static bool scriptSource[9][6];
-static bool candidateScriptSource[9][6];
 int sensorSlot(const char* path, unsigned j)
 {
   const char* suffix = strstr(path, "/id1/");
@@ -422,10 +408,6 @@ bool relevant(const Context& c, const char* path, unsigned i, unsigned j,
     if (variant >= 0) return variant == int(type == 1 ? 1 : type == 3 ? 2 : 0);
   }
 #endif
-  if (strstr(path, "scriptsData/") && strstr(path, "/inputs/")) {
-    bool source = (c.model == &candidate ? candidateScriptSource : scriptSource)[i][j];
-    return (strstr(path, "/source") != nullptr) == source;
-  }
   return true;
 }
 
@@ -608,13 +590,6 @@ struct Descriptor {
 #else
 #define MTOP UNAVAILABLE
 #endif
-#if MAX_SCRIPTS > 0
-#define MSCRIPT M
-#define MSCRIPT2(p, n, a, m, l, h, c) ROW(p, n, 6, a, m, l, h, c)
-#else
-#define MSCRIPT UNAVAILABLE
-#define MSCRIPT2(p, n, a, m, l, h, c) ROW(p, n, 6, false, view, 0, 0, Number)
-#endif
 #define MSENSOR2(p, n, a, m, l, h, c) ROW(p, n, 4, a, m, l, h, c)
 #define ACCESS_ScreenType(member, lo, hi)                               \
   if (t) {                                                              \
@@ -745,9 +720,6 @@ bool set(void* ctx, unsigned row, unsigned id, const char* text)
       sensorStage[i].values[slot] = v;
     }
   }
-  if (c.loading && strstr(d->path, "scriptsData/") &&
-      strstr(d->path, "/inputs/") && i < 9 && j < 6)
-    candidateScriptSource[i][j] = strstr(d->path, "/source") != nullptr;
   return true;
 }
 bool portableUnavailable(const char* codec, const char* text)
@@ -776,11 +748,7 @@ bool portableUnavailable(const char* codec, const char* text)
   s[len] = 0;
   const char* p = s;
   if (*p == '!') ++p;
-  int a = 0, b = 0, used = 0;
-  if (sscanf(p, "lua(%d,%d)%n", &a, &b, &used) == 2 && used && !p[used] &&
-      a >= 0 && a < 9 && b >= 0 && b < MAX_SCRIPT_OUTPUTS)
-    return true;
-  used = 0;
+  int a = 0, used = 0;
   if (sscanf(p, "tele(%d)%n", &a, &used) == 1 && used && !p[used] &&
       abs(a) < 99)
     return true;
@@ -857,7 +825,6 @@ bool used(const Context& c, const char* section, const unsigned* index)
   if (!strcmp(section, "mixData/%u")) return i < MAX_MIXERS && m.mixData[i].srcRaw;
   if (!strcmp(section, "expoData/%u")) return i < MAX_EXPOS && m.expoData[i].srcRaw;
   if (!strcmp(section, "telemetrySensors/%u")) return i < MAX_TELEMETRY_SENSORS && (m.telemetrySensors[i].id || m.telemetrySensors[i].label[0] || m.telemetrySensors[i].type);
-  if (!strncmp(section, "scriptsData/", 12)) return i < MAX_SCRIPTS && m.scriptsData[i].file[0];
 #if !defined(COLORLCD)
   if (!strncmp(section, "screenData/", 11) || !strncmp(section, "topbarData/", 11) || !strncmp(section, "topbarWidgetWidth/", 18)) return false;
   if (!strncmp(section, "screens/", 8)) return i < MAX_TELEMETRY_SCREENS && m.getTelemetryScreenType(i);
@@ -962,7 +929,6 @@ config_stream::Document beginLoad()
   beginFunctions();
 #endif
   memset(sensorStage, 0, sizeof(sensorStage));
-  memset(candidateScriptSource, 0, sizeof(candidateScriptSource));
 #if !defined(COLORLCD)
   memset(monoStage, 0, sizeof(monoStage));
 #else
@@ -1039,7 +1005,6 @@ void commitLoad(ModelData& model)
 #if defined(FUNCTION_SWITCHES)
   memcpy(functionSlots, pendingFunctionSlots, sizeof(functionSlots));
 #endif
-  memcpy(scriptSource, candidateScriptSource, sizeof(scriptSource));
 }
 namespace
 {

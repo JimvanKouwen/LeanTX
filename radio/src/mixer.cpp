@@ -284,23 +284,6 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   else if (i <= MIXSRC_LAST_INPUT) {
     return anas[i - MIXSRC_FIRST_INPUT];
   }
-#if defined(LUA_INPUTS)
-  else if (i <= MIXSRC_LAST_LUA) {
-#if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div((uint16_t)(i-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-    for (const auto& script : scriptInternalData) {
-      if (script.reference == qr.quot && script.state != SCRIPT_OK) {
-        if (valid) *valid = false;
-        return 0;
-      }
-    }
-    return scriptInputsOutputs[qr.quot].outputs[qr.rem].value;
-#else
-    if (valid != nullptr) *valid = false;
-    return 0;
-#endif
-  }
-#endif
 
   else if (i <= MIXSRC_LAST_STICK) {
     i -= MIXSRC_FIRST_STICK;

@@ -1,6 +1,5 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
-option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(USB_HS "Enable USB HS" ON)
 
 set(CPU_TYPE STM32H7RS)

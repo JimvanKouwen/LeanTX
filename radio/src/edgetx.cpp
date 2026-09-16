@@ -345,9 +345,6 @@ void generalDefault(RadioData& settings)
 #endif
 #endif
 
-  // disable Custom Script
-  settings.modelCustomScriptsDisabled = true;
-
 #if defined(USE_HATS_AS_KEYS)
   settings.hatsMode = HATSMODE_SWITCHABLE;
 #endif
@@ -1579,9 +1576,6 @@ bool modelCurvesEnabled() {
 }
 
 
-bool modelCustomScriptsEnabled() {
-  return FEATURE_ENABLED(modelCustomScriptsDisabled);
-}
 bool modelTelemetryEnabled() {
   return FEATURE_ENABLED(modelTelemetryDisabled);
 }
@@ -1590,12 +1584,6 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
 {
   int asrc = abs(source);
 
-#if defined(LUA_INPUTS)
-  if (asrc >= MIXSRC_FIRST_LUA && asrc <= MIXSRC_LAST_LUA) {
-    valMax = MIXSRC_MAX_VALUE;
-    valMin = -valMax;
-  } else
-#endif
   if (asrc < MIXSRC_FIRST_CH) {
     valMax = 100;
     valMin = -valMax;

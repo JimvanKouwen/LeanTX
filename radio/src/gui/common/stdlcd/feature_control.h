@@ -89,10 +89,5 @@
   #define CASE_BLUETOOTH(x)
 #endif
 
-#if defined(LUA_MODEL_SCRIPTS)
-  #define CASE_LUA_MODEL_SCRIPTS(x) x,
-#else
-  #define CASE_LUA_MODEL_SCRIPTS(x)
-#endif
 
 #define CASE_SPLASH_PARAM(x) x,

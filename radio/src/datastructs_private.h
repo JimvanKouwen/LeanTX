@@ -145,18 +145,6 @@ PACK(struct TimerData {
   char name[LEN_TIMER_NAME];
 });
 
-#if MAX_SCRIPTS > 0
-union ScriptDataInput {
-  int16_t value;
-  source_t source;
-};
-
-PACK(struct ScriptData {
-  char            file[LEN_SCRIPT_FILENAME];
-  char            name[LEN_SCRIPT_NAME];
-  ScriptDataInput inputs[MAX_SCRIPT_INPUTS];
-});
-#endif
 
 PACK(struct RFAlarmData {
   int8_t warning;
@@ -338,12 +326,6 @@ static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBPL18) || defined(PCBST16) || defined(PCBC14)
-  #define SCRIPT_DATA \
-    ScriptData scriptsData[MAX_SCRIPTS];
-#else
-  #define SCRIPT_DATA
-#endif
 
 struct RGBLedColor {
   uint8_t r;
@@ -502,9 +484,6 @@ PACK(struct ModelData {
   uint8_t spare1:1;
 
   ModuleData moduleData[NUM_MODULES];
-
-  SCRIPT_DATA
-
   char inputNames[MAX_INPUTS][LEN_INPUT_NAME];
   potwarnen_t potsWarnEnabled;
   int8_t potsWarnPosition[MAX_POTS];
@@ -551,7 +530,6 @@ PACK(struct ModelData {
   uint8_t modelCurvesDisabled:2;
   uint8_t reservedVariableFeature:2;
   uint8_t reservedConditionFeature:2;
-  uint8_t modelCustomScriptsDisabled:2;
   uint8_t modelTelemetryDisabled:2;
 
   SwitchConfig getSwitchType(uint8_t n);
@@ -787,7 +765,6 @@ PACK(struct RadioData {
   int16_t volumeSrc:10;
 
   int16_t reservedConditionFeature:1;
-  int16_t modelCustomScriptsDisabled:1;
   int16_t modelTelemetryDisabled:1;
   int16_t sparePoweroffAlarm:1;
   int16_t disablePwrOnOffHaptic:1;

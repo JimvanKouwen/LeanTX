@@ -241,40 +241,6 @@ TEST_F(MixerTest, SwitchSourceAndCascadedCurveApplyImmediately)
   }
 }
 
-#if defined(LUA_MODEL_SCRIPTS)
-TEST_F(MixerTest, LuaSourceAppliesImmediatelyAndReadsZeroWhenScriptFails)
-{
-  ScriptInternalData saved[MAX_SCRIPTS];
-  memcpy(saved, scriptInternalData, sizeof(saved));
-  const auto savedValue = scriptInputsOutputs[0].outputs[0].value;
-  for (auto& script : scriptInternalData) {
-    script.reference = 0;
-    script.state = SCRIPT_OK;
-  }
-  g_model.mixData[0].srcRaw = MIXSRC_FIRST_LUA;
-  g_model.mixData[0].weight = 100;
-  s_mixer_first_run_done = true;
-
-  for (int value : {-RESX, RESX, 0, -RESX / 2}) {
-    scriptInputsOutputs[0].outputs[0].value = value;
-    evalMixes();
-    EXPECT_EQ(chans[0], value * 256);
-  }
-  scriptInternalData[0].state = SCRIPT_PANIC;
-  evalMixes();
-  EXPECT_EQ(chans[0], 0);
-  g_model.mixData[0].offset = 25;
-  evalMixes();
-  EXPECT_EQ(chans[0], CHANNEL_MAX / 4);
-  g_model.mixData[0].offset = 0;
-
-  scriptInternalData[0].state = SCRIPT_OK;
-  evalMixes();
-  EXPECT_EQ(chans[0], -CHANNEL_MAX / 2);
-  memcpy(scriptInternalData, saved, sizeof(saved));
-  scriptInputsOutputs[0].outputs[0].value = savedValue;
-}
-#endif
 
 // ==========================================================================
 // rc-soar.com documented behavior tests

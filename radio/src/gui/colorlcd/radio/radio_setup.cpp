@@ -610,14 +610,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
                   GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
                   g_model.modelCurvesDisabled);
      }},
-#if defined(LUA_MODEL_SCRIPTS)
-    {STR_DEF(STR_MENUCUSTOMSCRIPTS),
-     [](Window* parent, coord_t x, coord_t y) {
-       viewOption(parent, x, y,
-                  GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled),
-                  g_model.modelCustomScriptsDisabled);
-     }},
-#endif
     {STR_DEF(STR_MENUTELEMETRY),
      [](Window* parent, coord_t x, coord_t y) {
        viewOption(parent, x, y,

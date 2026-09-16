@@ -34,8 +34,6 @@ class WidgetFactory;
 
 struct WidgetOption
 {
-  // First two entries must match luaScriptInputType enum
-  // TODO: should be cleaned up
   enum Type {
     Integer,
     Source,

@@ -100,7 +100,6 @@ enum {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
    ITEM_VIEW_OPTIONS_CURVES,
-  CASE_LUA_MODEL_SCRIPTS(ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS)
       ITEM_VIEW_OPTIONS_TELEMETRY,
   ITEM_RADIO_SETUP_MAX
 };
@@ -201,7 +200,7 @@ void menuRadioSetup(event_t event)
 
            VIEWOPT_ROW(0),
 
-          CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0)) VIEWOPT_ROW(0),
+           VIEWOPT_ROW(0),
       });
 
   if (event == EVT_ENTRY) {
@@ -743,11 +742,6 @@ void menuRadioSetup(event_t event)
       case ITEM_VIEW_OPTIONS_CURVES:
         g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event, g_model.modelCurvesDisabled);
         break;
-#if defined(LUA_MODEL_SCRIPTS)
-      case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
-        g_eeGeneral.modelCustomScriptsDisabled = viewOptCheckBox(y, STR_MENUCUSTOMSCRIPTS, g_eeGeneral.modelCustomScriptsDisabled, attr, event, g_model.modelCustomScriptsDisabled);
-        break;
-#endif
       case ITEM_VIEW_OPTIONS_TELEMETRY:
         g_eeGeneral.modelTelemetryDisabled = viewOptCheckBox(y, STR_MENUTELEMETRY, g_eeGeneral.modelTelemetryDisabled, attr, event, g_model.modelTelemetryDisabled);
         break;

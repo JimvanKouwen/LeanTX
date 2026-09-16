@@ -632,7 +632,6 @@ extern uint8_t latencyToggleSwitch;
 extern bool radioThemesEnabled();
 #endif
 extern bool modelCurvesEnabled();
-extern bool modelCustomScriptsEnabled();
 extern bool modelTelemetryEnabled();
 
 int pwrDelayFromYaml(int delay);

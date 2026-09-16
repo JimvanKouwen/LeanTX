@@ -21,6 +21,7 @@
 
 #include <math.h>
 #include "gtests.h"
+#include "location.h"
 
 #if defined(LUA)
 
@@ -28,6 +29,7 @@
 #include "lua/lua_states.h"
 
 #include <filesystem>
+#include <fstream>
 
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 
@@ -44,8 +46,6 @@
 
 #define luaExecStr(test)  EXPECT_TRUE(__luaExecStr(test))
 
-void luaGetValueAndPush(lua_State *L, int src);
-
 TEST(Lua, TelemetrySourceCompatibility)
 {
   MODEL_RESET();
@@ -60,14 +60,86 @@ TEST(Lua, TelemetrySourceCompatibility)
     const auto script = std::string("assert(math.abs(getValue(") +
         std::to_string(source) + ") - 12.34) < 0.001)";
     luaExecStr(script.c_str());
-    // The same helper supplies EdgeTX mix-script SOURCE arguments.
-    luaGetValueAndPush(lsScripts, source);
-    EXPECT_NEAR(12.34, lua_tonumber(lsScripts, -1), 0.001);
-    lua_pop(lsScripts, 1);
   }
   telemetryStreaming = 0;
   telemetryItems[0].clear();
 }
+
+TEST(Lua, MixerOutputSourcesRemoved)
+{
+  luaExecStr("assert(getFieldInfo('lua1a') == nil)");
+  luaExecStr("assert(getFieldInfo('LUA1a') == nil)");
+  luaExecStr("assert(getFieldInfo('lua1') == nil)");
+  luaExecStr("assert(getFieldInfo('ch1') ~= nil)");
+  luaExecStr("assert(type(lcd.drawText) == 'function')");
+  luaExecStr("assert(type(playFile) == 'function' and type(io.open) == 'function')");
+  luaExecStr("assert(type(crossfireTelemetryPush) == 'function')");
+#if defined(COLORLCD)
+  luaExecStr("assert(VALUE == 0 and SOURCE == 1)");
+#endif
+}
+
+#if defined(PCBTARANIS)
+class LuaApplications : public testing::Test
+{
+ protected:
+  std::filesystem::path root;
+  void SetUp() override
+  {
+    char path[] = "/tmp/leantx-lua-apps-XXXXXX";
+    root = mkdtemp(path);
+    std::filesystem::create_directories(root / "SCRIPTS/TELEMETRY");
+    std::filesystem::create_directories(root / "SCRIPTS/TOOLS");
+    simuFatfsSetPaths(root.c_str(), nullptr);
+    luaClose();
+    luaState = 0;
+    MODEL_RESET();
+    luaInitMainState();
+  }
+  void TearDown() override
+  {
+    luaClose();
+    luaState = 0;
+    luaScriptsCount = 0;
+    MODEL_RESET();
+    simuFatfsSetPaths(TESTS_PATH, nullptr);
+    std::filesystem::remove_all(root);
+  }
+};
+
+TEST_F(LuaApplications, TelemetrySlotsAndStandaloneToolsStillRun)
+{
+  std::ofstream(root / "SCRIPTS/TELEMETRY/test.lua") <<
+      "return {init=function() initialized=(initialized or 0)+1 end, "
+      "run=function(event) return 0 end, "
+      "background=function() backgroundRuns=(backgroundRuns or 0)+1 end}";
+  for (unsigned i = 0; i < MAX_TELEMETRY_SCREENS; ++i) {
+    g_model.setTelemetryScreenType(i, TELEMETRY_SCREEN_TYPE_SCRIPT);
+    strcpy(g_model.screens[i].script.file, "test");
+  }
+  LUA_LOAD_MODEL_SCRIPTS();
+  for (int i = 0; i < 20 && luaState != INTERPRETER_START_RUNNING; ++i)
+    luaTask(false);
+  ASSERT_EQ(INTERPRETER_START_RUNNING, luaState);
+  ASSERT_EQ(unsigned(MAX_TELEMETRY_SCREENS), unsigned(luaScriptsCount));
+  for (unsigned i = 0; i < MAX_TELEMETRY_SCREENS; ++i) {
+    EXPECT_EQ(SCRIPT_TELEMETRY_FIRST + i, unsigned(scriptInternalData[i].reference));
+    EXPECT_EQ(SCRIPT_OK, scriptInternalData[i].state);
+  }
+  luaTask(false);
+  luaExecStr(("assert(initialized == " + std::to_string(MAX_TELEMETRY_SCREENS) +
+              " and backgroundRuns == initialized)").c_str());
+
+  std::ofstream(root / "SCRIPTS/TOOLS/test.lua") <<
+      "return {init=function() toolInitialized=true end, "
+      "run=function(event) toolEvent=event; return 0 end}";
+  luaExec("/SCRIPTS/TOOLS/test.lua");
+  ASSERT_EQ(1, luaScriptsCount);
+  EXPECT_EQ(SCRIPT_STANDALONE, scriptInternalData[0].reference);
+  luaTask(true);
+  luaExecStr("assert(toolInitialized and type(toolEvent) == 'number')");
+}
+#endif
 
 TEST(Lua, RemovedVariableApis)
 {

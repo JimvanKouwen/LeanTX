@@ -23,7 +23,6 @@
 #include "menu.h"
 #include "model_curves.h"
 #include "model_inputs.h"
-#include "model_mixer_scripts.h"
 #include "model_mixes.h"
 #include "model_outputs.h"
 #include "model_select.h"
@@ -47,9 +46,6 @@ const PageDef modelMenuItems[] = {
   { ICON_MODEL_MIXER, STR_DEF(STR_QM_MIXES), STR_DEF(STR_MIXES), PAGE_CREATE, QM_MODEL_MIXES, [](const PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
   { ICON_MODEL_OUTPUTS, STR_DEF(STR_QM_OUTPUTS), STR_DEF(STR_MENULIMITS), PAGE_CREATE, QM_MODEL_OUTPUTS, [](const PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},
   { ICON_MODEL_CURVES, STR_DEF(STR_QM_CURVES), STR_DEF(STR_MENUCURVES), PAGE_CREATE, QM_MODEL_CURVES, [](const PageDef& pageDef) { return new ModelCurvesPage(pageDef); }, modelCurvesEnabled},
-#if defined(LUA_MODEL_SCRIPTS)
-  { ICON_MODEL_LUA_SCRIPTS, STR_DEF(STR_QM_CUSTOM_LUA), STR_DEF(STR_MENUCUSTOMSCRIPTS), PAGE_CREATE, QM_MODEL_SCRIPTS, [](const PageDef& pageDef) { return new ModelMixerScriptsPage(pageDef); }, modelCustomScriptsEnabled},
-#endif
   { ICON_MODEL_TELEMETRY, STR_DEF(STR_QM_TELEM), STR_DEF(STR_MENUTELEMETRY), PAGE_CREATE, QM_MODEL_TELEMETRY, [](const PageDef& pageDef) { return new ModelTelemetryPage(pageDef); }, modelTelemetryEnabled},
   { ICON_MODEL_NOTES, STR_DEF(STR_MAIN_MENU_MODEL_NOTES), STR_DEF(STR_MAIN_MENU_MODEL_NOTES), PAGE_CREATE, QM_MODEL_NOTES, [](const PageDef& pageDef) { return new ModelNotesPage(pageDef); }, modelHasNotes},
   { EDGETX_ICONS_COUNT }

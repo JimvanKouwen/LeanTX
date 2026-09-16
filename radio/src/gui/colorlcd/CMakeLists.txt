@@ -108,9 +108,6 @@ if(LUA)
     )
 endif()
 
-if(LUA_MIXER)
-  add_gui_src(model/model_mixer_scripts.cpp)
-endif()
 
 if(FUNCTION_SWITCHES)
   add_gui_src(model/function_switches.cpp)

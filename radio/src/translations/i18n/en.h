@@ -41,7 +41,6 @@
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
 #define TR_QM_CURVES                    "Curves"
-#define TR_QM_CUSTOM_LUA                "Mixer\nScripts"
 #define TR_QM_TELEM                     "Telemetry"
 #define TR_QM_HARDWARE                  "Hardware"
 #define TR_QM_ABOUT                     "About\nEdgeTX"
@@ -81,7 +80,6 @@
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
 #define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
-#define TR_MENUCUSTOMSCRIPTS            TR_BW_COL("MIXER SCRIPTS", "Mixer Scripts")
 #define TR_MENUTELEMETRY                TR_BW_COL("TELEMETRY", "Telemetry")
 #define TR_HARDWARE                     TR_BW_COL("HARDWARE", "Hardware")
 #define TR_USER_INTERFACE               "Top Bar"
@@ -840,7 +838,6 @@
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Inputs"
 #define TR_OUTPUTS                     "Outputs"
-#define TR_TOO_MANY_LUA_SCRIPTS "Too many Lua scripts!"
 #define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
@@ -943,7 +940,6 @@
 #define TR_LAYOUT                      "Layout"
 #define TR_TEXT_COLOR                  "Text color"
 #define TR_MENU_INPUTS                 CHAR_INPUT "Inputs"
-#define TR_MENU_LUA                    CHAR_LUA "Lua scripts"
 #define TR_MENU_STICKS                 CHAR_STICK "Axis"
 #define TR_MENU_POTS                   CHAR_POT "Pots"
 #define TR_MENU_MIN                    CHAR_FUNCTION "MIN"

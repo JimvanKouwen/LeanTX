@@ -52,8 +52,6 @@ TEST_F(ModelConfig, Roundtrip)
   a.expoData[0].weight = 90;
 
   a.timers[0].start = 600;
-  a.scriptsData[0].inputs[0].value = -57;
-  strcpy(a.scriptsData[0].file, "mix");
   a.telemetrySensors[0].type = TELEM_TYPE_CALCULATED;
   a.telemetrySensors[0].formula = TELEM_FORMULA_CELL;
   a.telemetrySensors[0].cell.source = 4;
@@ -67,7 +65,6 @@ TEST_F(ModelConfig, Roundtrip)
   EXPECT_STREQ("Test", b.header.name);
   EXPECT_EQ(81, b.mixData[0].weight);
   EXPECT_EQ(90, b.expoData[0].weight);
-  EXPECT_EQ(-57, b.scriptsData[0].inputs[0].value);
   EXPECT_EQ(4, b.telemetrySensors[0].cell.source);
   EXPECT_EQ(600u, b.timers[0].start);
 }
@@ -100,11 +97,20 @@ TEST_F(ModelConfig, UnknownAndUnavailable)
   ASSERT_TRUE(save(m));
   EXPECT_EQ(std::string::npos,
             output.find("    - x: [1, 2]\n      other: yes"));
-#if MAX_SCRIPTS < 9
   EXPECT_EQ(std::string::npos, output.find("    file: future"));
-#endif
   EXPECT_EQ(45, m.rfAlarms.warning);
 }
+TEST_F(ModelConfig, LuaMixerSourcesAreRejected)
+{
+  for (const char* source : {"lua(0,0)", "lua(8,5)", "!lua(0,0)", "LUA1a"}) {
+    input = std::string("mixData:\n  0:\n    srcRaw: ") + source + "\n";
+    ModelData model{};
+    strcpy(model.header.name, "unchanged");
+    EXPECT_FALSE(load(model)) << source;
+    EXPECT_STREQ("unchanged", model.header.name);
+  }
+}
+
 TEST_F(ModelConfig, MalformedDoesNotCommit)
 {
   ModelData m{};
@@ -176,11 +182,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
     s.prec = 2;
     strcpy(s.label, "V");
   }
-  for (unsigned i = 0; i < MAX_SCRIPTS; ++i) {
-    strcpy(g_model.scriptsData[i].file, "mix");
-    for (unsigned j = 0; j < MAX_SCRIPT_INPUTS; ++j)
-      g_model.scriptsData[i].inputs[j].value = 100 * i + j;
-  }
   g_model.moduleData[1].type = MODULE_TYPE_CROSSFIRE;
   g_model.moduleData[1].channelsCount = 8;
   g_model.moduleData[1].crsf.crsfArmingTrigger = SWSRC_ON;
@@ -208,8 +209,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   EXPECT_EQ(0, memcmp(expected.points, actual.points, sizeof(expected.points)));
   EXPECT_EQ(0, memcmp(expected.telemetrySensors, actual.telemetrySensors,
                       sizeof(expected.telemetrySensors)));
-  EXPECT_EQ(0, memcmp(expected.scriptsData, actual.scriptsData,
-                      sizeof(expected.scriptsData)));
   ASSERT_TRUE(save(actual));
   input = output;
   auto first = output;
@@ -230,7 +229,6 @@ TEST_F(ModelConfig, NestedListsAndDefaults)
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(321u, m.timers[0].start);
   EXPECT_EQ(89, m.mixData[0].weight);
-  EXPECT_EQ(MIXSRC_FIRST_CH + 3, m.scriptsData[0].inputs[0].source);
   ASSERT_TRUE(save(m));
   EXPECT_EQ(std::string::npos, output.find("      - nested: yes"));
   input = output;
@@ -539,10 +537,9 @@ TEST_F(ModelConfig, UnavailableTelemetryReferencesDefault)
 }
 }  // namespace
 #endif
-#if MAX_SCRIPTS < 9
 namespace
 {
-TEST_F(ModelConfig, UnusedLuaSlotIsDropped)
+TEST_F(ModelConfig, LegacyMixerScriptsAreDropped)
 {
   input =
       "scriptsData:\n  0:\n    inputs:\n      0:\n        u:\n          "
@@ -555,7 +552,6 @@ TEST_F(ModelConfig, UnusedLuaSlotIsDropped)
   EXPECT_EQ(std::string::npos, output.find("scriptsData:"));
 }
 }  // namespace
-#endif
 namespace
 {
 TEST_F(ModelConfig, LegacyUnknownModuleTypesNeverEnableRf)
@@ -679,7 +675,6 @@ TEST_F(ModelConfig, SparseSlotsKeepIndicesAndDefaultValues)
   // Stale data in inactive slots must not create entries.
   model.mixData[6].weight = 80;
   model.expoData[5].weight = 90;
-  model.scriptsData[0].inputs[0].value = 42;
   ASSERT_TRUE(save(model));
   EXPECT_EQ(std::string::npos, output.find("  6:"));
   EXPECT_EQ(std::string::npos, output.find("expoData:"));
@@ -755,18 +750,18 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
 }
 #if defined(STORAGE_MODELSLIST)
 namespace {
-TEST_F(ModelConfigFile, LabelEditSerializesCandidateLuaTypes)
+TEST_F(ModelConfigFile, LabelEditPreservesCandidateSources)
 {
   strcpy(g_model.header.name, "Active");
   g_model.timers[0].start = 999;
-  put("header:\n  name: Other\nscriptsData:\n  0:\n    file: mix\n    inputs:\n      0:\n        u:\n          source: ch(3)\n");
+  put("header:\n  name: Other\nmixData:\n  0:\n    srcRaw: ch(3)\n    weight: 100\n");
   ASSERT_EQ(nullptr, saveModelConfigLabels("/MODELS/test.yml", "new"));
   EXPECT_STREQ("Active", g_model.header.name);
   EXPECT_EQ(999u, g_model.timers[0].start);
-  EXPECT_NE(std::string::npos, get().find("source:"));
+  EXPECT_NE(std::string::npos, get().find("srcRaw:"));
   ASSERT_EQ(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
   EXPECT_STREQ("new", g_model.header.labels);
-  EXPECT_EQ(MIXSRC_FIRST_CH + 3, g_model.scriptsData[0].inputs[0].source);
+  EXPECT_EQ(MIXSRC_FIRST_CH + 3, g_model.mixData[0].srcRaw);
 }
 }
 #endif

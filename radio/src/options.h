@@ -47,9 +47,6 @@ static const char * const options[] = {
 #if defined(SPACEMOUSE)
   "spacemouse",
 #endif
-#if defined(LUA_MODEL_SCRIPTS)
-  "lua",
-#endif
 #if defined(LUA_COMPILER)
   "luac",
 #endif
