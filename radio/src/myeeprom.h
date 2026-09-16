@@ -60,8 +60,7 @@ enum CurveRefType {
   CURVE_REF_CUSTOM
 };
 
-#define EXPO_VALID(ed)          ((ed)->mode)
-#define EXPO_MODE_ENABLE(ed, v) (((v)<0 && ((ed)->mode&1)) || ((v)>=0 && ((ed)->mode&2)))
+#define EXPO_VALID(ed)          ((ed)->srcRaw != 0)
 
 #define limit_min_max_t     int16_t
 #define LIMIT_EXT_PERCENT   150
@@ -77,22 +76,6 @@ enum CurveRefType {
 #define LIMIT_OFS_RESX(lim) calc1000toRESX(LIMIT_OFS(lim))
 
 #define LIMITS_MIN_MAX_OFFSET LIMIT_STD_MAX
-
-enum MixerMultiplex {
-  MLTPX_ADD  = 0,
-  MLTPX_MUL  = 1,
-  MLTPX_REPL = 2,
-};
-
-#define SLOW_MAX        250 /* 25 seconds */
-
-#define MD_WEIGHT(md) (md->weight)
-#define MD_WEIGHT_TO_UNION(md, var) var.word = md->weight
-#define MD_UNION_TO_WEIGHT(var, md) md->weight = var.word
-
-#define MD_OFFSET(md) (md->offset)
-#define MD_OFFSET_TO_UNION(md, var) var.word = md->offset
-#define MD_UNION_TO_OFFSET(var, md) md->offset = var.word
 
 enum TelemetrySensorType
 {

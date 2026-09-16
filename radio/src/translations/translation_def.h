@@ -53,7 +53,6 @@
 
 // String array groups
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
-#define TR_VMLTPX2                      "+=","*=",":="
 #define TR_PPMUNIT                      "0.--","0.0","us"
 #define TR_FUNCTION_SWITCH_GROUPS       "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
 #define TR_CRSF_BAUDRATE                "115k","400k","921k","1.87M","3.75M","5.25M"
@@ -137,7 +136,6 @@
 #define TR_VPERSISTENT              SA3(TR_VPERSISTENT)
 #define TR_COUNTRY_CODES            SA3(TR_COUNTRY_CODES)
 #define TR_ADCFILTERVALUES          SA3(TR_ADCFILTERVALUES)
-#define TR_VMLTPX                   SA3(TR_VMLTPX)
 #define TR_CYC_VSRCRAW              "[C1]","[C2]","[C3]"
 #define TR_VPREC                    SA3(TR_VPREC)
 #if defined(PCBX9E)

@@ -50,7 +50,7 @@ TEST_F(ModelConfig, Roundtrip)
   a.mixData[0].weight = 81;
   a.expoData[0].srcRaw = MIXSRC_FIRST_STICK;
   a.expoData[0].weight = 90;
-  a.expoData[0].mode = 3;
+
   a.timers[0].start = 600;
   a.scriptsData[0].inputs[0].value = -57;
   strcpy(a.scriptsData[0].file, "mix");
@@ -146,14 +146,13 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
     m.weight = i;
     m.offset = -int(i);
     m.destCh = i % MAX_OUTPUT_CHANNELS;
-    m.mltpx = MLTPX_MUL;
-    m.swtch = SWSRC_ON;
+
     m.curve.value = -10;
   }
   for (unsigned i = 0; i < MAX_EXPOS; ++i) {
     auto& e = g_model.expoData[i];
     e.srcRaw = MIXSRC_FIRST_STICK;
-    e.mode = 3;
+
     e.chn = i % MAX_INPUTS;
     e.weight = 100;
     e.scale = 300;
@@ -729,19 +728,26 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     auto& mix = g_model.mixData[i];
     mix.srcRaw = MIXSRC_FIRST_INPUT; mix.weight = 100; mix.offset = 99;
-    mix.destCh = 15; mix.swtch = SWSRC_ON;
+    mix.destCh = 15;
     mix.curve.value = 10;
     memset(mix.name, 'M', sizeof(mix.name));
   }
   for (auto& expo : g_model.expoData) {
-    expo.mode = 3; expo.srcRaw = MIXSRC_FIRST_STICK; expo.weight = 100;
+    expo.srcRaw = MIXSRC_FIRST_STICK; expo.weight = 100;
     memset(expo.name, 'I', sizeof(expo.name));
-    expo.offset = 20; expo.scale = 100; expo.swtch = SWSRC_ON; expo.chn = 12;
+    expo.offset = 20; expo.scale = 100;  expo.chn = 12;
   }
   for (auto& limit : g_model.limitData) {
     memset(limit.name, 'C', sizeof(limit.name));
     limit.offset = 100;
   }
+  // Populate curves too: basic routing lines serialize much more compactly.
+  for (auto& curve : g_model.curves) {
+    curve.type = CURVE_TYPE_STANDARD;
+    curve.points = 0;
+    curve.smooth = 1;
+  }
+  memset(g_model.points, 100, sizeof(g_model.points));
   EXPECT_STREQ("configuration file too large", saveModelConfig("/MODELS/test.yml"));
   EXPECT_EQ(original, get());
   EXPECT_FALSE(std::filesystem::exists(root / "MODELS/test.yml.tmp"));

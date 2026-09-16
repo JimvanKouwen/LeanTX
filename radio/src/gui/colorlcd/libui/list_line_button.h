@@ -43,7 +43,7 @@ class ListLineButton : public ButtonBase
  protected:
   uint8_t index;
 
-  virtual bool isActive() const = 0;
+  virtual bool isActive() const { return false; }
 };
 
 class InputMixButtonBase : public ListLineButton

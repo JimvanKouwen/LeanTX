@@ -66,22 +66,18 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
   s.model.jitterFilter = g_model.jitterFilter;
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     s.model.mixes[i].destCh = g_model.mixData[i].destCh;
-    s.model.mixes[i].mltpx = g_model.mixData[i].mltpx;
     s.model.mixes[i].srcRaw = g_model.mixData[i].srcRaw;
     s.model.mixes[i].weight = g_model.mixData[i].weight;
     s.model.mixes[i].offset = g_model.mixData[i].offset;
-    s.model.mixes[i].swtch = g_model.mixData[i].swtch;
     s.model.mixes[i].curveType = g_model.mixData[i].curve.type;
     s.model.mixes[i].curveValue = g_model.mixData[i].curve.value;
   }
   for (unsigned i = 0; i < MAX_EXPOS; ++i) {
-    s.model.inputs[i].mode = g_model.expoData[i].mode;
     s.model.inputs[i].chn = g_model.expoData[i].chn;
     s.model.inputs[i].scale = g_model.expoData[i].scale;
     s.model.inputs[i].srcRaw = g_model.expoData[i].srcRaw;
     s.model.inputs[i].weight = g_model.expoData[i].weight;
     s.model.inputs[i].offset = g_model.expoData[i].offset;
-    s.model.inputs[i].swtch = g_model.expoData[i].swtch;
     s.model.inputs[i].curveType = g_model.expoData[i].curve.type;
     s.model.inputs[i].curveValue = g_model.expoData[i].curve.value;
   }
@@ -179,22 +175,18 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
   g_model.jitterFilter = s.model.jitterFilter;
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     g_model.mixData[i].destCh = s.model.mixes[i].destCh;
-    g_model.mixData[i].mltpx = s.model.mixes[i].mltpx;
     g_model.mixData[i].srcRaw = s.model.mixes[i].srcRaw;
     g_model.mixData[i].weight = s.model.mixes[i].weight;
     g_model.mixData[i].offset = s.model.mixes[i].offset;
-    g_model.mixData[i].swtch = s.model.mixes[i].swtch;
     g_model.mixData[i].curve.type = s.model.mixes[i].curveType;
     g_model.mixData[i].curve.value = s.model.mixes[i].curveValue;
   }
   for (unsigned i = 0; i < MAX_EXPOS; ++i) {
-    g_model.expoData[i].mode = s.model.inputs[i].mode;
     g_model.expoData[i].chn = s.model.inputs[i].chn;
     g_model.expoData[i].scale = s.model.inputs[i].scale;
     g_model.expoData[i].srcRaw = s.model.inputs[i].srcRaw;
     g_model.expoData[i].weight = s.model.inputs[i].weight;
     g_model.expoData[i].offset = s.model.inputs[i].offset;
-    g_model.expoData[i].swtch = s.model.inputs[i].swtch;
     g_model.expoData[i].curve.type = s.model.inputs[i].curveType;
     g_model.expoData[i].curve.value = s.model.inputs[i].curveValue;
   }

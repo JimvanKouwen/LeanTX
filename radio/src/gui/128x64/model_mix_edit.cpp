@@ -29,9 +29,6 @@ enum MixFields {
   MIX_FIELD_OFFSET,
   MIX_FIELD_CURVE,
 
-  MIX_FIELD_SWITCH,
-  MIX_FIELD_WARNING,
-  MIX_FIELD_MLTPX,
   MIX_FIELD_COUNT
 };
 
@@ -91,10 +88,7 @@ void menuModelMixOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  SUBMENU(STR_MIXES, MIX_FIELD_COUNT,
-          {0, 0, 0, 0, 1,  0, 0,
-           (uint8_t)((s_currIdx > 0 && mixAddress(s_currIdx - 1)->destCh == md2->destCh) ? 0 : HIDDEN_ROW)
-          });
+  SUBMENU(STR_MIXES, MIX_FIELD_COUNT, {0, 0, 0, 0, 1});
 
   int8_t sub = menuVerticalPosition;
   int8_t editMode = s_editMode;
@@ -139,18 +133,6 @@ void menuModelMixOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_CURVE);
         s_currSrcRaw = md2->srcRaw;
         editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr);
-        break;
-
-      case MIX_FIELD_SWITCH:
-        md2->swtch = editSwitch(MIXES_2ND_COLUMN, y, md2->swtch, attr, event);
-        break;
-
-      case MIX_FIELD_WARNING:
-        md2->mixWarn = editNumberField(STR_MIXWARNING, 0, MIXES_2ND_COLUMN, y, md2->mixWarn, 0, 3, attr, event, STR_OFF);
-        break;
-
-      case MIX_FIELD_MLTPX:
-        md2->mltpx = editChoice(MIXES_2ND_COLUMN, y, STR_MULTPX, STR_VMLTPX, md2->mltpx, 0, 2, attr, event);
         break;
 
     }

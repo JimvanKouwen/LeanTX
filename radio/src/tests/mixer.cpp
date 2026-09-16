@@ -82,7 +82,7 @@ TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
       EXPECT_EQ(sign * values[variant], getValue(source));
       auto &input = g_model.expoData[0];
       input.srcRaw = source;
-      input.mode = 3;
+
       input.weight = 100;
       input.offset = 50;
       input.scale = 100;
@@ -92,13 +92,11 @@ TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
       mix.offset = 50;
       for (auto mode : {e_perout_mode_normal, e_perout_mode_preview}) {
         int16_t inputs[MAX_INPUTS] = {};
-        applyExpos(inputs, mode, source, 700);
+        applyExpos(inputs, source, 700);
         EXPECT_EQ(0, inputs[0]);
         evalChannelMixes(mode);
         EXPECT_EQ(0, chans[0]);
       }
-      EXPECT_FALSE(mixState[0].activeExpo);
-      EXPECT_FALSE(mixState[0].activeMix);
     }
   }
   telemetryItems[0].clear();
@@ -196,11 +194,9 @@ TEST_F(MixerTest, BlockingChannel)
 TEST_F(MixerTest, RecursiveAddChannel)
 {
   g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].weight = (50);
   g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_ADD;
   g_model.mixData[1].srcRaw = MIXSRC_FIRST_CH + 1;
   g_model.mixData[1].weight = (100);
   g_model.mixData[2].destCh = 1;
@@ -211,62 +207,6 @@ TEST_F(MixerTest, RecursiveAddChannel)
   evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[0], CHANNEL_MAX/2);
   EXPECT_EQ(chans[1], 0);
-}
-
-TEST_F(MixerTest, SwitchConditionAppliesImmediately)
-{
-  int sw = findHwSwitch(SWITCH_3POS);
-  ASSERT_GE(sw, 0);
-  auto& mix = g_model.mixData[0];
-  mix.srcRaw = MIXSRC_MAX;
-  mix.weight = 50;
-  mix.offset = 25;
-  mix.swtch = SWSRC_FIRST_SWITCH + sw * 3;
-  mix.mixWarn = 1;
-
-  for (bool started : {false, true}) {
-    s_mixer_first_run_done = started;
-    for (int position : {1, -1, 1, -1}) {
-      simuSetSwitch(sw, position);
-      evalMixes();
-      const bool active = position == -1;
-      EXPECT_EQ(chans[0], active ? CHANNEL_MAX * 3 / 4 : 0);
-      EXPECT_EQ(mixState[0].activeMix, active);
-      EXPECT_EQ(mixWarning, active ? 1 : 0);
-    }
-  }
-}
-
-TEST_F(MixerTest, SwitchedMultiplexAppliesImmediately)
-{
-  int sw = findHwSwitch(SWITCH_3POS);
-  ASSERT_GE(sw, 0);
-  auto& base = g_model.mixData[0];
-  base.destCh = 0;
-  base.srcRaw = MIXSRC_MAX;
-  base.weight = 50;
-  auto& mix = g_model.mixData[1];
-  mix.destCh = 0;
-  mix.srcRaw = MIXSRC_MAX;
-  mix.weight = 25;
-  mix.swtch = SWSRC_FIRST_SWITCH + sw * 3;
-
-  for (int multiplex : {MLTPX_ADD, MLTPX_MUL, MLTPX_REPL}) {
-    mix.mltpx = multiplex;
-    for (int position : {-1, 1, -1}) {
-      simuSetSwitch(sw, position);
-      evalMixes();
-      const bool active = position == -1;
-      int expected = CHANNEL_MAX / 2;
-      if (active) {
-        expected = multiplex == MLTPX_ADD ? CHANNEL_MAX * 3 / 4 :
-                   multiplex == MLTPX_MUL ? CHANNEL_MAX / 8 : CHANNEL_MAX / 4;
-      }
-      EXPECT_EQ(chans[0], expected);
-      EXPECT_EQ(mixState[1].activeMix, active);
-      EXPECT_EQ(mixState[0].activeMix, !active || multiplex != MLTPX_REPL);
-    }
-  }
 }
 
 TEST_F(MixerTest, SwitchSourceAndCascadedCurveApplyImmediately)
@@ -298,13 +238,11 @@ TEST_F(MixerTest, SwitchSourceAndCascadedCurveApplyImmediately)
     EXPECT_EQ(chans[0], position * CHANNEL_MAX);
     EXPECT_EQ(chans[1], position < 0 ? -CHANNEL_MAX / 2 :
                         position > 0 ? CHANNEL_MAX : CHANNEL_MAX / 4);
-    EXPECT_TRUE(mixState[0].activeMix);
-    EXPECT_TRUE(mixState[1].activeMix);
   }
 }
 
 #if defined(LUA_MODEL_SCRIPTS)
-TEST_F(MixerTest, LuaSourceAppliesImmediatelyAndStopsWhenScriptFails)
+TEST_F(MixerTest, LuaSourceAppliesImmediatelyAndReadsZeroWhenScriptFails)
 {
   ScriptInternalData saved[MAX_SCRIPTS];
   memcpy(saved, scriptInternalData, sizeof(saved));
@@ -321,17 +259,18 @@ TEST_F(MixerTest, LuaSourceAppliesImmediatelyAndStopsWhenScriptFails)
     scriptInputsOutputs[0].outputs[0].value = value;
     evalMixes();
     EXPECT_EQ(chans[0], value * 256);
-    EXPECT_TRUE(mixState[0].activeMix);
   }
   scriptInternalData[0].state = SCRIPT_PANIC;
   evalMixes();
   EXPECT_EQ(chans[0], 0);
-  EXPECT_FALSE(mixState[0].activeMix);
+  g_model.mixData[0].offset = 25;
+  evalMixes();
+  EXPECT_EQ(chans[0], CHANNEL_MAX / 4);
+  g_model.mixData[0].offset = 0;
 
   scriptInternalData[0].state = SCRIPT_OK;
   evalMixes();
   EXPECT_EQ(chans[0], -CHANNEL_MAX / 2);
-  EXPECT_TRUE(mixState[0].activeMix);
   memcpy(scriptInternalData, saved, sizeof(saved));
   scriptInputsOutputs[0].outputs[0].value = savedValue;
 }
@@ -344,94 +283,17 @@ TEST_F(MixerTest, LuaSourceAppliesImmediatelyAndStopsWhenScriptFails)
 // refactoring does not silently break real-world user setups.
 // ==========================================================================
 
-// Multiplex ADD: lines accumulate additively on the same channel.
-TEST_F(MixerTest, MultiplexAdd)
+TEST_F(MixerTest, MappingsSum)
 {
   g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].weight = (60);
   g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_ADD;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
   g_model.mixData[1].weight = (40);
 
   evalChannelMixes(e_perout_mode_normal);
   EXPECT_EQ(chans[0], CHANNEL_MAX);  // 60% + 40% = 100%
-}
-
-// Multiplex REPL: second line replaces whatever the first produced.
-TEST_F(MixerTest, MultiplexReplace)
-{
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_REPL;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = (-50);
-
-  evalChannelMixes(e_perout_mode_normal);
-  EXPECT_EQ(chans[0], -CHANNEL_MAX / 2);  // REPL overwrites to -50%
-}
-
-// Multiplex MUL: multiplies with the result of all lines above.
-TEST_F(MixerTest, MultiplexMultiplyBasic)
-{
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (100);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_MUL;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = (50);
-
-  evalChannelMixes(e_perout_mode_normal);
-  EXPECT_EQ(chans[0], CHANNEL_MAX / 2);  // 100% * 50% = 50%
-}
-
-// Multiplex MUL is order-sensitive: ADD+ADD+MUL differs from ADD+MUL+ADD.
-TEST_F(MixerTest, MultiplexMultiplyOrderSensitive)
-{
-  // Case A: ADD(60) + ADD(40) + MUL(50) = (60+40)*50% = 50%
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (60);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_ADD;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = (40);
-  g_model.mixData[2].destCh = 0;
-  g_model.mixData[2].mltpx = MLTPX_MUL;
-  g_model.mixData[2].srcRaw = MIXSRC_MAX;
-  g_model.mixData[2].weight = (50);
-
-  evalChannelMixes(e_perout_mode_normal);
-  int32_t caseA = chans[0];
-  EXPECT_EQ(caseA, CHANNEL_MAX / 2);  // 100% * 50% = 50%
-
-  // Case B: ADD(60) + MUL(50) + ADD(40) = 60*50% + 40 = 30+40 = 70%
-  MIXER_RESET();
-  g_model.mixData[0].destCh = 0;
-  g_model.mixData[0].mltpx = MLTPX_ADD;
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = (60);
-  g_model.mixData[1].destCh = 0;
-  g_model.mixData[1].mltpx = MLTPX_MUL;
-  g_model.mixData[1].srcRaw = MIXSRC_MAX;
-  g_model.mixData[1].weight = (50);
-  g_model.mixData[2].destCh = 0;
-  g_model.mixData[2].mltpx = MLTPX_ADD;
-  g_model.mixData[2].srcRaw = MIXSRC_MAX;
-  g_model.mixData[2].weight = (40);
-
-  evalChannelMixes(e_perout_mode_normal);
-  int32_t caseB = chans[0];
-
-  EXPECT_NE(caseA, caseB);  // order matters
 }
 
 // Weight-then-offset: output = (source * weight) + offset.
@@ -534,30 +396,6 @@ TEST_F(MixerTest, PhysicalTrimButtonsDoNotOffsetSticks)
   }
 }
 
-TEST_F(MixerTest, PhysicalTrimDirectionsAreIndependentMomentarySwitches)
-{
-  for (int mode = 0; mode < 4; ++mode) {
-    g_eeGeneral.stickMode = mode;
-    for (int button = 0; button < keysGetMaxTrims() * 2; ++button) {
-      // A button can gate an ordinary mix without any trim mode setup.
-      auto& mix = g_model.mixData[4];
-      mix.destCh = 4;
-      mix.srcRaw = MIXSRC_MAX;
-      mix.weight = 100;
-      mix.swtch = SWSRC_FIRST_TRIM + button;
-      simuSetTrim(button, true);
-      for (int other = 0; other < keysGetMaxTrims() * 2; ++other)
-        EXPECT_EQ(other == button, getSwitch(SWSRC_FIRST_TRIM + other));
-      evalMixes();
-      EXPECT_EQ(RESX, channelOutputs[4]);
-      simuSetTrim(button, false);
-      EXPECT_FALSE(getSwitch(SWSRC_FIRST_TRIM + button));
-      evalMixes();
-      EXPECT_EQ(0, channelOutputs[4]);
-    }
-  }
-}
-
 TEST_F(MixerTest, RemovedTrimValueSourcesAreUnavailable)
 {
   for (int source = MIXSRC_FIRST_RESERVED_TRIM; source <= MIXSRC_LAST_RESERVED_TRIM; ++source) {
@@ -587,7 +425,7 @@ TEST_F(MixerTest, PhysicalTrimButtonsAutoSelectWithoutTrimModes)
 TEST_F(MixerTest, NegativeLiteralInputAndMixValues)
 {
   g_model.expoData[0].srcRaw = MIXSRC_MAX;
-  g_model.expoData[0].mode = 3;
+
   g_model.expoData[0].weight = -50;
   g_model.expoData[0].offset = -25;
   g_model.mixData[0].destCh = 0;
@@ -597,4 +435,73 @@ TEST_F(MixerTest, NegativeLiteralInputAndMixValues)
   evalMixes();
   EXPECT_NEAR(anas[0], -3 * RESX / 4, 2);
   EXPECT_NEAR(channelOutputs[0], RESX / 2, 2);
+}
+
+TEST_F(MixerTest, InputsSumTransformsAndClearRemovedMappings)
+{
+  MODEL_RESET();
+  auto& first = g_model.expoData[0];
+  first.srcRaw = MIXSRC_FIRST_STICK;
+  first.weight = 50;
+  first.offset = 25;
+  auto& second = g_model.expoData[1];
+  second.srcRaw = MIXSRC_MAX;
+  second.weight = -25;
+  for (int value : {-RESX, 0, RESX, -RESX}) {
+    applyExpos(anas, MIXSRC_FIRST_STICK, value);
+    EXPECT_EQ(value / 2, anas[0]);
+  }
+  // Removing all lines must not leave the previous frame's input value behind.
+  first = ExpoData{};
+  second = ExpoData{};
+  applyExpos(anas);
+  EXPECT_EQ(0, anas[0]);
+}
+
+TEST_F(MixerTest, MappingSumIsOrderIndependentAndEndpointsApplyLast)
+{
+  MODEL_RESET();
+  for (int i = 0; i < 3; ++i) {
+    g_model.mixData[i].srcRaw = MIXSRC_MAX;
+    g_model.mixData[i].weight = i == 0 ? -50 : 100;
+  }
+  for (int i = 0; i < 3; ++i) {
+    evalMixes();
+    EXPECT_EQ(CHANNEL_MAX * 3 / 2, chans[0]);
+    EXPECT_EQ(RESX, channelOutputs[0]);
+    std::swap(g_model.mixData[0], g_model.mixData[i]);
+  }
+}
+
+TEST_F(MixerTest, InvertedChannelSourcesChainInBothDirections)
+{
+  MODEL_RESET();
+  for (bool forward : {false, true}) {
+    g_model.mixData[0].destCh = 0;
+    g_model.mixData[1].destCh = 1;
+    auto& source = g_model.mixData[forward ? 1 : 0];
+    auto& dest = g_model.mixData[forward ? 0 : 1];
+    source.srcRaw = MIXSRC_MAX;
+    source.weight = 50;
+    dest.srcRaw = -(MIXSRC_FIRST_CH + source.destCh);
+    dest.weight = 100;
+    evalMixes();
+    EXPECT_EQ(CHANNEL_MAX / 2, chans[source.destCh]);
+    EXPECT_EQ(-CHANNEL_MAX / 2, chans[dest.destCh]);
+  }
+}
+
+TEST_F(MixerTest, InputCurveWeightAndOffsetApplyOnBothSides)
+{
+  MODEL_RESET();
+  auto& input = g_model.expoData[0];
+  input.srcRaw = MIXSRC_FIRST_STICK;
+  input.weight = 50;
+  input.offset = 25;
+  input.curve.type = CURVE_REF_EXPO;
+  input.curve.value = 50;
+  for (int value : {-RESX, -RESX / 2, 0, RESX / 2, RESX}) {
+    applyExpos(anas, MIXSRC_FIRST_STICK, value);
+    EXPECT_NEAR(expo(value, 50) / 2 + RESX / 4, anas[0], 1);
+  }
 }

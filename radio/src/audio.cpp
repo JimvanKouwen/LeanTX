@@ -188,9 +188,6 @@ const char * const audioFilenames[] = {
   "midslid3",
   "midslid4",
 #endif
-  "mixwarn1",
-  "mixwarn2",
-  "mixwarn3",
   "timovr1",
   "timovr2",
   "timovr3"
@@ -962,15 +959,6 @@ void audioEvent(unsigned int index)
       case AU_SLIDER4_MIDDLE:
 #endif
         audioQueue.playTone(BEEP_DEFAULT_FREQ + 1500, 80, 20, PLAY_NOW);
-        break;
-      case AU_MIX_WARNING_1:
-        audioQueue.playTone(BEEP_DEFAULT_FREQ + 1440, 48, 32);
-        break;
-      case AU_MIX_WARNING_2:
-        audioQueue.playTone(BEEP_DEFAULT_FREQ + 1560, 48, 32, PLAY_REPEAT(1));
-        break;
-      case AU_MIX_WARNING_3:
-        audioQueue.playTone(BEEP_DEFAULT_FREQ + 1680, 48, 32, PLAY_REPEAT(2));
         break;
       case AU_TIMER1_ELAPSED:
       case AU_TIMER2_ELAPSED:

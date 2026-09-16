@@ -23,7 +23,7 @@ TEST(ConfigBenchmark, FileTransactions) {
     g_model.mixData[i].srcRaw = MIXSRC_FIRST_INPUT + i;
     g_model.mixData[i].destCh = i; g_model.mixData[i].weight = 100;
     g_model.expoData[i].srcRaw = MIXSRC_FIRST_STICK + i;
-    g_model.expoData[i].chn = i; g_model.expoData[i].mode = 3;
+    g_model.expoData[i].chn = i;
     g_model.expoData[i].weight = 100;
   }
   ASSERT_EQ(nullptr, writeGeneralSettings());

@@ -1,6 +1,6 @@
 // Explicit section dispatch for model_config_fields.inc. GPL-2.0-or-later.
 // Regenerate with radio/util/model_sections.py. No runtime path matching.
-static_assert(DescriptorCount == 172, "regenerate model_config_sections.inc");
+static_assert(DescriptorCount == 167, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[0].path, "semver") && descriptors[0].count == 1 && descriptors[0].stride == 1 && descriptors[0].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[1].path, "header/name") && descriptors[1].count == 1 && descriptors[1].stride == 1 && descriptors[1].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[2].path, "header/modelId") && descriptors[2].count == 1 && descriptors[2].stride == 1 && descriptors[2].innerStride == 1, "regenerate model_config_sections.inc");
@@ -45,134 +45,129 @@ static_assert(sameKey(descriptors[40].path, "radioThemesDisabled") && descriptor
 static_assert(sameKey(descriptors[41].path, "toplcdTimer") && descriptors[41].count == 1 && descriptors[41].stride == 1 && descriptors[41].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[42].path, "mixData/%u/destCh") && descriptors[42].count == 64 && descriptors[42].stride == 1 && descriptors[42].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[43].path, "mixData/%u/srcRaw") && descriptors[43].count == 64 && descriptors[43].stride == 1 && descriptors[43].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[44].path, "mixData/%u/mixWarn") && descriptors[44].count == 64 && descriptors[44].stride == 1 && descriptors[44].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[45].path, "mixData/%u/mltpx") && descriptors[45].count == 64 && descriptors[45].stride == 1 && descriptors[45].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[46].path, "mixData/%u/weight") && descriptors[46].count == 64 && descriptors[46].stride == 1 && descriptors[46].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[47].path, "mixData/%u/offset") && descriptors[47].count == 64 && descriptors[47].stride == 1 && descriptors[47].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[48].path, "mixData/%u/swtch") && descriptors[48].count == 64 && descriptors[48].stride == 1 && descriptors[48].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[49].path, "mixData/%u/curve/type") && descriptors[49].count == 64 && descriptors[49].stride == 1 && descriptors[49].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[50].path, "mixData/%u/curve/value") && descriptors[50].count == 64 && descriptors[50].stride == 1 && descriptors[50].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[51].path, "mixData/%u/name") && descriptors[51].count == 64 && descriptors[51].stride == 1 && descriptors[51].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[52].path, "expoData/%u/mode") && descriptors[52].count == 64 && descriptors[52].stride == 1 && descriptors[52].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[53].path, "expoData/%u/scale") && descriptors[53].count == 64 && descriptors[53].stride == 1 && descriptors[53].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[54].path, "expoData/%u/srcRaw") && descriptors[54].count == 64 && descriptors[54].stride == 1 && descriptors[54].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[55].path, "expoData/%u/weight") && descriptors[55].count == 64 && descriptors[55].stride == 1 && descriptors[55].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[56].path, "expoData/%u/offset") && descriptors[56].count == 64 && descriptors[56].stride == 1 && descriptors[56].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[57].path, "expoData/%u/swtch") && descriptors[57].count == 64 && descriptors[57].stride == 1 && descriptors[57].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[58].path, "expoData/%u/curve/type") && descriptors[58].count == 64 && descriptors[58].stride == 1 && descriptors[58].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[59].path, "expoData/%u/curve/value") && descriptors[59].count == 64 && descriptors[59].stride == 1 && descriptors[59].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[60].path, "expoData/%u/chn") && descriptors[60].count == 64 && descriptors[60].stride == 1 && descriptors[60].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[61].path, "expoData/%u/name") && descriptors[61].count == 64 && descriptors[61].stride == 1 && descriptors[61].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[62].path, "limitData/%u/min") && descriptors[62].count == 32 && descriptors[62].stride == 1 && descriptors[62].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[63].path, "limitData/%u/max") && descriptors[63].count == 32 && descriptors[63].stride == 1 && descriptors[63].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[64].path, "limitData/%u/ppmCenter") && descriptors[64].count == 32 && descriptors[64].stride == 1 && descriptors[64].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[65].path, "limitData/%u/offset") && descriptors[65].count == 32 && descriptors[65].stride == 1 && descriptors[65].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[66].path, "limitData/%u/symetrical") && descriptors[66].count == 32 && descriptors[66].stride == 1 && descriptors[66].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[67].path, "limitData/%u/revert") && descriptors[67].count == 32 && descriptors[67].stride == 1 && descriptors[67].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[68].path, "limitData/%u/curve") && descriptors[68].count == 32 && descriptors[68].stride == 1 && descriptors[68].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[69].path, "limitData/%u/name") && descriptors[69].count == 32 && descriptors[69].stride == 1 && descriptors[69].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[70].path, "curves/%u/type") && descriptors[70].count == 32 && descriptors[70].stride == 1 && descriptors[70].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[71].path, "curves/%u/smooth") && descriptors[71].count == 32 && descriptors[71].stride == 1 && descriptors[71].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[72].path, "curves/%u/points") && descriptors[72].count == 32 && descriptors[72].stride == 1 && descriptors[72].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[73].path, "curves/%u/name") && descriptors[73].count == 32 && descriptors[73].stride == 1 && descriptors[73].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[74].path, "moduleData/%u/type") && descriptors[74].count == 2 && descriptors[74].stride == 1 && descriptors[74].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[75].path, "moduleData/%u/antennaMode") && descriptors[75].count == 2 && descriptors[75].stride == 1 && descriptors[75].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[76].path, "moduleData/%u/channelsStart") && descriptors[76].count == 2 && descriptors[76].stride == 1 && descriptors[76].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[77].path, "moduleData/%u/channelsCount") && descriptors[77].count == 2 && descriptors[77].stride == 1 && descriptors[77].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[78].path, "moduleData/%u/mod/crsf/telemetryBaudrate") && descriptors[78].count == 2 && descriptors[78].stride == 1 && descriptors[78].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[79].path, "moduleData/%u/mod/crsf/crsfArmingMode") && descriptors[79].count == 2 && descriptors[79].stride == 1 && descriptors[79].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[80].path, "moduleData/%u/mod/crsf/crsfArmingTrigger") && descriptors[80].count == 2 && descriptors[80].stride == 1 && descriptors[80].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[81].path, "telemetrySensors/%u/id1/id") && descriptors[81].count == 99 && descriptors[81].stride == 1 && descriptors[81].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[82].path, "telemetrySensors/%u/id1/persistentValue") && descriptors[82].count == 99 && descriptors[82].stride == 1 && descriptors[82].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[83].path, "telemetrySensors/%u/id2/instance") && descriptors[83].count == 99 && descriptors[83].stride == 1 && descriptors[83].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[84].path, "telemetrySensors/%u/id2/formula") && descriptors[84].count == 99 && descriptors[84].stride == 1 && descriptors[84].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[85].path, "telemetrySensors/%u/label") && descriptors[85].count == 99 && descriptors[85].stride == 1 && descriptors[85].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[86].path, "telemetrySensors/%u/subId") && descriptors[86].count == 99 && descriptors[86].stride == 1 && descriptors[86].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[87].path, "telemetrySensors/%u/type") && descriptors[87].count == 99 && descriptors[87].stride == 1 && descriptors[87].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[88].path, "telemetrySensors/%u/unit") && descriptors[88].count == 99 && descriptors[88].stride == 1 && descriptors[88].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[89].path, "telemetrySensors/%u/prec") && descriptors[89].count == 99 && descriptors[89].stride == 1 && descriptors[89].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[90].path, "telemetrySensors/%u/autoOffset") && descriptors[90].count == 99 && descriptors[90].stride == 1 && descriptors[90].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[91].path, "telemetrySensors/%u/filter") && descriptors[91].count == 99 && descriptors[91].stride == 1 && descriptors[91].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[92].path, "telemetrySensors/%u/logs") && descriptors[92].count == 99 && descriptors[92].stride == 1 && descriptors[92].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[93].path, "telemetrySensors/%u/persistent") && descriptors[93].count == 99 && descriptors[93].stride == 1 && descriptors[93].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[94].path, "telemetrySensors/%u/onlyPositive") && descriptors[94].count == 99 && descriptors[94].stride == 1 && descriptors[94].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[95].path, "telemetrySensors/%u/cfg/custom/ratio") && descriptors[95].count == 99 && descriptors[95].stride == 1 && descriptors[95].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[96].path, "telemetrySensors/%u/cfg/custom/offset") && descriptors[96].count == 99 && descriptors[96].stride == 1 && descriptors[96].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[97].path, "telemetrySensors/%u/cfg/cell/source") && descriptors[97].count == 99 && descriptors[97].stride == 1 && descriptors[97].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[98].path, "telemetrySensors/%u/cfg/cell/index") && descriptors[98].count == 99 && descriptors[98].stride == 1 && descriptors[98].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[99].path, "telemetrySensors/%u/cfg/consumption/source") && descriptors[99].count == 99 && descriptors[99].stride == 1 && descriptors[99].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[100].path, "telemetrySensors/%u/cfg/dist/gps") && descriptors[100].count == 99 && descriptors[100].stride == 1 && descriptors[100].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[101].path, "telemetrySensors/%u/cfg/dist/alt") && descriptors[101].count == 99 && descriptors[101].stride == 1 && descriptors[101].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[102].path, "telemetrySensors/%u/cfg/param") && descriptors[102].count == 99 && descriptors[102].stride == 1 && descriptors[102].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[103].path, "usbJoystickCh/%u/mode") && descriptors[103].count == 32 && descriptors[103].stride == 1 && descriptors[103].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[104].path, "usbJoystickCh/%u/inversion") && descriptors[104].count == 32 && descriptors[104].stride == 1 && descriptors[104].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[105].path, "usbJoystickCh/%u/param") && descriptors[105].count == 32 && descriptors[105].stride == 1 && descriptors[105].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[106].path, "usbJoystickCh/%u/btn_num") && descriptors[106].count == 32 && descriptors[106].stride == 1 && descriptors[106].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[107].path, "usbJoystickCh/%u/switch_npos") && descriptors[107].count == 32 && descriptors[107].stride == 1 && descriptors[107].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[108].path, "points/%u/val") && descriptors[108].count == 512 && descriptors[108].stride == 1 && descriptors[108].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[109].path, "inputNames/%u/val") && descriptors[109].count == 32 && descriptors[109].stride == 1 && descriptors[109].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[110].path, "potsWarnPosition/%u/val") && descriptors[110].count == 32 && descriptors[110].stride == 1 && descriptors[110].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[111].path, "varioData/source") && descriptors[111].count == 1 && descriptors[111].stride == 1 && descriptors[111].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[112].path, "varioData/centerSilent") && descriptors[112].count == 1 && descriptors[112].stride == 1 && descriptors[112].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[113].path, "varioData/centerMax") && descriptors[113].count == 1 && descriptors[113].stride == 1 && descriptors[113].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[114].path, "varioData/centerMin") && descriptors[114].count == 1 && descriptors[114].stride == 1 && descriptors[114].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[115].path, "varioData/min") && descriptors[115].count == 1 && descriptors[115].stride == 1 && descriptors[115].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[116].path, "varioData/max") && descriptors[116].count == 1 && descriptors[116].stride == 1 && descriptors[116].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[117].path, "rfAlarms/warning") && descriptors[117].count == 1 && descriptors[117].stride == 1 && descriptors[117].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[118].path, "rfAlarms/critical") && descriptors[118].count == 1 && descriptors[118].stride == 1 && descriptors[118].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[119].path, "voltsSource") && descriptors[119].count == 1 && descriptors[119].stride == 1 && descriptors[119].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[120].path, "altitudeSource") && descriptors[120].count == 1 && descriptors[120].stride == 1 && descriptors[120].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[121].path, "thrTraceSrc") && descriptors[121].count == 1 && descriptors[121].stride == 1 && descriptors[121].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[122].path, "scriptsData/%u/file") && descriptors[122].count == 9 && descriptors[122].stride == 1 && descriptors[122].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[123].path, "scriptsData/%u/name") && descriptors[123].count == 9 && descriptors[123].stride == 1 && descriptors[123].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[124].path, "scriptsData/%u/inputs/%u/u/value") && descriptors[124].count == 54 && descriptors[124].stride == 6 && descriptors[124].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[125].path, "scriptsData/%u/inputs/%u/u/source") && descriptors[125].count == 54 && descriptors[125].stride == 6 && descriptors[125].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[126].path, "telemetrySensors/%u/cfg/calc/sources/%u/val") && descriptors[126].count == 396 && descriptors[126].stride == 4 && descriptors[126].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[127].path, "screens/%u/type") && descriptors[127].count == 4 && descriptors[127].stride == 1 && descriptors[127].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[128].path, "screens/%u/u/bars/%u/source") && descriptors[128].count == 16 && descriptors[128].stride == 4 && descriptors[128].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[129].path, "screens/%u/u/bars/%u/barMin") && descriptors[129].count == 16 && descriptors[129].stride == 4 && descriptors[129].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[130].path, "screens/%u/u/bars/%u/barMax") && descriptors[130].count == 16 && descriptors[130].stride == 4 && descriptors[130].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[131].path, "screens/%u/u/lines/%u/sources/%u/val") && descriptors[131].count == 48 && descriptors[131].stride == 12 && descriptors[131].innerStride == 3, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[132].path, "screens/%u/u/script/file") && descriptors[132].count == 4 && descriptors[132].stride == 1 && descriptors[132].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[133].path, "screens/%u/u/script/inputs/%u/val") && descriptors[133].count == 32 && descriptors[133].stride == 8 && descriptors[133].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[134].path, "screenData/%u/LayoutId") && descriptors[134].count == 10 && descriptors[134].stride == 1 && descriptors[134].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[135].path, "topbarWidgetWidth/%u/val") && descriptors[135].count == 16 && descriptors[135].stride == 1 && descriptors[135].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[136].path, "screenData/%u/layoutData/zones/%u/widgetName") && descriptors[136].count == 100 && descriptors[136].stride == 10 && descriptors[136].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[137].path, "screenData/%u/layoutData/options/%u/type") && descriptors[137].count == 100 && descriptors[137].stride == 10 && descriptors[137].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[138].path, "screenData/%u/layoutData/options/%u/value/unsignedValue") && descriptors[138].count == 100 && descriptors[138].stride == 10 && descriptors[138].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[139].path, "screenData/%u/layoutData/options/%u/value/boolValue") && descriptors[139].count == 100 && descriptors[139].stride == 10 && descriptors[139].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[140].path, "screenData/%u/layoutData/options/%u/value/color") && descriptors[140].count == 100 && descriptors[140].stride == 10 && descriptors[140].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[141].path, "topbarData/zones/%u/widgetName") && descriptors[141].count == 16 && descriptors[141].stride == 1 && descriptors[141].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[142].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/type") && descriptors[142].count == 5000 && descriptors[142].stride == 500 && descriptors[142].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[143].path, "topbarData/zones/%u/widgetData/options/%u/type") && descriptors[143].count == 800 && descriptors[143].stride == 50 && descriptors[143].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[144].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[144].count == 5000 && descriptors[144].stride == 500 && descriptors[144].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[145].path, "topbarData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[145].count == 800 && descriptors[145].stride == 50 && descriptors[145].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[146].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[146].count == 5000 && descriptors[146].stride == 500 && descriptors[146].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[147].path, "topbarData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[147].count == 800 && descriptors[147].stride == 50 && descriptors[147].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[148].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[148].count == 5000 && descriptors[148].stride == 500 && descriptors[148].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[149].path, "topbarData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[149].count == 800 && descriptors[149].stride == 50 && descriptors[149].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[150].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[150].count == 5000 && descriptors[150].stride == 500 && descriptors[150].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[151].path, "topbarData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[151].count == 800 && descriptors[151].stride == 50 && descriptors[151].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[152].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/source") && descriptors[152].count == 5000 && descriptors[152].stride == 500 && descriptors[152].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[153].path, "topbarData/zones/%u/widgetData/options/%u/value/source") && descriptors[153].count == 800 && descriptors[153].stride == 50 && descriptors[153].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[154].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/color") && descriptors[154].count == 5000 && descriptors[154].stride == 500 && descriptors[154].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[155].path, "topbarData/zones/%u/widgetData/options/%u/value/color") && descriptors[155].count == 800 && descriptors[155].stride == 50 && descriptors[155].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[156].path, "switchWarning/%u/pos") && descriptors[156].count == 32 && descriptors[156].stride == 1 && descriptors[156].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[157].path, "customSwitches/%u/sw") && descriptors[157].count == 16 && descriptors[157].stride == 1 && descriptors[157].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[158].path, "customSwitches/%u/name") && descriptors[158].count == 16 && descriptors[158].stride == 1 && descriptors[158].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[159].path, "customSwitches/%u/type") && descriptors[159].count == 16 && descriptors[159].stride == 1 && descriptors[159].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[160].path, "customSwitches/%u/group") && descriptors[160].count == 16 && descriptors[160].stride == 1 && descriptors[160].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[161].path, "customSwitches/%u/start") && descriptors[161].count == 16 && descriptors[161].stride == 1 && descriptors[161].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[162].path, "customSwitches/%u/state") && descriptors[162].count == 16 && descriptors[162].stride == 1 && descriptors[162].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[163].path, "customSwitches/%u/onColorLuaOverride") && descriptors[163].count == 16 && descriptors[163].stride == 1 && descriptors[163].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[164].path, "customSwitches/%u/offColorLuaOverride") && descriptors[164].count == 16 && descriptors[164].stride == 1 && descriptors[164].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[165].path, "customSwitches/%u/onColor/r") && descriptors[165].count == 16 && descriptors[165].stride == 1 && descriptors[165].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[166].path, "customSwitches/%u/onColor/g") && descriptors[166].count == 16 && descriptors[166].stride == 1 && descriptors[166].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[167].path, "customSwitches/%u/onColor/b") && descriptors[167].count == 16 && descriptors[167].stride == 1 && descriptors[167].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[168].path, "customSwitches/%u/offColor/r") && descriptors[168].count == 16 && descriptors[168].stride == 1 && descriptors[168].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[169].path, "customSwitches/%u/offColor/g") && descriptors[169].count == 16 && descriptors[169].stride == 1 && descriptors[169].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[170].path, "customSwitches/%u/offColor/b") && descriptors[170].count == 16 && descriptors[170].stride == 1 && descriptors[170].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[171].path, "cfsGroupOn/%u/v") && descriptors[171].count == 8 && descriptors[171].stride == 1 && descriptors[171].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[44].path, "mixData/%u/weight") && descriptors[44].count == 64 && descriptors[44].stride == 1 && descriptors[44].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[45].path, "mixData/%u/offset") && descriptors[45].count == 64 && descriptors[45].stride == 1 && descriptors[45].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[46].path, "mixData/%u/curve/type") && descriptors[46].count == 64 && descriptors[46].stride == 1 && descriptors[46].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[47].path, "mixData/%u/curve/value") && descriptors[47].count == 64 && descriptors[47].stride == 1 && descriptors[47].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[48].path, "mixData/%u/name") && descriptors[48].count == 64 && descriptors[48].stride == 1 && descriptors[48].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[49].path, "expoData/%u/scale") && descriptors[49].count == 64 && descriptors[49].stride == 1 && descriptors[49].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[50].path, "expoData/%u/srcRaw") && descriptors[50].count == 64 && descriptors[50].stride == 1 && descriptors[50].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[51].path, "expoData/%u/weight") && descriptors[51].count == 64 && descriptors[51].stride == 1 && descriptors[51].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[52].path, "expoData/%u/offset") && descriptors[52].count == 64 && descriptors[52].stride == 1 && descriptors[52].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[53].path, "expoData/%u/curve/type") && descriptors[53].count == 64 && descriptors[53].stride == 1 && descriptors[53].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[54].path, "expoData/%u/curve/value") && descriptors[54].count == 64 && descriptors[54].stride == 1 && descriptors[54].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[55].path, "expoData/%u/chn") && descriptors[55].count == 64 && descriptors[55].stride == 1 && descriptors[55].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[56].path, "expoData/%u/name") && descriptors[56].count == 64 && descriptors[56].stride == 1 && descriptors[56].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[57].path, "limitData/%u/min") && descriptors[57].count == 32 && descriptors[57].stride == 1 && descriptors[57].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[58].path, "limitData/%u/max") && descriptors[58].count == 32 && descriptors[58].stride == 1 && descriptors[58].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[59].path, "limitData/%u/ppmCenter") && descriptors[59].count == 32 && descriptors[59].stride == 1 && descriptors[59].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[60].path, "limitData/%u/offset") && descriptors[60].count == 32 && descriptors[60].stride == 1 && descriptors[60].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[61].path, "limitData/%u/symetrical") && descriptors[61].count == 32 && descriptors[61].stride == 1 && descriptors[61].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[62].path, "limitData/%u/revert") && descriptors[62].count == 32 && descriptors[62].stride == 1 && descriptors[62].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[63].path, "limitData/%u/curve") && descriptors[63].count == 32 && descriptors[63].stride == 1 && descriptors[63].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[64].path, "limitData/%u/name") && descriptors[64].count == 32 && descriptors[64].stride == 1 && descriptors[64].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[65].path, "curves/%u/type") && descriptors[65].count == 32 && descriptors[65].stride == 1 && descriptors[65].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[66].path, "curves/%u/smooth") && descriptors[66].count == 32 && descriptors[66].stride == 1 && descriptors[66].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[67].path, "curves/%u/points") && descriptors[67].count == 32 && descriptors[67].stride == 1 && descriptors[67].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[68].path, "curves/%u/name") && descriptors[68].count == 32 && descriptors[68].stride == 1 && descriptors[68].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[69].path, "moduleData/%u/type") && descriptors[69].count == 2 && descriptors[69].stride == 1 && descriptors[69].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[70].path, "moduleData/%u/antennaMode") && descriptors[70].count == 2 && descriptors[70].stride == 1 && descriptors[70].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[71].path, "moduleData/%u/channelsStart") && descriptors[71].count == 2 && descriptors[71].stride == 1 && descriptors[71].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[72].path, "moduleData/%u/channelsCount") && descriptors[72].count == 2 && descriptors[72].stride == 1 && descriptors[72].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[73].path, "moduleData/%u/mod/crsf/telemetryBaudrate") && descriptors[73].count == 2 && descriptors[73].stride == 1 && descriptors[73].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[74].path, "moduleData/%u/mod/crsf/crsfArmingMode") && descriptors[74].count == 2 && descriptors[74].stride == 1 && descriptors[74].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[75].path, "moduleData/%u/mod/crsf/crsfArmingTrigger") && descriptors[75].count == 2 && descriptors[75].stride == 1 && descriptors[75].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[76].path, "telemetrySensors/%u/id1/id") && descriptors[76].count == 99 && descriptors[76].stride == 1 && descriptors[76].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[77].path, "telemetrySensors/%u/id1/persistentValue") && descriptors[77].count == 99 && descriptors[77].stride == 1 && descriptors[77].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[78].path, "telemetrySensors/%u/id2/instance") && descriptors[78].count == 99 && descriptors[78].stride == 1 && descriptors[78].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[79].path, "telemetrySensors/%u/id2/formula") && descriptors[79].count == 99 && descriptors[79].stride == 1 && descriptors[79].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[80].path, "telemetrySensors/%u/label") && descriptors[80].count == 99 && descriptors[80].stride == 1 && descriptors[80].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[81].path, "telemetrySensors/%u/subId") && descriptors[81].count == 99 && descriptors[81].stride == 1 && descriptors[81].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[82].path, "telemetrySensors/%u/type") && descriptors[82].count == 99 && descriptors[82].stride == 1 && descriptors[82].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[83].path, "telemetrySensors/%u/unit") && descriptors[83].count == 99 && descriptors[83].stride == 1 && descriptors[83].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[84].path, "telemetrySensors/%u/prec") && descriptors[84].count == 99 && descriptors[84].stride == 1 && descriptors[84].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[85].path, "telemetrySensors/%u/autoOffset") && descriptors[85].count == 99 && descriptors[85].stride == 1 && descriptors[85].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[86].path, "telemetrySensors/%u/filter") && descriptors[86].count == 99 && descriptors[86].stride == 1 && descriptors[86].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[87].path, "telemetrySensors/%u/logs") && descriptors[87].count == 99 && descriptors[87].stride == 1 && descriptors[87].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[88].path, "telemetrySensors/%u/persistent") && descriptors[88].count == 99 && descriptors[88].stride == 1 && descriptors[88].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[89].path, "telemetrySensors/%u/onlyPositive") && descriptors[89].count == 99 && descriptors[89].stride == 1 && descriptors[89].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[90].path, "telemetrySensors/%u/cfg/custom/ratio") && descriptors[90].count == 99 && descriptors[90].stride == 1 && descriptors[90].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[91].path, "telemetrySensors/%u/cfg/custom/offset") && descriptors[91].count == 99 && descriptors[91].stride == 1 && descriptors[91].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[92].path, "telemetrySensors/%u/cfg/cell/source") && descriptors[92].count == 99 && descriptors[92].stride == 1 && descriptors[92].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[93].path, "telemetrySensors/%u/cfg/cell/index") && descriptors[93].count == 99 && descriptors[93].stride == 1 && descriptors[93].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[94].path, "telemetrySensors/%u/cfg/consumption/source") && descriptors[94].count == 99 && descriptors[94].stride == 1 && descriptors[94].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[95].path, "telemetrySensors/%u/cfg/dist/gps") && descriptors[95].count == 99 && descriptors[95].stride == 1 && descriptors[95].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[96].path, "telemetrySensors/%u/cfg/dist/alt") && descriptors[96].count == 99 && descriptors[96].stride == 1 && descriptors[96].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[97].path, "telemetrySensors/%u/cfg/param") && descriptors[97].count == 99 && descriptors[97].stride == 1 && descriptors[97].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[98].path, "usbJoystickCh/%u/mode") && descriptors[98].count == 32 && descriptors[98].stride == 1 && descriptors[98].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[99].path, "usbJoystickCh/%u/inversion") && descriptors[99].count == 32 && descriptors[99].stride == 1 && descriptors[99].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[100].path, "usbJoystickCh/%u/param") && descriptors[100].count == 32 && descriptors[100].stride == 1 && descriptors[100].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[101].path, "usbJoystickCh/%u/btn_num") && descriptors[101].count == 32 && descriptors[101].stride == 1 && descriptors[101].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[102].path, "usbJoystickCh/%u/switch_npos") && descriptors[102].count == 32 && descriptors[102].stride == 1 && descriptors[102].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[103].path, "points/%u/val") && descriptors[103].count == 512 && descriptors[103].stride == 1 && descriptors[103].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[104].path, "inputNames/%u/val") && descriptors[104].count == 32 && descriptors[104].stride == 1 && descriptors[104].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[105].path, "potsWarnPosition/%u/val") && descriptors[105].count == 32 && descriptors[105].stride == 1 && descriptors[105].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[106].path, "varioData/source") && descriptors[106].count == 1 && descriptors[106].stride == 1 && descriptors[106].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[107].path, "varioData/centerSilent") && descriptors[107].count == 1 && descriptors[107].stride == 1 && descriptors[107].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[108].path, "varioData/centerMax") && descriptors[108].count == 1 && descriptors[108].stride == 1 && descriptors[108].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[109].path, "varioData/centerMin") && descriptors[109].count == 1 && descriptors[109].stride == 1 && descriptors[109].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[110].path, "varioData/min") && descriptors[110].count == 1 && descriptors[110].stride == 1 && descriptors[110].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[111].path, "varioData/max") && descriptors[111].count == 1 && descriptors[111].stride == 1 && descriptors[111].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[112].path, "rfAlarms/warning") && descriptors[112].count == 1 && descriptors[112].stride == 1 && descriptors[112].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[113].path, "rfAlarms/critical") && descriptors[113].count == 1 && descriptors[113].stride == 1 && descriptors[113].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[114].path, "voltsSource") && descriptors[114].count == 1 && descriptors[114].stride == 1 && descriptors[114].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[115].path, "altitudeSource") && descriptors[115].count == 1 && descriptors[115].stride == 1 && descriptors[115].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[116].path, "thrTraceSrc") && descriptors[116].count == 1 && descriptors[116].stride == 1 && descriptors[116].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[117].path, "scriptsData/%u/file") && descriptors[117].count == 9 && descriptors[117].stride == 1 && descriptors[117].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[118].path, "scriptsData/%u/name") && descriptors[118].count == 9 && descriptors[118].stride == 1 && descriptors[118].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[119].path, "scriptsData/%u/inputs/%u/u/value") && descriptors[119].count == 54 && descriptors[119].stride == 6 && descriptors[119].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[120].path, "scriptsData/%u/inputs/%u/u/source") && descriptors[120].count == 54 && descriptors[120].stride == 6 && descriptors[120].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[121].path, "telemetrySensors/%u/cfg/calc/sources/%u/val") && descriptors[121].count == 396 && descriptors[121].stride == 4 && descriptors[121].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[122].path, "screens/%u/type") && descriptors[122].count == 4 && descriptors[122].stride == 1 && descriptors[122].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[123].path, "screens/%u/u/bars/%u/source") && descriptors[123].count == 16 && descriptors[123].stride == 4 && descriptors[123].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[124].path, "screens/%u/u/bars/%u/barMin") && descriptors[124].count == 16 && descriptors[124].stride == 4 && descriptors[124].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[125].path, "screens/%u/u/bars/%u/barMax") && descriptors[125].count == 16 && descriptors[125].stride == 4 && descriptors[125].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[126].path, "screens/%u/u/lines/%u/sources/%u/val") && descriptors[126].count == 48 && descriptors[126].stride == 12 && descriptors[126].innerStride == 3, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[127].path, "screens/%u/u/script/file") && descriptors[127].count == 4 && descriptors[127].stride == 1 && descriptors[127].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[128].path, "screens/%u/u/script/inputs/%u/val") && descriptors[128].count == 32 && descriptors[128].stride == 8 && descriptors[128].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[129].path, "screenData/%u/LayoutId") && descriptors[129].count == 10 && descriptors[129].stride == 1 && descriptors[129].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[130].path, "topbarWidgetWidth/%u/val") && descriptors[130].count == 16 && descriptors[130].stride == 1 && descriptors[130].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[131].path, "screenData/%u/layoutData/zones/%u/widgetName") && descriptors[131].count == 100 && descriptors[131].stride == 10 && descriptors[131].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[132].path, "screenData/%u/layoutData/options/%u/type") && descriptors[132].count == 100 && descriptors[132].stride == 10 && descriptors[132].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[133].path, "screenData/%u/layoutData/options/%u/value/unsignedValue") && descriptors[133].count == 100 && descriptors[133].stride == 10 && descriptors[133].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[134].path, "screenData/%u/layoutData/options/%u/value/boolValue") && descriptors[134].count == 100 && descriptors[134].stride == 10 && descriptors[134].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[135].path, "screenData/%u/layoutData/options/%u/value/color") && descriptors[135].count == 100 && descriptors[135].stride == 10 && descriptors[135].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[136].path, "topbarData/zones/%u/widgetName") && descriptors[136].count == 16 && descriptors[136].stride == 1 && descriptors[136].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[137].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/type") && descriptors[137].count == 5000 && descriptors[137].stride == 500 && descriptors[137].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[138].path, "topbarData/zones/%u/widgetData/options/%u/type") && descriptors[138].count == 800 && descriptors[138].stride == 50 && descriptors[138].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[139].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[139].count == 5000 && descriptors[139].stride == 500 && descriptors[139].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[140].path, "topbarData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[140].count == 800 && descriptors[140].stride == 50 && descriptors[140].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[141].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[141].count == 5000 && descriptors[141].stride == 500 && descriptors[141].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[142].path, "topbarData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[142].count == 800 && descriptors[142].stride == 50 && descriptors[142].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[143].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[143].count == 5000 && descriptors[143].stride == 500 && descriptors[143].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[144].path, "topbarData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[144].count == 800 && descriptors[144].stride == 50 && descriptors[144].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[145].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[145].count == 5000 && descriptors[145].stride == 500 && descriptors[145].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[146].path, "topbarData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[146].count == 800 && descriptors[146].stride == 50 && descriptors[146].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[147].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/source") && descriptors[147].count == 5000 && descriptors[147].stride == 500 && descriptors[147].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[148].path, "topbarData/zones/%u/widgetData/options/%u/value/source") && descriptors[148].count == 800 && descriptors[148].stride == 50 && descriptors[148].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[149].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/color") && descriptors[149].count == 5000 && descriptors[149].stride == 500 && descriptors[149].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[150].path, "topbarData/zones/%u/widgetData/options/%u/value/color") && descriptors[150].count == 800 && descriptors[150].stride == 50 && descriptors[150].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[151].path, "switchWarning/%u/pos") && descriptors[151].count == 32 && descriptors[151].stride == 1 && descriptors[151].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[152].path, "customSwitches/%u/sw") && descriptors[152].count == 16 && descriptors[152].stride == 1 && descriptors[152].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[153].path, "customSwitches/%u/name") && descriptors[153].count == 16 && descriptors[153].stride == 1 && descriptors[153].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[154].path, "customSwitches/%u/type") && descriptors[154].count == 16 && descriptors[154].stride == 1 && descriptors[154].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[155].path, "customSwitches/%u/group") && descriptors[155].count == 16 && descriptors[155].stride == 1 && descriptors[155].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[156].path, "customSwitches/%u/start") && descriptors[156].count == 16 && descriptors[156].stride == 1 && descriptors[156].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[157].path, "customSwitches/%u/state") && descriptors[157].count == 16 && descriptors[157].stride == 1 && descriptors[157].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[158].path, "customSwitches/%u/onColorLuaOverride") && descriptors[158].count == 16 && descriptors[158].stride == 1 && descriptors[158].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[159].path, "customSwitches/%u/offColorLuaOverride") && descriptors[159].count == 16 && descriptors[159].stride == 1 && descriptors[159].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[160].path, "customSwitches/%u/onColor/r") && descriptors[160].count == 16 && descriptors[160].stride == 1 && descriptors[160].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[161].path, "customSwitches/%u/onColor/g") && descriptors[161].count == 16 && descriptors[161].stride == 1 && descriptors[161].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[162].path, "customSwitches/%u/onColor/b") && descriptors[162].count == 16 && descriptors[162].stride == 1 && descriptors[162].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[163].path, "customSwitches/%u/offColor/r") && descriptors[163].count == 16 && descriptors[163].stride == 1 && descriptors[163].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[164].path, "customSwitches/%u/offColor/g") && descriptors[164].count == 16 && descriptors[164].stride == 1 && descriptors[164].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[165].path, "customSwitches/%u/offColor/b") && descriptors[165].count == 16 && descriptors[165].stride == 1 && descriptors[165].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[166].path, "cfsGroupOn/%u/v") && descriptors[166].count == 8 && descriptors[166].stride == 1 && descriptors[166].innerStride == 1, "regenerate model_config_sections.inc");
 void enter(void* ctx, const Node& parent, const char* key, const char* text, Node& child, Result& result)
 {
   child = parent; child.section = -1;
@@ -207,28 +202,28 @@ void enter(void* ctx, const Node& parent, const char* key, const char* text, Nod
       if (!strcmp(key, "radioThemesDisabled")) { readLeaf(ctx, 40, 0, text, result); return; }
       if (!strcmp(key, "toplcdTimer")) { readLeaf(ctx, 41, 0, text, result); return; }
       if (!strcmp(key, "mixData")) { child.section = 47; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "expoData")) { child.section = 60; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "limitData")) { child.section = 73; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "curves")) { child.section = 83; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "moduleData")) { child.section = 89; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "telemetrySensors")) { child.section = 100; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "usbJoystickCh")) { child.section = 135; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "points")) { child.section = 142; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "inputNames")) { child.section = 145; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "potsWarnPosition")) { child.section = 148; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "varioData")) { child.section = 151; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "rfAlarms")) { child.section = 158; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "voltsSource")) { readLeaf(ctx, 119, 0, text, result); return; }
-      if (!strcmp(key, "altitudeSource")) { readLeaf(ctx, 120, 0, text, result); return; }
-      if (!strcmp(key, "thrTraceSrc")) { readLeaf(ctx, 121, 0, text, result); return; }
-      if (!strcmp(key, "scriptsData")) { child.section = 164; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "screens")) { child.section = 173; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "screenData")) { child.section = 192; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "topbarWidgetWidth")) { child.section = 217; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "topbarData")) { child.section = 220; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "switchWarning")) { child.section = 235; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "customSwitches")) { child.section = 238; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "cfsGroupOn")) { child.section = 256; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "expoData")) { child.section = 57; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "limitData")) { child.section = 68; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "curves")) { child.section = 78; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "moduleData")) { child.section = 84; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "telemetrySensors")) { child.section = 95; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "usbJoystickCh")) { child.section = 130; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "points")) { child.section = 137; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "inputNames")) { child.section = 140; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "potsWarnPosition")) { child.section = 143; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "varioData")) { child.section = 146; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "rfAlarms")) { child.section = 153; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "voltsSource")) { readLeaf(ctx, 114, 0, text, result); return; }
+      if (!strcmp(key, "altitudeSource")) { readLeaf(ctx, 115, 0, text, result); return; }
+      if (!strcmp(key, "thrTraceSrc")) { readLeaf(ctx, 116, 0, text, result); return; }
+      if (!strcmp(key, "scriptsData")) { child.section = 159; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "screens")) { child.section = 168; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "screenData")) { child.section = 187; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "topbarWidgetWidth")) { child.section = 212; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "topbarData")) { child.section = 215; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "switchWarning")) { child.section = 230; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "customSwitches")) { child.section = 233; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "cfsGroupOn")) { child.section = 251; if (*text) result.error = "expected configuration mapping"; return; }
       break;
     case 2: // /header
       if (!strcmp(key, "name")) { readLeaf(ctx, 1, 0, text, result); return; }
@@ -267,380 +262,375 @@ void enter(void* ctx, const Node& parent, const char* key, const char* text, Nod
     case 48: // /mixData/%u
       if (!strcmp(key, "destCh")) { readLeaf(ctx, 42, child.index[0] * 1, text, result); return; }
       if (!strcmp(key, "srcRaw")) { readLeaf(ctx, 43, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "mixWarn")) { readLeaf(ctx, 44, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "mltpx")) { readLeaf(ctx, 45, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "weight")) { readLeaf(ctx, 46, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "offset")) { readLeaf(ctx, 47, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "swtch")) { readLeaf(ctx, 48, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "curve")) { child.section = 56; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "name")) { readLeaf(ctx, 51, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "weight")) { readLeaf(ctx, 44, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "offset")) { readLeaf(ctx, 45, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "curve")) { child.section = 53; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "name")) { readLeaf(ctx, 48, child.index[0] * 1, text, result); return; }
       break;
-    case 56: // /mixData/%u/curve
-      if (!strcmp(key, "type")) { readLeaf(ctx, 49, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { readLeaf(ctx, 50, child.index[0] * 1, text, result); return; }
+    case 53: // /mixData/%u/curve
+      if (!strcmp(key, "type")) { readLeaf(ctx, 46, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { readLeaf(ctx, 47, child.index[0] * 1, text, result); return; }
       break;
-    case 60: // /expoData
+    case 57: // /expoData
       { int64_t i; if (!integer(key, 0, 63, i)) break;
-        child.index[0] = i; child.section = 61; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 58; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 61: // /expoData/%u
-      if (!strcmp(key, "mode")) { readLeaf(ctx, 52, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "scale")) { readLeaf(ctx, 53, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "srcRaw")) { readLeaf(ctx, 54, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "weight")) { readLeaf(ctx, 55, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "offset")) { readLeaf(ctx, 56, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "swtch")) { readLeaf(ctx, 57, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "curve")) { child.section = 68; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "chn")) { readLeaf(ctx, 60, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "name")) { readLeaf(ctx, 61, child.index[0] * 1, text, result); return; }
+    case 58: // /expoData/%u
+      if (!strcmp(key, "scale")) { readLeaf(ctx, 49, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "srcRaw")) { readLeaf(ctx, 50, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "weight")) { readLeaf(ctx, 51, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "offset")) { readLeaf(ctx, 52, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "curve")) { child.section = 63; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "chn")) { readLeaf(ctx, 55, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "name")) { readLeaf(ctx, 56, child.index[0] * 1, text, result); return; }
       break;
-    case 68: // /expoData/%u/curve
-      if (!strcmp(key, "type")) { readLeaf(ctx, 58, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { readLeaf(ctx, 59, child.index[0] * 1, text, result); return; }
+    case 63: // /expoData/%u/curve
+      if (!strcmp(key, "type")) { readLeaf(ctx, 53, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { readLeaf(ctx, 54, child.index[0] * 1, text, result); return; }
       break;
-    case 73: // /limitData
+    case 68: // /limitData
       { int64_t i; if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 74; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 69; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 74: // /limitData/%u
-      if (!strcmp(key, "min")) { readLeaf(ctx, 62, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "max")) { readLeaf(ctx, 63, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "ppmCenter")) { readLeaf(ctx, 64, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "offset")) { readLeaf(ctx, 65, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "symetrical")) { readLeaf(ctx, 66, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "revert")) { readLeaf(ctx, 67, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "curve")) { readLeaf(ctx, 68, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "name")) { readLeaf(ctx, 69, child.index[0] * 1, text, result); return; }
+    case 69: // /limitData/%u
+      if (!strcmp(key, "min")) { readLeaf(ctx, 57, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "max")) { readLeaf(ctx, 58, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "ppmCenter")) { readLeaf(ctx, 59, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "offset")) { readLeaf(ctx, 60, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "symetrical")) { readLeaf(ctx, 61, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "revert")) { readLeaf(ctx, 62, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "curve")) { readLeaf(ctx, 63, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "name")) { readLeaf(ctx, 64, child.index[0] * 1, text, result); return; }
       break;
-    case 83: // /curves
+    case 78: // /curves
       { int64_t i; if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 84; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 79; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 84: // /curves/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 70, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "smooth")) { readLeaf(ctx, 71, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "points")) { readLeaf(ctx, 72, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "name")) { readLeaf(ctx, 73, child.index[0] * 1, text, result); return; }
+    case 79: // /curves/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 65, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "smooth")) { readLeaf(ctx, 66, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "points")) { readLeaf(ctx, 67, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "name")) { readLeaf(ctx, 68, child.index[0] * 1, text, result); return; }
       break;
-    case 89: // /moduleData
+    case 84: // /moduleData
       { int64_t i; if (!integer(key, 0, 1, i)) break;
-        child.index[0] = i; child.section = 90; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 85; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 90: // /moduleData/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 74, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "antennaMode")) { readLeaf(ctx, 75, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "channelsStart")) { readLeaf(ctx, 76, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "channelsCount")) { readLeaf(ctx, 77, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "mod")) { child.section = 95; if (*text) result.error = "expected configuration mapping"; return; }
+    case 85: // /moduleData/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 69, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "antennaMode")) { readLeaf(ctx, 70, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "channelsStart")) { readLeaf(ctx, 71, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "channelsCount")) { readLeaf(ctx, 72, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "mod")) { child.section = 90; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 95: // /moduleData/%u/mod
-      if (!strcmp(key, "crsf")) { child.section = 96; if (*text) result.error = "expected configuration mapping"; return; }
+    case 90: // /moduleData/%u/mod
+      if (!strcmp(key, "crsf")) { child.section = 91; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 96: // /moduleData/%u/mod/crsf
-      if (!strcmp(key, "telemetryBaudrate")) { readLeaf(ctx, 78, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "crsfArmingMode")) { readLeaf(ctx, 79, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "crsfArmingTrigger")) { readLeaf(ctx, 80, child.index[0] * 1, text, result); return; }
+    case 91: // /moduleData/%u/mod/crsf
+      if (!strcmp(key, "telemetryBaudrate")) { readLeaf(ctx, 73, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "crsfArmingMode")) { readLeaf(ctx, 74, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "crsfArmingTrigger")) { readLeaf(ctx, 75, child.index[0] * 1, text, result); return; }
       break;
-    case 100: // /telemetrySensors
+    case 95: // /telemetrySensors
       { int64_t i; if (!integer(key, 0, 98, i)) break;
-        child.index[0] = i; child.section = 101; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 96; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 101: // /telemetrySensors/%u
-      if (!strcmp(key, "id1")) { child.section = 102; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "id2")) { child.section = 105; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "label")) { readLeaf(ctx, 85, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "subId")) { readLeaf(ctx, 86, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "type")) { readLeaf(ctx, 87, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "unit")) { readLeaf(ctx, 88, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "prec")) { readLeaf(ctx, 89, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "autoOffset")) { readLeaf(ctx, 90, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "filter")) { readLeaf(ctx, 91, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "logs")) { readLeaf(ctx, 92, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "persistent")) { readLeaf(ctx, 93, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "onlyPositive")) { readLeaf(ctx, 94, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "cfg")) { child.section = 118; if (*text) result.error = "expected configuration mapping"; return; }
+    case 96: // /telemetrySensors/%u
+      if (!strcmp(key, "id1")) { child.section = 97; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "id2")) { child.section = 100; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "label")) { readLeaf(ctx, 80, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "subId")) { readLeaf(ctx, 81, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "type")) { readLeaf(ctx, 82, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "unit")) { readLeaf(ctx, 83, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "prec")) { readLeaf(ctx, 84, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "autoOffset")) { readLeaf(ctx, 85, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "filter")) { readLeaf(ctx, 86, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "logs")) { readLeaf(ctx, 87, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "persistent")) { readLeaf(ctx, 88, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "onlyPositive")) { readLeaf(ctx, 89, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "cfg")) { child.section = 113; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 102: // /telemetrySensors/%u/id1
-      if (!strcmp(key, "id")) { readLeaf(ctx, 81, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "persistentValue")) { readLeaf(ctx, 82, child.index[0] * 1, text, result); return; }
+    case 97: // /telemetrySensors/%u/id1
+      if (!strcmp(key, "id")) { readLeaf(ctx, 76, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "persistentValue")) { readLeaf(ctx, 77, child.index[0] * 1, text, result); return; }
       break;
-    case 105: // /telemetrySensors/%u/id2
-      if (!strcmp(key, "instance")) { readLeaf(ctx, 83, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "formula")) { readLeaf(ctx, 84, child.index[0] * 1, text, result); return; }
+    case 100: // /telemetrySensors/%u/id2
+      if (!strcmp(key, "instance")) { readLeaf(ctx, 78, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "formula")) { readLeaf(ctx, 79, child.index[0] * 1, text, result); return; }
       break;
-    case 118: // /telemetrySensors/%u/cfg
-      if (!strcmp(key, "custom")) { child.section = 119; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "cell")) { child.section = 122; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "consumption")) { child.section = 125; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "dist")) { child.section = 127; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "param")) { readLeaf(ctx, 102, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "calc")) { child.section = 131; if (*text) result.error = "expected configuration mapping"; return; }
+    case 113: // /telemetrySensors/%u/cfg
+      if (!strcmp(key, "custom")) { child.section = 114; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "cell")) { child.section = 117; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "consumption")) { child.section = 120; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "dist")) { child.section = 122; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "param")) { readLeaf(ctx, 97, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "calc")) { child.section = 126; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 119: // /telemetrySensors/%u/cfg/custom
-      if (!strcmp(key, "ratio")) { readLeaf(ctx, 95, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "offset")) { readLeaf(ctx, 96, child.index[0] * 1, text, result); return; }
+    case 114: // /telemetrySensors/%u/cfg/custom
+      if (!strcmp(key, "ratio")) { readLeaf(ctx, 90, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "offset")) { readLeaf(ctx, 91, child.index[0] * 1, text, result); return; }
       break;
-    case 122: // /telemetrySensors/%u/cfg/cell
-      if (!strcmp(key, "source")) { readLeaf(ctx, 97, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "index")) { readLeaf(ctx, 98, child.index[0] * 1, text, result); return; }
+    case 117: // /telemetrySensors/%u/cfg/cell
+      if (!strcmp(key, "source")) { readLeaf(ctx, 92, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "index")) { readLeaf(ctx, 93, child.index[0] * 1, text, result); return; }
       break;
-    case 125: // /telemetrySensors/%u/cfg/consumption
-      if (!strcmp(key, "source")) { readLeaf(ctx, 99, child.index[0] * 1, text, result); return; }
+    case 120: // /telemetrySensors/%u/cfg/consumption
+      if (!strcmp(key, "source")) { readLeaf(ctx, 94, child.index[0] * 1, text, result); return; }
       break;
-    case 127: // /telemetrySensors/%u/cfg/dist
-      if (!strcmp(key, "gps")) { readLeaf(ctx, 100, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "alt")) { readLeaf(ctx, 101, child.index[0] * 1, text, result); return; }
+    case 122: // /telemetrySensors/%u/cfg/dist
+      if (!strcmp(key, "gps")) { readLeaf(ctx, 95, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "alt")) { readLeaf(ctx, 96, child.index[0] * 1, text, result); return; }
       break;
-    case 131: // /telemetrySensors/%u/cfg/calc
-      if (!strcmp(key, "sources")) { child.section = 132; if (*text) result.error = "expected configuration mapping"; return; }
+    case 126: // /telemetrySensors/%u/cfg/calc
+      if (!strcmp(key, "sources")) { child.section = 127; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 132: // /telemetrySensors/%u/cfg/calc/sources
+    case 127: // /telemetrySensors/%u/cfg/calc/sources
       { int64_t i; if (!integer(key, 0, 3, i)) break;
-        child.index[1] = i; child.section = 133; if (*text) readLeaf(ctx, 126, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
+        child.index[1] = i; child.section = 128; if (*text) readLeaf(ctx, 121, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
       break;
-    case 133: // /telemetrySensors/%u/cfg/calc/sources/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 126, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
+    case 128: // /telemetrySensors/%u/cfg/calc/sources/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 121, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
       break;
-    case 135: // /usbJoystickCh
+    case 130: // /usbJoystickCh
       { int64_t i; if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 136; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 131; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 136: // /usbJoystickCh/%u
-      if (!strcmp(key, "mode")) { readLeaf(ctx, 103, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "inversion")) { readLeaf(ctx, 104, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "param")) { readLeaf(ctx, 105, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "btn_num")) { readLeaf(ctx, 106, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "switch_npos")) { readLeaf(ctx, 107, child.index[0] * 1, text, result); return; }
+    case 131: // /usbJoystickCh/%u
+      if (!strcmp(key, "mode")) { readLeaf(ctx, 98, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "inversion")) { readLeaf(ctx, 99, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "param")) { readLeaf(ctx, 100, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "btn_num")) { readLeaf(ctx, 101, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "switch_npos")) { readLeaf(ctx, 102, child.index[0] * 1, text, result); return; }
       break;
-    case 142: // /points
+    case 137: // /points
       { int64_t i; if (!integer(key, 0, 511, i)) break;
-        child.index[0] = i; child.section = 143; if (*text) readLeaf(ctx, 108, child.index[0] * 1, text, result); return; }
+        child.index[0] = i; child.section = 138; if (*text) readLeaf(ctx, 103, child.index[0] * 1, text, result); return; }
       break;
-    case 143: // /points/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 108, child.index[0] * 1, text, result); return; }
+    case 138: // /points/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 103, child.index[0] * 1, text, result); return; }
       break;
-    case 145: // /inputNames
+    case 140: // /inputNames
       { int64_t i; if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 146; if (*text) readLeaf(ctx, 109, child.index[0] * 1, text, result); return; }
+        child.index[0] = i; child.section = 141; if (*text) readLeaf(ctx, 104, child.index[0] * 1, text, result); return; }
       break;
-    case 146: // /inputNames/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 109, child.index[0] * 1, text, result); return; }
+    case 141: // /inputNames/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 104, child.index[0] * 1, text, result); return; }
       break;
-    case 148: // /potsWarnPosition
+    case 143: // /potsWarnPosition
       { int64_t i; if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 149; if (*text) readLeaf(ctx, 110, child.index[0] * 1, text, result); return; }
+        child.index[0] = i; child.section = 144; if (*text) readLeaf(ctx, 105, child.index[0] * 1, text, result); return; }
       break;
-    case 149: // /potsWarnPosition/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 110, child.index[0] * 1, text, result); return; }
+    case 144: // /potsWarnPosition/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 105, child.index[0] * 1, text, result); return; }
       break;
-    case 151: // /varioData
-      if (!strcmp(key, "source")) { readLeaf(ctx, 111, 0, text, result); return; }
-      if (!strcmp(key, "centerSilent")) { readLeaf(ctx, 112, 0, text, result); return; }
-      if (!strcmp(key, "centerMax")) { readLeaf(ctx, 113, 0, text, result); return; }
-      if (!strcmp(key, "centerMin")) { readLeaf(ctx, 114, 0, text, result); return; }
-      if (!strcmp(key, "min")) { readLeaf(ctx, 115, 0, text, result); return; }
-      if (!strcmp(key, "max")) { readLeaf(ctx, 116, 0, text, result); return; }
+    case 146: // /varioData
+      if (!strcmp(key, "source")) { readLeaf(ctx, 106, 0, text, result); return; }
+      if (!strcmp(key, "centerSilent")) { readLeaf(ctx, 107, 0, text, result); return; }
+      if (!strcmp(key, "centerMax")) { readLeaf(ctx, 108, 0, text, result); return; }
+      if (!strcmp(key, "centerMin")) { readLeaf(ctx, 109, 0, text, result); return; }
+      if (!strcmp(key, "min")) { readLeaf(ctx, 110, 0, text, result); return; }
+      if (!strcmp(key, "max")) { readLeaf(ctx, 111, 0, text, result); return; }
       break;
-    case 158: // /rfAlarms
-      if (!strcmp(key, "warning")) { readLeaf(ctx, 117, 0, text, result); return; }
-      if (!strcmp(key, "critical")) { readLeaf(ctx, 118, 0, text, result); return; }
+    case 153: // /rfAlarms
+      if (!strcmp(key, "warning")) { readLeaf(ctx, 112, 0, text, result); return; }
+      if (!strcmp(key, "critical")) { readLeaf(ctx, 113, 0, text, result); return; }
       break;
-    case 164: // /scriptsData
+    case 159: // /scriptsData
       { int64_t i; if (!integer(key, 0, 8, i)) break;
-        child.index[0] = i; child.section = 165; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 160; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 165: // /scriptsData/%u
-      if (!strcmp(key, "file")) { readLeaf(ctx, 122, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "name")) { readLeaf(ctx, 123, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "inputs")) { child.section = 168; if (*text) result.error = "expected configuration mapping"; return; }
+    case 160: // /scriptsData/%u
+      if (!strcmp(key, "file")) { readLeaf(ctx, 117, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "name")) { readLeaf(ctx, 118, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "inputs")) { child.section = 163; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 168: // /scriptsData/%u/inputs
+    case 163: // /scriptsData/%u/inputs
       { int64_t i; if (!integer(key, 0, 5, i)) break;
-        child.index[1] = i; child.section = 169; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[1] = i; child.section = 164; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 169: // /scriptsData/%u/inputs/%u
-      if (!strcmp(key, "u")) { child.section = 170; if (*text) result.error = "expected configuration mapping"; return; }
+    case 164: // /scriptsData/%u/inputs/%u
+      if (!strcmp(key, "u")) { child.section = 165; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 170: // /scriptsData/%u/inputs/%u/u
-      if (!strcmp(key, "value")) { readLeaf(ctx, 124, child.index[0] * 6 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "source")) { readLeaf(ctx, 125, child.index[0] * 6 + child.index[1] * 1, text, result); return; }
+    case 165: // /scriptsData/%u/inputs/%u/u
+      if (!strcmp(key, "value")) { readLeaf(ctx, 119, child.index[0] * 6 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "source")) { readLeaf(ctx, 120, child.index[0] * 6 + child.index[1] * 1, text, result); return; }
       break;
-    case 173: // /screens
+    case 168: // /screens
       { int64_t i; if (!integer(key, 0, 3, i)) break;
-        child.index[0] = i; child.section = 174; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 169; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 174: // /screens/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 127, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "u")) { child.section = 176; if (*text) result.error = "expected configuration mapping"; return; }
+    case 169: // /screens/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 122, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "u")) { child.section = 171; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 176: // /screens/%u/u
-      if (!strcmp(key, "bars")) { child.section = 177; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "lines")) { child.section = 182; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "script")) { child.section = 187; if (*text) result.error = "expected configuration mapping"; return; }
+    case 171: // /screens/%u/u
+      if (!strcmp(key, "bars")) { child.section = 172; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "lines")) { child.section = 177; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "script")) { child.section = 182; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 177: // /screens/%u/u/bars
+    case 172: // /screens/%u/u/bars
+      { int64_t i; if (!integer(key, 0, 3, i)) break;
+        child.index[1] = i; child.section = 173; if (*text) result.error = "expected configuration mapping"; return; }
+      break;
+    case 173: // /screens/%u/u/bars/%u
+      if (!strcmp(key, "source")) { readLeaf(ctx, 123, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "barMin")) { readLeaf(ctx, 124, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "barMax")) { readLeaf(ctx, 125, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
+      break;
+    case 177: // /screens/%u/u/lines
       { int64_t i; if (!integer(key, 0, 3, i)) break;
         child.index[1] = i; child.section = 178; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 178: // /screens/%u/u/bars/%u
-      if (!strcmp(key, "source")) { readLeaf(ctx, 128, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "barMin")) { readLeaf(ctx, 129, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "barMax")) { readLeaf(ctx, 130, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
+    case 178: // /screens/%u/u/lines/%u
+      if (!strcmp(key, "sources")) { child.section = 179; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 182: // /screens/%u/u/lines
-      { int64_t i; if (!integer(key, 0, 3, i)) break;
-        child.index[1] = i; child.section = 183; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 183: // /screens/%u/u/lines/%u
-      if (!strcmp(key, "sources")) { child.section = 184; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 184: // /screens/%u/u/lines/%u/sources
+    case 179: // /screens/%u/u/lines/%u/sources
       { int64_t i; if (!integer(key, 0, 2, i)) break;
-        child.index[2] = i; child.section = 185; if (*text) readLeaf(ctx, 131, child.index[0] * 12 + child.index[1] * 3 + child.index[2] * 1, text, result); return; }
+        child.index[2] = i; child.section = 180; if (*text) readLeaf(ctx, 126, child.index[0] * 12 + child.index[1] * 3 + child.index[2] * 1, text, result); return; }
       break;
-    case 185: // /screens/%u/u/lines/%u/sources/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 131, child.index[0] * 12 + child.index[1] * 3 + child.index[2] * 1, text, result); return; }
+    case 180: // /screens/%u/u/lines/%u/sources/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 126, child.index[0] * 12 + child.index[1] * 3 + child.index[2] * 1, text, result); return; }
       break;
-    case 187: // /screens/%u/u/script
-      if (!strcmp(key, "file")) { readLeaf(ctx, 132, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "inputs")) { child.section = 189; if (*text) result.error = "expected configuration mapping"; return; }
+    case 182: // /screens/%u/u/script
+      if (!strcmp(key, "file")) { readLeaf(ctx, 127, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "inputs")) { child.section = 184; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 189: // /screens/%u/u/script/inputs
+    case 184: // /screens/%u/u/script/inputs
       { int64_t i; if (!integer(key, 0, 7, i)) break;
-        child.index[1] = i; child.section = 190; if (*text) readLeaf(ctx, 133, child.index[0] * 8 + child.index[1] * 1, text, result); return; }
+        child.index[1] = i; child.section = 185; if (*text) readLeaf(ctx, 128, child.index[0] * 8 + child.index[1] * 1, text, result); return; }
       break;
-    case 190: // /screens/%u/u/script/inputs/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 133, child.index[0] * 8 + child.index[1] * 1, text, result); return; }
+    case 185: // /screens/%u/u/script/inputs/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 128, child.index[0] * 8 + child.index[1] * 1, text, result); return; }
       break;
-    case 192: // /screenData
+    case 187: // /screenData
       { int64_t i; if (!integer(key, 0, 9, i)) break;
-        child.index[0] = i; child.section = 193; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 188; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 193: // /screenData/%u
-      if (!strcmp(key, "LayoutId")) { readLeaf(ctx, 134, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "layoutData")) { child.section = 195; if (*text) result.error = "expected configuration mapping"; return; }
+    case 188: // /screenData/%u
+      if (!strcmp(key, "LayoutId")) { readLeaf(ctx, 129, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "layoutData")) { child.section = 190; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 195: // /screenData/%u/layoutData
-      if (!strcmp(key, "zones")) { child.section = 196; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "options")) { child.section = 210; if (*text) result.error = "expected configuration mapping"; return; }
+    case 190: // /screenData/%u/layoutData
+      if (!strcmp(key, "zones")) { child.section = 191; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "options")) { child.section = 205; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 196: // /screenData/%u/layoutData/zones
+    case 191: // /screenData/%u/layoutData/zones
       { int64_t i; if (!integer(key, 0, 9, i)) break;
-        child.index[1] = i; child.section = 197; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[1] = i; child.section = 192; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 197: // /screenData/%u/layoutData/zones/%u
-      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 136, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "widgetData")) { child.section = 199; if (*text) result.error = "expected configuration mapping"; return; }
+    case 192: // /screenData/%u/layoutData/zones/%u
+      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 131, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "widgetData")) { child.section = 194; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 199: // /screenData/%u/layoutData/zones/%u/widgetData
-      if (!strcmp(key, "options")) { child.section = 200; if (*text) result.error = "expected configuration mapping"; return; }
+    case 194: // /screenData/%u/layoutData/zones/%u/widgetData
+      if (!strcmp(key, "options")) { child.section = 195; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 200: // /screenData/%u/layoutData/zones/%u/widgetData/options
+    case 195: // /screenData/%u/layoutData/zones/%u/widgetData/options
       { int64_t i; if (!integer(key, 0, 49, i)) break;
-        child.index[2] = i; child.section = 201; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[2] = i; child.section = 196; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 201: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 142, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { child.section = 203; if (*text) result.error = "expected configuration mapping"; return; }
+    case 196: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 137, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { child.section = 198; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 203: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
-      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 144, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 146, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 148, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 150, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "source")) { readLeaf(ctx, 152, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "color")) { readLeaf(ctx, 154, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+    case 198: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
+      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 139, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 141, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 143, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 145, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "source")) { readLeaf(ctx, 147, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "color")) { readLeaf(ctx, 149, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
       break;
-    case 210: // /screenData/%u/layoutData/options
+    case 205: // /screenData/%u/layoutData/options
       { int64_t i; if (!integer(key, 0, 9, i)) break;
-        child.index[1] = i; child.section = 211; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[1] = i; child.section = 206; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 211: // /screenData/%u/layoutData/options/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 137, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { child.section = 213; if (*text) result.error = "expected configuration mapping"; return; }
+    case 206: // /screenData/%u/layoutData/options/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 132, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { child.section = 208; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 213: // /screenData/%u/layoutData/options/%u/value
-      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 138, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 139, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "color")) { readLeaf(ctx, 140, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+    case 208: // /screenData/%u/layoutData/options/%u/value
+      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 133, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 134, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "color")) { readLeaf(ctx, 135, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
       break;
-    case 217: // /topbarWidgetWidth
+    case 212: // /topbarWidgetWidth
       { int64_t i; if (!integer(key, 0, 15, i)) break;
-        child.index[0] = i; child.section = 218; if (*text) readLeaf(ctx, 135, child.index[0] * 1, text, result); return; }
+        child.index[0] = i; child.section = 213; if (*text) readLeaf(ctx, 130, child.index[0] * 1, text, result); return; }
       break;
-    case 218: // /topbarWidgetWidth/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 135, child.index[0] * 1, text, result); return; }
+    case 213: // /topbarWidgetWidth/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 130, child.index[0] * 1, text, result); return; }
       break;
-    case 220: // /topbarData
-      if (!strcmp(key, "zones")) { child.section = 221; if (*text) result.error = "expected configuration mapping"; return; }
+    case 215: // /topbarData
+      if (!strcmp(key, "zones")) { child.section = 216; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 221: // /topbarData/zones
+    case 216: // /topbarData/zones
       { int64_t i; if (!integer(key, 0, 15, i)) break;
-        child.index[0] = i; child.section = 222; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 217; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 222: // /topbarData/zones/%u
-      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 141, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "widgetData")) { child.section = 224; if (*text) result.error = "expected configuration mapping"; return; }
+    case 217: // /topbarData/zones/%u
+      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 136, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "widgetData")) { child.section = 219; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 224: // /topbarData/zones/%u/widgetData
-      if (!strcmp(key, "options")) { child.section = 225; if (*text) result.error = "expected configuration mapping"; return; }
+    case 219: // /topbarData/zones/%u/widgetData
+      if (!strcmp(key, "options")) { child.section = 220; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 225: // /topbarData/zones/%u/widgetData/options
+    case 220: // /topbarData/zones/%u/widgetData/options
       { int64_t i; if (!integer(key, 0, 49, i)) break;
-        child.index[1] = i; child.section = 226; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[1] = i; child.section = 221; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 226: // /topbarData/zones/%u/widgetData/options/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 143, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { child.section = 228; if (*text) result.error = "expected configuration mapping"; return; }
+    case 221: // /topbarData/zones/%u/widgetData/options/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 138, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { child.section = 223; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 228: // /topbarData/zones/%u/widgetData/options/%u/value
-      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 145, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 147, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 149, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 151, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "source")) { readLeaf(ctx, 153, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "color")) { readLeaf(ctx, 155, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+    case 223: // /topbarData/zones/%u/widgetData/options/%u/value
+      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 140, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 142, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 144, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 146, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "source")) { readLeaf(ctx, 148, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "color")) { readLeaf(ctx, 150, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
       break;
-    case 235: // /switchWarning
+    case 230: // /switchWarning
       { int64_t i; int physical = switchLookupIdx(key, strlen(key));
         if (physical >= 0) i = physical; else if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 236; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 231; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 236: // /switchWarning/%u
-      if (!strcmp(key, "pos")) { readLeaf(ctx, 156, child.index[0] * 1, text, result); return; }
+    case 231: // /switchWarning/%u
+      if (!strcmp(key, "pos")) { readLeaf(ctx, 151, child.index[0] * 1, text, result); return; }
       break;
-    case 238: // /customSwitches
+    case 233: // /customSwitches
       { int64_t i; if (!integer(key, 0, 15, i)) break;
-        child.index[0] = i; child.section = 239; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 234; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 239: // /customSwitches/%u
-      if (!strcmp(key, "sw")) { readLeaf(ctx, 157, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "name")) { readLeaf(ctx, 158, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "type")) { readLeaf(ctx, 159, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "group")) { readLeaf(ctx, 160, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "start")) { readLeaf(ctx, 161, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "state")) { readLeaf(ctx, 162, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "onColorLuaOverride")) { readLeaf(ctx, 163, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "offColorLuaOverride")) { readLeaf(ctx, 164, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "onColor")) { child.section = 248; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "offColor")) { child.section = 252; if (*text) result.error = "expected configuration mapping"; return; }
+    case 234: // /customSwitches/%u
+      if (!strcmp(key, "sw")) { readLeaf(ctx, 152, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "name")) { readLeaf(ctx, 153, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "type")) { readLeaf(ctx, 154, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "group")) { readLeaf(ctx, 155, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "start")) { readLeaf(ctx, 156, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "state")) { readLeaf(ctx, 157, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "onColorLuaOverride")) { readLeaf(ctx, 158, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "offColorLuaOverride")) { readLeaf(ctx, 159, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "onColor")) { child.section = 243; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "offColor")) { child.section = 247; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 248: // /customSwitches/%u/onColor
-      if (!strcmp(key, "r")) { readLeaf(ctx, 165, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "g")) { readLeaf(ctx, 166, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "b")) { readLeaf(ctx, 167, child.index[0] * 1, text, result); return; }
+    case 243: // /customSwitches/%u/onColor
+      if (!strcmp(key, "r")) { readLeaf(ctx, 160, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "g")) { readLeaf(ctx, 161, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "b")) { readLeaf(ctx, 162, child.index[0] * 1, text, result); return; }
       break;
-    case 252: // /customSwitches/%u/offColor
-      if (!strcmp(key, "r")) { readLeaf(ctx, 168, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "g")) { readLeaf(ctx, 169, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "b")) { readLeaf(ctx, 170, child.index[0] * 1, text, result); return; }
+    case 247: // /customSwitches/%u/offColor
+      if (!strcmp(key, "r")) { readLeaf(ctx, 163, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "g")) { readLeaf(ctx, 164, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "b")) { readLeaf(ctx, 165, child.index[0] * 1, text, result); return; }
       break;
-    case 256: // /cfsGroupOn
+    case 251: // /cfsGroupOn
       { int64_t i; if (!integer(key, 0, 7, i)) break;
-        child.index[0] = i; child.section = 257; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 252; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 257: // /cfsGroupOn/%u
-      if (!strcmp(key, "v")) { readLeaf(ctx, 171, child.index[0] * 1, text, result); return; }
+    case 252: // /cfsGroupOn/%u
+      if (!strcmp(key, "v")) { readLeaf(ctx, 166, child.index[0] * 1, text, result); return; }
       break;
   }
   if (*text) ++result.unknown;
@@ -685,64 +675,64 @@ void writeSection(Context& context, unsigned section, unsigned* index, Writer& w
       writeSection(context, 47, index, writer, field);
       writer.end();
       writer.begin("expoData");
-      writeSection(context, 60, index, writer, field);
+      writeSection(context, 57, index, writer, field);
       writer.end();
       writer.begin("limitData");
-      writeSection(context, 73, index, writer, field);
+      writeSection(context, 68, index, writer, field);
       writer.end();
       writer.begin("curves");
-      writeSection(context, 83, index, writer, field);
+      writeSection(context, 78, index, writer, field);
       writer.end();
       writer.begin("moduleData");
-      writeSection(context, 89, index, writer, field);
+      writeSection(context, 84, index, writer, field);
       writer.end();
       writer.begin("telemetrySensors");
-      writeSection(context, 100, index, writer, field);
+      writeSection(context, 95, index, writer, field);
       writer.end();
       writer.begin("usbJoystickCh");
-      writeSection(context, 135, index, writer, field);
+      writeSection(context, 130, index, writer, field);
       writer.end();
       writer.begin("points");
-      writeSection(context, 142, index, writer, field);
+      writeSection(context, 137, index, writer, field);
       writer.end();
       writer.begin("inputNames");
-      writeSection(context, 145, index, writer, field);
+      writeSection(context, 140, index, writer, field);
       writer.end();
       writer.begin("potsWarnPosition");
-      writeSection(context, 148, index, writer, field);
+      writeSection(context, 143, index, writer, field);
       writer.end();
       writer.begin("varioData");
-      writeSection(context, 151, index, writer, field);
+      writeSection(context, 146, index, writer, field);
       writer.end();
       writer.begin("rfAlarms");
-      writeSection(context, 158, index, writer, field);
+      writeSection(context, 153, index, writer, field);
       writer.end();
-      writeLeaf(context, 119, 0, "voltsSource", writer, field);
-      writeLeaf(context, 120, 0, "altitudeSource", writer, field);
-      writeLeaf(context, 121, 0, "thrTraceSrc", writer, field);
+      writeLeaf(context, 114, 0, "voltsSource", writer, field);
+      writeLeaf(context, 115, 0, "altitudeSource", writer, field);
+      writeLeaf(context, 116, 0, "thrTraceSrc", writer, field);
       writer.begin("scriptsData");
-      writeSection(context, 164, index, writer, field);
+      writeSection(context, 159, index, writer, field);
       writer.end();
       writer.begin("screens");
-      writeSection(context, 173, index, writer, field);
+      writeSection(context, 168, index, writer, field);
       writer.end();
       writer.begin("screenData");
-      writeSection(context, 192, index, writer, field);
+      writeSection(context, 187, index, writer, field);
       writer.end();
       writer.begin("topbarWidgetWidth");
-      writeSection(context, 217, index, writer, field);
+      writeSection(context, 212, index, writer, field);
       writer.end();
       writer.begin("topbarData");
-      writeSection(context, 220, index, writer, field);
+      writeSection(context, 215, index, writer, field);
       writer.end();
       writer.begin("switchWarning");
-      writeSection(context, 235, index, writer, field);
+      writeSection(context, 230, index, writer, field);
       writer.end();
       writer.begin("customSwitches");
-      writeSection(context, 238, index, writer, field);
+      writeSection(context, 233, index, writer, field);
       writer.end();
       writer.begin("cfsGroupOn");
-      writeSection(context, 256, index, writer, field);
+      writeSection(context, 251, index, writer, field);
       writer.end();
       break;
     case 2: // /header
@@ -796,555 +786,550 @@ void writeSection(Context& context, unsigned section, unsigned* index, Writer& w
     case 48: // /mixData/%u
       writeLeaf(context, 42, index[0] * 1, "destCh", writer, field);
       writeLeaf(context, 43, index[0] * 1, "srcRaw", writer, field);
-      writeLeaf(context, 44, index[0] * 1, "mixWarn", writer, field);
-      writeLeaf(context, 45, index[0] * 1, "mltpx", writer, field);
-      writeLeaf(context, 46, index[0] * 1, "weight", writer, field);
-      writeLeaf(context, 47, index[0] * 1, "offset", writer, field);
-      writeLeaf(context, 48, index[0] * 1, "swtch", writer, field);
+      writeLeaf(context, 44, index[0] * 1, "weight", writer, field);
+      writeLeaf(context, 45, index[0] * 1, "offset", writer, field);
       writer.begin("curve");
-      writeSection(context, 56, index, writer, field);
+      writeSection(context, 53, index, writer, field);
       writer.end();
-      writeLeaf(context, 51, index[0] * 1, "name", writer, field);
+      writeLeaf(context, 48, index[0] * 1, "name", writer, field);
       break;
-    case 56: // /mixData/%u/curve
-      writeLeaf(context, 49, index[0] * 1, "type", writer, field);
-      writeLeaf(context, 50, index[0] * 1, "value", writer, field);
+    case 53: // /mixData/%u/curve
+      writeLeaf(context, 46, index[0] * 1, "type", writer, field);
+      writeLeaf(context, 47, index[0] * 1, "value", writer, field);
       break;
-    case 60: // /expoData
+    case 57: // /expoData
       for (index[0] = 0; index[0] < 64; ++index[0]) {
         if (!used(context, "expoData/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 61, index, writer, field);
+      writeSection(context, 58, index, writer, field);
       writer.end();
       }
       break;
-    case 61: // /expoData/%u
-      writeLeaf(context, 52, index[0] * 1, "mode", writer, field);
-      writeLeaf(context, 53, index[0] * 1, "scale", writer, field);
-      writeLeaf(context, 54, index[0] * 1, "srcRaw", writer, field);
-      writeLeaf(context, 55, index[0] * 1, "weight", writer, field);
-      writeLeaf(context, 56, index[0] * 1, "offset", writer, field);
-      writeLeaf(context, 57, index[0] * 1, "swtch", writer, field);
+    case 58: // /expoData/%u
+      writeLeaf(context, 49, index[0] * 1, "scale", writer, field);
+      writeLeaf(context, 50, index[0] * 1, "srcRaw", writer, field);
+      writeLeaf(context, 51, index[0] * 1, "weight", writer, field);
+      writeLeaf(context, 52, index[0] * 1, "offset", writer, field);
       writer.begin("curve");
-      writeSection(context, 68, index, writer, field);
+      writeSection(context, 63, index, writer, field);
       writer.end();
-      writeLeaf(context, 60, index[0] * 1, "chn", writer, field);
-      writeLeaf(context, 61, index[0] * 1, "name", writer, field);
+      writeLeaf(context, 55, index[0] * 1, "chn", writer, field);
+      writeLeaf(context, 56, index[0] * 1, "name", writer, field);
       break;
-    case 68: // /expoData/%u/curve
-      writeLeaf(context, 58, index[0] * 1, "type", writer, field);
-      writeLeaf(context, 59, index[0] * 1, "value", writer, field);
+    case 63: // /expoData/%u/curve
+      writeLeaf(context, 53, index[0] * 1, "type", writer, field);
+      writeLeaf(context, 54, index[0] * 1, "value", writer, field);
       break;
-    case 73: // /limitData
+    case 68: // /limitData
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "limitData/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 74, index, writer, field);
+      writeSection(context, 69, index, writer, field);
       writer.end();
       }
       break;
-    case 74: // /limitData/%u
-      writeLeaf(context, 62, index[0] * 1, "min", writer, field);
-      writeLeaf(context, 63, index[0] * 1, "max", writer, field);
-      writeLeaf(context, 64, index[0] * 1, "ppmCenter", writer, field);
-      writeLeaf(context, 65, index[0] * 1, "offset", writer, field);
-      writeLeaf(context, 66, index[0] * 1, "symetrical", writer, field);
-      writeLeaf(context, 67, index[0] * 1, "revert", writer, field);
-      writeLeaf(context, 68, index[0] * 1, "curve", writer, field);
-      writeLeaf(context, 69, index[0] * 1, "name", writer, field);
+    case 69: // /limitData/%u
+      writeLeaf(context, 57, index[0] * 1, "min", writer, field);
+      writeLeaf(context, 58, index[0] * 1, "max", writer, field);
+      writeLeaf(context, 59, index[0] * 1, "ppmCenter", writer, field);
+      writeLeaf(context, 60, index[0] * 1, "offset", writer, field);
+      writeLeaf(context, 61, index[0] * 1, "symetrical", writer, field);
+      writeLeaf(context, 62, index[0] * 1, "revert", writer, field);
+      writeLeaf(context, 63, index[0] * 1, "curve", writer, field);
+      writeLeaf(context, 64, index[0] * 1, "name", writer, field);
       break;
-    case 83: // /curves
+    case 78: // /curves
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "curves/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 84, index, writer, field);
+      writeSection(context, 79, index, writer, field);
       writer.end();
       }
       break;
-    case 84: // /curves/%u
-      writeLeaf(context, 70, index[0] * 1, "type", writer, field);
-      writeLeaf(context, 71, index[0] * 1, "smooth", writer, field);
-      writeLeaf(context, 72, index[0] * 1, "points", writer, field);
-      writeLeaf(context, 73, index[0] * 1, "name", writer, field);
+    case 79: // /curves/%u
+      writeLeaf(context, 65, index[0] * 1, "type", writer, field);
+      writeLeaf(context, 66, index[0] * 1, "smooth", writer, field);
+      writeLeaf(context, 67, index[0] * 1, "points", writer, field);
+      writeLeaf(context, 68, index[0] * 1, "name", writer, field);
       break;
-    case 89: // /moduleData
+    case 84: // /moduleData
       for (index[0] = 0; index[0] < 2; ++index[0]) {
         if (!used(context, "moduleData/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 90, index, writer, field);
+      writeSection(context, 85, index, writer, field);
       writer.end();
       }
       break;
-    case 90: // /moduleData/%u
-      writeLeaf(context, 74, index[0] * 1, "type", writer, field);
-      writeLeaf(context, 75, index[0] * 1, "antennaMode", writer, field);
-      writeLeaf(context, 76, index[0] * 1, "channelsStart", writer, field);
-      writeLeaf(context, 77, index[0] * 1, "channelsCount", writer, field);
+    case 85: // /moduleData/%u
+      writeLeaf(context, 69, index[0] * 1, "type", writer, field);
+      writeLeaf(context, 70, index[0] * 1, "antennaMode", writer, field);
+      writeLeaf(context, 71, index[0] * 1, "channelsStart", writer, field);
+      writeLeaf(context, 72, index[0] * 1, "channelsCount", writer, field);
       writer.begin("mod");
-      writeSection(context, 95, index, writer, field);
+      writeSection(context, 90, index, writer, field);
       writer.end();
       break;
-    case 95: // /moduleData/%u/mod
+    case 90: // /moduleData/%u/mod
       writer.begin("crsf");
-      writeSection(context, 96, index, writer, field);
+      writeSection(context, 91, index, writer, field);
       writer.end();
       break;
-    case 96: // /moduleData/%u/mod/crsf
-      writeLeaf(context, 78, index[0] * 1, "telemetryBaudrate", writer, field);
-      writeLeaf(context, 79, index[0] * 1, "crsfArmingMode", writer, field);
-      writeLeaf(context, 80, index[0] * 1, "crsfArmingTrigger", writer, field);
+    case 91: // /moduleData/%u/mod/crsf
+      writeLeaf(context, 73, index[0] * 1, "telemetryBaudrate", writer, field);
+      writeLeaf(context, 74, index[0] * 1, "crsfArmingMode", writer, field);
+      writeLeaf(context, 75, index[0] * 1, "crsfArmingTrigger", writer, field);
       break;
-    case 100: // /telemetrySensors
+    case 95: // /telemetrySensors
       for (index[0] = 0; index[0] < 99; ++index[0]) {
         if (!used(context, "telemetrySensors/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 101, index, writer, field);
+      writeSection(context, 96, index, writer, field);
       writer.end();
       }
       break;
-    case 101: // /telemetrySensors/%u
+    case 96: // /telemetrySensors/%u
       writer.begin("id1");
-      writeSection(context, 102, index, writer, field);
+      writeSection(context, 97, index, writer, field);
       writer.end();
       writer.begin("id2");
-      writeSection(context, 105, index, writer, field);
+      writeSection(context, 100, index, writer, field);
       writer.end();
-      writeLeaf(context, 85, index[0] * 1, "label", writer, field);
-      writeLeaf(context, 86, index[0] * 1, "subId", writer, field);
-      writeLeaf(context, 87, index[0] * 1, "type", writer, field);
-      writeLeaf(context, 88, index[0] * 1, "unit", writer, field);
-      writeLeaf(context, 89, index[0] * 1, "prec", writer, field);
-      writeLeaf(context, 90, index[0] * 1, "autoOffset", writer, field);
-      writeLeaf(context, 91, index[0] * 1, "filter", writer, field);
-      writeLeaf(context, 92, index[0] * 1, "logs", writer, field);
-      writeLeaf(context, 93, index[0] * 1, "persistent", writer, field);
-      writeLeaf(context, 94, index[0] * 1, "onlyPositive", writer, field);
+      writeLeaf(context, 80, index[0] * 1, "label", writer, field);
+      writeLeaf(context, 81, index[0] * 1, "subId", writer, field);
+      writeLeaf(context, 82, index[0] * 1, "type", writer, field);
+      writeLeaf(context, 83, index[0] * 1, "unit", writer, field);
+      writeLeaf(context, 84, index[0] * 1, "prec", writer, field);
+      writeLeaf(context, 85, index[0] * 1, "autoOffset", writer, field);
+      writeLeaf(context, 86, index[0] * 1, "filter", writer, field);
+      writeLeaf(context, 87, index[0] * 1, "logs", writer, field);
+      writeLeaf(context, 88, index[0] * 1, "persistent", writer, field);
+      writeLeaf(context, 89, index[0] * 1, "onlyPositive", writer, field);
       writer.begin("cfg");
-      writeSection(context, 118, index, writer, field);
+      writeSection(context, 113, index, writer, field);
       writer.end();
       break;
-    case 102: // /telemetrySensors/%u/id1
-      writeLeaf(context, 81, index[0] * 1, "id", writer, field);
-      writeLeaf(context, 82, index[0] * 1, "persistentValue", writer, field);
+    case 97: // /telemetrySensors/%u/id1
+      writeLeaf(context, 76, index[0] * 1, "id", writer, field);
+      writeLeaf(context, 77, index[0] * 1, "persistentValue", writer, field);
       break;
-    case 105: // /telemetrySensors/%u/id2
-      writeLeaf(context, 83, index[0] * 1, "instance", writer, field);
-      writeLeaf(context, 84, index[0] * 1, "formula", writer, field);
+    case 100: // /telemetrySensors/%u/id2
+      writeLeaf(context, 78, index[0] * 1, "instance", writer, field);
+      writeLeaf(context, 79, index[0] * 1, "formula", writer, field);
       break;
-    case 118: // /telemetrySensors/%u/cfg
+    case 113: // /telemetrySensors/%u/cfg
       writer.begin("custom");
-      writeSection(context, 119, index, writer, field);
+      writeSection(context, 114, index, writer, field);
       writer.end();
       writer.begin("cell");
-      writeSection(context, 122, index, writer, field);
+      writeSection(context, 117, index, writer, field);
       writer.end();
       writer.begin("consumption");
-      writeSection(context, 125, index, writer, field);
+      writeSection(context, 120, index, writer, field);
       writer.end();
       writer.begin("dist");
+      writeSection(context, 122, index, writer, field);
+      writer.end();
+      writeLeaf(context, 97, index[0] * 1, "param", writer, field);
+      writer.begin("calc");
+      writeSection(context, 126, index, writer, field);
+      writer.end();
+      break;
+    case 114: // /telemetrySensors/%u/cfg/custom
+      writeLeaf(context, 90, index[0] * 1, "ratio", writer, field);
+      writeLeaf(context, 91, index[0] * 1, "offset", writer, field);
+      break;
+    case 117: // /telemetrySensors/%u/cfg/cell
+      writeLeaf(context, 92, index[0] * 1, "source", writer, field);
+      writeLeaf(context, 93, index[0] * 1, "index", writer, field);
+      break;
+    case 120: // /telemetrySensors/%u/cfg/consumption
+      writeLeaf(context, 94, index[0] * 1, "source", writer, field);
+      break;
+    case 122: // /telemetrySensors/%u/cfg/dist
+      writeLeaf(context, 95, index[0] * 1, "gps", writer, field);
+      writeLeaf(context, 96, index[0] * 1, "alt", writer, field);
+      break;
+    case 126: // /telemetrySensors/%u/cfg/calc
+      writer.begin("sources");
       writeSection(context, 127, index, writer, field);
       writer.end();
-      writeLeaf(context, 102, index[0] * 1, "param", writer, field);
-      writer.begin("calc");
-      writeSection(context, 131, index, writer, field);
-      writer.end();
       break;
-    case 119: // /telemetrySensors/%u/cfg/custom
-      writeLeaf(context, 95, index[0] * 1, "ratio", writer, field);
-      writeLeaf(context, 96, index[0] * 1, "offset", writer, field);
-      break;
-    case 122: // /telemetrySensors/%u/cfg/cell
-      writeLeaf(context, 97, index[0] * 1, "source", writer, field);
-      writeLeaf(context, 98, index[0] * 1, "index", writer, field);
-      break;
-    case 125: // /telemetrySensors/%u/cfg/consumption
-      writeLeaf(context, 99, index[0] * 1, "source", writer, field);
-      break;
-    case 127: // /telemetrySensors/%u/cfg/dist
-      writeLeaf(context, 100, index[0] * 1, "gps", writer, field);
-      writeLeaf(context, 101, index[0] * 1, "alt", writer, field);
-      break;
-    case 131: // /telemetrySensors/%u/cfg/calc
-      writer.begin("sources");
-      writeSection(context, 132, index, writer, field);
-      writer.end();
-      break;
-    case 132: // /telemetrySensors/%u/cfg/calc/sources
+    case 127: // /telemetrySensors/%u/cfg/calc/sources
       for (index[1] = 0; index[1] < 4; ++index[1]) {
         if (!used(context, "telemetrySensors/%u/cfg/calc/sources/%u", index)) continue;
         writer.begin(index[1]);
-      writeSection(context, 133, index, writer, field);
+      writeSection(context, 128, index, writer, field);
       writer.end();
       }
       break;
-    case 133: // /telemetrySensors/%u/cfg/calc/sources/%u
-      writeLeaf(context, 126, index[0] * 4 + index[1] * 1, "val", writer, field);
+    case 128: // /telemetrySensors/%u/cfg/calc/sources/%u
+      writeLeaf(context, 121, index[0] * 4 + index[1] * 1, "val", writer, field);
       break;
-    case 135: // /usbJoystickCh
+    case 130: // /usbJoystickCh
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "usbJoystickCh/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 136, index, writer, field);
+      writeSection(context, 131, index, writer, field);
       writer.end();
       }
       break;
-    case 136: // /usbJoystickCh/%u
-      writeLeaf(context, 103, index[0] * 1, "mode", writer, field);
-      writeLeaf(context, 104, index[0] * 1, "inversion", writer, field);
-      writeLeaf(context, 105, index[0] * 1, "param", writer, field);
-      writeLeaf(context, 106, index[0] * 1, "btn_num", writer, field);
-      writeLeaf(context, 107, index[0] * 1, "switch_npos", writer, field);
+    case 131: // /usbJoystickCh/%u
+      writeLeaf(context, 98, index[0] * 1, "mode", writer, field);
+      writeLeaf(context, 99, index[0] * 1, "inversion", writer, field);
+      writeLeaf(context, 100, index[0] * 1, "param", writer, field);
+      writeLeaf(context, 101, index[0] * 1, "btn_num", writer, field);
+      writeLeaf(context, 102, index[0] * 1, "switch_npos", writer, field);
       break;
-    case 142: // /points
+    case 137: // /points
       for (index[0] = 0; index[0] < 512; ++index[0]) {
         if (!used(context, "points/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 143, index, writer, field);
+      writeSection(context, 138, index, writer, field);
       writer.end();
       }
       break;
-    case 143: // /points/%u
-      writeLeaf(context, 108, index[0] * 1, "val", writer, field);
+    case 138: // /points/%u
+      writeLeaf(context, 103, index[0] * 1, "val", writer, field);
       break;
-    case 145: // /inputNames
+    case 140: // /inputNames
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "inputNames/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 146, index, writer, field);
+      writeSection(context, 141, index, writer, field);
       writer.end();
       }
       break;
-    case 146: // /inputNames/%u
-      writeLeaf(context, 109, index[0] * 1, "val", writer, field);
+    case 141: // /inputNames/%u
+      writeLeaf(context, 104, index[0] * 1, "val", writer, field);
       break;
-    case 148: // /potsWarnPosition
+    case 143: // /potsWarnPosition
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "potsWarnPosition/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 149, index, writer, field);
+      writeSection(context, 144, index, writer, field);
       writer.end();
       }
       break;
-    case 149: // /potsWarnPosition/%u
-      writeLeaf(context, 110, index[0] * 1, "val", writer, field);
+    case 144: // /potsWarnPosition/%u
+      writeLeaf(context, 105, index[0] * 1, "val", writer, field);
       break;
-    case 151: // /varioData
-      writeLeaf(context, 111, 0, "source", writer, field);
-      writeLeaf(context, 112, 0, "centerSilent", writer, field);
-      writeLeaf(context, 113, 0, "centerMax", writer, field);
-      writeLeaf(context, 114, 0, "centerMin", writer, field);
-      writeLeaf(context, 115, 0, "min", writer, field);
-      writeLeaf(context, 116, 0, "max", writer, field);
+    case 146: // /varioData
+      writeLeaf(context, 106, 0, "source", writer, field);
+      writeLeaf(context, 107, 0, "centerSilent", writer, field);
+      writeLeaf(context, 108, 0, "centerMax", writer, field);
+      writeLeaf(context, 109, 0, "centerMin", writer, field);
+      writeLeaf(context, 110, 0, "min", writer, field);
+      writeLeaf(context, 111, 0, "max", writer, field);
       break;
-    case 158: // /rfAlarms
-      writeLeaf(context, 117, 0, "warning", writer, field);
-      writeLeaf(context, 118, 0, "critical", writer, field);
+    case 153: // /rfAlarms
+      writeLeaf(context, 112, 0, "warning", writer, field);
+      writeLeaf(context, 113, 0, "critical", writer, field);
       break;
-    case 164: // /scriptsData
+    case 159: // /scriptsData
       for (index[0] = 0; index[0] < 9; ++index[0]) {
         if (!used(context, "scriptsData/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 165, index, writer, field);
+      writeSection(context, 160, index, writer, field);
       writer.end();
       }
       break;
-    case 165: // /scriptsData/%u
-      writeLeaf(context, 122, index[0] * 1, "file", writer, field);
-      writeLeaf(context, 123, index[0] * 1, "name", writer, field);
+    case 160: // /scriptsData/%u
+      writeLeaf(context, 117, index[0] * 1, "file", writer, field);
+      writeLeaf(context, 118, index[0] * 1, "name", writer, field);
       writer.begin("inputs");
-      writeSection(context, 168, index, writer, field);
+      writeSection(context, 163, index, writer, field);
       writer.end();
       break;
-    case 168: // /scriptsData/%u/inputs
+    case 163: // /scriptsData/%u/inputs
       for (index[1] = 0; index[1] < 6; ++index[1]) {
         if (!used(context, "scriptsData/%u/inputs/%u", index)) continue;
         writer.begin(index[1]);
+      writeSection(context, 164, index, writer, field);
+      writer.end();
+      }
+      break;
+    case 164: // /scriptsData/%u/inputs/%u
+      writer.begin("u");
+      writeSection(context, 165, index, writer, field);
+      writer.end();
+      break;
+    case 165: // /scriptsData/%u/inputs/%u/u
+      writeLeaf(context, 119, index[0] * 6 + index[1] * 1, "value", writer, field);
+      writeLeaf(context, 120, index[0] * 6 + index[1] * 1, "source", writer, field);
+      break;
+    case 168: // /screens
+      for (index[0] = 0; index[0] < 4; ++index[0]) {
+        if (!used(context, "screens/%u", index)) continue;
+        writer.begin(index[0]);
       writeSection(context, 169, index, writer, field);
       writer.end();
       }
       break;
-    case 169: // /scriptsData/%u/inputs/%u
+    case 169: // /screens/%u
+      writeLeaf(context, 122, index[0] * 1, "type", writer, field);
       writer.begin("u");
-      writeSection(context, 170, index, writer, field);
+      writeSection(context, 171, index, writer, field);
       writer.end();
       break;
-    case 170: // /scriptsData/%u/inputs/%u/u
-      writeLeaf(context, 124, index[0] * 6 + index[1] * 1, "value", writer, field);
-      writeLeaf(context, 125, index[0] * 6 + index[1] * 1, "source", writer, field);
+    case 171: // /screens/%u/u
+      writer.begin("bars");
+      writeSection(context, 172, index, writer, field);
+      writer.end();
+      writer.begin("lines");
+      writeSection(context, 177, index, writer, field);
+      writer.end();
+      writer.begin("script");
+      writeSection(context, 182, index, writer, field);
+      writer.end();
       break;
-    case 173: // /screens
-      for (index[0] = 0; index[0] < 4; ++index[0]) {
-        if (!used(context, "screens/%u", index)) continue;
-        writer.begin(index[0]);
-      writeSection(context, 174, index, writer, field);
+    case 172: // /screens/%u/u/bars
+      for (index[1] = 0; index[1] < 4; ++index[1]) {
+        if (!used(context, "screens/%u/u/bars/%u", index)) continue;
+        writer.begin(index[1]);
+      writeSection(context, 173, index, writer, field);
       writer.end();
       }
       break;
-    case 174: // /screens/%u
-      writeLeaf(context, 127, index[0] * 1, "type", writer, field);
-      writer.begin("u");
-      writeSection(context, 176, index, writer, field);
-      writer.end();
+    case 173: // /screens/%u/u/bars/%u
+      writeLeaf(context, 123, index[0] * 4 + index[1] * 1, "source", writer, field);
+      writeLeaf(context, 124, index[0] * 4 + index[1] * 1, "barMin", writer, field);
+      writeLeaf(context, 125, index[0] * 4 + index[1] * 1, "barMax", writer, field);
       break;
-    case 176: // /screens/%u/u
-      writer.begin("bars");
-      writeSection(context, 177, index, writer, field);
-      writer.end();
-      writer.begin("lines");
-      writeSection(context, 182, index, writer, field);
-      writer.end();
-      writer.begin("script");
-      writeSection(context, 187, index, writer, field);
-      writer.end();
-      break;
-    case 177: // /screens/%u/u/bars
+    case 177: // /screens/%u/u/lines
       for (index[1] = 0; index[1] < 4; ++index[1]) {
-        if (!used(context, "screens/%u/u/bars/%u", index)) continue;
+        if (!used(context, "screens/%u/u/lines/%u", index)) continue;
         writer.begin(index[1]);
       writeSection(context, 178, index, writer, field);
       writer.end();
       }
       break;
-    case 178: // /screens/%u/u/bars/%u
-      writeLeaf(context, 128, index[0] * 4 + index[1] * 1, "source", writer, field);
-      writeLeaf(context, 129, index[0] * 4 + index[1] * 1, "barMin", writer, field);
-      writeLeaf(context, 130, index[0] * 4 + index[1] * 1, "barMax", writer, field);
-      break;
-    case 182: // /screens/%u/u/lines
-      for (index[1] = 0; index[1] < 4; ++index[1]) {
-        if (!used(context, "screens/%u/u/lines/%u", index)) continue;
-        writer.begin(index[1]);
-      writeSection(context, 183, index, writer, field);
-      writer.end();
-      }
-      break;
-    case 183: // /screens/%u/u/lines/%u
+    case 178: // /screens/%u/u/lines/%u
       writer.begin("sources");
-      writeSection(context, 184, index, writer, field);
+      writeSection(context, 179, index, writer, field);
       writer.end();
       break;
-    case 184: // /screens/%u/u/lines/%u/sources
+    case 179: // /screens/%u/u/lines/%u/sources
       for (index[2] = 0; index[2] < 3; ++index[2]) {
         if (!used(context, "screens/%u/u/lines/%u/sources/%u", index)) continue;
         writer.begin(index[2]);
+      writeSection(context, 180, index, writer, field);
+      writer.end();
+      }
+      break;
+    case 180: // /screens/%u/u/lines/%u/sources/%u
+      writeLeaf(context, 126, index[0] * 12 + index[1] * 3 + index[2] * 1, "val", writer, field);
+      break;
+    case 182: // /screens/%u/u/script
+      writeLeaf(context, 127, index[0] * 1, "file", writer, field);
+      writer.begin("inputs");
+      writeSection(context, 184, index, writer, field);
+      writer.end();
+      break;
+    case 184: // /screens/%u/u/script/inputs
+      for (index[1] = 0; index[1] < 8; ++index[1]) {
+        if (!used(context, "screens/%u/u/script/inputs/%u", index)) continue;
+        writer.begin(index[1]);
       writeSection(context, 185, index, writer, field);
       writer.end();
       }
       break;
-    case 185: // /screens/%u/u/lines/%u/sources/%u
-      writeLeaf(context, 131, index[0] * 12 + index[1] * 3 + index[2] * 1, "val", writer, field);
+    case 185: // /screens/%u/u/script/inputs/%u
+      writeLeaf(context, 128, index[0] * 8 + index[1] * 1, "val", writer, field);
       break;
-    case 187: // /screens/%u/u/script
-      writeLeaf(context, 132, index[0] * 1, "file", writer, field);
-      writer.begin("inputs");
-      writeSection(context, 189, index, writer, field);
-      writer.end();
-      break;
-    case 189: // /screens/%u/u/script/inputs
-      for (index[1] = 0; index[1] < 8; ++index[1]) {
-        if (!used(context, "screens/%u/u/script/inputs/%u", index)) continue;
-        writer.begin(index[1]);
-      writeSection(context, 190, index, writer, field);
-      writer.end();
-      }
-      break;
-    case 190: // /screens/%u/u/script/inputs/%u
-      writeLeaf(context, 133, index[0] * 8 + index[1] * 1, "val", writer, field);
-      break;
-    case 192: // /screenData
+    case 187: // /screenData
       for (index[0] = 0; index[0] < 10; ++index[0]) {
         if (!used(context, "screenData/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 193, index, writer, field);
+      writeSection(context, 188, index, writer, field);
       writer.end();
       }
       break;
-    case 193: // /screenData/%u
-      writeLeaf(context, 134, index[0] * 1, "LayoutId", writer, field);
+    case 188: // /screenData/%u
+      writeLeaf(context, 129, index[0] * 1, "LayoutId", writer, field);
       writer.begin("layoutData");
-      writeSection(context, 195, index, writer, field);
+      writeSection(context, 190, index, writer, field);
       writer.end();
       break;
-    case 195: // /screenData/%u/layoutData
+    case 190: // /screenData/%u/layoutData
       writer.begin("zones");
-      writeSection(context, 196, index, writer, field);
+      writeSection(context, 191, index, writer, field);
       writer.end();
       writer.begin("options");
-      writeSection(context, 210, index, writer, field);
+      writeSection(context, 205, index, writer, field);
       writer.end();
       break;
-    case 196: // /screenData/%u/layoutData/zones
+    case 191: // /screenData/%u/layoutData/zones
       for (index[1] = 0; index[1] < 10; ++index[1]) {
         if (!used(context, "screenData/%u/layoutData/zones/%u", index)) continue;
         writer.begin(index[1]);
-      writeSection(context, 197, index, writer, field);
+      writeSection(context, 192, index, writer, field);
       writer.end();
       }
       break;
-    case 197: // /screenData/%u/layoutData/zones/%u
-      writeLeaf(context, 136, index[0] * 10 + index[1] * 1, "widgetName", writer, field);
+    case 192: // /screenData/%u/layoutData/zones/%u
+      writeLeaf(context, 131, index[0] * 10 + index[1] * 1, "widgetName", writer, field);
       writer.begin("widgetData");
-      writeSection(context, 199, index, writer, field);
+      writeSection(context, 194, index, writer, field);
       writer.end();
       break;
-    case 199: // /screenData/%u/layoutData/zones/%u/widgetData
+    case 194: // /screenData/%u/layoutData/zones/%u/widgetData
       writer.begin("options");
-      writeSection(context, 200, index, writer, field);
+      writeSection(context, 195, index, writer, field);
       writer.end();
       break;
-    case 200: // /screenData/%u/layoutData/zones/%u/widgetData/options
+    case 195: // /screenData/%u/layoutData/zones/%u/widgetData/options
       for (index[2] = 0; index[2] < 50; ++index[2]) {
         if (!used(context, "screenData/%u/layoutData/zones/%u/widgetData/options/%u", index)) continue;
         writer.begin(index[2]);
-      writeSection(context, 201, index, writer, field);
+      writeSection(context, 196, index, writer, field);
       writer.end();
       }
       break;
-    case 201: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
-      writeLeaf(context, 142, index[0] * 500 + index[1] * 50 + index[2] * 1, "type", writer, field);
+    case 196: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
+      writeLeaf(context, 137, index[0] * 500 + index[1] * 50 + index[2] * 1, "type", writer, field);
       writer.begin("value");
-      writeSection(context, 203, index, writer, field);
+      writeSection(context, 198, index, writer, field);
       writer.end();
       break;
-    case 203: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
-      writeLeaf(context, 144, index[0] * 500 + index[1] * 50 + index[2] * 1, "unsignedValue", writer, field);
-      writeLeaf(context, 146, index[0] * 500 + index[1] * 50 + index[2] * 1, "signedValue", writer, field);
-      writeLeaf(context, 148, index[0] * 500 + index[1] * 50 + index[2] * 1, "boolValue", writer, field);
-      writeLeaf(context, 150, index[0] * 500 + index[1] * 50 + index[2] * 1, "stringValue", writer, field);
-      writeLeaf(context, 152, index[0] * 500 + index[1] * 50 + index[2] * 1, "source", writer, field);
-      writeLeaf(context, 154, index[0] * 500 + index[1] * 50 + index[2] * 1, "color", writer, field);
+    case 198: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
+      writeLeaf(context, 139, index[0] * 500 + index[1] * 50 + index[2] * 1, "unsignedValue", writer, field);
+      writeLeaf(context, 141, index[0] * 500 + index[1] * 50 + index[2] * 1, "signedValue", writer, field);
+      writeLeaf(context, 143, index[0] * 500 + index[1] * 50 + index[2] * 1, "boolValue", writer, field);
+      writeLeaf(context, 145, index[0] * 500 + index[1] * 50 + index[2] * 1, "stringValue", writer, field);
+      writeLeaf(context, 147, index[0] * 500 + index[1] * 50 + index[2] * 1, "source", writer, field);
+      writeLeaf(context, 149, index[0] * 500 + index[1] * 50 + index[2] * 1, "color", writer, field);
       break;
-    case 210: // /screenData/%u/layoutData/options
+    case 205: // /screenData/%u/layoutData/options
       for (index[1] = 0; index[1] < 10; ++index[1]) {
         if (!used(context, "screenData/%u/layoutData/options/%u", index)) continue;
         writer.begin(index[1]);
-      writeSection(context, 211, index, writer, field);
+      writeSection(context, 206, index, writer, field);
       writer.end();
       }
       break;
-    case 211: // /screenData/%u/layoutData/options/%u
-      writeLeaf(context, 137, index[0] * 10 + index[1] * 1, "type", writer, field);
+    case 206: // /screenData/%u/layoutData/options/%u
+      writeLeaf(context, 132, index[0] * 10 + index[1] * 1, "type", writer, field);
       writer.begin("value");
-      writeSection(context, 213, index, writer, field);
+      writeSection(context, 208, index, writer, field);
       writer.end();
       break;
-    case 213: // /screenData/%u/layoutData/options/%u/value
-      writeLeaf(context, 138, index[0] * 10 + index[1] * 1, "unsignedValue", writer, field);
-      writeLeaf(context, 139, index[0] * 10 + index[1] * 1, "boolValue", writer, field);
-      writeLeaf(context, 140, index[0] * 10 + index[1] * 1, "color", writer, field);
+    case 208: // /screenData/%u/layoutData/options/%u/value
+      writeLeaf(context, 133, index[0] * 10 + index[1] * 1, "unsignedValue", writer, field);
+      writeLeaf(context, 134, index[0] * 10 + index[1] * 1, "boolValue", writer, field);
+      writeLeaf(context, 135, index[0] * 10 + index[1] * 1, "color", writer, field);
       break;
-    case 217: // /topbarWidgetWidth
+    case 212: // /topbarWidgetWidth
       for (index[0] = 0; index[0] < 16; ++index[0]) {
         if (!used(context, "topbarWidgetWidth/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 218, index, writer, field);
+      writeSection(context, 213, index, writer, field);
       writer.end();
       }
       break;
-    case 218: // /topbarWidgetWidth/%u
-      writeLeaf(context, 135, index[0] * 1, "val", writer, field);
+    case 213: // /topbarWidgetWidth/%u
+      writeLeaf(context, 130, index[0] * 1, "val", writer, field);
       break;
-    case 220: // /topbarData
+    case 215: // /topbarData
       writer.begin("zones");
-      writeSection(context, 221, index, writer, field);
+      writeSection(context, 216, index, writer, field);
       writer.end();
       break;
-    case 221: // /topbarData/zones
+    case 216: // /topbarData/zones
       for (index[0] = 0; index[0] < 16; ++index[0]) {
         if (!used(context, "topbarData/zones/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 222, index, writer, field);
+      writeSection(context, 217, index, writer, field);
       writer.end();
       }
       break;
-    case 222: // /topbarData/zones/%u
-      writeLeaf(context, 141, index[0] * 1, "widgetName", writer, field);
+    case 217: // /topbarData/zones/%u
+      writeLeaf(context, 136, index[0] * 1, "widgetName", writer, field);
       writer.begin("widgetData");
-      writeSection(context, 224, index, writer, field);
+      writeSection(context, 219, index, writer, field);
       writer.end();
       break;
-    case 224: // /topbarData/zones/%u/widgetData
+    case 219: // /topbarData/zones/%u/widgetData
       writer.begin("options");
-      writeSection(context, 225, index, writer, field);
+      writeSection(context, 220, index, writer, field);
       writer.end();
       break;
-    case 225: // /topbarData/zones/%u/widgetData/options
+    case 220: // /topbarData/zones/%u/widgetData/options
       for (index[1] = 0; index[1] < 50; ++index[1]) {
         if (!used(context, "topbarData/zones/%u/widgetData/options/%u", index)) continue;
         writer.begin(index[1]);
-      writeSection(context, 226, index, writer, field);
+      writeSection(context, 221, index, writer, field);
       writer.end();
       }
       break;
-    case 226: // /topbarData/zones/%u/widgetData/options/%u
-      writeLeaf(context, 143, index[0] * 50 + index[1] * 1, "type", writer, field);
+    case 221: // /topbarData/zones/%u/widgetData/options/%u
+      writeLeaf(context, 138, index[0] * 50 + index[1] * 1, "type", writer, field);
       writer.begin("value");
-      writeSection(context, 228, index, writer, field);
+      writeSection(context, 223, index, writer, field);
       writer.end();
       break;
-    case 228: // /topbarData/zones/%u/widgetData/options/%u/value
-      writeLeaf(context, 145, index[0] * 50 + index[1] * 1, "unsignedValue", writer, field);
-      writeLeaf(context, 147, index[0] * 50 + index[1] * 1, "signedValue", writer, field);
-      writeLeaf(context, 149, index[0] * 50 + index[1] * 1, "boolValue", writer, field);
-      writeLeaf(context, 151, index[0] * 50 + index[1] * 1, "stringValue", writer, field);
-      writeLeaf(context, 153, index[0] * 50 + index[1] * 1, "source", writer, field);
-      writeLeaf(context, 155, index[0] * 50 + index[1] * 1, "color", writer, field);
+    case 223: // /topbarData/zones/%u/widgetData/options/%u/value
+      writeLeaf(context, 140, index[0] * 50 + index[1] * 1, "unsignedValue", writer, field);
+      writeLeaf(context, 142, index[0] * 50 + index[1] * 1, "signedValue", writer, field);
+      writeLeaf(context, 144, index[0] * 50 + index[1] * 1, "boolValue", writer, field);
+      writeLeaf(context, 146, index[0] * 50 + index[1] * 1, "stringValue", writer, field);
+      writeLeaf(context, 148, index[0] * 50 + index[1] * 1, "source", writer, field);
+      writeLeaf(context, 150, index[0] * 50 + index[1] * 1, "color", writer, field);
       break;
-    case 235: // /switchWarning
+    case 230: // /switchWarning
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "switchWarning/%u", index)) continue;
         writer.begin(switchGetDefaultName(index[0]));
-      writeSection(context, 236, index, writer, field);
+      writeSection(context, 231, index, writer, field);
       writer.end();
       }
       break;
-    case 236: // /switchWarning/%u
-      writeLeaf(context, 156, index[0] * 1, "pos", writer, field);
+    case 231: // /switchWarning/%u
+      writeLeaf(context, 151, index[0] * 1, "pos", writer, field);
       break;
-    case 238: // /customSwitches
+    case 233: // /customSwitches
       for (index[0] = 0; index[0] < 16; ++index[0]) {
         if (!used(context, "customSwitches/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 239, index, writer, field);
+      writeSection(context, 234, index, writer, field);
       writer.end();
       }
       break;
-    case 239: // /customSwitches/%u
-      writeLeaf(context, 157, index[0] * 1, "sw", writer, field);
-      writeLeaf(context, 158, index[0] * 1, "name", writer, field);
-      writeLeaf(context, 159, index[0] * 1, "type", writer, field);
-      writeLeaf(context, 160, index[0] * 1, "group", writer, field);
-      writeLeaf(context, 161, index[0] * 1, "start", writer, field);
-      writeLeaf(context, 162, index[0] * 1, "state", writer, field);
-      writeLeaf(context, 163, index[0] * 1, "onColorLuaOverride", writer, field);
-      writeLeaf(context, 164, index[0] * 1, "offColorLuaOverride", writer, field);
+    case 234: // /customSwitches/%u
+      writeLeaf(context, 152, index[0] * 1, "sw", writer, field);
+      writeLeaf(context, 153, index[0] * 1, "name", writer, field);
+      writeLeaf(context, 154, index[0] * 1, "type", writer, field);
+      writeLeaf(context, 155, index[0] * 1, "group", writer, field);
+      writeLeaf(context, 156, index[0] * 1, "start", writer, field);
+      writeLeaf(context, 157, index[0] * 1, "state", writer, field);
+      writeLeaf(context, 158, index[0] * 1, "onColorLuaOverride", writer, field);
+      writeLeaf(context, 159, index[0] * 1, "offColorLuaOverride", writer, field);
       writer.begin("onColor");
-      writeSection(context, 248, index, writer, field);
+      writeSection(context, 243, index, writer, field);
       writer.end();
       writer.begin("offColor");
-      writeSection(context, 252, index, writer, field);
+      writeSection(context, 247, index, writer, field);
       writer.end();
       break;
-    case 248: // /customSwitches/%u/onColor
-      writeLeaf(context, 165, index[0] * 1, "r", writer, field);
-      writeLeaf(context, 166, index[0] * 1, "g", writer, field);
-      writeLeaf(context, 167, index[0] * 1, "b", writer, field);
+    case 243: // /customSwitches/%u/onColor
+      writeLeaf(context, 160, index[0] * 1, "r", writer, field);
+      writeLeaf(context, 161, index[0] * 1, "g", writer, field);
+      writeLeaf(context, 162, index[0] * 1, "b", writer, field);
       break;
-    case 252: // /customSwitches/%u/offColor
-      writeLeaf(context, 168, index[0] * 1, "r", writer, field);
-      writeLeaf(context, 169, index[0] * 1, "g", writer, field);
-      writeLeaf(context, 170, index[0] * 1, "b", writer, field);
+    case 247: // /customSwitches/%u/offColor
+      writeLeaf(context, 163, index[0] * 1, "r", writer, field);
+      writeLeaf(context, 164, index[0] * 1, "g", writer, field);
+      writeLeaf(context, 165, index[0] * 1, "b", writer, field);
       break;
-    case 256: // /cfsGroupOn
+    case 251: // /cfsGroupOn
       for (index[0] = 0; index[0] < 8; ++index[0]) {
         if (!used(context, "cfsGroupOn/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 257, index, writer, field);
+      writeSection(context, 252, index, writer, field);
       writer.end();
       }
       break;
-    case 257: // /cfsGroupOn/%u
-      writeLeaf(context, 171, index[0] * 1, "v", writer, field);
+    case 252: // /cfsGroupOn/%u
+      writeLeaf(context, 166, index[0] * 1, "v", writer, field);
       break;
   }
 }

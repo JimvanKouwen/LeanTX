@@ -91,7 +91,6 @@ inline void MIXER_RESET()
   memset(channelOutputs, 0, sizeof(channelOutputs));
   memset(chans, 0, sizeof(chans));
   memset(ex_chans, 0, sizeof(ex_chans));
-  memset(mixState, 0, sizeof(mixState));
 }
 
 // Find a hardware switch matching the given type (SWITCH_3POS, SWITCH_2POS,

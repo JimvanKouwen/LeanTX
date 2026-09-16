@@ -69,7 +69,7 @@ void insertExpo(uint8_t idx)
     }
   }
   expo->curve.type = CURVE_REF_EXPO;
-  expo->mode = 3; // pos+neg
+
   expo->chn = s_currCh - 1;
   expo->weight = 100;
   mixerTaskStart();
@@ -177,15 +177,12 @@ void onExposMenu(const char * result)
 #define EXPO_LINE_WEIGHT_POS           8*FW+8
 #define EXPO_LINE_SRC_POS              9*FW+3
 #define EXPO_LINE_CURVE_POS            12*FW+11
-#define EXPO_LINE_SWITCH_POS           20*FW
-#define EXPO_LINE_SIDE_POS             25*FW
 #define EXPO_LINE_SELECT_POS           5*FW+2
 #define EXPO_LINE_NAME_POS             LCD_W-LEN_EXPOMIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 
 void displayExpoInfos(coord_t y, ExpoData * ed)
 {
   drawCurveRef(EXPO_LINE_CURVE_POS, y, ed->curve, 0);
-  drawSwitch(EXPO_LINE_SWITCH_POS, y, ed->swtch, 0);
 }
 
 void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
@@ -198,28 +195,17 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
     lcdDrawSizedText(EXPO_LINE_NAME_POS, y, ed->name, sizeof(ed->name), attr);
   }
 
-#if LCD_DEPTH > 1
-  if (ed->mode!=3) {
-    lcdDrawChar(EXPO_LINE_SIDE_POS, y, ed->mode == 2 ? 126 : 127);
-  }
-#endif
 }
 #else // LCD_W < 212
 #define EXPO_LINE_WEIGHT_POS           7*FW+8
 #define EXPO_LINE_SRC_POS              8*FW+3
 #define EXPO_LINE_INFOS_POS            11*FW+11
 #define EXPO_LINE_CURVE_POS            11*FW+11
-#define EXPO_LINE_SWITCH_POS           17*FW
-#define EXPO_LINE_SIDE_POS             20*FW+2
 #define EXPO_LINE_SELECT_POS           4*FW+2
 
 void displayExpoInfos(coord_t y, ExpoData * ed)
 {
   drawCurveRef(EXPO_LINE_CURVE_POS, y, ed->curve, 0);
-  drawSwitch(EXPO_LINE_SWITCH_POS, y, ed->swtch, 0);
-  if (ed->mode != 3) {
-    lcdDrawChar(EXPO_LINE_SIDE_POS, y, ed->mode == 2 ? 126 : 127);
-  }
 }
 
 void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
@@ -404,7 +390,7 @@ void menuModelExposAll(event_t event)
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
           editLiteralFieldValue(EXPO_LINE_WEIGHT_POS, y, nullptr, ed->weight,
-                        -100, 100, RIGHT | (isExpoActive(i) ? BOLD : 0),
+                        -100, 100, RIGHT,
                         0);
           displayExpoLine(y, ed, 0);
 

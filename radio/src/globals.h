@@ -48,13 +48,6 @@ extern uint8_t requiredSpeakerVolume;
 
 extern uint8_t requiredBacklightBright;
 
-PACK(struct MixState {
-  uint8_t  activeMix:1;
-  uint8_t  activeExpo:1;
-});
-
-extern MixState mixState[MAX_MIXERS];
-
 // static variables used in evalChannelMixes - moved here so they don't interfere with the stack
 // It's also easier to initialize them here.
 
@@ -74,4 +67,3 @@ extern uint8_t g_beepCnt;
 extern uint8_t beepAgain;
 extern uint16_t lightOffCounter;
 extern uint8_t flashCounter;
-extern uint8_t mixWarning;

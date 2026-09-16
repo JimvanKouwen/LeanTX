@@ -168,14 +168,6 @@
 #define TR_VCURVETYPE_2                "Expo"
 #define TR_VCURVETYPE_3                "Func"
 #define TR_VCURVETYPE_4                "Cstm"
-#define TR_VMLTPX_1                    "Add"
-#define TR_VMLTPX_2                    "Multiply"
-#define TR_VMLTPX_3                    "Replace"
-
-
-
-
-
 
 #define TR_VUNITSSYSTEM_1              "Metric"
 #define TR_VUNITSSYSTEM_2              TR("Imper.","Imperial")
@@ -360,14 +352,11 @@
 #define TR_NOFREEMIXER                 "No free mixer!"
 #define TR_SOURCE                       "Source"
 #define TR_WEIGHT                      "Weight"
-#define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
 #define TR_CURVE                       "Curve"
-#define TR_MIXWARNING                  "Warning"
 #define TR_OFF                         "OFF"
 #define TR_ANTENNA                     "Antenna"
 #define TR_NO_INFORMATION              TR("No info", "No information")
-#define TR_MULTPX                      "Multiplex"
 #define TR_CV                          "CV"
 #define TR_RANGE                       "Range"
 #define TR_CENTER                      "Center"

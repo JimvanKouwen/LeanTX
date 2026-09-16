@@ -490,7 +490,6 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_TIMER_COUNTDOWN(idx, val) audioTimerCountdown(idx, val)
 #define AUDIO_TIMER_ELAPSED(idx) audioEvent(AU_TIMER1_ELAPSED+idx)
 #define AUDIO_INACTIVITY()       audioEvent(AU_INACTIVITY)
-#define AUDIO_MIX_WARNING(x)     audioEvent(AU_MIX_WARNING_1+x-1)
 #define AUDIO_POT_MIDDLE(x)      audioEvent(AU_STICK1_MIDDLE+x)
 #define AUDIO_PLAY(p)            audioEvent(p)
 #define AUDIO_VARIO(fq, t, p, f) audioQueue.playTone(fq, t, p, f)

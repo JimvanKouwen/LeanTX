@@ -23,7 +23,6 @@ struct Enum {
 const Enum TimerMode[] = {{"OFF", 0},  {"ON", 1},      {"START", 2},
                           {"THR", 3},  {"THR_REL", 4}, {"THR_START", 5},
                           {nullptr, 0}};
-const Enum Multiplex[] = {{"ADD", 0}, {"MUL", 1}, {"REPL", 2}, {nullptr, 0}};
 const Enum Module[] = {{"TYPE_NONE", MODULE_TYPE_NONE},
                        {"TYPE_CROSSFIRE", MODULE_TYPE_CROSSFIRE},
                        {nullptr, 0}};
@@ -453,7 +452,6 @@ bool relevant(const Context& c, const char* path, unsigned i, unsigned j,
   }                                                                  \
   return enumOutput(table, m.member, f);
 #define ACCESS_TimerMode(m, l, h) ACCESS_ENUM(m, l, h, TimerMode)
-#define ACCESS_Multiplex(m, l, h) ACCESS_ENUM(m, l, h, Multiplex)
 #define ACCESS_Module(m, l, h) ACCESS_ENUM(m, l, h, Module)
 #define ACCESS_Antenna(m, l, h) ACCESS_ENUM(m, l, h, Antenna)
 #define ACCESS_PotsMode(m, l, h) ACCESS_ENUM(m, l, h, PotsMode)
@@ -857,7 +855,7 @@ bool used(const Context& c, const char* section, const unsigned* index)
 #endif
   if (!strcmp(section, "points/%u")) return i < c.points;
   if (!strcmp(section, "mixData/%u")) return i < MAX_MIXERS && m.mixData[i].srcRaw;
-  if (!strcmp(section, "expoData/%u")) return i < MAX_EXPOS && m.expoData[i].mode;
+  if (!strcmp(section, "expoData/%u")) return i < MAX_EXPOS && m.expoData[i].srcRaw;
   if (!strcmp(section, "telemetrySensors/%u")) return i < MAX_TELEMETRY_SENSORS && (m.telemetrySensors[i].id || m.telemetrySensors[i].label[0] || m.telemetrySensors[i].type);
   if (!strncmp(section, "scriptsData/", 12)) return i < MAX_SCRIPTS && m.scriptsData[i].file[0];
 #if !defined(COLORLCD)

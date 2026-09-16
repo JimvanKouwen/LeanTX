@@ -233,7 +233,6 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SRC_FUNC_SWITCH, isSourceFuncSwitchAvailable },
 #endif
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
-  { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
@@ -477,9 +476,9 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings)
   return true;
 }
 
-bool isSwitchAvailableInMixes(int swtch)
+bool isTimerSwitchAvailable(int swtch)
 {
-  return isSwitchAvailable(swtch, MixesContext);
+  return isSwitchAvailable(swtch, TimerSwitchContext);
 }
 
 bool isSwitchAvailableForArming(int swtch)

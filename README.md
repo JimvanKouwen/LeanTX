@@ -13,51 +13,18 @@ supported by the module.
 Build the representative matrix with `./build-targets.sh lite`, or all current
 firmware presets plus the simulator with `./build-targets.sh full`.
 
-## Radio-settings storage redesign
+## Sparse canonical YAML storage
 
-Radio settings, models, model headers, labels, and themes use the streaming
-configuration engine. The legacy generated struct-reflection system has been
-removed; storage no longer relies on C++ field offsets or packed struct sizes.
-The engine, in
-`radio/src/storage/config_stream.h`/`.cpp`, treats `radio.yml` purely as a
-configuration document:
+Radio settings and models use sparse canonical YAML. Missing fields retain
+normal defaults; unknown or unavailable fields are ignored and dropped on save.
+Loads read the complete file into a shared 16 KiB buffer, parse sections directly
+from RAM, validate an isolated candidate, and commit only on success. Saves
+regenerate YAML from runtime state without reading the previous file, omit
+defaults and unused slots, and flush `.tmp` before recoverable replacement.
 
-- A single universal field table lists every known radio setting once,
-  independent of PCB/target. Hardware availability is decided separately
-  per field via a small capability predicate (e.g. IMU-only fields), not by
-  `#ifdef`-ing settings out of the schema.
-- Fields are classified at load/save time as known+available,
-  known+unavailable, missing+relevant, or unknown, per the rules in
-  `config_stream.h`. Unknown and known-but-unavailable data (including
-  nested maps/lists) is always preserved byte-for-byte across saves without
-  ever being parsed into memory.
-- Loading and saving are bounded-memory streaming operations: fixed-size
-  line buffers only, no YAML DOM, no heap growth with file size.
-- Saves write to `radio_new.yml`, then replace `radio.yml` only after the
-  temporary file is fully written, so a failed save never touches the
-  existing file.
-- A simple schema version (`RADIO_CONFIG_SCHEMA_VERSION`) is reserved for
-  future semantic migrations; ordinary field additions/removals need no
-  version bump.
-
-The schema now covers essentially all plain scalar/bitfield `RadioData`
-settings (roughly 60 fields: calibration targets, RF/haptic/audio/display
-preferences, RTC/timezone, per-target capability-gated fields such as
-`contrast`/`radioThemesDisabled`/`imuMax`/`stickDeadZone`, and two-letter
-language codes), plus a nested example: `switches:` persists each switch's
-type as an individually known+available/unavailable element (by hardware
-switch count), while unrecognised per-switch attributes (e.g. a custom
-`name`) are preserved unchanged.
-
-Still out of scope for this pass, and intentionally left as preserved
-"unknown" data rather than silently dropped: array/custom-encoded settings
-that need dedicated adapters (`sticksConfig`, `slidersConfig`,
-`potsConfig`, `serialPort`, analog `calib[]`, `flexSwitches`, color-LCD
-`keyShortcuts`/`qmFavorites`), and a handful of string-tag-encoded legacy
-fields (`semver`, `board`, `telemetryBaudrate`, `jitterFilter`,
-`auxSerialMode`/`aux2SerialMode`, `rotEncDirection`). These are documented
-follow-up work for the same engine. RTC Emergency Mode snapshot/restore is
-unrelated and was not touched.
+Storage is independent of packed C++ layouts. There are no struct dumps,
+per-target storage layouts, or binary caches. See the
+[format and transaction documentation](docs/radio-configuration.md).
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/releases/latest)
 [![GitHub all releases](https://img.shields.io/github/downloads/EdgeTX/edgetx/total)](https://github.com/EdgeTX/edgetx/releases)
@@ -120,8 +87,8 @@ models. Remaining packed trim positions and numeric source/action IDs are reserv
 to avoid shifting unrelated settings; reserved fields are not written to YAML.
 Ordinary output offsets and audio-recording trim tools are unaffected.
 
-Transmitter flight modes are removed. Inputs and Mixes retain their ordinary
-switch conditions, but have no mode masks, fades, or mode-specific settings.
+Transmitter flight modes are removed. Inputs and Mixes have no switch conditions,
+mode masks, fades, or mode-specific settings.
 Betaflight modes still work through AUX channels; received CRSF mode telemetry
 and assignable flight-controller mode sound prompts remain supported.
 
@@ -140,8 +107,8 @@ Transmitter Logical Switches are removed: no L01–L64 conditions/sources, logic
 expressions, sticky/edge/timer evaluation, delay/duration state, monitors, audio
 prompts, log columns, or Logical Switch Lua APIs remain. Physical switch positions
 and their inversion, trim buttons, multiposition controls, function-switch hardware,
-and telemetry availability conditions remain supported. Inputs, Mixes, and timers
-retain their ordinary switch conditions.
+and telemetry availability conditions remain supported. Timers retain switch conditions. Inputs and Mixes use physical switches only
+as numeric sources.
 
 This changes packed model layout and source/switch IDs after the removed ranges.
 Physical switch position IDs are unchanged. Old logical-switch definitions are
@@ -209,8 +176,7 @@ reusable audio/haptic patterns and remains.
 Possible later simplifications, deliberately deferred: consolidate the remaining
 switch-selection contexts; design explicit logging/vario controls; expose the
 preserved actions through Values/Events; review startup-audio timing and unused
-view-option padding; simplify now-sparser menus. Inputs, Mixes, and Outputs keep
-their existing engine and ordinary switch conditions.
+view-option padding; simplify now-sparser menus. Inputs and Mixes use basic numeric routing; Outputs retain endpoint processing.
 
 ### Validation
 
@@ -241,37 +207,20 @@ See [the RTC field audit and validation report](docs/rtc-emergency.md) for retai
 fields, exclusions, sizes, test results and remaining limitations. YAML formats
 and the normal startup path are unchanged.
 
-## Universal radio configuration
+## Configuration storage
 
-Radio settings now use a universal semantic schema and bounded streaming YAML
-load/merge, independent of generated layouts and packed `RadioData` offsets.
-Known available settings update runtime state; missing settings receive normal
-defaults. Unknown content and known settings unavailable on the current radio
-survive normal saves. Existing dirty/debounce and forced-flush behavior remains.
+Radio, model, metadata, labels, and theme files use semantic section adapters.
+See [sparse canonical YAML storage](docs/radio-configuration.md) for the limited
+YAML subset, defaults, compatibility aliases, 16 KiB file limit, and replacement
+protocol. Rejected model loads block autosaves and list metadata updates for
+that file, so the previous active model cannot overwrite it.
 
-Saves complete and flush `radio.yml.tmp` before replacement, with a transient
-swap file for rename recovery. No ordinary backup files are created. Model YAML
-uses the streaming model path described below; RTC emergency recovery is unchanged.
-
-Pocket, TX16S MK3 and simulator builds pass, alongside 105 monochrome and 106
-color regression tests and 18 sanitizer-tested core cases. See the
-[radio configuration report](docs/radio-configuration.md) for APIs, capabilities,
-YAML limits, transaction guarantees, and measured flash/RAM costs (3908 bytes
-of static file workspace on Pocket; 4096-byte compile-time ceiling).
-
-### Streaming model YAML storage
-
-Model files now use the same bounded streaming config engine as `radio.yml`,
-with a universal semantic schema and model-specific adapters. Loads initialize a
-candidate, parse once, resolve telemetry/screen unions, and commit only after
-successful validation and I/O. Normal saves merge existing YAML, preserving
-unknown subtrees and settings unavailable on the current radio, add missing
-applicable defaults, and replace the file through `.tmp` with `.swap` recovery.
-Inputs, mixes, outputs, curves, timers, telemetry, Lua configuration, modules,
-metadata, and screens/widgets retain their existing runtime representations.
-Model selection reads only metadata and module types without constructing a
-full model. Compatibility tests use checked-in legacy YAML fixtures; the
-generated descriptors and generator have been removed.
-
-Rejected model loads display an error and block autosaves and list metadata
-updates for that file, so the previous active model cannot overwrite it.
+Inputs and Mixes now perform unconditional numeric routing: source, curve,
+weight, and offset. Multiple mappings to the same destination add together;
+there are no multiplex modes, side gates, first-active-line selection, delays,
+ramps, or mixer warnings. Outputs/endpoints and the RF path remain unchanged.
+Channel-as-source chaining and Lua mix sources remain supported. Failed Lua
+sources read as zero, and the mapping still applies its weight and offset.
+Old line activation, multiplex, and warning YAML fields are ignored and are
+not written back; models relying on them need to be recreated. Input source
+zero marks an empty line. The RTC recovery snapshot version is incremented.

@@ -118,7 +118,7 @@ void hapticQueue::event(uint8_t e)
 #endif
     if (e <= AU_ERROR)
       play(15, 3, PLAY_NOW);
-    else if (e <= AU_MIX_WARNING_3)
+    else if (e < AU_TIMER1_ELAPSED)
       play(15, 3, PLAY_NOW);
     else if (e >= AU_SPECIAL_SOUND_LAST && empty()) {
       play(30, 10, 0);

@@ -215,21 +215,6 @@ TEST(Model, RemovedTrimSettingsAreIgnored)
     EXPECT_EQ(std::string::npos, yaml.find(field)) << field;
 }
 
-TEST(Model, PhysicalTrimSwitchesRoundTrip)
-{
-  memset(&g_model, 0, sizeof(g_model));
-  for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
-    g_model.mixData[i].swtch = SWSRC_FIRST_TRIM + i;
-    g_model.mixData[i].srcRaw = MIXSRC_MAX;
-  }
-  std::string yaml = saveModelYamlStr(g_model);
-  memset(&g_model, 0, sizeof(g_model));
-  loadModelYamlStr(yaml.c_str());
-  for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
-    EXPECT_EQ(SWSRC_FIRST_TRIM + i, g_model.mixData[i].swtch);
-    EXPECT_EQ(MIXSRC_MAX, g_model.mixData[i].srcRaw);
-  }
-}
 
 TEST(Model, RemovedActionSettingsAreIgnored)
 {
@@ -251,22 +236,27 @@ TEST(Model, RemovedActionSettingsAreIgnored)
   }
 }
 
-TEST(Model, RemovedModeMasksKeepNormalSwitchConditions)
+TEST(Model, RemovedLineConditionsAreIgnored)
 {
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(
       "flightModeData:\n  0:\n    gvars:\n      0: 999\n"
       "mixData:\n -\n    destCh: 4\n    srcRaw: MAX\n"
       "    weight: 50\n    swtch: ON\n    flightModes: 111111111\n"
-      "expoData:\n -\n    mode: 3\n    srcRaw: MAX\n"
+      "    mltpx: REPL\n    mixWarn: 3\n    delayUp: 10\n    speedDown: 10\n"
+      "expoData:\n -\n    mode: 1\n    srcRaw: MAX\n"
       "    weight: 25\n    swtch: \"!ON\"\n    flightModes: 111111111\n");
   EXPECT_EQ(4u, g_model.mixData[0].destCh);
   EXPECT_EQ(MIXSRC_MAX, g_model.mixData[0].srcRaw);
   EXPECT_EQ((50), g_model.mixData[0].weight);
-  EXPECT_EQ(SWSRC_ON, g_model.mixData[0].swtch);
   EXPECT_EQ(MIXSRC_MAX, g_model.expoData[0].srcRaw);
   EXPECT_EQ((25), g_model.expoData[0].weight);
-  EXPECT_EQ(-SWSRC_ON, g_model.expoData[0].swtch);
+  evalMixes();
+  EXPECT_EQ(RESX / 4, anas[0]);
+  EXPECT_EQ(RESX * 256 / 2, chans[4]);
+  const auto yaml = saveModelYamlStr(g_model);
+  for (const char* field : {"mltpx:", "mixWarn:", "delayUp:", "speedDown:", "flightModes:"})
+    EXPECT_EQ(std::string::npos, yaml.find(field));
 }
 
 TEST(Model, LiteralNumericSettingsRoundTrip)
@@ -274,7 +264,7 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr("gvars:\n  0:\n    value: 123\n");
   g_model.expoData[0].srcRaw = MIXSRC_MAX;
-  g_model.expoData[0].mode = 3;
+
   g_model.expoData[0].weight = -75;
   g_model.expoData[0].offset = -25;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
@@ -301,7 +291,7 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   EXPECT_EQ(1000, LIMIT_OFS(&g_model.limitData[1]));
 }
 
-TEST(Model, PhysicalSwitchConditionsRoundTripWithoutLogicalSwitchStorage)
+TEST(Model, PhysicalSwitchSourceAndTimerConditionRoundTrip)
 {
   SYSTEM_RESET();
   MODEL_RESET();
@@ -310,18 +300,14 @@ TEST(Model, PhysicalSwitchConditionsRoundTripWithoutLogicalSwitchStorage)
   ASSERT_GE(sw, 0);
   const int position = SWSRC_FIRST_SWITCH + 3 * sw;
   loadModelYamlStr("logicalSw:\n  0:\n    func: AND\n    def: SA0,SB0\n");
-  g_model.expoData[0].mode = 3;
+
   g_model.expoData[0].srcRaw = MIXSRC_MAX;
-  g_model.expoData[0].swtch = position;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
-  g_model.mixData[0].swtch = -position;
   g_model.timers[0].swtch = -position;
   std::string yaml = saveModelYamlStr(g_model);
   EXPECT_EQ(std::string::npos, yaml.find("logicalSw"));
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
-  EXPECT_EQ(position, g_model.expoData[0].swtch);
-  EXPECT_EQ(-position, g_model.mixData[0].swtch);
   EXPECT_EQ(MIXSRC_FIRST_SWITCH + sw, g_model.mixData[0].srcRaw);
   EXPECT_EQ(-position, g_model.timers[0].swtch);
 }

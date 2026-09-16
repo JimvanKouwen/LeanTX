@@ -182,11 +182,11 @@ TEST(getSwitch, PhysicalPositionsAndInversion)
     for (int selected = 0; selected < 3; ++selected) {
       EXPECT_EQ(pos == selected, getSwitch(first + selected));
       EXPECT_EQ(pos != selected, getSwitch(-(first + selected)));
-      EXPECT_TRUE(isSwitchAvailableInMixes(first + selected));
-      EXPECT_TRUE(isSwitchAvailableInMixes(-(first + selected)));
+      EXPECT_TRUE(isTimerSwitchAvailable(first + selected));
+      EXPECT_TRUE(isTimerSwitchAvailable(-(first + selected)));
     }
   }
   EXPECT_FALSE(getSwitch(SWSRC_COUNT));
   EXPECT_FALSE(getSwitch(-SWSRC_COUNT));
-  EXPECT_FALSE(isSwitchAvailableInMixes(SWSRC_COUNT));
+  EXPECT_FALSE(isTimerSwitchAvailable(SWSRC_COUNT));
 }

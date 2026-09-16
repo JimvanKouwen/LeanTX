@@ -28,11 +28,9 @@
 #include "etx_lv_theme.h"
 #include "getset_helpers.h"
 #include "numberedit.h"
-#include "mixer_edit_adv.h"
 #include "mixes.h"
 #include "pagegroup.h"
 #include "sourcechoice.h"
-#include "switchchoice.h"
 #include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -111,31 +109,18 @@ void MixEditWindow::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto svar = new NumberEdit(line, rect_t{}, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
-                                   GET_SET_DEFAULT(mix->weight), MIXSRC_FIRST);
+                                   GET_SET_DEFAULT(mix->weight));
   svar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
   auto numberEdit = new NumberEdit(line, rect_t{}, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
-                                   GET_SET_DEFAULT(mix->offset), MIXSRC_FIRST);
+                                   GET_SET_DEFAULT(mix->offset));
   numberEdit->setSuffix("%");
 
-  // Switch
-  line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_SWITCH);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_SET_DEFAULT(mix->swtch));
-
   // Curve
+  line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_CURVE);
   new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), mix->srcRaw);
 
-  line = form->newLine(grid);
-  line->padAll(PAD_LARGE);
-  auto btn =
-      new TextButton(line, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
-        new MixEditAdvanced(channel, index);
-        return 0;
-      });
-  lv_obj_set_width(btn->getLvObj(), lv_pct(100));
 }

@@ -28,7 +28,6 @@
 #include "getset_helpers.h"
 #include "numberedit.h"
 #include "input_source.h"
-#include "switchchoice.h"
 #include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -42,44 +41,11 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 #endif
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-class InputEditAdvanced : public Page
-{
- public:
-  InputEditAdvanced(uint8_t input_n, uint8_t index) : Page(ICON_MODEL_INPUTS)
-  {
-    std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input_n));
-    header->setTitle(STR_MENUINPUTS);
-    header->setTitle2(title2);
-
-    FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
-    body->setFlexLayout();
-
-    ExpoData* input = expoAddress(index);
-
-    // Side
-    auto line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_SIDE);
-    new Choice(
-        line, rect_t{}, STR_VCURVEFUNC, 1, 3,
-        [=]() -> int16_t { return 4 - input->mode; },
-        [=](int16_t newValue) {
-          input->mode = 4 - newValue;
-          Messaging::send(Messaging::CURVE_UPDATE);
-          SET_DIRTY();
-        });
-
-          }
-};
-
 InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
     Page(ICON_MODEL_INPUTS), input(input), index(index)
 {
   header->setTitle(STR_MENUINPUTS);
-  headerSwitchName = header->setTitle2("");
-
-  etx_txt_color(headerSwitchName->getLvObj(), COLOR_THEME_ACTIVE_INDEX,
-                LV_STATE_USER_1);
-  etx_font(headerSwitchName->getLvObj(), FONT_BOLD_INDEX, LV_STATE_USER_1);
+  inputTitle = header->setTitle2("");
 
   setTitle();
 
@@ -99,7 +65,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_preview, line->srcRaw, x);
+        applyExpos(anas, line->srcRaw, x);
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
@@ -112,7 +78,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_preview, line->srcRaw, x);
+        applyExpos(anas, line->srcRaw, x);
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
@@ -121,7 +87,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
 
 void InputEditWindow::setTitle()
 {
-  headerSwitchName->setText(getSourceString(MIXSRC_FIRST_INPUT + input));
+  inputTitle->setText(getSourceString(MIXSRC_FIRST_INPUT + input));
 }
 
 void InputEditWindow::buildBody(Window* form)
@@ -174,17 +140,6 @@ void InputEditWindow::buildBody(Window* form)
                               });
   numberEdit->setSuffix("%");
 
-  // Switch
-  line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_SWITCH);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_DEFAULT(input->swtch),
-                   [=](int newValue) {
-                     input->swtch = newValue;
-                     updatePreview = true;
-                     SET_DIRTY();
-                   });
-
   // Curve
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_CURVE);
@@ -198,42 +153,11 @@ void InputEditWindow::buildBody(Window* form)
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
 
-  line = form->newLine(grid);
-  line->padAll(PAD_LARGE);
-  auto btn =
-      new TextButton(line, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
-        new InputEditAdvanced(this->input, index);
-        return 0;
-      });
-  lv_obj_set_width(btn->getLvObj(), lv_pct(100));
 }
 
 void InputEditWindow::checkEvents()
 {
   if (_deleted) return;
-
-  ExpoData* input = expoAddress(index);
-
-  uint8_t activeIdx = 255;
-  for (int i = 0; i < MAX_EXPOS; i += 1) {
-    auto inp = expoAddress(i);
-    if (inp->chn == input->chn) {
-      if (getSwitch(inp->swtch)) {
-        activeIdx = i;
-        break;
-      }
-    }
-  }
-  if (activeIdx != lastActiveIndex) {
-    updatePreview = true;
-    lastActiveIndex = activeIdx;
-  }
-
-  if (lastActiveIndex == index) {
-    lv_obj_add_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
-  } else {
-    lv_obj_clear_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
-  }
 
   if (updatePreview) {
     updatePreview = false;

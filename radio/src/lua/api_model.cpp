@@ -380,12 +380,10 @@ Return input data for given input and line number
  * `scale` (number)  legacy telemetry input scaling (retained for compatibility; ignored)
  * `weight` (number) input weight
  * `offset` (number) input offset
- * `switch` (number) input switch index
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
- * 'side' (number) input side (positive, negative or all)
 
-@status current Introduced in 2.0.0, curveType/curveValue added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, scale added in 2.10, side added in 2.11
+@status current Introduced in 2.0.0, curveType/curveValue added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, scale added in 2.10
 */
 static int luaModelGetInput(lua_State *L)
 {
@@ -402,10 +400,8 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtableinteger(L, "scale", expo->scale);
     lua_pushtableinteger(L, "weight", (expo->weight));
     lua_pushtableinteger(L, "offset", (expo->offset));
-    lua_pushtableinteger(L, "switch", expo->swtch);
     lua_pushtableinteger(L, "curveType", expo->curve.type);
     lua_pushtableinteger(L, "curveValue", (expo->curve.value));
-    lua_pushtableinteger(L, "side", expo->mode);
   }
   else {
     lua_pushnil(L);
@@ -461,17 +457,11 @@ static int luaModelInsertInput(lua_State *L)
       else if (!strcmp(key, "scale")) {
         expo->scale = luaL_checkinteger(L, -1);
       }
-      else if (!strcmp(key, "side")) {
-        expo->mode = luaL_checkinteger(L, -1);
-      }
       else if (!strcmp(key, "weight")) {
         expo->weight = (luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "offset")) {
         expo->offset = (luaL_checkinteger(L, -1));
-      }
-      else if (!strcmp(key, "switch")) {
-        expo->swtch = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveType")) {
         expo->curve.type = luaL_checkinteger(L, -1);
@@ -601,11 +591,8 @@ Get configuration for specified Mix
  * `source` (number) source index
  * `weight` (number) literal weight (-500 to 500)
  * `offset` (number) literal offset (-500 to 500)
- * `switch` (number) switch index
- * `multiplex` (number) multiplex (0 = ADD, 1 = MULTIPLY, 2 = REPLACE)
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
- * `mixWarn` (number) warning (0 = off, 1 = 1 beep, .. 3 = 3 beeps)
 
 */
 static int luaModelGetMix(lua_State *L)
@@ -621,11 +608,8 @@ static int luaModelGetMix(lua_State *L)
     lua_pushtableinteger(L, "source", mix->srcRaw);
     lua_pushtableinteger(L, "weight", (mix->weight));
     lua_pushtableinteger(L, "offset", (mix->offset));
-    lua_pushtableinteger(L, "switch", mix->swtch);
     lua_pushtableinteger(L, "curveType", mix->curve.type);
     lua_pushtableinteger(L, "curveValue", (mix->curve.value));
-    lua_pushtableinteger(L, "multiplex", mix->mltpx);
-    lua_pushtableinteger(L, "mixWarn", mix->mixWarn);
   }
   else {
     lua_pushnil(L);
@@ -644,7 +628,7 @@ Insert a mixer line into Channel
 
 @param value (table) see model.getMix() for table format
 
-@status current Introduced in 2.0.0, parameters below `multiplex` added in 2.0.13
+@status current Introduced in 2.0.0
 */
 static int luaModelInsertMix(lua_State *L)
 {
@@ -675,22 +659,13 @@ static int luaModelInsertMix(lua_State *L)
       else if (!strcmp(key, "offset")) {
         mix->offset = (luaL_checkinteger(L, -1));
       }
-      else if (!strcmp(key, "switch")) {
-        mix->swtch = luaL_checkinteger(L, -1);
-      }
       else if (!strcmp(key, "curveType")) {
         mix->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
         mix->curve.value = (luaL_checkinteger(L, -1));
       }
-      else if (!strcmp(key, "multiplex")) {
-        mix->mltpx = luaL_checkinteger(L, -1);
-      }
 
-      else if (!strcmp(key, "mixWarn")) {
-        mix->mixWarn = luaL_checkinteger(L, -1);
-      }
     }
   }
 

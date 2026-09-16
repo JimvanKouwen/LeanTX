@@ -43,7 +43,7 @@ void setDefaultInputs()
     expo->curve.type = CURVE_REF_EXPO;
     expo->chn = i;
     expo->weight = 100;
-    expo->mode = 3; // TODO constant
+
     strncpy(g_model.inputNames[i], getMainControlLabel(stick_index), LEN_INPUT_NAME);
   }
 

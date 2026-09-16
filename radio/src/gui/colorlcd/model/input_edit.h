@@ -39,8 +39,7 @@ class InputEditWindow : public Page
   uint8_t index;
   Curve* preview = nullptr;
   bool updatePreview = false;
-  uint8_t lastActiveIndex = 255;
-  StaticText * headerSwitchName = nullptr;
+  StaticText * inputTitle = nullptr;
 
   void setTitle();
   void buildBody(Window *window);

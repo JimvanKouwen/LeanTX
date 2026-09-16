@@ -3,19 +3,15 @@ Using create.lua on source version will create a predefined set of input, mixer,
 Perform the eeprom upgrade
 On the target version, run check.lua, the debug output will give something like :
 OK 	source	1	1
-OK 	switch	3	3
 OK 	offset	10	10
 OK 	weight	50	50
 OK 	name	In1	In1
 OK 	weight	50	50
 OK 	curveValue	50	50
-OK 	mixWarn	1	1
 OK 	offset	10	10
-OK 	switch	3	3
 OK 	source	1	1
 OK 	curveType	1	1
 OK 	name	Mix1	Mix1
-OK 	multiplex	1	1
 OK 	min	-800	-800
 OK 	ppmCenter	10	10
 OK 	symetrical	1	1

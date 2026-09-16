@@ -93,7 +93,7 @@ void insertExpo(uint8_t idx, uint8_t input)
     expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(input);
   }
   expo->curve.type = CURVE_REF_EXPO;
-  expo->mode = 3;  // pos+neg
+
   expo->chn = input;
   expo->weight = 100;
   mixerTaskStart();
@@ -106,7 +106,6 @@ class InputLineButton : public InputMixButtonBase
   InputLineButton(Window* parent, uint8_t index) :
     InputMixButtonBase(parent, index)
   {
-    check(isActive());
 
     refreshMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) { refresh(); });
   }
@@ -126,17 +125,6 @@ class InputLineButton : public InputMixButtonBase
     if (line.name[0]) {
       int cnt =
           lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
-      if ((size_t)cnt >= maxlen)
-        maxlen = 0;
-      else {
-        maxlen -= cnt;
-        s += cnt;
-      }
-    }
-
-    if (line.swtch) {
-      char* sw_pos = getSwitchPositionName(line.swtch);
-      int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
       if ((size_t)cnt >= maxlen)
         maxlen = 0;
       else {
@@ -180,8 +168,6 @@ class InputLineButton : public InputMixButtonBase
       lv_group_swap_obj(obj1, obj2);
     }
   }
-
-  bool isActive() const override { return isExpoActive(index); }
 
  protected:
   Messaging refreshMsg;
@@ -276,7 +262,7 @@ InputMixButtonBase* ModelInputsPage::createLineButton(InputMixGroupBase* group,
       uint8_t idx = button->getIndex();
       deleteInput(idx);
     });
-    return button->isActive();
+    return 0;
   });
 
   return button;

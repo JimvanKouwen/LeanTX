@@ -73,7 +73,6 @@ void onMixesMenu(const char * result)
 #define MIX_LINE_WEIGHT_POS            2*FW+34
 #define MIX_LINE_SRC_POS               7*FW+5
 #define MIX_LINE_CURVE_POS             13*FW+3
-#define MIX_LINE_SWITCH_POS            19*FW+1
 #define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 #define MIX_HDR_GAUGE_POS_X            127
 
@@ -88,9 +87,6 @@ void displayMixInfos(coord_t y, MixData * md)
 {
   drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
 
-  if (md->swtch) {
-    drawSwitch(MIX_LINE_SWITCH_POS, y, md->swtch);
-  }
 }
 
 void displayMixLine(coord_t y, MixData * md)
@@ -105,7 +101,6 @@ void displayMixLine(coord_t y, MixData * md)
 #define MIX_LINE_WEIGHT_POS            6*FW+8
 #define MIX_LINE_SRC_POS               7*FW+3
 #define MIX_LINE_CURVE_POS             12*FW+3
-#define MIX_LINE_SWITCH_POS            16*FW+5
 #define MIX_LINE_NAME_POS              LCD_W-LEN_EXPOMIX_NAME*FW
 
 void displayHeaderChannelName(uint8_t ch)
@@ -119,10 +114,6 @@ void displayHeaderChannelName(uint8_t ch)
 void displayMixInfos(coord_t y, MixData * md)
 {
   drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
-
-  if (md->swtch) {
-    drawSwitch(MIX_LINE_SWITCH_POS, y, md->swtch);
-  }
 
 }
 
@@ -313,12 +304,11 @@ void menuModelMixAll(event_t event)
           s_currIdx = i;
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-          if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, ((s_copyMode || sub != cur) ? 0 : INVERS));
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
           editLiteralFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight,
-                      MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),
+                      MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT,
                       0);
 
 #if LCD_W >= 212

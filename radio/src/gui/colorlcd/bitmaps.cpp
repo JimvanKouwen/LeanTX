@@ -217,9 +217,6 @@ static const uint8_t mask_ui_topbar_setup[] __FLASH = {
 
 // gfx used in lines
 
-static const uint8_t mask_inline_add[] __FLASH = {
-#include "mask_inline_add.lbm"
-};
 static const uint8_t mask_inline_curve[] __FLASH = {
 #include "mask_inline_curve.lbm"
 };
@@ -231,12 +228,6 @@ static const uint8_t mask_inline_inverted[] __FLASH = {
 };
 static const uint8_t mask_inline_locked[] __FLASH = {
 #include "mask_inline_locked.lbm"
-};
-static const uint8_t mask_inline_multiply[] __FLASH = {
-#include "mask_inline_multiply.lbm"
-};
-static const uint8_t mask_inline_replace[] __FLASH = {
-#include "mask_inline_replace.lbm"
 };
 
 // gfx for info screens
@@ -454,10 +445,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_TIMER, mask_widget_timer),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
-
-    BI(ICON_MPLEX_ADD, mask_inline_add),
-    BI(ICON_MPLEX_MULTIPLY, mask_inline_multiply),
-    BI(ICON_MPLEX_REPLACE, mask_inline_replace),
 
     BI(ICON_MODEL_GRID_LARGE, mask_btn_grid_large),
     BI(ICON_MODEL_GRID_SMALL, mask_btn_grid_small),

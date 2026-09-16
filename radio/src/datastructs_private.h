@@ -76,12 +76,9 @@ PACK(struct MixData {
   uint16_t destCh:5;
   int16_t  srcRaw:10; // srcRaw=0 means not used
   uint16_t reservedTrimCarry:1;
-  uint16_t mixWarn:2;       // mixer warning
-  uint16_t mltpx:2;
   uint16_t spare:2;
   int32_t weight:11;
   int32_t offset:11;
-  int32_t  swtch:10;
   CurveRef curve;
   char name[LEN_EXPOMIX_NAME];
 });
@@ -91,13 +88,11 @@ PACK(struct MixData {
  */
 
 PACK(struct ExpoData {
-  uint16_t mode:2;
   uint16_t scale:14; // Legacy telemetry input scale; retained for storage compatibility.
   int16_t  reservedTrimSource:6;
   int16_t  srcRaw:10;
   int32_t weight:11;
   int32_t offset:11;
-  int32_t  swtch:10;
   CurveRef curve;
   uint16_t chn:5;
   uint16_t spare:3;

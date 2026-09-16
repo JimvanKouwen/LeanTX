@@ -72,10 +72,6 @@ void clearChannelOverrides()
 }
 BeepANACenter bpanaCenter = 0;
 
-MixState mixState [MAX_MIXERS];
-
-uint8_t mixWarning;
-
 int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
 int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
@@ -182,67 +178,23 @@ int expo(int x, int k)
   return neg ? -y : y;
 }
 
-void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue)
+void applyExpos(int16_t * anas, int16_t ovwrIdx, int16_t ovwrValue)
 {
-  int8_t cur_chn = -1;
-
-  for (uint8_t i=0; i<MAX_EXPOS; i++) {
-    if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
+  int32_t sums[MAX_INPUTS] = {};
+  for (uint8_t i = 0; i < MAX_EXPOS; ++i) {
     ExpoData * ed = expoAddress(i);
-    mixsrc_t srcRaw = ed->srcRaw;
-    mixsrc_t src = abs(srcRaw);
-    if (!EXPO_VALID(ed)) break; // end of list
-    // Ignore legacy or Lua-written direct telemetry inputs.
-    if (src > INPUTSRC_LAST) continue;
-    if (ed->chn == cur_chn)
-      continue;
-    if (getSwitch(ed->swtch)) {
-      int32_t v;
-      if (srcRaw == ovwrIdx) {
-        v = ovwrValue;
-      }
-      else {
-        v = getValue(srcRaw);
-        v = limit<int32_t>(-1024, v, 1024);
-      }
-      if (EXPO_MODE_ENABLE(ed, v)) {
-        if (mode == e_perout_mode_normal) mixState[i].activeExpo = true;
-        cur_chn = ed->chn;
-
-        //========== CURVE=================
-        if (ed->curve.value) {
-          v = applyCurve(v, ed->curve);
-        }
-
-        //========== WEIGHT ===============
-        int32_t weight = (10 * limit<int16_t>(-100, ed->weight, 100));
-        v = divRoundClosest((int32_t)v * weight, 1000);
-
-        //========== OFFSET ===============
-        int32_t offset = (10 * limit<int16_t>(-100, ed->offset, 100));
-        if (offset) v += divRoundClosest(calc100toRESX(offset), 10);
-
-        anas[cur_chn] = v;
-      } else {
-        anas[ed->chn] = 0;
-      }
-    }
+    if (!EXPO_VALID(ed)) break;
+    if (abs(ed->srcRaw) > INPUTSRC_LAST) continue;
+    int32_t v = ed->srcRaw == ovwrIdx ? ovwrValue :
+        limit<int32_t>(-RESX, getValue(ed->srcRaw), RESX);
+    if (ed->curve.value) v = applyCurve(v, ed->curve);
+    v = divRoundClosest(v * limit<int16_t>(-100, ed->weight, 100), 100);
+    v += divRoundClosest(calc100toRESX(10 * limit<int16_t>(-100, ed->offset, 100)), 10);
+    sums[ed->chn] += v;
   }
+  for (uint8_t ch = 0; ch < MAX_INPUTS; ++ch)
+    anas[ch] = limit<int32_t>(INT16_MIN, sums[ch], INT16_MAX);
 }
-
-// #define PREVENT_ARITHMETIC_OVERFLOW
-// because of optimizations the reserves before overruns occurs is only the half
-// this defines enables some checks the greatly improves this situation
-// It should nearly prevent all overruns (is still a chance for it, but quite low)
-// negative side is code cost 96 bytes flash
-
-// we do it now half way, only in applyLimits, which costs currently 50bytes
-// according opinion poll this topic is currently not very important
-// the change below improves already the situation
-// the check inside mixer would slow down mix a little bit and costs additionally flash
-// also the check inside mixer still is not bulletproof, there may be still situations a overflow could occur
-// a bulletproof implementation would take about additional 100bytes flash
-// therefore with go with this compromize, interested people could activate this define
 
 // @@@2 open.20.fsguruh ;
 // channel = channelnumber -1;
@@ -336,6 +288,12 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   else if (i <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
     div_t qr = div((uint16_t)(i-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
+    for (const auto& script : scriptInternalData) {
+      if (script.reference == qr.quot && script.state != SCRIPT_OK) {
+        if (valid) *valid = false;
+        return 0;
+      }
+    }
     return scriptInputsOutputs[qr.quot].outputs[qr.rem].value;
 #else
     if (valid != nullptr) *valid = false;
@@ -551,7 +509,7 @@ void evalInputs(uint8_t mode)
   }
 
   // EXPOs
-  applyExpos(anas, mode);
+  applyExpos(anas);
 
   if (mode == e_perout_mode_normal) {
     bpanaCenter = anaCenter;
@@ -604,18 +562,12 @@ void evalChannelMixes(uint8_t mode)
   //========== MIXER LOOP ===============
 
   uint8_t pass = 0;
-  uint8_t lv_mixWarning = 0;
   bitfield_channels_t dirtyChannels = all_channels_dirty;
-
-  // Calculate locally and then copy to mixState array - prevent UI seeing phantom values while calculating
-  bool activeMixes[MAX_MIXERS];
 
   do {
     bitfield_channels_t passDirtyChannels = 0;
 
     for (uint8_t i=0; i<MAX_MIXERS; i++) {
-      if (mode == e_perout_mode_normal && pass == 0)
-        activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
       mixsrc_t srcRaw = md->srcRaw;
@@ -640,26 +592,6 @@ void evalChannelMixes(uint8_t mode)
       // Ignore sources outside the ordinary mixer selector, including telemetry.
       if (srcRawAbs > MIXSRC_LAST) continue;
 
-      //========== SWITCH =====
-      bool mixLineActive = getSwitch(md->swtch);
-
-      if (mixLineActive) {
-
-#if defined(LUA_MODEL_SCRIPTS)
-        // disable mixer if Lua script is used as source and script was killed
-        if (srcRawAbs >= MIXSRC_FIRST_LUA && srcRawAbs <= MIXSRC_LAST_LUA) {
-          div_t qr = div(int(srcRawAbs - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-          for (int n = 0; n < MAX_SCRIPTS; n += 1) {
-            if ((scriptInternalData[n].reference == qr.quot) && (scriptInternalData[n].state != SCRIPT_OK)) {
-              mixLineActive = false;
-            }
-          }
-        }
-#endif
-      }
-
-      if (!mixLineActive) continue;
-
       //========== VALUE ===============
       getvalue_t v = 0;
 
@@ -671,7 +603,7 @@ void evalChannelMixes(uint8_t mode)
         if (srcRawAbs >= MIXSRC_FIRST_CH && srcRawAbs <= MIXSRC_LAST_CH) {
 
           auto srcChan = srcRawAbs - MIXSRC_FIRST_CH;
-          if (srcChan <= MAX_OUTPUT_CHANNELS && md->destCh != srcChan) {
+          if (srcChan < MAX_OUTPUT_CHANNELS && md->destCh != srcChan) {
 
             // check whether we need to recompute the current channel later
             bitfield_channels_t upperChansMask = upper_channels_mask(md->destCh);
@@ -687,15 +619,10 @@ void evalChannelMixes(uint8_t mode)
             // then use it!
             if (srcChan < md->destCh || pass > 0) {
               // channels are in [ -1024 * 256, 1024 * 256 ]
-              v = chans[srcChan] >> 8;
+              v = (chans[srcChan] >> 8) * (srcRaw < 0 ? -1 : 1);
             }
           }
         }
-      }
-
-      if (mode == e_perout_mode_normal) {
-        if (md->mixWarn) lv_mixWarning |= 1 << (md->mixWarn - 1);
-        activeMixes[i] = true;
       }
 
       int32_t weight = (10 * limit<int16_t>(-RESX, md->weight, RESX));
@@ -720,81 +647,14 @@ void evalChannelMixes(uint8_t mode)
         dv = applyCurve(dv, md->curve);
       }
 
-      int32_t * ptr = &chans[md->destCh]; // Save calculating address several times
-
-      // If first mix line for a channel - ignore Multiplex setting
-      if (i == 0 || mixAddress(i - 1)->destCh != md->destCh) {
-        *ptr = dv;
-      } else {
-        switch (md->mltpx) {
-          case MLTPX_REPL:
-            *ptr = dv;
-            if (mode == e_perout_mode_normal) {
-              for (int8_t m = i - 1; m >= 0 && mixAddress(m)->destCh == md->destCh; m--)
-                activeMixes[m] = false;
-            }
-            break;
-          case MLTPX_MUL:
-            // @@@2 we have to remove the weight factor of 256 in case of 100%; now we use the new base of 256
-            dv >>= 8;
-            dv *= *ptr;
-            dv >>= RESX_SHIFT;   // same as dv /= RESXl;
-            *ptr = dv;
-            break;
-          default: // MLTPX_ADD
-            *ptr += dv; //Mixer output add up to the line (dv + (dv>0 ? 100/2 : -100/2))/(100);
-            break;
-        } // endswitch md->mltpx
-      }
-#ifdef PREVENT_ARITHMETIC_OVERFLOW
-/*
-      // a lot of assumptions must be true, for this kind of check; not really worth for only 4 bytes flash savings
-      // this solution would save again 4 bytes flash
-      int8_t testVar=(*ptr<<1)>>24;
-      if ( (testVar!=-1) && (testVar!=0 ) ) {
-        // this devices by 64 which should give a good balance between still over 100% but lower then 32x100%; should be OK
-        *ptr >>= 6;  // this is quite tricky, reduces the value a lot but should be still over 100% and reduces flash need
-      } */
-
-      PACK( union u_int16int32_t {
-        struct {
-          int16_t lo;
-          int16_t hi;
-        } words_t;
-        int32_t dword;
-      });
-
-      u_int16int32_t tmp;
-      tmp.dword=*ptr;
-
-      if (tmp.dword<0) {
-        if ((tmp.words_t.hi&0xFF80)!=0xFF80) tmp.words_t.hi=0xFF86; // set to min nearly
-      }
-      else {
-        if ((tmp.words_t.hi|0x007F)!=0x007F) tmp.words_t.hi=0x0079; // set to max nearly
-      }
-      *ptr = tmp.dword;
-      // this implementation saves 18bytes flash
-
-/*      dv=*ptr>>8;
-      if (dv>(32767-RESXl)) {
-        *ptr=(32767-RESXl)<<8;
-      } else if (dv<(-32767+RESXl)) {
-        *ptr=(-32767+RESXl)<<8;
-      }*/
-      // *ptr=limit( int32_t(int32_t(-1)<<23), *ptr, int32_t(int32_t(1)<<23));  // limit code cost 72 bytes
-      // *ptr=limit( int32_t((-32767+RESXl)<<8), *ptr, int32_t((32767-RESXl)<<8));  // limit code cost 80 bytes
-#endif
+      // Every mapping contributes numerically to its destination.
+      chans[md->destCh] += dv;
     } //endfor mixers
 
     dirtyChannels &= passDirtyChannels;
 
   } while (++pass < 5 && dirtyChannels);
 
-  for (uint8_t i=0; i<MAX_MIXERS; i++)
-    mixState[i].activeMix = activeMixes[i];
-
-  mixWarning = lv_mixWarning;
 }
 
 void evalMixes()
@@ -904,12 +764,6 @@ void doMixerPeriodicUpdates()
         inactivity.counter++;
         if ((((uint8_t)inactivity.counter) & 0x07) == 0x01 && g_eeGeneral.inactivityTimer && inactivity.counter > ((uint16_t)g_eeGeneral.inactivityTimer * 60))
           AUDIO_INACTIVITY();
-
-#if defined(AUDIO)
-        if (mixWarning & 1) if ((sessionTimer&0x03)==0) AUDIO_MIX_WARNING(1);
-        if (mixWarning & 2) if ((sessionTimer&0x03)==1) AUDIO_MIX_WARNING(2);
-        if (mixWarning & 4) if ((sessionTimer&0x03)==2) AUDIO_MIX_WARNING(3);
-#endif
 
         val = s_sum_samples_thr_1s / s_cnt_samples_thr_1s;
         s_timeCum16ThrP += (val>>3);  // s_timeCum16ThrP would overrun if we would store throttle value with higher accuracy; therefore stay with 16 steps

@@ -33,63 +33,16 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-class MPlexIcon : public Window
-{
- public:
-  MPlexIcon(Window* parent, uint8_t index) :
-    Window(parent, {0, 0, MPLEX_ICON_W, MPLEX_ICON_H}),
-    index(index)
-    {
-    }
-
-  void refresh()
-  {
-    MixData* mix = mixAddress(index);
-    EdgeTxIcon n = ICON_MPLEX_ADD;
-    if (mix->mltpx == MLTPX_MUL) {
-      n = ICON_MPLEX_MULTIPLY;
-    } else if (mix->mltpx == MLTPX_REPL) {
-      n = ICON_MPLEX_REPLACE;
-    }
-
-    if (!icon) {
-      icon = new StaticIcon(this, 0, 0, n, COLOR_THEME_SECONDARY1_INDEX);
-      icon->center(width(), height());
-    }
-
-    icon->show(lv_obj_get_index(lvobj) != 0);
-    icon->setIcon(n);
-  }
-
-  void setIndex(uint8_t i)
-  {
-    index = i;
-  }
-
-  static LAYOUT_VAL_SCALED(MPLEX_ICON_W, 25)
-  static LAYOUT_VAL_SCALED(MPLEX_ICON_H, 29)
-
- protected:
-  uint8_t index;
-  StaticIcon* icon = nullptr;
-};
-
 class MixLineButton : public InputMixButtonBase
 {
  public:
   MixLineButton(Window* parent, uint8_t index) :
     InputMixButtonBase(parent, index)
   {
-    mplex = new MPlexIcon(parent, index);
 
     delayLoad();
   }
 
-  void deleteLater() override
-  {
-    if (mplex) mplex->deleteLater();
-    InputMixButtonBase::deleteLater();
-  }
 
   void delayedInit() override
   {
@@ -99,7 +52,6 @@ class MixLineButton : public InputMixButtonBase
 
   void refresh() override
   {
-    check(isActive());
 
     const MixData& line = g_model.mixData[index];
     setWeight(line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
@@ -113,12 +65,6 @@ class MixLineButton : public InputMixButtonBase
       s = strAppend(s, line.name, LEN_EXPOMIX_NAME);
     }
 
-    if (line.swtch) {
-      if (tmp_str[0]) s = strAppend(s, " ");
-      char* sw_pos = getSwitchPositionName(line.swtch);
-      s = strAppend(s, sw_pos);
-    }
-
     if (line.curve.value != 0) {
       if (tmp_str[0]) s = strAppend(s, " ");
       getCurveRefString(s, sizeof(tmp_str) - (s - tmp_str), line.curve);
@@ -126,24 +72,13 @@ class MixLineButton : public InputMixButtonBase
 
     setOpts(tmp_str);
 
-    mplex->refresh();
-
   }
 
-  void setIndex(uint8_t i) override
-  {
-    ListLineButton::setIndex(i);
-    mplex->setIndex(i);
-  }
 
   void updatePos(coord_t x, coord_t y) override
   {
     setPos(x, y);
-    mplex->setPos(x - MPLEX_XO, y);
-    mplex->show(y > ListLineButton::BTN_H);
   }
-
-  lv_obj_t* mplexLvObj() const { return mplex->getLvObj(); }
 
   void swapLvglGroup(InputMixButtonBase* line2) override
   {
@@ -155,20 +90,11 @@ class MixLineButton : public InputMixButtonBase
     if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
       // same input group: swap obj + focus group
       lv_obj_swap(obj1, obj2);
-      lv_obj_swap(mplexLvObj(), swapWith->mplexLvObj());
     } else {
       // different input group: swap only focus group
       lv_group_swap_obj(obj1, obj2);
-      lv_group_swap_obj(mplexLvObj(), swapWith->mplexLvObj());
     }
   }
-
-  bool isActive() const override { return isMixActive(index); }
-
-  static LAYOUT_VAL_SCALED(MPLEX_XO, 28)
-
- protected:
-  MPlexIcon* mplex = nullptr;
 };
 
 class MixGroup : public InputMixGroupBase
@@ -300,7 +226,7 @@ InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, u
       uint8_t idx = button->getIndex();
       deleteMix(idx);
     });
-    return button->isActive();
+    return 0;
   });
 
   return button;

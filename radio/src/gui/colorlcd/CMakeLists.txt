@@ -58,7 +58,6 @@ set(GUI_SRC
 
   model/curveedit.cpp
   model/input_edit.cpp
-  model/mixer_edit_adv.cpp
   model/mixer_edit.cpp
   model/model_curves.cpp
   model/model_inputs.cpp

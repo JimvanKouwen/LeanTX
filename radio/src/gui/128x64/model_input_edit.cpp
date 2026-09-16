@@ -27,7 +27,7 @@ int expoFn(int x)
 {
   ExpoData * ed = expoAddress(s_currIdx);
   int16_t anas[MAX_INPUTS] = {0};
-  applyExpos(anas, e_perout_mode_preview, ed->srcRaw, x);
+  applyExpos(anas, ed->srcRaw, x);
   return anas[ed->chn];
 }
 
@@ -40,8 +40,6 @@ enum ExposFields {
   EXPO_FIELD_CURVE_LABEL,
   EXPO_FIELD_CURVE,
 
-  EXPO_FIELD_SWITCH,
-  EXPO_FIELD_SIDE,
   EXPO_FIELD_MAX
 };
 
@@ -56,9 +54,7 @@ void menuModelExpoOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
-          {0, 0, 0, 0, 0, LABEL(Curve), 1,
-             0 /*, ...*/});
+  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX, {0, 0, 0, 0, 0, LABEL(Curve), 1});
 
   int8_t sub = menuVerticalPosition;
 
@@ -109,14 +105,6 @@ void menuModelExpoOne(event_t event)
 
       case EXPO_FIELD_CURVE:
         editCurveRef(FW + 1, y, ed->curve, event, attr);
-        break;
-
-      case EXPO_FIELD_SWITCH:
-        ed->swtch = editSwitch(EXPO_ONE_2ND_COLUMN, y, ed->swtch, attr, event);
-        break;
-
-      case EXPO_FIELD_SIDE:
-        ed->mode = 4 - editChoice(EXPO_ONE_2ND_COLUMN, y, STR_SIDE, STR_VCURVEFUNC, 4-ed->mode, 1, 3, attr, event);
         break;
 
     }

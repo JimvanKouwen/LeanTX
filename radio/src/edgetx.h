@@ -308,7 +308,7 @@ int expo(int x, int k);
 
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 
-void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx=0, int16_t ovwrValue=0);
+void applyExpos(int16_t * anas, int16_t ovwrIdx=0, int16_t ovwrValue=0);
 int16_t applyLimits(uint8_t channel, int32_t value);
 // Percent overrides bypass ordinary output limits, just as a direct output action.
 void setChannelOverride(uint8_t channel, int16_t percent, bool enabled = true);
@@ -326,16 +326,6 @@ USBJoystickChData * usbJChAddress(uint8_t idx);
 void applyDefaultTemplate();
 void copySticksToOffset(uint8_t ch);
 void copyMinMaxToOutputs(uint8_t ch);
-
-inline bool isExpoActive(uint8_t expo)
-{
-  return mixState[expo].activeExpo;
-}
-
-inline bool isMixActive(uint8_t mix)
-{
-  return mixState[mix].activeMix;
-}
 
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
 #define VARIO_FREQUENCY_RANGE  1000/*Hz*/
@@ -391,9 +381,6 @@ enum AUDIO_SOUNDS {
   AU_SLIDER3_MIDDLE,
   AU_SLIDER4_MIDDLE,
 #endif // X9E
-  AU_MIX_WARNING_1,
-  AU_MIX_WARNING_2,
-  AU_MIX_WARNING_3,
   AU_TIMER1_ELAPSED,
   AU_TIMER2_ELAPSED,
   AU_TIMER3_ELAPSED,

@@ -49,8 +49,7 @@ void prepareBackup()
   g_model.header.modelId[0] = 42;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
   g_model.mixData[0].weight = 87;
-  g_model.mixData[0].swtch = -2;
-  g_model.expoData[0].mode = 3;
+
   g_model.expoData[0].weight = 93;
   g_model.limitData[0].offset = -120;
   g_model.curves[0].points = 4;
