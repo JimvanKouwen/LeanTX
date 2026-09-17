@@ -347,7 +347,7 @@ void menuMainView(event_t event)
       break;
 
     case VIEW_TIMER2:
-      drawTimerWithMode(87, 5 * FH, 1, RIGHT | DBLSIZE);
+      drawTimerWithName(87, 5 * FH, 1, RIGHT | DBLSIZE);
       break;
 
     case VIEW_INPUTS:
@@ -410,7 +410,7 @@ void menuMainView(event_t event)
     displayVoltageOrAlarm();
 
     // Timer 1
-    drawTimerWithMode(125, 2 * FH, 0, RIGHT | DBLSIZE);
+    drawTimerWithName(125, 2 * FH, 0, RIGHT | DBLSIZE);
 
     // RSSI gauge / external antenna
     drawExternalAntennaAndRSSI();

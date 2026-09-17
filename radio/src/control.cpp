@@ -53,10 +53,7 @@ void doMixerPeriodicUpdates()
 
   DEBUG_TIMER_START(debugTimerMixes10ms);
   if (tick10ms) {
-    // Preserve the throttle input and resolution required by throttle timers.
-    int16_t val = RESX + calibratedAnalogs[
-        inputMappingConvertMode(inputMappingGetThrottle())];
-    evalTimers(val >> (RESX_SHIFT - 6), tick10ms);
+    evalTimers(tick10ms);
 
     static uint8_t  s_cnt_100ms;
     static uint8_t  s_cnt_1s;

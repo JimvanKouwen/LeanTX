@@ -175,11 +175,11 @@ void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags att)
   }
 }
 
-void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att)
+void drawTimerWithName(coord_t x, coord_t y, uint8_t index, LcdFlags att)
 {
   const TimerData &timer = g_model.timers[index];
 
-  if (timer.mode) {
+  if (timersStates[index].state != TMR_OFF) {
     const TimerData &timerData = g_model.timers[index];
     const TimerState &timerState = timersStates[index];
     const uint8_t negative = (timerState.val < 0 ? BLINK | INVERS : 0);
@@ -213,7 +213,7 @@ void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att)
       lcdDrawSizedText(xLabel, y + FH, timer.name, len, RIGHT);
     }
     else {
-      drawTimerMode(xLabel, y + FH, timer.mode, RIGHT);
+      drawStringWithIndex(xLabel, y + FH, STR_TIMER, index + 1, RIGHT);
     }
   }
 }

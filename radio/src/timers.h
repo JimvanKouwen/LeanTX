@@ -26,18 +26,16 @@
 #define TMR_OFF      0
 #define TMR_RUNNING  1
 #define TMR_NEGATIVE 2
-#define TMR_STOPPED  3
+#define TMR_STOPPED  3 // Post-expiry alerts finished; the timer can still run.
 
 typedef int32_t tmrval_t;
 typedef uint32_t tmrstart_t;
-typedef int16_t tmrmode_t;
 #define TIMER_MAX     (0xffffff/2)
 
 #define TIMER_MIN     (tmrval_t(-TIMER_MAX-1))
 
 struct TimerState {
-  uint16_t cnt;
-  uint16_t sum;
+  bool running; // Explicit start/stop, independent of the alert state.
   uint8_t  state;
   tmrval_t  val;
   uint8_t  val_10ms;
@@ -47,6 +45,10 @@ struct TimerState {
 extern TimerState timersStates[TIMERS];
 #endif
 
+// Start/resume and pause without changing the value or fractional second.
+void timerStart(uint8_t idx);
+void timerStop(uint8_t idx);
+// Reset/set clear fractional time and leave the timer paused.
 void timerReset(uint8_t idx);
 
 void timerSet(int idx, int val);
@@ -54,4 +56,4 @@ void timerSet(int idx, int val);
 void saveTimers();
 void restoreTimers();
 
-void evalTimers(int16_t throttle, uint8_t tick10ms);
+void evalTimers(uint8_t tick10ms);

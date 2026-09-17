@@ -24,7 +24,6 @@
 #include "choice.h"
 #include "edgetx.h"
 #include "getset_helpers.h"
-#include "switchchoice.h"
 #include "textedit.h"
 #include "timeedit.h"
 #include "toggleswitch.h"
@@ -42,20 +41,6 @@ TimerWindow::TimerWindow(uint8_t timer) :
   setupLine(STR_NAME,
     [=](Window* parent, coord_t x, coord_t y) {
       new ModelTextEdit(parent, {x, y, 0, 0}, p_timer->name, LEN_TIMER_NAME);
-    });
-
-  // Timer mode
-  setupLine(STR_MODE,
-    [=](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_TIMER_MODES, 0, TMRMODE_MAX,
-                GET_SET_DEFAULT(p_timer->mode));
-    });
-
-  // Timer switch
-  setupLine(STR_SWITCH,
-    [=](Window* parent, coord_t x, coord_t y) {
-      new SwitchChoice(parent, rect_t{x, y, 0, 0}, SWSRC_FIRST, SWSRC_LAST,
-                       GET_SET_DEFAULT(p_timer->swtch));
     });
 
   // Timer start value

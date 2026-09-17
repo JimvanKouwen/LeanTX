@@ -227,20 +227,12 @@ inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
   return 0;
 }
 
-inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
-{
-  if (g_model.timers[timer].mode > 0)
-    return value;
-  return HIDDEN_ROW;
-}
-
 #define POT_WARN_ROWS PREFLIGHT_ROW(((g_model.potsWarnMode) ? adcGetMaxInputs(ADC_INPUT_FLEX) : (uint8_t)0))
 
-#define TIMER_ROWS(x)                                                  \
-  1, TIMER_ROW(x,0),                                                   \
-      TIMER_ROW(x,(uint8_t)((g_model.timers[x].start) ? 2 : 1)),       \
-      TIMER_ROW(x,0), TIMER_ROW(x,0),                                  \
-      TIMER_ROW(x,g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 : (uint8_t)0)
+#define TIMER_ROWS(x) \
+  LABEL(Timer), 0, \
+  (uint8_t)((g_model.timers[x].start ? 2 : 1)), \
+  0, 0, (uint8_t)(g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? 1 : 0)
 
 #if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHES_ROWS  0, \
@@ -684,25 +676,7 @@ void menuModelSetup(event_t event)
                                      ? 2
                                      : (k >= ITEM_MODEL_SETUP_TIMER2 ? 1 : 0));
 
-        TimerData *timer = &g_model.timers[timerIdx];
-        drawStringWithIndex(0 * FW, y, STR_TIMER, timerIdx + 1);
-
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES,
-                           timer->mode, menuHorizontalPosition == 0 ? attr : 0);
-
-        drawSwitch(MODEL_SETUP_2ND_COLUMN + 5 * FW, y, timer->swtch,
-                   menuHorizontalPosition == 1 ? attr : 0);
-
-        if (attr && s_editMode > 0) {
-          switch (menuHorizontalPosition) {
-            case 0:
-              CHECK_INCDEC_MODELVAR_ZERO(event, timer->mode, TMRMODE_MAX);
-              break;
-            case 1:
-              CHECK_INCDEC_MODELSWITCH(event, timer->swtch, SWSRC_FIRST, SWSRC_LAST, isTimerSwitchAvailable);
-              break;
-          }
-        }
+        drawStringWithIndex(0, y, STR_TIMER, timerIdx + 1);
         break;
       }
 

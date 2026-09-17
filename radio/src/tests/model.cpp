@@ -267,22 +267,19 @@ TEST(Model, RemovedLineConditionsAreIgnored)
 }
 
 
-TEST(Model, PhysicalSwitchSourceAndTimerConditionRoundTrip)
+TEST(Model, PhysicalSwitchSourceRoundTrip)
 {
   SYSTEM_RESET();
   MODEL_RESET();
   RADIO_RESET();
   const int sw = findHwSwitch(SWITCH_3POS);
   ASSERT_GE(sw, 0);
-  const int position = SWSRC_FIRST_SWITCH + 3 * sw;
   loadModelYamlStr("logicalSw:\n  0:\n    func: AND\n    def: SA0,SB0\n");
 
   g_model.channelMappings[0].source = physicalSwitch(sw);
-  g_model.timers[0].swtch = -position;
   std::string yaml = saveModelYamlStr(g_model);
   EXPECT_EQ(std::string::npos, yaml.find("logicalSw"));
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
   EXPECT_EQ(physicalSwitch(sw), g_model.channelMappings[0].source);
-  EXPECT_EQ(-position, g_model.timers[0].swtch);
 }

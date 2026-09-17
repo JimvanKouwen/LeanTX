@@ -168,5 +168,5 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
     return std::string(getSwitchPositionName(value));
   });
 
-  setAvailableHandler(isTimerSwitchAvailable);
+  setAvailableHandler(isControlSwitchAvailable);
 }

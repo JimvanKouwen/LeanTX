@@ -61,7 +61,6 @@
 #define TR_SPLASHSCREEN_DELAYS          "1s","2s","3s","4s","6s","8s","10s","15s"
 #define TR_FSGROUPS                     "-","1","2","3","4"
 
-#define TR_TIMER_MODES      TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START
 #define TR_PHASES_HEADERS   TR_PHASES_HEADERS_NAME, TR_PHASES_HEADERS_SW, TR_PHASES_HEADERS_FAD_IN, TR_PHASES_HEADERS_FAD_OUT
 
 #define SA2(s) s##_1, s##_2
@@ -98,7 +97,6 @@
 #define TR_FONT_SIZES               SA8(TR_FONT_SIZES)
 
 #define TR_VBEEPCOUNTDOWN           SA6(TR_VBEEPCOUNTDOWN)
-#define TR_VTMRMODES                SA6(TR_VTMRMODES)
 
 #define TR_VBLMODE                  SA5(TR_VBLMODE)
 #if defined(FUNCTION_SWITCHES)

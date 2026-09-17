@@ -229,12 +229,6 @@
 #define	TR_SRC_LIGHT                    "Ambient light"
 #define TR_SRC_TIMER                   "Tmr"
 
-#define TR_VTMRMODES_1                 "OFF"
-#define TR_VTMRMODES_2                 "ON"
-#define TR_VTMRMODES_3                 "Strt"
-#define TR_VTMRMODES_4                 "THs"
-#define TR_VTMRMODES_5                 "TH%"
-#define TR_VTMRMODES_6                 "THt"
 #define TR_VSENSORTYPES_1              "Custom"
 #define TR_VSENSORTYPES_2              "Calculated"
 #define TR_VFORMULAS_1                 "Add"
@@ -356,8 +350,6 @@
 #define TR_USB_STILL_CONNECTED         "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Shutdown?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
-#define TR_THROTTLE_LABEL              "Throttle"
-#define TR_THROTTLE_START              "Throttle Start"
 #define TR_MINUTEBEEP                  TR("Minute", "Minute call")
 #define TR_BEEPCOUNTDOWN               "Countdown"
 #define TR_PERSISTENT                  TR("Persist.", "Persistent")
@@ -428,7 +420,6 @@
 #define TR_GPS_HDOP                    "Hdop: "
 #define TR_STACK_MENU                  "Menu: "
 #define TR_TIMER_LABEL                 "Timer"
-#define TR_THROTTLE_PERCENT_LABEL      "Throttle %"
 #define TR_BATT_LABEL                  "Battery"
 #define TR_SESSION                     "Session"
 #define TR_MENUTORESET                 TR_ENTER " to reset"

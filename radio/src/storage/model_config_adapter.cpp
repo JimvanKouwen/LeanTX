@@ -20,9 +20,6 @@ struct Enum {
   const char* name;
   int value;
 };
-const Enum TimerMode[] = {{"OFF", 0},  {"ON", 1},      {"START", 2},
-                          {"THR", 3},  {"THR_REL", 4}, {"THR_START", 5},
-                          {nullptr, 0}};
 const Enum Module[] = {{"TYPE_NONE", MODULE_TYPE_NONE},
                        {"TYPE_CROSSFIRE", MODULE_TYPE_CROSSFIRE},
                        {nullptr, 0}};
@@ -408,7 +405,6 @@ bool relevant(const Context& c, const char* path, unsigned i, unsigned j,
     return true;                                                     \
   }                                                                  \
   return enumOutput(table, m.member, f);
-#define ACCESS_TimerMode(m, l, h) ACCESS_ENUM(m, l, h, TimerMode)
 #define ACCESS_Module(m, l, h) ACCESS_ENUM(m, l, h, Module)
 #define ACCESS_Antenna(m, l, h) ACCESS_ENUM(m, l, h, Antenna)
 #define ACCESS_PotsMode(m, l, h) ACCESS_ENUM(m, l, h, PotsMode)

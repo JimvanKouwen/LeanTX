@@ -295,9 +295,9 @@ const static PageButtonDef modelSetupButtons[] = {
   {STR_DEF(STR_INTERNALRF), []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; }},
   {STR_DEF(STR_EXTERNALRF), []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
   // Timer buttons
-  {STR_DEF(STR_TIMER_1), []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
-  {STR_DEF(STR_TIMER_2), []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},
-  {STR_DEF(STR_TIMER_3), []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
+  {STR_DEF(STR_TIMER_1), []() { new TimerWindow(0); }, []() { return true; }},
+  {STR_DEF(STR_TIMER_2), []() { new TimerWindow(1); }, []() { return true; }},
+  {STR_DEF(STR_TIMER_3), []() { new TimerWindow(2); }, []() { return true; }},
 
   {STR_DEF(STR_PREFLIGHT), []() { new PreflightChecks(); }},
 #if defined(USE_HATS_AS_KEYS)

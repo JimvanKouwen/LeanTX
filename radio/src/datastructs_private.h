@@ -69,9 +69,7 @@
 
 PACK(struct TimerData {
   uint32_t start:22;
-  int32_t  swtch:10;
   int32_t  value:22;
-  uint32_t mode:3;
   uint32_t countdownBeep:2;
   uint32_t minuteBeep:1;
   uint32_t persistent:2;

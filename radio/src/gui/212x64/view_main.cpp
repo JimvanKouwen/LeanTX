@@ -240,7 +240,7 @@ void displayTimers()
 {
   // Main and Second timer
   for (unsigned int i=0; i<2; i++) {
-    if (g_model.timers[i].mode) {
+    if (timersStates[i].state != TMR_OFF) {
       TimerState & timerState = timersStates[i];
       TimerData & timerData = g_model.timers[i];
       uint8_t y = TIMERS_Y + i*TIMERS_H;
@@ -248,7 +248,7 @@ void displayTimers()
         lcdDrawSizedText(TIMERS_X, y-7, timerData.name, LEN_TIMER_NAME, SMLSIZE);
       }
       else {
-        lcdDrawTextAtIndex(TIMERS_X, y-7, STR_VTMRMODES, timerData.mode, SMLSIZE);
+        drawStringWithIndex(TIMERS_X, y-7, STR_TIMER, i + 1, SMLSIZE);
       }
       int val = timerState.val;
       if (timerData.start && timerData.showElapsed &&

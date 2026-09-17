@@ -46,7 +46,7 @@ typedef bool (*IsValueAvailable)(int);
 enum SwitchContext
 {
   AllSwitchesContext,
-  TimerSwitchContext
+  ControlSwitchContext
 };
 
 int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
@@ -66,7 +66,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
 bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings);
 bool isSwitchAvailableForArming(int swtch);
-bool isTimerSwitchAvailable(int swtch);
+bool isControlSwitchAvailable(int swtch);
 bool isExternalModuleAvailable(int moduleType);
 bool isInternalModuleAvailable(int moduleType);
 bool isInternalModuleSupported(int moduleType);

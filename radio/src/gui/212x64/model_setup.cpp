@@ -166,36 +166,9 @@ void onModelSetupBitmapMenu(const char * result)
   }
 }
 
-void editTimerMode(int timerIdx, coord_t y, LcdFlags attr, event_t event)
+void drawTimerHeading(int timerIdx, coord_t y)
 {
-  TimerData &timer = g_model.timers[timerIdx];
-  drawStringWithIndex(0 * FW, y, STR_TIMER, timerIdx + 1);
-
-  lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTMRMODES, timer.mode,
-                     menuHorizontalPosition == 0 ? attr : 0);
-
-  drawSwitch(MODEL_SETUP_3RD_COLUMN, y, timer.swtch,
-             menuHorizontalPosition == 1 ? attr : 0);
-
-  // drawTimer(MODEL_SETUP_3RD_COLUMN, y, timer.start,
-  //           menuHorizontalPosition == 1 ? attr | TIMEHOUR : TIMEHOUR,
-  //           menuHorizontalPosition == 2 ? attr | TIMEHOUR : TIMEHOUR);
-
-  if (attr && menuHorizontalPosition < 0) {
-    lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 10 * FW, FH + 1);
-  }
-
-  if (attr && s_editMode > 0) {
-    switch (menuHorizontalPosition) {
-      case 0:
-        CHECK_INCDEC_MODELVAR_ZERO(event, timer.mode, TMRMODE_MAX);
-        break;
-      case 1:
-        CHECK_INCDEC_MODELSWITCH(event, timer.swtch, SWSRC_FIRST,
-                                 SWSRC_LAST, isTimerSwitchAvailable);
-        break;
-    }
-  }
+  drawStringWithIndex(0, y, STR_TIMER, timerIdx + 1);
 }
 
 void editTimerStart(int timerIdx, coord_t y, LcdFlags attr, event_t event)
@@ -280,18 +253,10 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 #define IF_INTERNAL_MODULE_ON(x)          (IS_INTERNAL_MODULE_ENABLED() ? (uint8_t)(x) : HIDDEN_ROW)
 #define IF_EXTERNAL_MODULE_ON(x)          (IS_EXTERNAL_MODULE_ENABLED() ? (uint8_t)(x) : HIDDEN_ROW)
 
-inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
-{
-  if (g_model.timers[timer].mode > 0)
-    return value;
-  return HIDDEN_ROW;
-}
-
-#define TIMER_ROWS(x)                                                  \
-  1 | NAVIGATION_LINE_BY_LINE, TIMER_ROW(x,0),                         \
-      TIMER_ROW(x,(uint8_t)((g_model.timers[x].start) ? 2 : 1) | NAVIGATION_LINE_BY_LINE),       \
-      TIMER_ROW(x,0), TIMER_ROW(x,0),                                  \
-      TIMER_ROW(x,g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 : (uint8_t)0)
+#define TIMER_ROWS(x) \
+  LABEL(Timer), 0, \
+  (uint8_t)((g_model.timers[x].start ? 2 : 1) | NAVIGATION_LINE_BY_LINE), \
+  0, 0, (uint8_t)(g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? 1 : 0)
 
 #if TIMERS == 1
 #define TIMERS_ROWS                       TIMER_ROWS(0)
@@ -464,7 +429,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER1:
-        editTimerMode(0, y, attr, event);
+        drawTimerHeading(0, y);
         break;
 
       case ITEM_MODEL_SETUP_TIMER1_NAME:
@@ -495,7 +460,7 @@ void menuModelSetup(event_t event)
 
 #if TIMERS > 1
       case ITEM_MODEL_SETUP_TIMER2:
-        editTimerMode(1, y, attr, event);
+        drawTimerHeading(1, y);
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_NAME:
@@ -523,7 +488,7 @@ void menuModelSetup(event_t event)
 
 #if TIMERS > 2
       case ITEM_MODEL_SETUP_TIMER3:
-        editTimerMode(2, y, attr, event);
+        drawTimerHeading(2, y);
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_NAME:

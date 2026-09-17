@@ -432,16 +432,6 @@ void drawSwitch(coord_t x, coord_t y, swsrc_t idx, LcdFlags flags, bool autoBold
   lcdDrawText(x, y, s, flags);
 }
 
-void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att)
-{
-  if (mode >= 0) {
-    if (mode < TMRMODE_COUNT)
-      return lcdDrawTextAtIndex(x, y, STR_VTMRMODES, mode, att);
-    else
-      mode -= (TMRMODE_COUNT-1);
-  }
-  drawSwitch(x, y, mode, att);
-}
 
 #if defined(RTCLOCK)
 void drawRtcTime(coord_t x, coord_t y, LcdFlags att)

@@ -193,7 +193,6 @@ Get model timer parameters
 @retval nil requested timer does not exist
 
 @retval table timer parameters:
- * `mode` (number) timer trigger source: off, abs, stk,  stk%, sw/!sw, !m_sw/!m_sw
  * `start` (number) start value [seconds], 0 for up timer, 0> down timer
  * `value` (number) current value [seconds]
  * `countdownBeep` (number) countdown beep (0­ = silent, 1 =­ beeps, 2­ = voice)
@@ -210,7 +209,6 @@ static int luaModelGetTimer(lua_State *L)
   if (idx < MAX_TIMERS) {
     TimerData & timer = g_model.timers[idx];
     lua_newtable(L);
-    lua_pushtableinteger(L, "mode", timer.mode);
     lua_pushtableinteger(L, "start", timer.start);
     lua_pushtableinteger(L, "value", timersStates[idx].val);
     lua_pushtableinteger(L, "countdownBeep", timer.countdownBeep);
@@ -218,7 +216,6 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableinteger(L, "persistent", timer.persistent);
     lua_pushtablenstring(L, "name", timer.name);
     lua_pushtableboolean(L, "showElapsed", timer.showElapsed);
-    lua_pushtableinteger(L, "switch", timer.swtch);
     lua_pushtableinteger(L, "countdownStart", timer.countdownStart);
     lua_pushtableinteger(L, "extraHaptic", timer.extraHaptic);
   }
@@ -252,10 +249,7 @@ static int luaModelSetTimer(lua_State *L)
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "mode")) {
-        timer.mode = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "start")) {
+      if (!strcmp(key, "start")) {
         timer.start = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "value")) {
@@ -276,9 +270,6 @@ static int luaModelSetTimer(lua_State *L)
       }
       else if (!strcmp(key, "showElapsed")) {
         timer.showElapsed = lua_toboolean(L, -1);
-      }
-      else if (!strcmp(key, "switch")) {
-        timer.swtch = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "countdownStart")) {
         timer.countdownStart = luaL_checkinteger(L, -1);

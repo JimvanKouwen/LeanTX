@@ -124,7 +124,6 @@ void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags mode=0);
 
 void drawModelName(coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att);
 void drawSwitch(coord_t x, coord_t y, swsrc_t swtch, LcdFlags att=0, bool autoBold = true);
-void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
 
 void putsChn(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);

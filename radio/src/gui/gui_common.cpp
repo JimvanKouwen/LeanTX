@@ -160,8 +160,7 @@ static bool isSourceFuncSwitchAvailable(int source) {
 #endif
 
 static bool isSourceTimerAvailable(int source) {
-  TimerData *timer = &g_model.timers[source];
-  return timer->mode != 0;
+  return source >= 0 && source < TIMERS;
 }
 
 static bool isSourceTelemAvailable(int source) {
@@ -469,9 +468,9 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings)
   return true;
 }
 
-bool isTimerSwitchAvailable(int swtch)
+bool isControlSwitchAvailable(int swtch)
 {
-  return isSwitchAvailable(swtch, TimerSwitchContext);
+  return isSwitchAvailable(swtch, ControlSwitchContext);
 }
 
 bool isSwitchAvailableForArming(int swtch)
@@ -497,8 +496,7 @@ int timersSetupCount()
 
 bool isTimerSourceAvailable(int index)
 {
-  TimerData *timer = &g_model.timers[index];
-  return timer->mode != 0;
+  return index >= 0 && index < TIMERS;
 }
 
 #if defined(EXTERNAL_ANTENNA)

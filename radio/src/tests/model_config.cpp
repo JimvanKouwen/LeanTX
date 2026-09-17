@@ -84,6 +84,25 @@ TEST_F(ModelConfig, LegacyTelemetryDisplaysAreDiscarded)
   EXPECT_NE(std::string::npos, output.find("Volt"));
 }
 
+TEST_F(ModelConfig, LegacyTimerControlsAreDiscarded)
+{
+  input = "timers:\n  0:\n    mode: THR_REL\n    swtch: SA0\n"
+          "    start: 600\n    value: -25\n    persistent: 1\n"
+          "    countdownBeep: 2\n    minuteBeep: 1\n    name: T1\n";
+  ModelData model{};
+  ASSERT_TRUE(load(model));
+  EXPECT_EQ(600u, model.timers[0].start);
+  EXPECT_EQ(-25, model.timers[0].value);
+  EXPECT_EQ(1u, model.timers[0].persistent);
+  EXPECT_EQ(2u, model.timers[0].countdownBeep);
+  EXPECT_EQ(1u, model.timers[0].minuteBeep);
+  EXPECT_STREQ("T1", model.timers[0].name);
+  ASSERT_TRUE(save(model));
+  EXPECT_EQ(std::string::npos, output.find("THR_REL"));
+  EXPECT_EQ(std::string::npos, output.find("swtch:"));
+  EXPECT_NE(std::string::npos, output.find("T1"));
+}
+
 TEST_F(ModelConfig, LegacyThrottleTraceIsDiscarded)
 {
   input = "thrTraceSrc: ch(3)\n"
@@ -202,7 +221,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   strcpy(g_model.header.name, "Legacy");
   g_model.header.modelId[1] = 72;
   for (unsigned i = 0; i < MAX_TIMERS; ++i) {
-    g_model.timers[i].mode = TMRMODE_ON;
     g_model.timers[i].start = 1234 + i;
     g_model.timers[i].value = -25;
   }

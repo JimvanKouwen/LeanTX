@@ -413,16 +413,6 @@ enum BacklightMode {
   e_backlight_mode_on
 };
 
-enum TimerModes {
-  TMRMODE_OFF,
-  TMRMODE_ON,
-  TMRMODE_START,
-  TMRMODE_THR,
-  TMRMODE_THR_REL,
-  TMRMODE_THR_START,
-  TMRMODE_COUNT,
-  TMRMODE_MAX = TMRMODE_COUNT - 1
-};
 
 enum CountDownModes {
   COUNTDOWN_SILENT,
