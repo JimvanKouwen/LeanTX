@@ -68,7 +68,6 @@ class ChannelValue : public Window
     etx_txt_color_from_flags(chanLabel, txtColor);
     lv_label_set_text(chanLabel, "");
 
-    chanHasName = g_model.limitData[channel].name[0] != 0;
     setChannel();
 
     divPoints[0] = {(lv_coord_t)(width() / 2 - 1), 0};
@@ -84,12 +83,7 @@ class ChannelValue : public Window
   void setChannel()
   {
     char s[16];
-    if (chanHasName) {
-      formatNumberAsString(s, 16, channel + 1, LEADING0, 2, "", " ");
-      strAppend(s + 3, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
-    } else {
-      getSourceString(s, MIXSRC_FIRST_CH + channel);
-    }
+    getSourceString(s, MIXSRC_FIRST_CH + channel);
     lv_label_set_text(chanLabel, s);
   }
 
@@ -99,13 +93,12 @@ class ChannelValue : public Window
 
     int16_t value = channelOutputs[channel];
 
-    if (value != lastValue || lastExtendedLimits != g_model.extendedLimits) {
+    if (value != lastValue) {
       lastValue = value;
-      lastExtendedLimits = g_model.extendedLimits;
 
       std::string s;
       if (g_eeGeneral.ppmunit == PPM_US)
-        s = formatNumberAsString(PPM_CH_CENTER(channel) + value / 2, 0, 0, "", STR_US);
+        s = formatNumberAsString(PPM_CENTER + value / 2, 0, 0, "", STR_US);
       else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
         s = formatNumberAsString(calcRESXto1000(value), PREC1, 0, "", "%");
       else
@@ -116,7 +109,7 @@ class ChannelValue : public Window
         lv_label_set_text(valueLabel, s.c_str());
       }
 
-      const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
+      const int lim = RESX;
       uint16_t w = width() - PAD_TINY;
       int16_t scaledValue = divRoundClosest(w * limit<int16_t>(-lim, value, lim), lim * 2);
 
@@ -131,11 +124,6 @@ class ChannelValue : public Window
       }
     }
 
-    bool hasName = g_model.limitData[channel].name[0] != 0;
-    if (hasName != chanHasName) {
-      chanHasName = hasName;
-      setChannel();
-    }
   }
 
   static LAYOUT_VAL_SCALED(ROW_HEIGHT, 16)
@@ -147,8 +135,6 @@ class ChannelValue : public Window
   int16_t lastValue = OUTPUT_INVALID_VALUE;
   int16_t lastScaledValue = OUTPUT_INVALID_VALUE;
   std::string lastText;
-  bool lastExtendedLimits = false;
-  bool chanHasName = false;
   lv_obj_t* valueLabel = nullptr;
   lv_obj_t* chanLabel = nullptr;
   lv_point_t divPoints[2];

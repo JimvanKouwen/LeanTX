@@ -77,7 +77,6 @@ enum MenuModelSetupItems {
 #if defined(PCBX9E)
   ITEM_MODEL_SETUP_TOP_LCD_TIMER,
 #endif
-  ITEM_MODEL_SETUP_EXTENDED_LIMITS,
   ITEM_MODEL_SETUP_THROTTLE_LABEL,
   ITEM_MODEL_SETUP_THROTTLE_REVERSED,
   ITEM_MODEL_SETUP_THROTTLE_TRACE,
@@ -389,7 +388,6 @@ void menuModelSetup(event_t event)
 
     TOPLCD_ROWS
 
-    0, // ITEM_MODEL_SETUP_EXTENDED_LIMITS
 
     0, // ITEM_MODEL_SETUP_THROTTLE_LABEL
     THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_REVERSED
@@ -575,10 +573,6 @@ void menuModelSetup(event_t event)
         }
         break;
 #endif
-
-      case ITEM_MODEL_SETUP_EXTENDED_LIMITS:
-        g_model.extendedLimits = editCheckBox(g_model.extendedLimits, MODEL_SETUP_2ND_COLUMN, y, STR_ELIMITS, attr, event);
-        break;
 
       case ITEM_MODEL_SETUP_THROTTLE_LABEL:
         expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);

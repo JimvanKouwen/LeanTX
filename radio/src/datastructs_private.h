@@ -75,21 +75,6 @@ PACK(struct MixData {
 });
 
 /*
- * Limit structure
- */
-
-PACK(struct LimitData {
-  int32_t min:11;
-  int32_t max:11;
-  int32_t ppmCenter:10; // TODO can be reduced to 8 bits
-  int16_t offset:11;
-  uint16_t symetrical:1;
-  uint16_t revert:1;
-  uint16_t spare:3;
-  char name[LEN_CHANNEL_NAME];
-});
-
-/*
  * Timer structure
  */
 
@@ -404,7 +389,6 @@ PACK(struct ModelData {
   int8_t    reservedTrimInc:3;
   uint8_t   disableThrottleWarning:1;
   uint8_t   displayChecklist:1;
-  uint8_t   extendedLimits:1;
   uint8_t   reservedExtendedTrims:1;
   uint8_t   throttleReversed:1;
   uint8_t   enableCustomThrottleWarning:1;
@@ -420,7 +404,6 @@ PACK(struct ModelData {
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS];
-  LimitData limitData[MAX_OUTPUT_CHANNELS];
 
   uint8_t thrTraceSrc;
 

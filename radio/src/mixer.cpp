@@ -43,94 +43,11 @@ uint8_t s_mixer_first_run_done = false;
 
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
 
-// Direct output overrides are transient and independent of model configuration.
-static int16_t channelOverrideValues[MAX_OUTPUT_CHANNELS];
-static uint32_t channelOverrideMask;
-static_assert(MAX_OUTPUT_CHANNELS <= 32, "Channel override mask is too small");
-
-void setChannelOverride(uint8_t channel, int16_t percent, bool enabled)
-{
-  if (channel >= MAX_OUTPUT_CHANNELS) return;
-  const bool needsLock = mixerTaskInitialized();
-  if (needsLock) mixerTaskLock();
-  channelOverrideValues[channel] = percent;
-  if (enabled)
-    channelOverrideMask |= uint32_t(1) << channel;
-  else
-    channelOverrideMask &= ~(uint32_t(1) << channel);
-  if (needsLock) mixerTaskUnlock();
-}
-
-void clearChannelOverrides()
-{
-  // Startup loads the model before mixerTaskInit(): no mutex or mixer task yet.
-  const bool needsLock = mixerTaskInitialized();
-  if (needsLock) mixerTaskLock();
-  channelOverrideMask = 0;
-  if (needsLock) mixerTaskUnlock();
-}
 BeepANACenter bpanaCenter = 0;
 
 int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
-int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
-
-// @@@2 open.20.fsguruh ;
-// channel = channelnumber -1;
-// value = outputvalue with 100 mulitplied usual range -102400 to 102400; output -1024 to 1024
-// changed rescaling from *100 to *256 to optimize performance
-// rescaled from -262144 to 262144
-int16_t applyLimits(uint8_t channel, int32_t value)
-{
-  if (channelOverrideMask & (uint32_t(1) << channel))
-    return calc100toRESX(channelOverrideValues[channel]);
-
-  LimitData * lim = limitAddress(channel);
-
-  int16_t ofs   = LIMIT_OFS_RESX(lim);
-  int16_t lim_p = LIMIT_MAX_RESX(lim);
-  int16_t lim_n = LIMIT_MIN_RESX(lim);
-
-  if (ofs > lim_p) ofs = lim_p;
-  if (ofs < lim_n) ofs = lim_n;
-
-  // because the rescaling optimization would reduce the calculation reserve we activate this for all builds
-  // it increases the calculation reserve from factor 20,25x to 32x, which it slightly better as original
-  // without it we would only have 16x which is slightly worse as original, we should not do this
-
-  // thanks to gbirkus, he motivated this change, which greatly reduces overruns
-  // unfortunately the constants and 32bit compares generates about 50 bytes codes; didn't find a way to get it down.
-  value = limit(int32_t(-RESXl*256), value, int32_t(RESXl*256));  // saves 2 bytes compared to other solutions up to now
-
-#if defined(PPM_LIMITS_SYMETRICAL)
-  if (value) {
-    int16_t tmp;
-    if (lim->symetrical)
-      tmp = (value > 0) ? (lim_p) : (-lim_n);
-    else
-      tmp = (value > 0) ? (lim_p - ofs) : (-lim_n + ofs);
-    value = (int32_t) value * tmp;   //  div by 1024*256 -> output = -1024..1024
-#else
-  if (value) {
-    int16_t tmp = (value > 0) ? (lim_p - ofs) : (-lim_n + ofs);
-    value = (int32_t) value * tmp;   //  div by 1024*256 -> output = -1024..1024
-#endif
-
-    // Round away from 0
-    tmp = (value + (value < 0 ? (1<<17)-1 : (1<<17))) >> 18;
-
-    ofs += tmp;  // ofs can to added directly because already recalculated,
-  }
-
-  if (ofs > lim_p)
-    ofs = lim_p;
-  if (ofs < lim_n)
-    ofs = lim_n;
-  if (lim->revert)
-    ofs = -ofs; // finally do the reverse.
-
-  return ofs;
-}
+int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Mapped values from the last mixer evaluation;
 
 static const getvalue_t _switch_2pos_lookup[] = {
   -1024, // SWITCH_HW_UP
@@ -350,13 +267,6 @@ void evalAnalogControls(uint8_t mode)
       }
     }
 
-    if (ch < pots_offset) { // only do this for sticks
-      if (mode & e_perout_mode_nosticks) {
-        v = 0;
-      }
-
-      calibratedAnalogs[i] = v;
-    }
   }
 
   if (mode == e_perout_mode_normal) {
@@ -504,22 +414,11 @@ void evalMixes()
 #endif
   evalChannelMixes(e_perout_mode_normal);
 
-  //========== LIMITS ===============
-  for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS; i++) {
-    // chans[i] holds data from mixer.   chans[i] = v*weight => 1024*256
-    // later we multiply by the limit (up to 100) and then we need to normalize
-    // at the end chans[i] = chans[i]/256 =>  -1024..1024
-    // interpolate value with min/max so we get smooth motion from center to stop
-    // this limits based on v original values and min=-1024, max=1024  RESX=1024
-    int32_t q = chans[i];
-
-    ex_chans[i] = q / 256;
-
-    int16_t value = applyLimits(i, q);  // applyLimits will remove the 256 100% basis
-
-    channelOutputs[i] = value;  // copy consistent word to int-level
+  for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
+    // Convert the mixer's fixed-point representation to channel units only.
+    ex_chans[i] = chans[i] / 256;
+    channelOutputs[i] = ex_chans[i];
   }
-
 }
 
 #if defined(THRTRACE)
@@ -549,31 +448,7 @@ void doMixerPeriodicUpdates()
 
     if (g_model.thrTraceSrc > MAX_POTS) {
       uint8_t ch = g_model.thrTraceSrc - MAX_POTS - 1;
-      val = channelOutputs[ch];
-
-      LimitData * lim = limitAddress(ch);
-      int16_t gModelMax = LIMIT_MAX_RESX(lim);
-      int16_t gModelMin = LIMIT_MIN_RESX(lim);
-
-      if (lim->revert)
-        val = -val + gModelMax;
-      else
-        val = val - gModelMin;
-
-#if defined(PPM_LIMITS_SYMETRICAL)
-      if (lim->symetrical) {
-        val -= calc1000toRESX(lim->offset);
-      }
-#endif
-
-      gModelMax -= gModelMin; // we compare difference between Max and Mix for recaling needed; Max and Min are shifted to 0 by default
-      // usually max is 1024 min is -1024 --> max-min = 2048 full range
-
-      if (gModelMax != 0 && gModelMax != 2048)
-        val = (int32_t) (val << 11) / (gModelMax); // rescaling only needed if Min, Max differs
-
-      if (val < 0)
-        val=0;  // prevent val be negative, which would corrupt throttle trace and timers; could occur if safetyswitch is smaller than limits
+      val = limit<int32_t>(0, RESX + channelOutputs[ch], 2 * RESX);
     }
     else {
       val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? inputMappingConvertMode(inputMappingGetThrottle()) : g_model.thrTraceSrc + MAX_STICKS - 1];

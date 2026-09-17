@@ -8,7 +8,6 @@ set(TARGET_DIR taranis)
 
 set(HSE_VALUE 12000000)
 set(TARGET_DIR taranis)
-set(PPM_LIMITS_SYMETRICAL YES)
 
 add_definitions(-DPCBTARANIS)
 

@@ -152,14 +152,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
 
   }
 
-  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
-    auto& o = g_model.limitData[i];
-    o.min = -50;
-    o.max = 80;
-    o.offset = -34;
-    o.ppmCenter = 5;
-    o.revert = i % 2;
-  }
   for (unsigned i = 0; i < MAX_TELEMETRY_SENSORS; ++i) {
     auto& s = g_model.telemetrySensors[i];
     s.id = 400 + i;
@@ -190,8 +182,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(0,
             memcmp(expected.mixData, actual.mixData, sizeof(expected.mixData)));
-  EXPECT_EQ(0, memcmp(expected.limitData, actual.limitData,
-                      sizeof(expected.limitData)));
   EXPECT_EQ(0, memcmp(expected.telemetrySensors, actual.telemetrySensors,
                       sizeof(expected.telemetrySensors)));
   ASSERT_TRUE(save(actual));
@@ -591,12 +581,11 @@ TEST_F(ModelConfig, SparseSlotsKeepIndicesAndDefaultValues)
   ModelData model{};
   model.rfAlarms.warning = 45; model.rfAlarms.critical = 42;
   ASSERT_TRUE(save(model));
-  for (const char* section : {"mixData:", "limitData:", "telemetrySensors:", "scriptsData:", "screens:", "screenData:"})
+  for (const char* section : {"mixData:", "telemetrySensors:", "scriptsData:", "screens:", "screenData:"})
     EXPECT_EQ(std::string::npos, output.find(section)) << section;
   model.mixData[7].srcRaw = MIXSRC_FIRST_STICK;
   model.mixData[7].destCh = 3;
   model.mixData[7].weight = 100;
-  model.limitData[11].offset = 123;
   model.timers[2].start = 50;
   // Stale data in inactive slots must not create entries.
   model.mixData[6].weight = 80;
@@ -604,13 +593,11 @@ TEST_F(ModelConfig, SparseSlotsKeepIndicesAndDefaultValues)
   EXPECT_EQ(std::string::npos, output.find("  6:"));
   EXPECT_EQ(std::string::npos, output.find("scriptsData:"));
   EXPECT_NE(std::string::npos, output.find("mixData:\n  7:"));
-  EXPECT_NE(std::string::npos, output.find("limitData:\n  11:"));
   input = output;
   ModelData loaded{};
   ASSERT_TRUE(load(loaded));
   EXPECT_EQ(MIXSRC_FIRST_STICK, loaded.mixData[7].srcRaw);
   EXPECT_EQ(0, loaded.mixData[6].weight);
-  EXPECT_EQ(123, loaded.limitData[11].offset);
   EXPECT_EQ(50u, loaded.timers[2].start);
   EXPECT_EQ(45, loaded.rfAlarms.warning);
 }
@@ -651,15 +638,6 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
     memset(mix.name, 'M', sizeof(mix.name));
   }
 
-  for (auto& limit : g_model.limitData) {
-    memset(limit.name, '"', sizeof(limit.name));
-    limit.offset = 100;
-    limit.min = -100;
-    limit.max = 100;
-    limit.ppmCenter = 100;
-    limit.revert = 1;
-    limit.symetrical = 1;
-  }
   for (auto& sensor : g_model.telemetrySensors) {
     memset(sensor.label, 'S', sizeof(sensor.label));
     sensor.id = 1234;

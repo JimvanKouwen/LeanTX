@@ -53,20 +53,7 @@
 #define SWITCHES_DELAY_NONE         (-15)
 #define HAPTIC_STRENGTH()           (3+g_eeGeneral.hapticStrength)
 
-#define limit_min_max_t     int16_t
-#define LIMIT_EXT_PERCENT   150
-#define LIMIT_STD_PERCENT   100
-#define LIMIT_EXT_MAX       (LIMIT_EXT_PERCENT*10)
-#define LIMIT_STD_MAX       (LIMIT_STD_PERCENT*10)
-#define PPM_CENTER_MAX      500
-#define LIMIT_MAX(lim) ((lim)->max + LIMIT_STD_MAX)
-#define LIMIT_MIN(lim) ((lim)->min - LIMIT_STD_MAX)
-#define LIMIT_OFS(lim) ((lim)->offset)
-#define LIMIT_MAX_RESX(lim) calc1000toRESX(LIMIT_MAX(lim))
-#define LIMIT_MIN_RESX(lim) calc1000toRESX(LIMIT_MIN(lim))
-#define LIMIT_OFS_RESX(lim) calc1000toRESX(LIMIT_OFS(lim))
 
-#define LIMITS_MIN_MAX_OFFSET LIMIT_STD_MAX
 
 enum TelemetrySensorType
 {

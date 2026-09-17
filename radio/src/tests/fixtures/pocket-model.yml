@@ -18,7 +18,6 @@ telemetryProtocol: 0
 ignoreSensorIds: 0
 disableThrottleWarning: 0
 displayChecklist: 0
-extendedLimits: 1
 throttleReversed: 0
 enableCustomThrottleWarning: 0
 disableTelemetryWarning: 0

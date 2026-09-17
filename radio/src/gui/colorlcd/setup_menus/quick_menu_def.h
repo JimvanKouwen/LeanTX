@@ -30,7 +30,6 @@ enum QMPage {
   // Model menu
   QM_MODEL_SETUP,
   QM_MODEL_MIXES,
-  QM_MODEL_OUTPUTS,
   QM_MODEL_TELEMETRY,
   QM_MODEL_NOTES,
   // Radio menu

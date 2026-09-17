@@ -51,7 +51,7 @@ extern uint8_t requiredBacklightBright;
 // It's also easier to initialize them here.
 
 extern int32_t chans[MAX_OUTPUT_CHANNELS];
-extern int16_t ex_chans[MAX_OUTPUT_CHANNELS]; // Outputs (before LIMITS) of the last perMain
+extern int16_t ex_chans[MAX_OUTPUT_CHANNELS]; // Mapped values from the last mixer evaluation
 extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];
 
 typedef uint16_t BeepANACenter;

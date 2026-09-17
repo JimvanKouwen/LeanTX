@@ -195,7 +195,6 @@ void postModelLoad(bool alarms)
 #endif
 
   AUDIO_FLUSH();
-  clearChannelOverrides();
   flightReset(false);
 
   restoreTimers();

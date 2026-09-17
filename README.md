@@ -85,7 +85,7 @@ actions are assigned by default.
 Old trim values, inheritance, and trim-specific actions are ignored when loading
 models. Remaining packed trim positions and numeric source/action IDs are reserved
 to avoid shifting unrelated settings; reserved fields are not written to YAML.
-Ordinary output offsets and audio-recording trim tools are unaffected.
+Audio-recording trim tools are unaffected.
 
 Transmitter flight modes are removed. Mixes have no switch conditions,
 mode masks, fades, or mode-specific settings.
@@ -93,8 +93,7 @@ Betaflight modes still work through AUX channels; received CRSF mode telemetry
 and assignable flight-controller mode sound prompts remain supported.
 
 Global Variables (GVars) are removed, including their storage, editors, special
-functions, Lua APIs, and simulator exports. Input and mixer weights/offsets
-and output limits/offsets now hold literal numbers only.
+functions, Lua APIs, and simulator exports. Mixer weights/offsets hold literal numbers only.
 Source selection for Mixes remains supported; numeric settings no
 longer encode references to sources or variables.
 
@@ -139,11 +138,6 @@ Old action configurations are discarded, including channel-override assignments.
 - `AudioQueue::setBackgroundPaused()` controls background playback directly;
   queued background files play without a function-active bit. Flushing audio
   clears the pause state.
-- `setChannelOverride(channel, percent, enabled)` retains direct transient
-  output override behavior. It bypasses ordinary output limits. Passing `false`
-  disables that channel's override; `clearChannelOverrides()` clears all of them.
-  Loading a model clears overrides. There are no switch assignments or stored
-  override configurations.
 - `varioWakeup()` remains callable with telemetry/FAI guards. Automatic vario
   wakeups are removed so deleting functions does not silently enable vario audio.
 - Logging remains callable; a nonzero `logDelay100ms` enables the existing logger.
@@ -175,15 +169,14 @@ reusable audio/haptic patterns and remains.
 Possible later simplifications, deliberately deferred: consolidate the remaining
 switch-selection contexts; design explicit logging/vario controls; expose the
 preserved actions through Values/Events; review startup-audio timing and unused
-view-option padding; simplify now-sparser menus. Mixes use basic numeric routing; Outputs retain endpoint processing.
+view-option padding; simplify now-sparser menus. Mixes use basic numeric routing; Mapped channel values pass directly to RF.
 
 ### Validation
 
 Pocket firmware and the native simulator build successfully. Additional
 X9D+ 2019 and TX16S MK3 firmware builds cover the wider monochrome and color
 interfaces. The simulator runs 54 selected model/storage/Lua/switch/timer/haptic
-regression tests and all 28 mixer tests successfully (the override test is in both
-runs). Configuration compatibility uses checked-in YAML fixtures. Hardware flight testing remains
+regression tests and the mixer tests successfully. Configuration compatibility uses checked-in YAML fixtures. Hardware flight testing remains
 outside these build and simulator checks.
 
 ## Standalone RTC Emergency Mode
@@ -191,7 +184,7 @@ outside these build and simulator checks.
 RTC recovery now uses explicit radio/control/CRSF snapshots, independent of the
 YAML schema and packed runtime layouts. Field-by-field capture and restore replace
 `BACKUP`/`NOBACKUP` alternate structures and generated copy helpers. Calibration,
-Mixes/Outputs, physical controls and module settings are retained;
+Mixes, physical controls and module settings are retained;
 removed-feature reservations, timers and unrelated display/configuration data are
 excluded. Input filtering and HAL flex-switch mappings are also preserved.
 
@@ -217,7 +210,7 @@ that file, so the previous active model cannot overwrite it.
 Mixes now perform unconditional numeric routing: source,
 weight, and offset. Multiple mappings to the same destination add together;
 there are no multiplex modes, side gates, first-active-line selection, delays,
-ramps, or mixer warnings. Outputs/endpoints and the RF path remain unchanged.
+ramps, or mixer warnings. Mapped values reach channelOutputs[] unchanged; RF encoding retains its protocol clamps.
 Channel-as-source chaining and Lua mix sources remain supported. Failed Lua
 sources read as zero, and the mapping still applies its weight and offset.
 Old line activation, multiplex, and warning YAML fields are ignored and are
@@ -235,13 +228,20 @@ Old mix-script configuration is ignored when loading YAML and omitted on save;
 references to Lua output sources such as `lua(0,0)` are rejected as invalid sources.
 
 The Inputs/ExpoData stage has been removed. Mixes read physical controls or
-channels directly and retain weight and offset; Outputs/endpoints and
-the RF path are unchanged. New radio defaults use AETR (Ail → CH1, Ele → CH2,
+channels directly and retain weight and offset. New radio defaults use AETR (Ail → CH1, Ele → CH2,
 Thr → CH3, Rud → CH4), respecting the configured channel order for new models.
 Old models using `I0`/`I1` sources require manual adjustment; there is no migration.
 
 The legacy Curves subsystem is removed from model storage, YAML, Lua, and both
-UIs. Mixer sources pass directly into weight/offset processing, and Outputs retain
-endpoints, subtrim, and direction. Physical calibration and normalization remain
+UIs. Mixer sources pass directly into weight/offset processing. Physical calibration and normalization remain
 intact. No replacement transform system is introduced. Retired YAML fields are
 ignored on load and omitted on save.
+
+The Outputs/LimitData subsystem is removed: endpoint limits, subtrim, channel
+reverse, symmetrical limits, PPM center adjustment, channel names, editors,
+Lua output configuration, and transient output overrides are gone. Mapped values
+pass directly into `channelOutputs[]` after conversion from mixer fixed-point
+units. Physical input calibration/normalization remains intact; CRSF conversion
+and packet-range clamping happen only in the protocol encoder. Channel monitors
+remain read-only. Legacy Outputs YAML is ignored on load and omitted on save.
+RTC snapshots use version 6; older snapshots cannot be restored.

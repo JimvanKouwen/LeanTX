@@ -34,11 +34,6 @@
 
 #define CROSSFIRE_CH_BITS           11
 #define CROSSFIRE_CENTER            0x3E0
-#if defined(PPM_CENTER_ADJUSTABLE)
-  #define CROSSFIRE_CENTER_CH_OFFSET(ch)            ((2 * limitAddress(ch)->ppmCenter) + 1)  // + 1 is for rouding
-#else
-  #define CROSSFIRE_CENTER_CH_OFFSET(ch)            (0)
-#endif
 
 #define MIN_FRAME_LEN 3
 
@@ -92,7 +87,7 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
   return buf - frame;
 }
 
-// Range for pulses (channels output) is [-1024:+1024]
+// Nominal channel range is [-1024:+1024]; clamp only for protocol encoding.
 uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
 {
   //
@@ -113,7 +108,7 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
   for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
-    uint32_t val = limit(0, CROSSFIRE_CENTER + (CROSSFIRE_CENTER_CH_OFFSET(i) * 4) / 5 + (pulses[i] * 4) / 5, 2 * CROSSFIRE_CENTER);
+    uint32_t val = limit(0, CROSSFIRE_CENTER + (pulses[i] * 4) / 5, 2 * CROSSFIRE_CENTER);
     bits |= val << bitsavailable;
     bitsavailable += CROSSFIRE_CH_BITS;
     while (bitsavailable >= 8) {

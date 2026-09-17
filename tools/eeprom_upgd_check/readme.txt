@@ -10,13 +10,6 @@ OK 	weight	50	50
 OK 	offset	10	10
 OK 	source	1	1
 OK 	name	Mix1	Mix1
-OK 	min	-800	-800
-OK 	ppmCenter	10	10
-OK 	symetrical	1	1
-OK 	offset	10	10
-OK 	revert	1	1
-OK 	max	800	800
-OK 	name	Out1	Out1
 OK 	v1	2	2
 OK 	delay	2	2
 OK 	func	2	2

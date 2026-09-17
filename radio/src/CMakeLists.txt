@@ -14,8 +14,6 @@ set(DEFAULT_MODE "" CACHE STRING "Default sticks mode")
 set(POPUP_LEVEL 2 CACHE STRING "Popup level")
 
 option(GUI "GUI enabled" ON)
-option(PPM_CENTER_ADJUSTABLE "PPM center adjustable" ON)
-option(PPM_LIMITS_SYMETRICAL "PPM limits symetrical" OFF)
 option(FAI "Competition mode (no telemetry)" OFF)
 option(AUTOSOURCE "Automatic source detection in menus" ON)
 option(AUTOSWITCH "Automatic switch detection in menus" ON)
@@ -252,13 +250,7 @@ if(BLUETOOTH)
   set(SRC ${SRC} bluetooth.cpp)
 endif()
 
-if(PPM_CENTER_ADJUSTABLE)
-  add_definitions(-DPPM_CENTER_ADJUSTABLE)
-endif()
 
-if(PPM_LIMITS_SYMETRICAL)
-  add_definitions(-DPPM_LIMITS_SYMETRICAL)
-endif()
 
 
 

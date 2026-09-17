@@ -29,6 +29,42 @@
 
 uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses);
 
+class MixerRfTest : public EdgeTxTest {};
+
+TEST_F(MixerRfTest, PhysicalMappingReachesCRSFWithOnlyProtocolClamping)
+{
+  MODEL_RESET();
+#if defined(STICK_DEAD_ZONE)
+  g_eeGeneral.stickDeadZone = 0;
+#endif
+  for (int ch = 0; ch < CROSSFIRE_CHANNELS_COUNT; ++ch) {
+    auto& mapping = g_model.mixData[ch];
+    mapping.srcRaw = MIXSRC_FIRST_STICK;
+    mapping.destCh = ch;
+    mapping.weight = 200;
+  }
+  const struct { int16_t physical, mapped; uint16_t encoded; } cases[] = {
+    {-1024, -2048, 0}, {-512, -1024, 173}, {-1, -2, 991},
+    {0, 0, 992}, {1, 2, 993}, {512, 1024, 1811}, {1024, 2048, 1984}
+  };
+  for (const auto& test : cases) {
+    anaSetFiltered(inputMappingConvertMode(0), test.physical);
+    evalMixes();
+    uint8_t frame[CROSSFIRE_FRAME_MAXLEN] = {};
+    createCrossfireChannelsFrame(EXTERNAL_MODULE, frame, channelOutputs);
+    for (int ch = 0; ch < CROSSFIRE_CHANNELS_COUNT; ++ch) {
+      // Independently unpack the 11-bit wire representation.
+      uint16_t encoded = 0;
+      for (int bit = 0; bit < 11; ++bit) {
+        const int offset = ch * 11 + bit;
+        encoded |= ((frame[3 + offset / 8] >> (offset % 8)) & 1) << bit;
+      }
+      EXPECT_EQ(test.encoded, encoded) << ch << ": " << test.physical;
+      EXPECT_EQ(test.mapped, channelOutputs[ch]) << ch;
+    }
+  }
+}
+
 // Spec-defined part of the frame (0x16 RC Channels Packed): sync byte, type,
 // 16 x 11-bit channel packing. Expected bytes computed independently, not
 // derived from createCrossfireChannelsFrame() itself.

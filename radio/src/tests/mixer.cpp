@@ -21,47 +21,42 @@
 
 #include "gtests.h"
 #include "hal/adc_driver.h"
-#include "tasks/mixer_task.h"
-#include <future>
 
 class MixerTest : public EdgeTxTest {};
 
-TEST_F(MixerTest, OutputOverridesBeforeMixerTaskInitialization)
+TEST_F(MixerTest, PhysicalMappingPassesThroughEveryChannel)
 {
-  ASSERT_FALSE(mixerTaskInitialized());
-  const int16_t ordinary = applyLimits(0, 0);
-  // Native mutexes exist before task initialization, unlike FreeRTOS mutexes.
-  // Hold this one unavailable so an accidental startup lock cannot pass silently.
-  mixerTaskLock();
-  auto startup = std::async(std::launch::async, [] {
-    setChannelOverride(0, 75);
-    const int16_t overridden = applyLimits(0, 0);
-    clearChannelOverrides(); // Also called during startup model loading.
-    return std::make_pair(overridden, applyLimits(0, 0));
-  });
-  const auto status = startup.wait_for(std::chrono::seconds(1));
-  mixerTaskUnlock(); // Release even on failure, so the test cannot deadlock.
-  EXPECT_EQ(std::future_status::ready, status);
-  const auto values = startup.get();
-  EXPECT_EQ(calc100toRESX(75), values.first);
-  EXPECT_EQ(ordinary, values.second);
-}
-
-TEST_F(MixerTest, DirectOutputOverrides)
-{
-  clearChannelOverrides();
-  const int16_t ordinary = applyLimits(0, 0);
-  setChannelOverride(0, 75);
-  EXPECT_EQ(calc100toRESX(75), applyLimits(0, 0));
-  setChannelOverride(0, -75);
-  EXPECT_EQ(calc100toRESX(-75), applyLimits(0, 0));
-  setChannelOverride(0, 0, false);
-  EXPECT_EQ(ordinary, applyLimits(0, 0));
-  setChannelOverride(MAX_OUTPUT_CHANNELS, 100); // Invalid index is ignored.
-  EXPECT_EQ(ordinary, applyLimits(0, 0));
-  setChannelOverride(0, 75);
-  clearChannelOverrides();
-  EXPECT_EQ(ordinary, applyLimits(0, 0));
+  MODEL_RESET();
+#if defined(STICK_DEAD_ZONE)
+  g_eeGeneral.stickDeadZone = 0;
+#endif
+  for (int ch = 0; ch < MAX_OUTPUT_CHANNELS; ++ch) {
+    g_model.mixData[ch].srcRaw = MIXSRC_FIRST_STICK;
+    g_model.mixData[ch].destCh = ch;
+    g_model.mixData[ch].weight = 100;
+  }
+  for (int value : {-RESX, -777, -1, 0, 1, 777, RESX}) {
+    anaSetFiltered(inputMappingConvertMode(0), value);
+    evalMixes();
+    for (int ch = 0; ch < MAX_OUTPUT_CHANNELS; ++ch) {
+      EXPECT_EQ(value, channelOutputs[ch]) << ch;
+      EXPECT_EQ(value, ex_chans[ch]) << ch;
+    }
+  }
+  // Existing mapping arithmetic may exceed nominal endpoints. It must reach
+  // the protocol encoder unchanged in either direction.
+  for (int ch = 0; ch < MAX_OUTPUT_CHANNELS; ++ch)
+    g_model.mixData[ch].weight = 200;
+  for (int value : {-RESX, RESX}) {
+    anaSetFiltered(inputMappingConvertMode(0), value);
+    evalMixes();
+    for (int ch = 0; ch < MAX_OUTPUT_CHANNELS; ++ch)
+      EXPECT_EQ(2 * value, channelOutputs[ch]) << ch;
+  }
+  memclear(g_model.mixData, sizeof(g_model.mixData));
+  evalMixes();
+  for (int ch = 0; ch < MAX_OUTPUT_CHANNELS; ++ch)
+    EXPECT_EQ(0, channelOutputs[ch]) << ch;
 }
 
 // Telemetry IDs remain readable by Lua/UI, including min/max and inversion,
@@ -180,18 +175,6 @@ TEST_F(MixerTest, throttleInvert)
   EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
 }
 
-TEST_F(MixerTest, CopySticksToOffset)
-{
-  anaSetFiltered(inputMappingConvertMode(ELE_STICK), -100);
-  evalMixes();
-  copySticksToOffset(ELE_CHAN);
-#if defined(STICK_DEAD_ZONE)
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -93);
-#else
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -97);
-#endif
-}
-
 TEST_F(MixerTest, InfiniteRecursiveChannels)
 {
   g_model.mixData[0].destCh = 0;
@@ -305,9 +288,8 @@ TEST_F(MixerTest, WeightThenOffset)
   EXPECT_NEAR(low, 0, CHANNEL_MAX / 100);
 }
 
-// Cascaded channels bypass output clipping: a channel used as a mix source
-// carries its internal (>100%) value, not the clipped output.
-TEST_F(MixerTest, CascadedChannelBypassesOutputClipping)
+// Cascaded channels and transmitted channels retain the same mapped value.
+TEST_F(MixerTest, CascadedChannelsRetainMappedValues)
 {
   // CH0: stick at 200% weight (overdrives to 200% internally)
   g_model.mixData[0].destCh = 0;
@@ -321,8 +303,8 @@ TEST_F(MixerTest, CascadedChannelBypassesOutputClipping)
   anaSetFiltered(inputMappingConvertMode(0), +1024);
   evalMixes();
 
-  // CH0 output is clipped to 100%
-  EXPECT_EQ(channelOutputs[0], 1024);
+  // CH0 retains 200% without an Outputs-stage endpoint clamp.
+  EXPECT_EQ(channelOutputs[0], 2048);
   // CH1 sees the unclipped CH0 (200%), applies 50% → 100%
   // If CH0 were clipped before cascading, CH1 would be only 50%.
   EXPECT_GT(channelOutputs[1], 512);  // must be more than 50%
@@ -402,7 +384,7 @@ TEST_F(MixerTest, PhysicalTrimButtonsAutoSelectWithoutTrimModes)
 }
 #endif
 
-TEST_F(MixerTest, MappingSumIsOrderIndependentAndEndpointsApplyLast)
+TEST_F(MixerTest, MappingSumIsOrderIndependentAndPassesThrough)
 {
   MODEL_RESET();
   for (int i = 0; i < 3; ++i) {
@@ -412,7 +394,7 @@ TEST_F(MixerTest, MappingSumIsOrderIndependentAndEndpointsApplyLast)
   for (int i = 0; i < 3; ++i) {
     evalMixes();
     EXPECT_EQ(CHANNEL_MAX * 3 / 2, chans[0]);
-    EXPECT_EQ(RESX, channelOutputs[0]);
+    EXPECT_EQ(RESX * 3 / 2, channelOutputs[0]);
     std::swap(g_model.mixData[0], g_model.mixData[i]);
   }
 }

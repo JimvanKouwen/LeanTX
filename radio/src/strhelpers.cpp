@@ -608,11 +608,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 #endif
   }  else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
-    if (!defaultOnly && g_model.limitData[ch].name[0] != '\0') {
-      strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);
-    } else {
-      strAppendStringWithIndex(dest, STR_CH, ch + 1);
-    }
+    strAppendStringWithIndex(dest, STR_CH, ch + 1);
   }  else if (idx < MIXSRC_FIRST_TIMER) {
     // Built-in sources: TX Voltage, Time, GPS (+ reserved)
     const char *src_str;

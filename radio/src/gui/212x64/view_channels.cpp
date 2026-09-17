@@ -22,17 +22,16 @@
 #include "edgetx.h"
 
 struct ViewChannelsState {
-    bool longNames;
     bool secondPage;
     bool mixersView;
 };
 
-static ViewChannelsState viewChannels = { false, false, false };
+static ViewChannelsState viewChannels = { false, false };
 
 void menuChannelsView(event_t event)
 {
   uint8_t ch = 0;
-  uint8_t wbar = (viewChannels.longNames ? 54 : 64);
+  uint8_t wbar = 64;
   int16_t limits = 512 * 2;
 
   if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
@@ -61,8 +60,6 @@ void menuChannelsView(event_t event)
 
   if (viewChannels.mixersView)
     limits *= 2;  // this could be handled nicer, but slower, by checking actual range for this mixer
-  else if (g_model.extendedLimits)
-    limits *= LIMIT_EXT_PERCENT / 100;
 
   lcdDrawText(LCD_W / 2, 0, viewChannels.mixersView ? STR_MIXERS_MONITOR : STR_CHANNELS_MONITOR, CENTERED);
   lcdInvertLine(0);
@@ -78,21 +75,11 @@ void menuChannelsView(event_t event)
     for (uint8_t line=0; line < 8; line++) {
       const uint8_t y = 9 + line * 7;
       const int32_t val = viewChannels.mixersView ? ex_chans[ch] : channelOutputs[ch];
-      const uint8_t lenLabel = ZLEN(g_model.limitData[ch].name);
-
-      // Channel name if present, number if not
-      if (lenLabel > 0) {
-        if (lenLabel > 4)
-          viewChannels.longNames = true;
-        lcdDrawSizedText(x+1-ofs, y, g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name), SMLSIZE);
-      }
-      else {
-        putsChn(x+1-ofs, y, ch+1, SMLSIZE);
-      }
+      putsChn(x+1-ofs, y, ch+1, SMLSIZE);
 
       // Value
       if (g_eeGeneral.ppmunit == PPM_US) {
-        lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, PPM_CH_CENTER(ch)+val/2, TINSIZE|RIGHT);
+        lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, PPM_CENTER+val/2, TINSIZE|RIGHT);
       } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
         lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, calcRESXto1000(val), PREC1|TINSIZE|RIGHT);
       } else {

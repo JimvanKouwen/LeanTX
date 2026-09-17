@@ -106,7 +106,6 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_GROUP4_ALWAYS_ON,
   ITEM_MODEL_SETUP_GROUP4_START,
 #endif
-  ITEM_MODEL_SETUP_EXTENDED_LIMITS,
   ITEM_MODEL_SETUP_THROTTLE_LABEL,
   ITEM_MODEL_SETUP_THROTTLE_REVERSED,
   ITEM_MODEL_SETUP_THROTTLE_TRACE,
@@ -609,7 +608,6 @@ void menuModelSetup(event_t event)
     TIMER_ROWS(1),
     TIMER_ROWS(2),
     FUNCTION_SWITCHES_ROWS
-    0, // Extended limits
     0, // Throttle section
     THROTTLE_ROW(0), // Throttle reverse
     THROTTLE_ROW(0), // Throttle trace source
@@ -915,10 +913,6 @@ void menuModelSetup(event_t event)
         }
         break;
 #endif
-
-      case ITEM_MODEL_SETUP_EXTENDED_LIMITS:
-        g_model.extendedLimits = editCheckBox(g_model.extendedLimits, MODEL_SETUP_2ND_COLUMN, y, STR_ELIMITS, attr, event);
-        break;
 
       case ITEM_MODEL_SETUP_THROTTLE_LABEL:
         expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);

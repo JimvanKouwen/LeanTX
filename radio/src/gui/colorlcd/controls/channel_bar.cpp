@@ -25,11 +25,6 @@
 #include "etx_lv_theme.h"
 #include "static.h"
 
-#define VIEW_CHANNELS_LIMIT_PCT \
-  (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT)
-
-#define CHANNELS_LIMIT (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX)
-
 ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
                        std::function<int16_t()> getValueFunc, LcdColorIndex barColorIndex,
                        LcdColorIndex txtColorIndex) :
@@ -72,18 +67,18 @@ void ChannelBar::checkEvents()
 
   int newValue = getValue();
 
-  if (value != newValue || extendedLimits != g_model.extendedLimits) {
+  if (value != newValue) {
     value = newValue;
 
     std::string s;
     if (g_eeGeneral.ppmunit == PPM_US)
-      s = formatNumberAsString(PPM_CH_CENTER(channel) + value / 2, 0, 0, "", STR_US);
+      s = formatNumberAsString(PPM_CENTER + value / 2, 0, 0, "", STR_US);
     else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
       s = formatNumberAsString(calcRESXto1000(value), PREC1, 0, "", "%");
     else
       s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
 
-    if (s != valStr || extendedLimits != g_model.extendedLimits) {
+    if (s != valStr) {
       valStr = s;
       lv_label_set_text(valText, s.c_str());
 
@@ -92,7 +87,7 @@ void ChannelBar::checkEvents()
       else
         lv_obj_add_state(valText, LV_STATE_USER_1);
 
-      const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
+      const int lim = RESX;
       int chanVal = limit<int>(-lim, value, lim);
 
       uint16_t size = divRoundClosest(abs(chanVal) * width(), lim * 2);
@@ -103,7 +98,6 @@ void ChannelBar::checkEvents()
       lv_obj_set_size(bar, size, height());
     }
 
-    extendedLimits = g_model.extendedLimits;
   }
 }
 
@@ -120,91 +114,11 @@ MixerChannelBar::MixerChannelBar(Window* parent, const rect_t& rect,
 //-----------------------------------------------------------------------------
 
 OutputChannelBar::OutputChannelBar(Window* parent, const rect_t& rect,
-                                   uint8_t channel, bool editColor,
-                                   bool drawLimits) :
-    ChannelBar(
-        parent, rect, channel,
-        [=] { return channelOutputs[channel]; },
-        COLOR_THEME_ACTIVE_INDEX),
-    drawLimits(drawLimits)
+                                   uint8_t channel) :
+    ChannelBar(parent, rect, channel,
+               [=] { return channelOutputs[channel]; },
+               COLOR_THEME_ACTIVE_INDEX)
 {
-  if (drawLimits) {
-    leftLim = lv_line_create(lvobj);
-    if (editColor)
-      etx_obj_add_style(leftLim, styles->div_line_edit, LV_PART_MAIN);
-    else
-      etx_obj_add_style(leftLim, styles->div_line, LV_PART_MAIN);
-    rightLim = lv_line_create(lvobj);
-    if (editColor)
-      etx_obj_add_style(rightLim, styles->div_line_edit, LV_PART_MAIN);
-    else
-      etx_obj_add_style(rightLim, styles->div_line, LV_PART_MAIN);
-    drawLimitLines(true);
-  }
-}
-
-static inline unsigned posOnBar(coord_t width, int value_to100)
-{
-  return divRoundClosest((value_to100 + VIEW_CHANNELS_LIMIT_PCT) * (width - 1),
-                         VIEW_CHANNELS_LIMIT_PCT * 2);
-}
-
-void OutputChannelBar::drawLimitLines(bool forced)
-{
-  if (drawLimits) {
-    // Draw output limits bars
-    bool changed = forced;
-    LimitData* ld = limitAddress(channel);
-    int32_t ldMin;
-    int32_t ldMax;
-
-      ldMin = ld->min;
-
-    if (limMin != ldMin) {
-      changed = true;
-      limMin = ldMin;
-    }
-
-      ldMax = ld->max;
-
-    if (limMax != ldMax) {
-      changed = true;
-      limMax = ldMax;
-    }
-
-    if (changed) {
-      lv_coord_t left, right;
-      lv_coord_t h = height() - 1;
-
-      if (ld->revert) {
-        left = posOnBar(width(), -100 - ldMax / 10);
-        right = posOnBar(width(), 100 - ldMin / 10);
-      } else {
-        left = posOnBar(width(), -100 + ldMin / 10);
-        right = posOnBar(width(), 100 + ldMax / 10);
-      }
-
-      limPoints[0] = {(lv_coord_t)(left + 3), 0};
-      limPoints[1] = {(lv_coord_t)(left), 0};
-      limPoints[2] = {(lv_coord_t)(left), h};
-      limPoints[3] = {(lv_coord_t)(left + 3), h};
-      limPoints[4] = {(lv_coord_t)(right - 2), 0};
-      limPoints[5] = {(lv_coord_t)(right), 0};
-      limPoints[6] = {(lv_coord_t)(right), h};
-      limPoints[7] = {(lv_coord_t)(right - 2), h};
-      // Workaround for bugs in LVGL line drawing
-      limPoints[8] = {(lv_coord_t)(right + 1), h};
-
-      lv_line_set_points(leftLim, &limPoints[0], 4);
-      lv_line_set_points(rightLim, &limPoints[4], 5);
-    }
-  }
-}
-
-void OutputChannelBar::checkEvents()
-{
-  ChannelBar::checkEvents();
-  drawLimitLines(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -215,33 +129,23 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
 {
   LcdColorIndex txtColIdx = isInHeader ? COLOR_THEME_PRIMARY2_INDEX : COLOR_THEME_SECONDARY1_INDEX;
 
-  auto invMask = getBuiltinIcon(ICON_CHAN_MONITOR_INVERTED);
-
-  coord_t barW = width() - invMask->width - PAD_TINY;
+  coord_t barW = width() - PAD_TINY;
 
   outputChannelBar = new OutputChannelBar(
-      this, {PAD_TINY + invMask->width, ChannelBar::BAR_HEIGHT + PAD_TINY, barW, ChannelBar::BAR_HEIGHT},
-      channel, isInHeader);
+      this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, barW, ChannelBar::BAR_HEIGHT},
+      channel);
 
   new MixerChannelBar(
       this,
-      {PAD_TINY + invMask->width, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, barW, ChannelBar::BAR_HEIGHT},
+      {PAD_TINY, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, barW, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number
   char chanString[10];
   char* s = strAppend(chanString, STR_CH);
   strAppendSigned(s, channel + 1);
-  new StaticText(this, {PAD_TINY + invMask->width, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString,
+  new StaticText(this, {PAD_TINY, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString,
                  txtColIdx, FONT(XS) | LEFT);
-
-  // Channel name
-  if (g_model.limitData[channel].name[0]) {
-    char nm[LEN_CHANNEL_NAME + 1];
-    strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
-    new StaticText(this, {PAD_TINY + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm,
-                   txtColIdx, FONT(XS) | LEFT);
-  }
 
   // Channel value in µS
   const char* suffix = (g_eeGeneral.ppmunit == PPM_US) ? "%" : STR_US;
@@ -250,14 +154,8 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
       [=] {
         if (g_eeGeneral.ppmunit == PPM_US)
           return calcRESXto100(channelOutputs[channel]);
-        return PPM_CH_CENTER(channel) + channelOutputs[channel] / 2;
+        return PPM_CENTER + channelOutputs[channel] / 2;
       },
       txtColIdx, FONT(XS) | RIGHT, "", suffix);
 
-  // Channel reverted icon
-  LimitData* ld = limitAddress(channel);
-  if (ld && ld->revert) {
-    new StaticIcon(this, 0, invMask->height + PAD_MEDIUM, ICON_CHAN_MONITOR_INVERTED,
-                   txtColIdx);
-  }
 }

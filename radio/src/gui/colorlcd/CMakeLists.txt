@@ -58,12 +58,10 @@ set(GUI_SRC
 
   model/mixer_edit.cpp
   model/model_mixes.cpp
-  model/model_outputs.cpp
   model/model_select.cpp
   model/model_setup.cpp
   model/model_telemetry.cpp
   model/model_templates.cpp
-  model/output_edit.cpp
   model/preflight_checks.cpp
   model/timer_setup.cpp
 

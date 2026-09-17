@@ -50,7 +50,6 @@ void prepareBackup()
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
   g_model.mixData[0].weight = 87;
 
-  g_model.limitData[0].offset = -120;
   g_model.throttleReversed = 1;
   g_model.jitterFilter = 2;
 #if defined(FUNCTION_SWITCHES)
@@ -104,7 +103,6 @@ TEST(EmergencySnapshot, ControlAndRFRecovery)
   EXPECT_EQ(-3, g_model.moduleData[0].crsf.crsfArmingTrigger);
   EXPECT_EQ(42, g_model.header.modelId[0]);
   EXPECT_EQ(87, g_model.mixData[0].weight);
-  EXPECT_EQ(-120, g_model.limitData[0].offset);
   printf("Emergency snapshot: raw=%zu compressed=%u remaining=%zu\n",
          sizeof(expected), ramBackup->header.payloadLength,
          sizeof(ramBackup->data) - ramBackup->header.payloadLength);
@@ -177,7 +175,6 @@ TEST(EmergencySnapshot, DenseControlConfigurationFits) {
     }
   };
   fill(g_model.mixData, sizeof(g_model.mixData));
-  fill(g_model.limitData, sizeof(g_model.limitData));
   rambackupWrite();
   EXPECT_EQ(EMERGENCY_SNAPSHOT_MAGIC, ramBackup->header.magic);
   EXPECT_LE(ramBackup->header.payloadLength, sizeof(ramBackup->data));

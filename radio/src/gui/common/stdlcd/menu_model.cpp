@@ -25,7 +25,6 @@ const MenuHandler menuTabModel[] = {
     {menuModelSelect, nullptr},
     {menuModelSetup, nullptr},
     {menuModelMixAll, nullptr},
-    {menuModelLimits, nullptr},
     {menuModelTelemetry, modelTelemetryEnabled},
     {menuModelDisplay, nullptr}};
 

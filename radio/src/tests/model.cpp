@@ -22,6 +22,22 @@
 #include "gtests.h"
 #include "model_yaml_test.h"
 
+TEST(Model, RetiredOutputSettingsAreIgnoredAndNotSaved)
+{
+  MODEL_RESET();
+  loadModelYamlStr(
+      "extendedLimits: 1\n"
+      "mixData:\n  0:\n    destCh: 0\n    srcRaw: MAX\n    weight: 100\n"
+      "limitData:\n  0:\n    min: 500\n    max: -500\n"
+      "    offset: 250\n    revert: 1\n    symetrical: 1\n"
+      "    ppmCenter: 100\n    name: Old\n    curve: 1\n");
+  evalMixes();
+  EXPECT_EQ(RESX, channelOutputs[0]);
+  const auto yaml = saveModelYamlStr(g_model);
+  EXPECT_EQ(std::string::npos, yaml.find("limitData:"));
+  EXPECT_EQ(std::string::npos, yaml.find("extendedLimits:"));
+}
+
 static const char* _model_config[] =
   {
     // As written by radio firmware - always enclosed in double quotes
@@ -261,20 +277,12 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].weight = -500;
   g_model.mixData[0].offset = 500;
-  g_model.limitData[0].min = -250;
-  g_model.limitData[0].max = 250;
-  g_model.limitData[0].offset = -1000;
-  g_model.limitData[1].offset = 1000;
   std::string yaml = saveModelYamlStr(g_model);
   EXPECT_EQ(std::string::npos, yaml.find("gvars"));
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
   EXPECT_EQ(-500, g_model.mixData[0].weight);
   EXPECT_EQ(500, g_model.mixData[0].offset);
-  EXPECT_EQ(-1250, LIMIT_MIN(&g_model.limitData[0]));
-  EXPECT_EQ(1250, LIMIT_MAX(&g_model.limitData[0]));
-  EXPECT_EQ(-1000, LIMIT_OFS(&g_model.limitData[0]));
-  EXPECT_EQ(1000, LIMIT_OFS(&g_model.limitData[1]));
 }
 
 TEST(Model, PhysicalSwitchSourceAndTimerConditionRoundTrip)

@@ -215,10 +215,6 @@ void per10ms()
   DEBUG_TIMER_STOP(debugTimerPer10ms);
 }
 
-LimitData *limitAddress(uint8_t idx)
-{
-  return &g_model.limitData[idx];
-}
 
 USBJoystickChData *usbJChAddress(uint8_t idx)
 {
@@ -862,46 +858,6 @@ void edgeTxResume()
 #endif
 
   referenceSystemAudioFiles();
-}
-
-void copySticksToOffset(uint8_t ch)
-{
-  mixerTaskStop();
-  int32_t zero = (int32_t)channelOutputs[ch];
-
-  evalChannelMixes(e_perout_mode_nosticks+e_perout_mode_preview);
-  int32_t val = chans[ch];
-  LimitData *ld = limitAddress(ch);
-  limit_min_max_t lim = LIMIT_MIN(ld);
-  if (val < 0) {
-    val = -val;
-    lim = LIMIT_MIN(ld);
-  }
-  zero = (zero*256000 - val*lim) / (1024*256-val);
-  ld->offset = (ld->revert ? -zero : zero);
-
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-void copyMinMaxToOutputs(uint8_t ch)
-{
-  LimitData *ld = limitAddress(ch);
-  int16_t min = ld->min;
-  int16_t max = ld->max;
-  int16_t center = ld->ppmCenter;
-
-  mixerTaskStop();
-
-  for (uint8_t chan = 0; chan < MAX_OUTPUT_CHANNELS; chan++) {
-    ld = limitAddress(chan);
-    ld->min = min;
-    ld->max = max;
-    ld->ppmCenter = center;
-  }
-
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
 }
 
 #if defined(PWR_BUTTON_PRESS) || defined(STARTUP_ANIMATION)
@@ -1550,7 +1506,7 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     valMin = -valMax;
   }
   else if (asrc <= MIXSRC_LAST_CH) {
-    valMax = g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100;
+    valMax = 100;
     valMin = -valMax;
   }
   else if (asrc == MIXSRC_TX_VOLTAGE) {

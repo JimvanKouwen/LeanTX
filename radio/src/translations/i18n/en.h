@@ -38,7 +38,6 @@
 #define TR_QM_MODEL_SETTINGS            "Model\nSettings"
 #define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
 #define TR_QM_MIXES                     "Mixes"
-#define TR_QM_OUTPUTS                   "Outputs"
 #define TR_QM_TELEM                     "Telemetry"
 #define TR_QM_HARDWARE                  "Hardware"
 #define TR_QM_ABOUT                     "About\nEdgeTX"
@@ -74,7 +73,6 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
 #define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
 #define TR_MENUTELEMETRY                TR_BW_COL("TELEMETRY", "Telemetry")
 #define TR_HARDWARE                     TR_BW_COL("HARDWARE", "Hardware")
@@ -268,8 +266,6 @@
 #define TR_VCELLINDEX_9                "8"
 #define TR_VCELLINDEX_10               "Highest"
 #define TR_VCELLINDEX_11               "Delta"
-#define TR_SUBTRIMMODES_1              CHAR_DELTA " (center only)"
-#define TR_SUBTRIMMODES_2              "= (symmetrical)"
 #define TR_TIMER_DIR_1                 TR("Remain", "Show Remain")
 #define TR_TIMER_DIR_2                 TR("Elaps.", "Show Elapsed")
 
@@ -303,7 +299,6 @@
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_NEXT                        "Next"
-#define TR_ELIMITS                     TR("E.Limits", "Extended limits")
 #define TR_TTRACE                      TR("T-Source", "Source")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Beep when centered")
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
@@ -530,7 +525,6 @@
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "No tools available"
 #define TR_NORMAL                      "Normal"
-#define TR_NOT_INVERTED                "Not inv"
 #define TR_NOT_CONNECTED               TR("!Connected", "Not Connected")
 #define TR_CONNECTED                   "Connected"
 #define TR_FLEX_915                    "Flex 915MHz"
@@ -801,8 +795,6 @@
 #define TR_CLEAR_BTN                   BUTTON("Clear")
 #define TR_RESET                       "Reset"
 #define TR_RESET_SUBMENU               "Reset..."
-#define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy axis to subtrim")
-#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "Copy min/max/center to all outputs")
 #define TR_MIXSOURCE                   "Source (%)"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_1 "OFF"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_2 "ON"
@@ -814,7 +806,6 @@
 #define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Inputs"
-#define TR_OUTPUTS                     "Outputs"
 #define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
@@ -826,14 +817,6 @@
 #define TR_PHASES_HEADERS_FAD_IN       "Fade In"
 #define TR_PHASES_HEADERS_FAD_OUT      "Fade Out"
 
-#define TR_LIMITS_HEADERS_NAME         "Name"
-#define TR_LIMITS_HEADERS_SUBTRIM      "Subtrim"
-#define TR_LIMITS_HEADERS_MIN          "Min"
-#define TR_LIMITS_HEADERS_MAX          "Max"
-#define TR_LIMITS_HEADERS_DIRECTION    "Direction"
-#define TR_LIMITS_HEADERS_PPMCENTER    "Channel center"
-#define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
-#define TR_INVERTED                    "Inverted"
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL             "First channel"
@@ -1102,3 +1085,5 @@
 #define TR_LABEL_MATCH_ANY "OR"
 
 #define TR_UPDATE_LIST "[update list]"
+
+#define TR_TIMER_DIRECTION             "Direction"

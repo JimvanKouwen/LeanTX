@@ -22,7 +22,6 @@
 #include "edgetx.h"
 #include "menu.h"
 #include "model_mixes.h"
-#include "model_outputs.h"
 #include "model_select.h"
 #include "model_setup.h"
 #include "model_telemetry.h"
@@ -41,7 +40,6 @@
 const PageDef modelMenuItems[] = {
   { ICON_MODEL_SETUP, STR_DEF(STR_QM_MODEL_SETTINGS), STR_DEF(STR_MAIN_MODEL_SETTINGS), PAGE_CREATE, QM_MODEL_SETUP, [](const PageDef& pageDef) { return new ModelSetupPage(pageDef); }},
   { ICON_MODEL_MIXER, STR_DEF(STR_QM_MIXES), STR_DEF(STR_MIXES), PAGE_CREATE, QM_MODEL_MIXES, [](const PageDef& pageDef) { return new ModelMixesPage(pageDef); }},
-  { ICON_MODEL_OUTPUTS, STR_DEF(STR_QM_OUTPUTS), STR_DEF(STR_MENULIMITS), PAGE_CREATE, QM_MODEL_OUTPUTS, [](const PageDef& pageDef) { return new ModelOutputsPage(pageDef); }},
   { ICON_MODEL_TELEMETRY, STR_DEF(STR_QM_TELEM), STR_DEF(STR_MENUTELEMETRY), PAGE_CREATE, QM_MODEL_TELEMETRY, [](const PageDef& pageDef) { return new ModelTelemetryPage(pageDef); }, modelTelemetryEnabled},
   { ICON_MODEL_NOTES, STR_DEF(STR_MAIN_MENU_MODEL_NOTES), STR_DEF(STR_MAIN_MENU_MODEL_NOTES), PAGE_CREATE, QM_MODEL_NOTES, [](const PageDef& pageDef) { return new ModelNotesPage(pageDef); }, modelHasNotes},
   { EDGETX_ICONS_COUNT }

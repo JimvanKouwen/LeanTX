@@ -325,7 +325,7 @@ void menuMainView(event_t event)
           y0 = i / 4 * FH + 40;
 #endif
           if (g_eeGeneral.ppmunit == PPM_US) {
-            lcdDrawNumber(x0 + 4 * FW, y0, PPM_CH_CENTER(chan) + val / 2, RIGHT);
+            lcdDrawNumber(x0 + 4 * FW, y0, PPM_CENTER + val / 2, RIGHT);
           } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
             lcdDrawNumber(x0 + 4 * FW, y0, calcRESXto1000(val), RIGHT | PREC1);
           } else {
@@ -341,7 +341,7 @@ void menuMainView(event_t event)
           y0 = 38 + (i % 4) * 5;
 #endif
 
-          const uint16_t lim = (g_model.extendedLimits ? (512 * (long) LIMIT_EXT_PERCENT / 100) : 512) * 2;
+          const uint16_t lim = RESX;
           int8_t len = (abs(val) * WBAR2 + lim / 2) / lim;
 
           if (len > WBAR2)

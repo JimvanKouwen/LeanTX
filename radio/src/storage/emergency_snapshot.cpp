@@ -61,7 +61,6 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
 #endif
   }
   s.model.throttleReversed = g_model.throttleReversed;
-  s.model.extendedLimits = g_model.extendedLimits;
   s.model.jitterFilter = g_model.jitterFilter;
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     s.model.mixes[i].destCh = g_model.mixData[i].destCh;
@@ -70,14 +69,6 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
     s.model.mixes[i].offset = g_model.mixData[i].offset;
   }
 
-  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
-    s.model.limits[i].min = g_model.limitData[i].min;
-    s.model.limits[i].max = g_model.limitData[i].max;
-    s.model.limits[i].ppmCenter = g_model.limitData[i].ppmCenter;
-    s.model.limits[i].offset = g_model.limitData[i].offset;
-    s.model.limits[i].symetrical = g_model.limitData[i].symetrical;
-    s.model.limits[i].revert = g_model.limitData[i].revert;
-  }
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     s.model.modules[i].type = g_model.moduleData[i].type;
     s.model.modules[i].channelsStart = g_model.moduleData[i].channelsStart;
@@ -151,7 +142,6 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
 #endif
   }
   g_model.throttleReversed = s.model.throttleReversed;
-  g_model.extendedLimits = s.model.extendedLimits;
   g_model.jitterFilter = s.model.jitterFilter;
   for (unsigned i = 0; i < MAX_MIXERS; ++i) {
     g_model.mixData[i].destCh = s.model.mixes[i].destCh;
@@ -160,14 +150,6 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
     g_model.mixData[i].offset = s.model.mixes[i].offset;
   }
 
-  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
-    g_model.limitData[i].min = s.model.limits[i].min;
-    g_model.limitData[i].max = s.model.limits[i].max;
-    g_model.limitData[i].ppmCenter = s.model.limits[i].ppmCenter;
-    g_model.limitData[i].offset = s.model.limits[i].offset;
-    g_model.limitData[i].symetrical = s.model.limits[i].symetrical;
-    g_model.limitData[i].revert = s.model.limits[i].revert;
-  }
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     g_model.moduleData[i].type = s.model.modules[i].type;
     g_model.moduleData[i].channelsStart = s.model.modules[i].channelsStart;

@@ -72,7 +72,7 @@ TimerWindow::TimerWindow(uint8_t timer) :
     });
 
   // Timer direction
-  timerDirLine = setupLine(STR_LIMITS_HEADERS_DIRECTION,
+  timerDirLine = setupLine(STR_TIMER_DIRECTION,
     [=](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_TIMER_DIR, 0, 1,
                  GET_SET_DEFAULT(p_timer->showElapsed));

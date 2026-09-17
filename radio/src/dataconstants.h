@@ -67,19 +67,16 @@
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              14
   #define LEN_MIX_NAME                 6
-  #define LEN_CHANNEL_NAME             6
 #elif LCD_W == 212
   #define LEN_MODEL_NAME               12
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              10
   #define LEN_MIX_NAME                 6
-  #define LEN_CHANNEL_NAME             6
 #else
   #define LEN_MODEL_NAME               10
   #define LEN_TIMER_NAME               3
   #define LEN_BITMAP_NAME              0
   #define LEN_MIX_NAME                 6
-  #define LEN_CHANNEL_NAME             4
 #endif
 
 #define NUM_MODULES                    2

@@ -52,21 +52,13 @@ void menuChannelsViewCommon(event_t event)
 
   // Channels
   for (uint8_t line = 0; line < 8; line++) {
-    LimitData * ld = limitAddress(ch);
     const uint8_t y = 9 + line * 7;
     const int32_t val = mixersView ? ex_chans[ch] : channelOutputs[ch];
-    const uint8_t lenLabel = ZLEN(g_model.limitData[ch].name);
-
-    // Channel name if present, number if not
-    if (lenLabel > 0) {
-      lcdDrawSizedText(CHANNEL_NAME_OFFSET, y, g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name), SMLSIZE);
-    } else {
-      putsChn(CHANNEL_NAME_OFFSET, y, ch + 1, SMLSIZE);
-    }
+    putsChn(CHANNEL_NAME_OFFSET, y, ch + 1, SMLSIZE);
 
     // Value
     if (g_eeGeneral.ppmunit == PPM_US) {
-      lcdDrawNumber(vx, y + 1, PPM_CH_CENTER(ch) + val / 2, TINSIZE | RIGHT);
+      lcdDrawNumber(vx, y + 1, PPM_CENTER + val / 2, TINSIZE | RIGHT);
     } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
       lcdDrawNumber(vx, y + 1, calcRESXto1000(val), PREC1 | TINSIZE | RIGHT);
     } else {
@@ -77,23 +69,10 @@ void menuChannelsViewCommon(event_t event)
     drawGauge(vx, y, bw, 6, val, RESX);
 
     if (!mixersView) {
-      int phase = (g_blinkTmr10ms >> 6) & 3;
-      if (phase == 3) phase = 0;
-
-      // Properties
-      if (phase == 2) {
-        if (ld && ld->revert)
-          lcdDrawText(LCD_W + 1, y + 1, "INV", TINSIZE | RIGHT);
-        else
-          phase = 0;
-      }
-
-      if (phase == 0) {
-        if (g_eeGeneral.ppmunit == PPM_US)
-          lcdDrawNumber(LCD_W + 1, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
-        else
-          lcdDrawNumber(LCD_W + 1, y + 1, PPM_CH_CENTER(ch) + val / 2, TINSIZE | RIGHT);
-      }
+      if (g_eeGeneral.ppmunit == PPM_US)
+        lcdDrawNumber(LCD_W + 1, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
+      else
+        lcdDrawNumber(LCD_W + 1, y + 1, PPM_CENTER + val / 2, TINSIZE | RIGHT);
     }
 
     ++ch;

@@ -77,12 +77,6 @@ void onMixesMenu(const char * result)
 #define MIX_LINE_NAME_POS              LCD_W-LEN_MIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 #define MIX_HDR_GAUGE_POS_X            127
 
-void displayHeaderChannelName(uint8_t ch)
-{
-  if (g_model.limitData[ch].name[0] != '\0') {
-    lcdDrawSizedText(MIX_HDR_GAUGE_POS_X - FWNUM * 5 - 1, 1, g_model.limitData[ch].name, ZLEN(g_model.limitData[ch].name), SMLSIZE|RIGHT);
-  }
-}
 
 void displayMixInfos(coord_t y, MixData * md)
 {
@@ -102,13 +96,6 @@ void displayMixLine(coord_t y, MixData * md)
 #define MIX_LINE_SRC_POS               7*FW+3
 #define MIX_LINE_NAME_POS              LCD_W-LEN_MIX_NAME*FW
 
-void displayHeaderChannelName(uint8_t ch)
-{
-  uint8_t len = zlen(g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name));
-  if (len) {
-    lcdDrawSizedText(80, 1, g_model.limitData[ch].name, len, SMLSIZE);
-  }
-}
 
 void displayMixInfos(coord_t y, MixData * md)
 {
@@ -258,7 +245,6 @@ void menuModelMixAll(event_t event)
   // Value
   uint8_t index = mixAddress(s_currIdx)->destCh;
   if (!s_currCh) {
-    displayHeaderChannelName(index);
 #if LCD_W >= 212
     lcdDrawNumber(MIX_HDR_GAUGE_POS_X, 2, calcRESXto1000(ex_chans[index]), PREC1|TINSIZE|RIGHT);
 #endif
@@ -340,13 +326,6 @@ void menuModelMixAll(event_t event)
         s_currCh = ch;
         if (!s_copyMode) {
           attr = INVERS;
-          displayHeaderChannelName(ch - 1);
-#if LCD_W >= 212
-          if (g_model.limitData[ch - 1].name[0] != '\0') {
-            coord_t xPos = MIX_HDR_GAUGE_POS_X - FWNUM * 5 - 50;
-            lcdDrawFilledRect(lcdNextPos, 0, lcdNextPos - xPos, MENU_HEADER_HEIGHT, SOLID, FILL_WHITE | GREY_DEFAULT);
-          }
-#endif
         }
       }
       if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {

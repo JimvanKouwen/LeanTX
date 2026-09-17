@@ -108,11 +108,6 @@ void memswap(void * a, void * b, uint8_t size);
 
 #define PPM_CENTER                     1500
 
-#if defined(PPM_CENTER_ADJUSTABLE)
-  #define PPM_CH_CENTER(ch)            (PPM_CENTER + limitAddress(ch)->ppmCenter)
-#else
-  #define PPM_CH_CENTER(ch)            (PPM_CENTER)
-#endif
 
 #include "fifo.h"
 
@@ -211,8 +206,6 @@ inline void ALERT(const char *title, const char *msg, uint8_t sound)
 enum PerOutMode {
   e_perout_mode_normal = 0,
   e_perout_mode_preview = 2,
-  e_perout_mode_nosticks = 8,
-  e_perout_mode_noinput = e_perout_mode_preview+e_perout_mode_nosticks
 };
 
 extern uint32_t availableMemory();
@@ -305,22 +298,15 @@ inline int calcRESXto100(int x)
 
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 
-int16_t applyLimits(uint8_t channel, int32_t value);
-// Percent overrides bypass ordinary output limits, just as a direct output action.
-void setChannelOverride(uint8_t channel, int16_t percent, bool enabled = true);
-void clearChannelOverrides();
 
 void evalAnalogControls(uint8_t mode);
 uint16_t anaIn(uint8_t chan);
 
 #define FLASH_DURATION 20 /*200ms*/
 
-LimitData * limitAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);
 
 void applyDefaultTemplate();
-void copySticksToOffset(uint8_t ch);
-void copyMinMaxToOutputs(uint8_t ch);
 
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
 #define VARIO_FREQUENCY_RANGE  1000/*Hz*/

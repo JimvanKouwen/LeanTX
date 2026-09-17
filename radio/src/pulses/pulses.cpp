@@ -331,9 +331,3 @@ void pulsesSendChannels()
     pulsesSendNextFrame(i);
   }
 }
-
-
-int32_t getChannelValue(uint8_t channel)
-{
-  return channelOutputs[channel] + 2 * PPM_CH_CENTER(channel) - 2 * PPM_CENTER;
-}

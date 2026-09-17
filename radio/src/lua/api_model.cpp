@@ -40,18 +40,16 @@ Get current Model information
 
 @retval table model information:
  * `name` (string) model name
- * `extendedLimits` (boolean) extended limits enabled
  * `jitterFilter` (number) model level ADC filter
  * `bitmap` (string) bitmap name (not present on X7)
  * `filename` (string) model filename
 
-@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0, extendedLimits, jitterFilter, and labels added in 2.8.0
+@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0, jitterFilter and labels added in 2.8.0
 */
 static int luaModelGetInfo(lua_State *L)
 {
   lua_newtable(L);
   lua_pushtablenstring(L, "name", g_model.header.name);
-  lua_pushtableboolean(L, "extendedLimits", g_model.extendedLimits);
   lua_pushtableinteger(L, "jitterFilter", g_model.jitterFilter);
 #if LCD_DEPTH > 1
   lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
@@ -81,7 +79,7 @@ Set the current Model information
 @notice If a parameter is missing from the value, then
 that parameter remains unchanged.
 
-@status current Introduced in 2.0.6, extendedLimits and jitterFilter added in 2.8.0
+@status current Introduced in 2.0.6, jitterFilter added in 2.8.0
 */
 static int luaModelSetInfo(lua_State *L)
 {
@@ -92,9 +90,6 @@ static int luaModelSetInfo(lua_State *L)
     if (!strcmp(key, "name")) {
       const char * name = luaL_checkstring(L, -1);
       strncpy(g_model.header.name, name, sizeof(g_model.header.name));
-    }
-    else if (!strcmp(key, "extendedLimits")) {
-      g_model.extendedLimits = lua_toboolean(L, -1);
     }
     else if (!strcmp(key, "jitterFilter")) {
       auto j = lua_tointeger(L, -1);
@@ -577,99 +572,6 @@ static int luaModelSetSwitchWarning(lua_State *L)
 }
 
 /*luadoc
-@function model.getOutput(index)
-
-Get servo parameters
-
-@param index (unsigned number) output number (use 0 for CH1)
-
-@retval nil requested output does not exist
-
-@retval table output parameters:
- * `name` (string) name
- * `min` (number) Minimum % * 10
- * `max` (number) Maximum % * 10
- * `offset` (number) Subtrim * 10
- * `ppmCenter` (number) offset from PPM Center. 0 = 1500
- * `symetrical` (number) linear Subtrim 0 = Off, 1 = On
- * `revert` (number) irection 0 = ­­­---, 1 = INV
-
-@status current Introduced in 2.0.0
-*/
-static int luaModelGetOutput(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_OUTPUT_CHANNELS) {
-    LimitData * limit = limitAddress(idx);
-    lua_newtable(L);
-    lua_pushtablenstring(L, "name", limit->name);
-    lua_pushtableinteger(L, "min", limit->min-1000);
-    lua_pushtableinteger(L, "max", limit->max+1000);
-    lua_pushtableinteger(L, "offset", limit->offset);
-    lua_pushtableinteger(L, "ppmCenter", limit->ppmCenter);
-    lua_pushtableinteger(L, "symetrical", limit->symetrical);
-    lua_pushtableinteger(L, "revert", limit->revert);
-  }
-  else {
-    lua_pushnil(L);
-  }
-  return 1;
-}
-
-/*luadoc
-@function model.setOutput(index, value)
-
-Set servo parameters
-
-@param index (unsigned number) channel number (use 0 for CH1)
-
-@param value (table) servo parameters, see model.getOutput() for table format
-
-@notice If a parameter is missing from the value, then
-that parameter remains unchanged.
-
-@status current Introduced in 2.0.0
-*/
-static int luaModelSetOutput(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_OUTPUT_CHANNELS) {
-    LimitData * limit = limitAddress(idx);
-    memclear(limit, sizeof(LimitData));
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      luaL_checktype(L, -2, LUA_TSTRING); // key is string
-      const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "name")) {
-        const char * name = luaL_checkstring(L, -1);
-        strncpy(limit->name, name, sizeof(limit->name));
-      }
-      else if (!strcmp(key, "min")) {
-        limit->min = luaL_checkinteger(L, -1)+1000;
-      }
-      else if (!strcmp(key, "max")) {
-        limit->max = luaL_checkinteger(L, -1)-1000;
-      }
-      else if (!strcmp(key, "offset")) {
-        limit->offset = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "ppmCenter")) {
-        limit->ppmCenter = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "symetrical")) {
-        limit->symetrical = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "revert")) {
-        limit->revert = luaL_checkinteger(L, -1);
-      }
-    }
-    storageDirty(EE_MODEL);
-  }
-
-  return 0;
-}
-
-/*luadoc
 @function model.getSensor(sensor)
 
 Get Telemetry Sensor parameters
@@ -751,8 +653,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
   LROT_FUNCENTRY( getSwitchWarning, luaModelGetSwitchWarning )
   LROT_FUNCENTRY( setSwitchWarning, luaModelSetSwitchWarning )
-  LROT_FUNCENTRY( getOutput, luaModelGetOutput )
-  LROT_FUNCENTRY( setOutput, luaModelSetOutput )
   LROT_FUNCENTRY( getSensor, luaModelGetSensor )
   LROT_FUNCENTRY( resetSensor, luaModelResetSensor )
 LROT_END(modellib, NULL, 0)

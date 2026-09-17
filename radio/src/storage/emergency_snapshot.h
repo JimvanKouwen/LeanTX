@@ -5,7 +5,7 @@
 // Native scalar layout is intentional: snapshots are local to this firmware.
 // Bump the version whenever fields or their interpretation change.
 constexpr uint32_t EMERGENCY_SNAPSHOT_MAGIC = 0x45525443;
-constexpr uint16_t EMERGENCY_SNAPSHOT_VERSION = 5;
+constexpr uint16_t EMERGENCY_SNAPSHOT_VERSION = 6;
 struct EmergencySnapshotHeader {
   uint32_t magic;
   uint16_t version;
@@ -19,14 +19,6 @@ struct EmergencyMixSnapshot {
   int16_t srcRaw;
   int16_t weight;
   int16_t offset;
-};
-struct EmergencyLimitSnapshot {
-  int16_t min;
-  int16_t max;
-  int16_t ppmCenter;
-  int16_t offset;
-  uint8_t symetrical;
-  uint8_t revert;
 };
 struct EmergencyModuleSnapshot {
   uint8_t type;
@@ -67,11 +59,9 @@ struct EmergencyRadioSnapshot {
 };
 struct EmergencyModelSnapshot {
   uint8_t throttleReversed;
-  uint8_t extendedLimits;
   uint8_t jitterFilter;
   uint8_t modelId[2];
   EmergencyMixSnapshot mixes[64];
-  EmergencyLimitSnapshot limits[32];
   EmergencyModuleSnapshot modules[2];
   EmergencySwitchSnapshot switches[8];
   uint8_t cfsGroupOn;

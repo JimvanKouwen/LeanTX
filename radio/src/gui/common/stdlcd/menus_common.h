@@ -105,7 +105,6 @@ enum MenuModelIndexes {
   MENU_MODEL_SELECT,
   MENU_MODEL_SETUP,
   MENU_MODEL_MIXES,
-  MENU_MODEL_OUTPUTS,
 
   MENU_MODEL_TELEMETRY,
   MENU_MODEL_DISPLAY,
@@ -127,7 +126,6 @@ void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);
 void menuModelMixOne(event_t event);
 void menuModelMixAll(event_t event);
-void menuModelLimits(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
