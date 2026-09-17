@@ -22,8 +22,6 @@
 #include "mixer_edit.h"
 
 #include "channel_bar.h"
-#include "curve_param.h"
-#include "curveedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "getset_helpers.h"
@@ -118,10 +116,5 @@ void MixEditWindow::buildBody(Window *form)
   auto numberEdit = new NumberEdit(line, rect_t{}, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
                                    GET_SET_DEFAULT(mix->offset));
   numberEdit->setSuffix("%");
-
-  // Curve
-  line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), mix->srcRaw);
 
 }

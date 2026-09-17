@@ -378,8 +378,6 @@ Get configuration for specified Mix
  * `source` (number) source index
  * `weight` (number) literal weight (-500 to 500)
  * `offset` (number) literal offset (-500 to 500)
- * `curveType` (number) curve type (function, expo, custom curve)
- * `curveValue` (number) curve index
 
 */
 static int luaModelGetMix(lua_State *L)
@@ -395,8 +393,6 @@ static int luaModelGetMix(lua_State *L)
     lua_pushtableinteger(L, "source", mix->srcRaw);
     lua_pushtableinteger(L, "weight", (mix->weight));
     lua_pushtableinteger(L, "offset", (mix->offset));
-    lua_pushtableinteger(L, "curveType", mix->curve.type);
-    lua_pushtableinteger(L, "curveValue", (mix->curve.value));
   }
   else {
     lua_pushnil(L);
@@ -445,12 +441,6 @@ static int luaModelInsertMix(lua_State *L)
       }
       else if (!strcmp(key, "offset")) {
         mix->offset = (luaL_checkinteger(L, -1));
-      }
-      else if (!strcmp(key, "curveType")) {
-        mix->curve.type = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "curveValue")) {
-        mix->curve.value = (luaL_checkinteger(L, -1));
       }
 
     }
@@ -587,267 +577,6 @@ static int luaModelSetSwitchWarning(lua_State *L)
 }
 
 /*luadoc
-@function model.getCurve(curve)
-
-Get Curve parameters
-
-@param curve (unsigned number) curve number (use 0 for Curve1)
-
-@retval nil requested curve does not exist
-
-@retval table curve data:
- * `name` (string) name
- * `type` (number) type
- * `smooth` (boolean) smooth
- * `points` (number) number of points
- * `y` (table) table of Y values:
-   * `key` is point number (zero based)
-   * `value` is y value
- * `x` (table) **only included for custom curve type**:
-   * `key` is point number (zero based)
-   * `value` is x value
-
- Note that functions returns the tables starting with index 0 contrary to LUA's
- usual index starting with 1
-
-@status current Introduced in 2.0.12
-*/
-static int luaModelGetCurve(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_CURVES) {
-    CurveHeader & CurveHeader = g_model.curves[idx];
-    lua_newtable(L);
-    lua_pushtablenstring(L, "name", CurveHeader.name);
-    lua_pushtableinteger(L, "type", CurveHeader.type);
-    lua_pushtableboolean(L, "smooth", CurveHeader.smooth);
-    lua_pushtableinteger(L, "points", CurveHeader.points + 5);
-    lua_pushstring(L, "y");
-    lua_newtable(L);
-    int8_t * point = curveAddress(idx);
-    for (int i=0; i < CurveHeader.points + 5; i++) {
-      lua_pushinteger(L, i + 1);
-      lua_pushinteger(L, *point++);
-      lua_settable(L, -3);
-    }
-    lua_settable(L, -3);
-    if (CurveHeader.type == CURVE_TYPE_CUSTOM) {
-      lua_pushstring(L, "x");
-      lua_newtable(L);
-      lua_pushinteger(L, 1);
-      lua_pushinteger(L, -100);
-      lua_settable(L, -3);
-      for (int i=0; i < CurveHeader.points + 3; i++) {
-        lua_pushinteger(L, i + 2);
-        lua_pushinteger(L, *point++);
-        lua_settable(L, -3);
-      }
-      lua_pushinteger(L, CurveHeader.points + 5);
-      lua_pushinteger(L, 100);
-      lua_settable(L, -3);
-      lua_settable(L, -3);
-    }
-  }
-  else {
-    lua_pushnil(L);
-  }
-  return 1;
-}
-
-/*luadoc
-@function model.setCurve(curve, params)
-
-Set Curve parameters
-
-@param curve (unsigned number) curve number (use 0 for Curve1)
-
-@param params see model.getCurve return format for table format. setCurve uses standard
- lua array indexing and arrays start at index 1
-
-The first and last x value must -100 and 100 and x values must be monotonically increasing
-
-@retval  0 - Everything okay
-         1 - Wrong number of points
-         2 - Invalid Curve number
-         3 - Cuve does not fit anymore
-         4 - point of out of index
-         5 - x value not monotonically increasing
-         6 - y value not in range [-100;100]
-         7 - extra values for y are set
-         8 - extra values for x are set
-
-@status current Introduced in 2.2.0
-
-Example setting a 4-point custom curve:
-```lua
-  params = {}
-  params["x"] =  {-100, -34, 77, 100}
-  params["y"] = {-70, 20, -89, -100}
-  params["smooth"] = true
-  params["type"] = 1
-  val =  model.setCurve(2, params)
- ```
-setting a 6-point standard smoothed curve
- ```lua
- val = model.setCurve(3, {smooth=true, y={-100, -50, 0, 50, 100, 80}})
- ```
-
-*/
-static int luaModelSetCurve(lua_State *L)
-{
-  unsigned int curveIdx = luaL_checkinteger(L, 1);
-
-  if (curveIdx >= MAX_CURVES) {
-    lua_pushinteger(L, 2);
-    return 1;
-  }
-  int8_t xPoints[MAX_POINTS_PER_CURVE];
-  int8_t yPoints[MAX_POINTS_PER_CURVE];
-
-  // Init to invalid values
-  memset(xPoints, -127, sizeof(xPoints));
-  memset(yPoints, -127, sizeof(yPoints));
-
-  CurveHeader &destCurveHeader = g_model.curves[curveIdx];
-  CurveHeader newCurveHeader;
-  memclear(&newCurveHeader, sizeof(CurveHeader));
-
-  luaL_checktype(L, -1, LUA_TTABLE);
-  for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-    luaL_checktype(L, -2, LUA_TSTRING); // key is string
-    const char *key = luaL_checkstring(L, -2);
-    if (!strcmp(key, "name")) {
-      const char *name = luaL_checkstring(L, -1);
-      strncpy(newCurveHeader.name, name, sizeof(newCurveHeader.name));
-    }
-    else if (!strcmp(key, "type")) {
-      newCurveHeader.type = luaL_checkinteger(L, -1);
-    }
-    else if (!strcmp(key, "smooth")) {
-      // Earlier version of this api expected a 0/1 integer instead of a boolean
-      // Still accept a 0/1 here
-      if (lua_isboolean(L,-1))
-        newCurveHeader.smooth = lua_toboolean(L, -1);
-      else
-        newCurveHeader.smooth = luaL_checkinteger(L, -1);
-    }
-    else if (!strcmp(key, "x") || !strcmp(key, "y")) {
-      luaL_checktype(L, -1, LUA_TTABLE);
-      bool isX = !strcmp(key, "x");
-
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
-        if (idx < 0 || idx > MAX_POINTS_PER_CURVE) {
-          lua_pushinteger(L, 4);
-          return 1;
-        }
-        int8_t val = luaL_checkinteger(L, -1);
-        if (val < -100 || val > 100) {
-          lua_pushinteger(L, 6);
-          return 1;
-        }
-        if (isX)
-          xPoints[idx] = val;
-        else
-          yPoints[idx] = val;
-      }
-    }
-  }
-  // Check how many points are set
-  int numPoints = 0;
-  for (numPoints = 0; numPoints < MAX_POINTS_PER_CURVE; numPoints += 1) {
-    if (yPoints[numPoints] == -127)
-      break;
-  }
-  newCurveHeader.points = numPoints - 5;
-
-  if (numPoints < MIN_POINTS_PER_CURVE || numPoints > MAX_POINTS_PER_CURVE) {
-    lua_pushinteger(L, 1);
-    return 1;
-  }
-
-  if (newCurveHeader.type == CURVE_TYPE_CUSTOM) {
-
-    // The rest of the points are checked by the monotonic condition
-    for (unsigned int i=numPoints; i < sizeof(xPoints);i++)
-    {
-      if (xPoints[i] != -127)
-      {
-        lua_pushinteger(L, 8);
-        return 1;
-      }
-    }
-
-    // Check first and last point
-    if (xPoints[0] != -100 || xPoints[newCurveHeader.points + 4] != 100) {
-      lua_pushinteger(L, 5);
-      return 1;
-    }
-
-    // Check that x values are increasing
-    for (int i = 1; i < numPoints; i++) {
-      if (xPoints[i - 1] > xPoints[i]) {
-        lua_pushinteger(L, 5);
-        return 1;
-      }
-    }
-  }
-
-  // Check that ypoints have the right number of points set
-  for (int i=0; i <  5 + newCurveHeader.points;i++)
-  {
-    if (yPoints[i] == -127)
-    {
-      lua_pushinteger(L, 7);
-      return 1;
-    }
-  }
-
-  // Calculate size of curve we replace
-  int oldCurveMemSize;
-  if (destCurveHeader.type == CURVE_TYPE_STANDARD) {
-    oldCurveMemSize = 5 + destCurveHeader.points;
-  }
-  else {
-    oldCurveMemSize = 8 + 2 * destCurveHeader.points;
-  }
-
-  // Calculate own size
-  int newCurveMemSize;
-  if (newCurveHeader.type == CURVE_TYPE_STANDARD)
-    newCurveMemSize = 5 + newCurveHeader.points;
-  else
-    newCurveMemSize = 8 + 2 * newCurveHeader.points;
-
-  int shift = newCurveMemSize - oldCurveMemSize;
-
-  // Also checks if new curve size would fit
-  if (!moveCurve(curveIdx, shift)) {
-    lua_pushinteger(L, 3);
-    TRACE("curve shift is  %d", shift);
-    return 1;
-  }
-
-  // Curve fits into mem, fill new curve
-  destCurveHeader = newCurveHeader;
-
-  int8_t *point = curveAddress(curveIdx);
-  for (int i = 0; i < destCurveHeader.points + 5; i++) {
-    *point++ = yPoints[i];
-  }
-
-  if (destCurveHeader.type == CURVE_TYPE_CUSTOM) {
-    for (int i = 1; i < destCurveHeader.points + 4; i++) {
-      *point++ = xPoints[i];
-    }
-  }
-  storageDirty(EE_MODEL);
-
-  lua_pushinteger(L, 0);
-  return 1;
-}
-
-/*luadoc
 @function model.getOutput(index)
 
 Get servo parameters
@@ -864,9 +593,6 @@ Get servo parameters
  * `ppmCenter` (number) offset from PPM Center. 0 = 1500
  * `symetrical` (number) linear Subtrim 0 = Off, 1 = On
  * `revert` (number) irection 0 = ­­­---, 1 = INV
- * `curve`
-   * (number) Curve number (0 for Curve1)
-   * or `nil` if no curve set
 
 @status current Introduced in 2.0.0
 */
@@ -883,8 +609,6 @@ static int luaModelGetOutput(lua_State *L)
     lua_pushtableinteger(L, "ppmCenter", limit->ppmCenter);
     lua_pushtableinteger(L, "symetrical", limit->symetrical);
     lua_pushtableinteger(L, "revert", limit->revert);
-    if (limit->curve)
-      lua_pushtableinteger(L, "curve", limit->curve-1);
   }
   else {
     lua_pushnil(L);
@@ -937,9 +661,6 @@ static int luaModelSetOutput(lua_State *L)
       }
       else if (!strcmp(key, "revert")) {
         limit->revert = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "curve")) {
-        limit->curve = luaL_checkinteger(L, -1) + 1;
       }
     }
     storageDirty(EE_MODEL);
@@ -1030,8 +751,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
   LROT_FUNCENTRY( getSwitchWarning, luaModelGetSwitchWarning )
   LROT_FUNCENTRY( setSwitchWarning, luaModelSetSwitchWarning )
-  LROT_FUNCENTRY( getCurve, luaModelGetCurve )
-  LROT_FUNCENTRY( setCurve, luaModelSetCurve )
   LROT_FUNCENTRY( getOutput, luaModelGetOutput )
   LROT_FUNCENTRY( setOutput, luaModelSetOutput )
   LROT_FUNCENTRY( getSensor, luaModelGetSensor )

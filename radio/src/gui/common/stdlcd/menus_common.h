@@ -106,7 +106,6 @@ enum MenuModelIndexes {
   MENU_MODEL_SETUP,
   MENU_MODEL_MIXES,
   MENU_MODEL_OUTPUTS,
-  MENU_MODEL_CURVES,
 
   MENU_MODEL_TELEMETRY,
   MENU_MODEL_DISPLAY,
@@ -129,8 +128,6 @@ void menuModelSetup(event_t event);
 void menuModelMixOne(event_t event);
 void menuModelMixAll(event_t event);
 void menuModelLimits(event_t event);
-void menuModelCurvesAll(event_t event);
-void menuModelCurveOne(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
@@ -147,8 +144,6 @@ extern uint8_t s_copyMode;
 extern int8_t s_copySrcRow;
 extern int8_t s_copyTgtOfs;
 extern uint8_t s_currIdx;
-extern uint8_t s_currIdxSubMenu;
-extern mixsrc_t s_currSrcRaw;
 extern uint8_t s_copySrcIdx;
 extern uint8_t s_copySrcCh;
 extern int8_t s_currCh;

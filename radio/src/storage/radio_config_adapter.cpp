@@ -237,7 +237,7 @@ const char* const uartModes[] = {"NONE", "TELEMETRY_MIRROR", "reserved2", "reser
 const char* const potTypes[] = {"none", "without_detent", "with_detent", "slider", "multipos_switch", "axis_x", "axis_y", "switch"};
 const char* const switchTypes[] = {"NONE", "TOGGLE", "2POS", "3POS", "GLOBAL"};
 const char* const pages[] = {
- "NONE", "OPEN_QUICK_MENU", "MANAGE_MODELS", "MODEL_SETUP", "MODEL_INPUTS", "MODEL_MIXES", "MODEL_OUTPUTS", "MODEL_CURVES", "MODEL_SCRIPTS", "MODEL_TELEMETRY", "MODEL_NOTES", "RADIO_SETUP", "RADIO_HARDWARE", "RADIO_VERSION", "UI_THEMES", "UI_SETUP", "UI_SCREEN1", "UI_SCREEN2", "UI_SCREEN3", "UI_SCREEN4", "UI_SCREEN5", "UI_SCREEN6", "UI_SCREEN7", "UI_SCREEN8", "UI_SCREEN9", "UI_SCREEN10", "UI_ADD_PG", "TOOLS_APPS", "TOOLS_STORAGE", "TOOLS_RESET", "TOOLS_CHAN_MON", "TOOLS_STATS", "TOOLS_DEBUG", "APP"
+ "NONE", "OPEN_QUICK_MENU", "MANAGE_MODELS", "MODEL_SETUP", "MODEL_INPUTS", "MODEL_MIXES", "MODEL_OUTPUTS", "MODEL_SCRIPTS", "MODEL_TELEMETRY", "MODEL_NOTES", "RADIO_SETUP", "RADIO_HARDWARE", "RADIO_VERSION", "UI_THEMES", "UI_SETUP", "UI_SCREEN1", "UI_SCREEN2", "UI_SCREEN3", "UI_SCREEN4", "UI_SCREEN5", "UI_SCREEN6", "UI_SCREEN7", "UI_SCREEN8", "UI_SCREEN9", "UI_SCREEN10", "UI_ADD_PG", "TOOLS_APPS", "TOOLS_STORAGE", "TOOLS_RESET", "TOOLS_CHAN_MON", "TOOLS_STATS", "TOOLS_DEBUG", "APP"
 };
 bool number(Field& f, int64_t n) {
   return f.metadataOnly || formatInteger(f.value, sizeof(f.value), n);

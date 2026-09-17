@@ -22,8 +22,7 @@
 #include "output_edit.h"
 
 #include "channel_bar.h"
-#include "curve_param.h"
-#include "curveedit.h"
+#include "choice.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "getset_helpers.h"
@@ -184,10 +183,6 @@ void OutputEditWindow::buildBody(Window *form)
                      output->revert = newValue;
                      SET_DIRTY();
                    });
-
-  // Curve
-  new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveChoice(line, GET_SET_DEFAULT(output->curve), channel + MIXSRC_FIRST_CH);
 
   // PPM center
   line = form->newLine(grid);

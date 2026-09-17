@@ -432,13 +432,6 @@ void drawSwitch(coord_t x, coord_t y, swsrc_t idx, LcdFlags flags, bool autoBold
   lcdDrawText(x, y, s, flags);
 }
 
-void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att)
-{
-  char s[8];
-  getCurveString(s, idx);
-  lcdDrawText(x, y, s, att);
-}
-
 void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att)
 {
   if (mode >= 0) {

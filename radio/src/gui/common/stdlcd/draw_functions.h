@@ -41,11 +41,6 @@ void runFatalErrorScreen(const char * message);
 
 void lcdDrawMMM(coord_t x, coord_t y, LcdFlags flags=0);
 
-typedef int (*FnFuncP) (int x);
-void drawFunction(FnFuncP fn, uint8_t offset = 0);
-void drawCursor(FnFuncP fn, uint8_t offset = 0);
-void drawCurve(coord_t offset = 0);
-
 void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att=0);
 
 void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr);

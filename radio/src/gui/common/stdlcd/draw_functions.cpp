@@ -242,31 +242,6 @@ void lcdDrawMMM(coord_t x, coord_t y, LcdFlags flags)
   lcdDrawTextAtIndex(x, y, STR_MMMINV, 0, flags);
 }
 
-void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
-{
-  if (curve.value != 0) {
-    switch (curve.type) {
-      case CURVE_REF_DIFF:
-        lcdDrawText(x, y, "D", att);
-        editLiteralFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0);
-        break;
-
-      case CURVE_REF_EXPO:
-        lcdDrawText(x, y, "E", att);
-        editLiteralFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0);
-        break;
-
-      case CURVE_REF_FUNC:
-        lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value, att);
-        break;
-
-      case CURVE_REF_CUSTOM:
-        drawCurveName(x, y, curve.value, att);
-        break;
-    }
-  }
-}
-
 void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, LcdFlags flags)
 {
   if (sensor >= MAX_TELEMETRY_SENSORS) {

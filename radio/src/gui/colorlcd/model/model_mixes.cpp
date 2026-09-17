@@ -64,11 +64,6 @@ class MixLineButton : public MixButtonBase
       s = strAppend(s, line.name, LEN_MIX_NAME);
     }
 
-    if (line.curve.value != 0) {
-      if (tmp_str[0]) s = strAppend(s, " ");
-      getCurveRefString(s, sizeof(tmp_str) - (s - tmp_str), line.curve);
-    }
-
     setOpts(tmp_str);
 
   }

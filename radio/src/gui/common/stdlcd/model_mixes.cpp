@@ -74,7 +74,6 @@ void onMixesMenu(const char * result)
 #if LCD_W >= 212
 #define MIX_LINE_WEIGHT_POS            2*FW+34
 #define MIX_LINE_SRC_POS               7*FW+5
-#define MIX_LINE_CURVE_POS             13*FW+3
 #define MIX_LINE_NAME_POS              LCD_W-LEN_MIX_NAME*FW-MENUS_SCROLLBAR_WIDTH
 #define MIX_HDR_GAUGE_POS_X            127
 
@@ -87,7 +86,6 @@ void displayHeaderChannelName(uint8_t ch)
 
 void displayMixInfos(coord_t y, MixData * md)
 {
-  drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
 
 }
 
@@ -102,7 +100,6 @@ void displayMixLine(coord_t y, MixData * md)
 #else // LCD_W >= 212
 #define MIX_LINE_WEIGHT_POS            6*FW+8
 #define MIX_LINE_SRC_POS               7*FW+3
-#define MIX_LINE_CURVE_POS             12*FW+3
 #define MIX_LINE_NAME_POS              LCD_W-LEN_MIX_NAME*FW
 
 void displayHeaderChannelName(uint8_t ch)
@@ -115,7 +112,6 @@ void displayHeaderChannelName(uint8_t ch)
 
 void displayMixInfos(coord_t y, MixData * md)
 {
-  drawCurveRef(MIX_LINE_CURVE_POS, y, md->curve, 0);
 
 }
 

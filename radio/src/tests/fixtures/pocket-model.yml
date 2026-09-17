@@ -87,26 +87,6 @@ mixData:
    weight: 100
    offset: 0
    name: ""
-curves: 
-   0:
-      type: 0
-      smooth: 0
-      points: 0
-      name: "a"
-   31:
-      type: 1
-      smooth: 1
-      points: -31
-      name: "CNT"
-points: 
-   155:
-      val: -100
-   158:
-      val: 100
-   159:
-      val: -1
-   160:
-      val: 1
 thrTraceSrc: Thr
 switchWarning: 
    SA:
@@ -632,6 +612,5 @@ view: 0
 usbJoystickExtMode: 0
 usbJoystickIfMode: JOYSTICK
 usbJoystickCircularCut: 0
-modelCurvesDisabled: GLOBAL
 modelCustomScriptsDisabled: GLOBAL
 modelTelemetryDisabled: GLOBAL

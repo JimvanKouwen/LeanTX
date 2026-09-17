@@ -85,14 +85,6 @@ const static SetupLineDef viewOptionsPageSetupLines[] = {
     STR_DEF(STR_MODEL_MENU_TABS), nullptr,
   },
   {
-    STR_DEF(STR_MENUCURVES),
-    [](Window* parent, coord_t x, coord_t y) {
-      viewOption(parent, x, y,
-                GET_SET_DEFAULT(g_model.modelCurvesDisabled),
-                g_eeGeneral.modelCurvesDisabled);
-    }
-  },
-  {
     STR_DEF(STR_MENUTELEMETRY),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,

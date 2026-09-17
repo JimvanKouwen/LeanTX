@@ -26,7 +26,6 @@ enum MenuModelOutputsItems {
   ITEM_OUTPUTS_MIN,
   ITEM_OUTPUTS_MAX,
   ITEM_OUTPUTS_DIRECTION,
-  ITEM_OUTPUTS_CURVE,
 #if defined(PPM_LIMITS_SYMETRICAL)
   ITEM_OUTPUTS_SYMETRICAL,
 #endif
@@ -58,7 +57,6 @@ enum MenuModelOutputsItems {
   #endif
 #endif
 
-#define LIMITS_CURVE_POS          17*FW+1
 #define CONVERT_US_MIN_MAX(x) ((int16_t(x)*128)/25)
 #define MIN_MAX_ATTR          attr
 
@@ -68,7 +66,6 @@ enum MenuModelOutputsOneItems {
   ITEM_OUTPUTONE_MIN,
   ITEM_OUTPUTONE_MAX,
   ITEM_OUTPUTONE_DIR,
-  ITEM_OUTPUTONE_CURVE,
 #if defined(PPM_CENTER_ADJUSTABLE)
   ITEM_OUTPUTONE_PPM_CENTER,
 #endif
@@ -111,7 +108,7 @@ void menuModelLimitsOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  SUBMENU_NOTITLE(ITEM_OUTPUTONE_MAXROW, { 0, 0, 0, 0, 0, 0 , 0  /*, 0...*/ });
+  SUBMENU_NOTITLE(ITEM_OUTPUTONE_MAXROW, { 0, 0, 0, 0, 0, 0 /*, 0...*/ });
 
   int8_t sub = menuVerticalPosition;
 
@@ -150,14 +147,6 @@ void menuModelLimitsOne(event_t event)
         break;
       }
 
-      case ITEM_OUTPUTONE_CURVE:
-        lcdDrawTextAlignedLeft(y, STR_CURVE);
-        drawCurveName(LIMITS_ONE_2ND_COLUMN, y, ld->curve, attr);
-        if (active) {
-          CHECK_INCDEC_MODELVAR(event, ld->curve, -MAX_CURVES, +MAX_CURVES);
-        }
-        break;
-
 #if defined(PPM_CENTER_ADJUSTABLE)
       case ITEM_OUTPUTONE_PPM_CENTER:
         ld->ppmCenter = editNumberField(STR_LIMITS_HEADERS_PPMCENTER, 0, LIMITS_ONE_2ND_COLUMN, y, ld->ppmCenter,
@@ -189,7 +178,6 @@ void onLimitsMenu(const char *result)
     ld->offset = 0;
     ld->ppmCenter = 0;
     ld->revert = false;
-    ld->curve = 0;
     storageDirty(EE_MODEL);
   }
   else if (result == STR_COPY_STICKS_TO_OFS) {
@@ -274,10 +262,6 @@ void menuModelLimits(event_t event)
 
         case ITEM_OUTPUTS_DIRECTION:
           lcdDrawChar(LIMITS_REVERT_POS, y, ld->revert ? 127 : 126, 0);
-          break;
-
-        case ITEM_OUTPUTS_CURVE:
-          drawCurveName(LIMITS_CURVE_POS, y, ld->curve, 0);
           break;
 
         case ITEM_OUTPUTS_SYMETRICAL:

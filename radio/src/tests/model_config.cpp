@@ -150,7 +150,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
     m.offset = -int(i);
     m.destCh = i % MAX_OUTPUT_CHANNELS;
 
-    m.curve.value = -10;
   }
 
   for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
@@ -161,7 +160,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
     o.ppmCenter = 5;
     o.revert = i % 2;
   }
-  for (unsigned i = 0; i < MAX_CURVE_POINTS; ++i) g_model.points[i] = i % 101;
   for (unsigned i = 0; i < MAX_TELEMETRY_SENSORS; ++i) {
     auto& s = g_model.telemetrySensors[i];
     s.id = 400 + i;
@@ -194,7 +192,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
             memcmp(expected.mixData, actual.mixData, sizeof(expected.mixData)));
   EXPECT_EQ(0, memcmp(expected.limitData, actual.limitData,
                       sizeof(expected.limitData)));
-  EXPECT_EQ(0, memcmp(expected.points, actual.points, sizeof(expected.points)));
   EXPECT_EQ(0, memcmp(expected.telemetrySensors, actual.telemetrySensors,
                       sizeof(expected.telemetrySensors)));
   ASSERT_TRUE(save(actual));
@@ -368,19 +365,18 @@ namespace
 {
 TEST_F(ModelConfig, ScalarLists)
 {
-  input = "header:\n  modelId:\n    - 7\n    - 9\npoints:\n  - 12\n  - -15\n";
+  input = "header:\n  modelId:\n    - 7\n    - 9\n";
   ModelData m{};
   auto r = load(m);
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(7, m.header.modelId[0]);
   EXPECT_EQ(9, m.header.modelId[1]);
-  EXPECT_EQ(12, m.points[0]);
-  EXPECT_EQ(-15, m.points[1]);
   ASSERT_TRUE(save(m));
   input = output;
   r = load(m);
   ASSERT_TRUE(r) << r.error;
-  EXPECT_EQ(-15, m.points[1]);
+  EXPECT_EQ(7, m.header.modelId[0]);
+  EXPECT_EQ(9, m.header.modelId[1]);
 }
 TEST_F(ModelConfig, LongKnownStringIsTruncatedOnSave)
 {
@@ -568,7 +564,7 @@ TEST_F(ModelConfig, LegacyUnknownModuleTypesNeverEnableRf)
 
 namespace
 {
-TEST_F(ModelConfigFile, PocketModelHeaderAndInvalidCurve)
+TEST_F(ModelConfigFile, PocketModelHeaderAndContents)
 {
   std::ifstream fixture(std::string(TESTS_PATH) + "/fixtures/pocket-model.yml");
   ASSERT_TRUE(fixture.is_open());
@@ -577,75 +573,17 @@ TEST_F(ModelConfigFile, PocketModelHeaderAndInvalidCurve)
   model_config::Header header{};
   ASSERT_EQ(nullptr, loadModelConfigHeader("/MODELS/test.yml", header));
   EXPECT_STREQ("POCKET", header.header.name);
-  strcpy(g_model.header.name, "MODEL01");
-  const char* error = loadModelConfig("/MODELS/test.yml", g_model);
-  ASSERT_NE(nullptr, error);
-  EXPECT_STREQ("Invalid curve 32 point count: -26", error);
-  EXPECT_STREQ("MODEL01", g_model.header.name);
-  EXPECT_EQ(yaml, get());
-#if defined(STORAGE_MODELSLIST)
-  ModelsList list;
-  ModelCell cell("test.yml");
-  cell.setModelName(header.header.name);
-  list.setCurrentModel(&cell);
-  auto previousSettings = g_eeGeneral;
-  strcpy(g_eeGeneral.currModelFilename, "test.yml");
-  list.updateCurrentModelCell();
-  EXPECT_STREQ("POCKET", cell.modelName);
-  g_eeGeneral = previousSettings;
-#endif
-  EXPECT_FALSE(modelConfigCanSave("/MODELS/test.yml"));
-  EXPECT_NE(nullptr, saveModelConfig("/MODELS/test.yml"));
-  EXPECT_EQ(yaml, get());
-
-  // Isolate the malformed point count; all other fields must load intact.
-  auto repaired = yaml;
-  auto offset = repaired.find("points: -31");
-  ASSERT_NE(std::string::npos, offset);
-  repaired.replace(offset, strlen("points: -31"), "points: -1");
-  put(repaired);
-  error = loadModelConfig("/MODELS/test.yml", g_model);
-  ASSERT_EQ(nullptr, error) << (error ? error : "");
+  ASSERT_EQ(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
   EXPECT_STREQ("POCKET", g_model.header.name);
   EXPECT_EQ(4185, g_model.timers[0].value);
   EXPECT_EQ(MODULE_TYPE_CROSSFIRE, g_model.moduleData[0].type);
   EXPECT_STREQ("RxBt", g_model.telemetrySensors[10].label);
-  EXPECT_EQ(-1, g_model.curves[31].points);
-  EXPECT_EQ(-1, g_model.points[159]);
-  EXPECT_EQ(1, g_model.points[160]);
   EXPECT_TRUE(modelConfigCanSave("/MODELS/test.yml"));
   EXPECT_EQ(nullptr, saveModelConfig("/MODELS/test.yml"));
   EXPECT_EQ(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
   EXPECT_STREQ("POCKET", g_model.header.name);
 }
 }  // namespace
-
-namespace {
-TEST_F(ModelConfig, CurvePointCountEncodingIsUnchanged)
-{
-  for (int count = 2; count <= 17; ++count) {
-    for (unsigned type = 0; type <= 1; ++type) {
-      SCOPED_TRACE(count);
-      SCOPED_TRACE(type);
-      input = legacyFixture("curve-" + std::to_string(count) + "-" +
-                            std::to_string(type) + ".yml");
-      ASSERT_FALSE(input.empty());
-      ModelData loaded{};
-      auto result = load(loaded);
-      ASSERT_TRUE(result) << result.error;
-      EXPECT_EQ(count - 5, loaded.curves[31].points);
-      EXPECT_EQ(type, loaded.curves[31].type);
-      EXPECT_EQ(1, loaded.curves[31].smooth);
-      EXPECT_EQ(0, memcmp("CNT", loaded.curves[31].name, 3));
-      ASSERT_TRUE(save(loaded));
-      input = output;
-      result = load(loaded);
-      ASSERT_TRUE(result) << result.error;
-      EXPECT_EQ(count - 5, loaded.curves[31].points);
-    }
-  }
-}
-}
 
 namespace {
 TEST_F(ModelConfig, SparseSlotsKeepIndicesAndDefaultValues)
@@ -710,21 +648,33 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
     auto& mix = g_model.mixData[i];
     mix.srcRaw = MIXSRC_FIRST_STICK; mix.weight = 100; mix.offset = 99;
     mix.destCh = 15;
-    mix.curve.value = 10;
     memset(mix.name, 'M', sizeof(mix.name));
   }
 
   for (auto& limit : g_model.limitData) {
-    memset(limit.name, 'C', sizeof(limit.name));
+    memset(limit.name, '"', sizeof(limit.name));
     limit.offset = 100;
+    limit.min = -100;
+    limit.max = 100;
+    limit.ppmCenter = 100;
+    limit.revert = 1;
+    limit.symetrical = 1;
   }
-  // Populate curves too: basic routing lines serialize much more compactly.
-  for (auto& curve : g_model.curves) {
-    curve.type = CURVE_TYPE_STANDARD;
-    curve.points = MAX_CURVE_POINTS / MAX_CURVES - 5;
-    curve.smooth = 1;
+  for (auto& sensor : g_model.telemetrySensors) {
+    memset(sensor.label, 'S', sizeof(sensor.label));
+    sensor.id = 1234;
+    sensor.instance = 3;
+    sensor.subId = 2;
+    sensor.unit = UNIT_VOLTS;
+    sensor.prec = 2;
+    sensor.custom.ratio = 1234;
+    sensor.custom.offset = -1234;
+    sensor.logs = 1;
+    sensor.filter = 1;
+    sensor.autoOffset = 1;
+    sensor.onlyPositive = 1;
+    sensor.persistent = 1;
   }
-  memset(g_model.points, 100, sizeof(g_model.points));
   EXPECT_STREQ("configuration file too large", saveModelConfig("/MODELS/test.yml"));
   EXPECT_EQ(original, get());
   EXPECT_FALSE(std::filesystem::exists(root / "MODELS/test.yml.tmp"));

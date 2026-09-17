@@ -45,7 +45,6 @@ class OutputLineButton : public ListLineButton
   lv_obj_t* max = nullptr;
   lv_obj_t* offset = nullptr;
   lv_obj_t* center = nullptr;
-  StaticIcon* curve = nullptr;
 
   void delayedInit() override
   {
@@ -86,9 +85,6 @@ class OutputLineButton : public ListLineButton
     revert = lv_img_create(lvobj);
     lv_img_set_src(revert, LV_SYMBOL_SHUFFLE);
     lv_obj_set_pos(revert, REV_X, REV_Y);
-
-    curve =
-        new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1_INDEX);
 
     new OutputChannelBar(this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT},
                                index, false, false);
@@ -157,7 +153,6 @@ class OutputLineButton : public ListLineButton
     lv_label_set_text_fmt(center, "%d%s", PPM_CENTER + output->ppmCenter,
                           output->symetrical ? " =" : CHAR_DELTA);
 
-    curve->show(output->curve);
   }
 
   static LAYOUT_SIZE_SCALED(CH_LINE_H, 32, 50)
@@ -185,8 +180,6 @@ class OutputLineButton : public ListLineButton
   static constexpr coord_t REV_X = CTR_X + CTR_W + PAD_TINY;
   static constexpr coord_t REV_Y = CTR_Y;
   static LAYOUT_VAL_SCALED(REV_W, 16)
-  static constexpr coord_t CRV_X = REV_X + REV_W + PAD_TINY;
-  static constexpr coord_t CRV_Y = REV_Y + 1;
 
  protected:
   int value = -10000;
@@ -250,7 +243,6 @@ void ModelOutputsPage::build(Window* window)
         output->offset = 0;
         output->ppmCenter = 0;
         output->revert = false;
-        output->curve = 0;
         output->symetrical = 0;
         storageDirty(EE_MODEL);
         btn->refresh();

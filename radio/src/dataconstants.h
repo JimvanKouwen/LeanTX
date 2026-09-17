@@ -62,42 +62,24 @@
 
 #define MAX_TIMERS                     3
 
-enum CurveType {
-  CURVE_TYPE_STANDARD,
-  CURVE_TYPE_CUSTOM,
-  CURVE_TYPE_LAST = CURVE_TYPE_CUSTOM
-};
-
-#define MIN_POINTS_PER_CURVE           2
-#define MAX_POINTS_PER_CURVE           17
-
 #if defined(COLORLCD)
   #define LEN_MODEL_NAME               15
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              14
   #define LEN_MIX_NAME                 6
   #define LEN_CHANNEL_NAME             6
-  #define LEN_CURVE_NAME               3
-  #define MAX_CURVES                   32
-  #define MAX_CURVE_POINTS             512
 #elif LCD_W == 212
   #define LEN_MODEL_NAME               12
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              10
   #define LEN_MIX_NAME                 6
   #define LEN_CHANNEL_NAME             6
-  #define LEN_CURVE_NAME               3
-  #define MAX_CURVES                   32
-  #define MAX_CURVE_POINTS             512
 #else
   #define LEN_MODEL_NAME               10
   #define LEN_TIMER_NAME               3
   #define LEN_BITMAP_NAME              0
   #define LEN_MIX_NAME                 6
   #define LEN_CHANNEL_NAME             4
-  #define LEN_CURVE_NAME               3
-  #define MAX_CURVES                   32
-  #define MAX_CURVE_POINTS             512
 #endif
 
 #define NUM_MODULES                    2

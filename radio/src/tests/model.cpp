@@ -261,8 +261,6 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
   g_model.mixData[0].weight = -500;
   g_model.mixData[0].offset = 500;
-  g_model.mixData[0].curve.type = CURVE_REF_EXPO;
-  g_model.mixData[0].curve.value = -70;
   g_model.limitData[0].min = -250;
   g_model.limitData[0].max = 250;
   g_model.limitData[0].offset = -1000;
@@ -273,7 +271,6 @@ TEST(Model, LiteralNumericSettingsRoundTrip)
   loadModelYamlStr(yaml.c_str());
   EXPECT_EQ(-500, g_model.mixData[0].weight);
   EXPECT_EQ(500, g_model.mixData[0].offset);
-  EXPECT_EQ(-70, g_model.mixData[0].curve.value);
   EXPECT_EQ(-1250, LIMIT_MIN(&g_model.limitData[0]));
   EXPECT_EQ(1250, LIMIT_MAX(&g_model.limitData[0]));
   EXPECT_EQ(-1000, LIMIT_OFS(&g_model.limitData[0]));

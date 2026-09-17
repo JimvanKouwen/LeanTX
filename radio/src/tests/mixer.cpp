@@ -92,7 +92,7 @@ TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
   telemetryItems[0].clear();
 }
 
-// A non-control line must be skipped before offset/curve processing, even
+// A non-control line must be skipped before offset processing, even
 // when its shared value is zero or the source was injected by Lua/storage.
 TEST_F(MixerTest, NonControlSourceFamiliesCannotRoute)
 {
@@ -192,21 +192,6 @@ TEST_F(MixerTest, CopySticksToOffset)
 #endif
 }
 
-TEST(Curves, LinearIntpol)
-{
-  SYSTEM_RESET();
-  MODEL_RESET();
-  MIXER_RESET();
-  setModelDefaults();
-  for (int8_t i=-2; i<=2; i++) {
-    g_model.points[2+i] = 50*i;
-  }
-  EXPECT_EQ(applyCustomCurve(-1024, 0), -1024);
-  EXPECT_EQ(applyCustomCurve(0, 0), 0);
-  EXPECT_EQ(applyCustomCurve(1024, 0), 1024);
-  EXPECT_EQ(applyCustomCurve(-192, 0), -192);
-}
-
 TEST_F(MixerTest, InfiniteRecursiveChannels)
 {
   g_model.mixData[0].destCh = 0;
@@ -251,35 +236,23 @@ TEST_F(MixerTest, RecursiveAddChannel)
   EXPECT_EQ(chans[1], 0);
 }
 
-TEST_F(MixerTest, SwitchSourceAndCascadedCurveApplyImmediately)
+TEST_F(MixerTest, SwitchSourceAndCascadeApplyImmediately)
 {
   int sw = findHwSwitch(SWITCH_3POS);
   ASSERT_GE(sw, 0);
-  g_model.curves[0].type = CURVE_TYPE_STANDARD;
-  g_model.curves[0].points = 0;
-  int8_t* points = curveAddress(0);
-  points[0] = -50;
-  points[1] = -25;
-  points[2] = 25;
-  points[3] = 50;
-  points[4] = 100;
-
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
   g_model.mixData[0].weight = 100;
   auto& cascade = g_model.mixData[1];
   cascade.destCh = 1;
   cascade.srcRaw = MIXSRC_FIRST_CH;
   cascade.weight = 100;
-  cascade.curve.type = CURVE_REF_CUSTOM;
-  cascade.curve.value = 1;
 
   s_mixer_first_run_done = true;
   for (int position : {-1, 1, 0, -1}) {
     simuSetSwitch(sw, position);
     evalMixes();
     EXPECT_EQ(chans[0], position * CHANNEL_MAX);
-    EXPECT_EQ(chans[1], position < 0 ? -CHANNEL_MAX / 2 :
-                        position > 0 ? CHANNEL_MAX : CHANNEL_MAX / 4);
+    EXPECT_EQ(chans[1], position * CHANNEL_MAX);
   }
 }
 
@@ -483,7 +456,7 @@ TEST_F(MixerTest, DefaultQuadUsesPhysicalAETRControls)
   }
 }
 
-TEST_F(MixerTest, PhysicalSourceCurveWeightOffsetAndRemoval)
+TEST_F(MixerTest, PhysicalSourceWeightOffsetAndRemoval)
 {
   MODEL_RESET();
 #if defined(STICK_DEAD_ZONE)
@@ -493,12 +466,10 @@ TEST_F(MixerTest, PhysicalSourceCurveWeightOffsetAndRemoval)
   mix.srcRaw = MIXSRC_FIRST_STICK;
   mix.weight = -50;
   mix.offset = 25;
-  mix.curve.type = CURVE_REF_EXPO;
-  mix.curve.value = 50;
   for (int value : {-RESX, -RESX / 2, 0, RESX / 2, RESX}) {
     anaSetFiltered(inputMappingConvertMode(0), value);
     evalMixes();
-    EXPECT_NEAR(-expo(value, 50) / 2 + RESX / 4, channelOutputs[0], 1);
+    EXPECT_NEAR(-value / 2 + RESX / 4, channelOutputs[0], 1);
   }
   mix = MixData{};
   evalMixes();

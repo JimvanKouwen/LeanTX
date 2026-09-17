@@ -26,7 +26,6 @@ const MenuHandler menuTabModel[] = {
     {menuModelSetup, nullptr},
     {menuModelMixAll, nullptr},
     {menuModelLimits, nullptr},
-    {menuModelCurvesAll, modelCurvesEnabled},
     {menuModelTelemetry, modelTelemetryEnabled},
     {menuModelDisplay, nullptr}};
 
@@ -38,5 +37,3 @@ uint8_t s_copySrcIdx;
 uint8_t s_copySrcCh;
 
 uint8_t s_currIdx;
-uint8_t s_currIdxSubMenu;
-mixsrc_t s_currSrcRaw;

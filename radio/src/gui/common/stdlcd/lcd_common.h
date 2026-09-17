@@ -34,10 +34,6 @@
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH
 
-#define CURVE_SIDE_WIDTH               (LCD_H/2-2)
-#define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-3)
-#define CURVE_CENTER_Y                 (LCD_H/2)
-
 /* lcdDrawText flags */
 #define BLINK                          0x01
 #define INVERS                         0x02
@@ -128,7 +124,6 @@ void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags mode=0);
 
 void drawModelName(coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att);
 void drawSwitch(coord_t x, coord_t y, swsrc_t swtch, LcdFlags att=0, bool autoBold = true);
-void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att=0);
 void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
 
 void putsChn(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);

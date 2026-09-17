@@ -101,7 +101,6 @@ bool isSwitch2POSWarningStateAvailable(int state);
 swsrc_t checkIncDecMovedSwitch(swsrc_t val);
 
 // TODO move this to stdlcd/draw_functions.h ?
-void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags flags=0);
 void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
 void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags flags=0);
 void drawGPSPosition(coord_t x, coord_t y, int32_t longitude, int32_t latitude, LcdFlags flags=0);

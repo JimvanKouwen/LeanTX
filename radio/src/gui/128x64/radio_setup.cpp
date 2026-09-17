@@ -99,7 +99,6 @@ enum {
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
-   ITEM_VIEW_OPTIONS_CURVES,
       ITEM_VIEW_OPTIONS_TELEMETRY,
   ITEM_RADIO_SETUP_MAX
 };
@@ -197,8 +196,6 @@ void menuRadioSetup(event_t event)
           VIEWOPT_ROW(LABEL(RadioMenuTabs)),
 
           VIEWOPT_ROW(LABEL(ModelMenuTabs)),
-
-           VIEWOPT_ROW(0),
 
            VIEWOPT_ROW(0),
       });
@@ -347,7 +344,6 @@ void menuRadioSetup(event_t event)
                 MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
                 isSourceAvailableForBacklightOrVolume);
         break;
-
 
       case ITEM_RADIO_SETUP_START_SOUND:
         g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, LCD_W-9, y, STR_PLAY_HELLO, attr, event, INDENT_WIDTH) ;
@@ -738,9 +734,6 @@ void menuRadioSetup(event_t event)
 
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, STR_MODEL_MENU_TABS);
-        break;
-      case ITEM_VIEW_OPTIONS_CURVES:
-        g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event, g_model.modelCurvesDisabled);
         break;
       case ITEM_VIEW_OPTIONS_TELEMETRY:
         g_eeGeneral.modelTelemetryDisabled = viewOptCheckBox(y, STR_MENUTELEMETRY, g_eeGeneral.modelTelemetryDisabled, attr, event, g_model.modelTelemetryDisabled);

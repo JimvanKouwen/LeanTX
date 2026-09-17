@@ -56,9 +56,7 @@ set(GUI_SRC
   LvglWrapper.cpp
   startup_shutdown.cpp
 
-  model/curveedit.cpp
   model/mixer_edit.cpp
-  model/model_curves.cpp
   model/model_mixes.cpp
   model/model_outputs.cpp
   model/model_select.cpp

@@ -42,8 +42,6 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
 int16_t editLiteralFieldValue(coord_t x, coord_t y, const char* title, int16_t value,
                               int16_t min, int16_t max, LcdFlags attr, event_t event);
 
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags);
-
 extern uint8_t editNameCursorPos;
 
 void editName(coord_t x, coord_t y, char *name, uint8_t size, event_t event,
@@ -52,7 +50,6 @@ void editName(coord_t x, coord_t y, char *name, uint8_t size, event_t event,
 void editSingleName(coord_t x, coord_t y, const char *label, char *name,
                     uint8_t size, event_t event, uint8_t active,
                     uint8_t old_editMode, coord_t lblX = 0);
-
 
 int editNumberField(const char* name, coord_t lx, coord_t vx, coord_t y, int val,
                     int min, int max, LcdFlags attr, event_t event, const char* zeroStr = nullptr, int ofst = 0);

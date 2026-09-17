@@ -64,11 +64,6 @@
  * Mixer structure
  */
 
-PACK(struct CurveRef {
-  uint16_t type:5;
-  int16_t value:11;
-});
-
 PACK(struct MixData {
   uint16_t destCh:5;
   int16_t  srcRaw:10; // srcRaw=0 means not used
@@ -76,7 +71,6 @@ PACK(struct MixData {
   uint16_t spare:2;
   int32_t weight:11;
   int32_t offset:11;
-  CurveRef curve;
   char name[LEN_MIX_NAME];
 });
 
@@ -92,19 +86,7 @@ PACK(struct LimitData {
   uint16_t symetrical:1;
   uint16_t revert:1;
   uint16_t spare:3;
-  int8_t curve;
   char name[LEN_CHANNEL_NAME];
-});
-
-/*
- * Curve structure
- */
-
-PACK(struct CurveHeader {
-  uint8_t type:1;
-  uint8_t smooth:1;
-  int8_t  points:6;   // describes number of points - 5
-  char name[LEN_CURVE_NAME];
 });
 
 /*
@@ -440,9 +422,6 @@ PACK(struct ModelData {
   MixData   mixData[MAX_MIXERS];
   LimitData limitData[MAX_OUTPUT_CHANNELS];
 
-  CurveHeader curves[MAX_CURVES];
-  int8_t    points[MAX_CURVE_POINTS];
-
   uint8_t thrTraceSrc;
 
   swarnstate_t switchWarning;
@@ -501,7 +480,6 @@ PACK(struct ModelData {
   uint8_t spareViewOption:2;
   // Model level tabs control (model setting)
   uint8_t reservedModelFeature:2;
-  uint8_t modelCurvesDisabled:2;
   uint8_t reservedVariableFeature:2;
   uint8_t reservedConditionFeature:2;
   uint8_t modelTelemetryDisabled:2;
@@ -729,7 +707,6 @@ PACK(struct RadioData {
 
   int16_t spareRadioViewOption:1;
   int16_t reservedModelFeature:1;
-  int16_t modelCurvesDisabled:1;
   int16_t reservedVariableFeature:1;
 
   int16_t volumeSrc:10;

@@ -27,7 +27,6 @@ enum MixFields {
   MIX_FIELD_SOURCE,
   MIX_FIELD_WEIGHT,
   MIX_FIELD_OFFSET,
-  MIX_FIELD_CURVE,
 
   MIX_FIELD_COUNT
 };
@@ -88,7 +87,7 @@ void menuModelMixOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  SUBMENU(STR_MIXES, MIX_FIELD_COUNT, {0, 0, 0, 0, 1});
+  SUBMENU(STR_MIXES, MIX_FIELD_COUNT, {0, 0, 0, 0});
 
   int8_t sub = menuVerticalPosition;
   int8_t editMode = s_editMode;
@@ -127,12 +126,6 @@ void menuModelMixOne(event_t event)
         md2->offset = editLiteralFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
                         MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event);
         drawOffsetBar(LCD_W - 33, y, md2);
-        break;
-
-      case MIX_FIELD_CURVE:
-        lcdDrawTextAlignedLeft(y, STR_CURVE);
-        s_currSrcRaw = md2->srcRaw;
-        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr);
         break;
 
     }

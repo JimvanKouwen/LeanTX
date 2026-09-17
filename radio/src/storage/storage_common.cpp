@@ -198,7 +198,6 @@ void postModelLoad(bool alarms)
   clearChannelOverrides();
   flightReset(false);
 
-
   restoreTimers();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
@@ -212,7 +211,6 @@ void postModelLoad(bool alarms)
     }
   }
 
-  loadCurves();
   sanitizeMixerLines();
 
 #if defined(GUI)

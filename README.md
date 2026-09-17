@@ -93,8 +93,8 @@ Betaflight modes still work through AUX channels; received CRSF mode telemetry
 and assignable flight-controller mode sound prompts remain supported.
 
 Global Variables (GVars) are removed, including their storage, editors, special
-functions, Lua APIs, and simulator exports. Input and mixer weights/offsets,
-output limits/offsets, and curve parameters now hold literal numbers only.
+functions, Lua APIs, and simulator exports. Input and mixer weights/offsets
+and output limits/offsets now hold literal numbers only.
 Source selection for Mixes remains supported; numeric settings no
 longer encode references to sources or variables.
 
@@ -191,7 +191,7 @@ outside these build and simulator checks.
 RTC recovery now uses explicit radio/control/CRSF snapshots, independent of the
 YAML schema and packed runtime layouts. Field-by-field capture and restore replace
 `BACKUP`/`NOBACKUP` alternate structures and generated copy helpers. Calibration,
-Mixes/Outputs/curves, physical controls and module settings are retained;
+Mixes/Outputs, physical controls and module settings are retained;
 removed-feature reservations, timers and unrelated display/configuration data are
 excluded. Input filtering and HAL flex-switch mappings are also preserved.
 
@@ -214,7 +214,7 @@ YAML subset, defaults, compatibility aliases, 16 KiB file limit, and replacement
 protocol. Rejected model loads block autosaves and list metadata updates for
 that file, so the previous active model cannot overwrite it.
 
-Mixes now perform unconditional numeric routing: source, curve,
+Mixes now perform unconditional numeric routing: source,
 weight, and offset. Multiple mappings to the same destination add together;
 there are no multiplex modes, side gates, first-active-line selection, delays,
 ramps, or mixer warnings. Outputs/endpoints and the RF path remain unchanged.
@@ -235,7 +235,13 @@ Old mix-script configuration is ignored when loading YAML and omitted on save;
 references to Lua output sources such as `lua(0,0)` are rejected as invalid sources.
 
 The Inputs/ExpoData stage has been removed. Mixes read physical controls or
-channels directly and retain weight, offset, and curves; Outputs/endpoints and
+channels directly and retain weight and offset; Outputs/endpoints and
 the RF path are unchanged. New radio defaults use AETR (Ail → CH1, Ele → CH2,
 Thr → CH3, Rud → CH4), respecting the configured channel order for new models.
 Old models using `I0`/`I1` sources require manual adjustment; there is no migration.
+
+The legacy Curves subsystem is removed from model storage, YAML, Lua, and both
+UIs. Mixer sources pass directly into weight/offset processing, and Outputs retain
+endpoints, subtrim, and direction. Physical calibration and normalization remain
+intact. No replacement transform system is introduced. Retired YAML fields are
+ignored on load and omitted on save.

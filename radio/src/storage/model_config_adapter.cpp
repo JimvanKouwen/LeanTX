@@ -321,7 +321,6 @@ bool switchInput(const char* text, int64_t& value)
 struct Context {
   ModelData* model;
   bool loading;
-  unsigned points = 0;
 };
 static ModelData candidate, defaults;
 static Field defaultField;
@@ -816,7 +815,6 @@ bool used(const Context& c, const char* section, const unsigned* index)
            ;
   }
 #endif
-  if (!strcmp(section, "points/%u")) return i < c.points;
   if (!strcmp(section, "mixData/%u")) return i < MAX_MIXERS && m.mixData[i].srcRaw;
   if (!strcmp(section, "telemetrySensors/%u")) return i < MAX_TELEMETRY_SENSORS && (m.telemetrySensors[i].id || m.telemetrySensors[i].label[0] || m.telemetrySensors[i].type);
 #if !defined(COLORLCD)
@@ -871,13 +869,6 @@ void save(void* ctx, Writer& writer, Field& field)
 {
   initialize(defaults);
   auto& context = *static_cast<Context*>(ctx);
-  context.points = 0;
-  for (const auto& curve : context.model->curves) {
-    int n = curve.points + 5;
-    if (n < 2 || n > 17) { writer.error = "invalid runtime curve point count"; return; }
-    context.points += curve.type ? 2 * n - 2 : n;
-  }
-  if (context.points > MAX_CURVE_POINTS) { writer.error = "model curve capacity exceeded"; return; }
   unsigned index[3]{};
   writeSection(context, 0, index, writer, field);
 }
@@ -972,18 +963,6 @@ const char* resolveLoad()
     candidate.screens[i] = monoStage[i][type == 1 ? 1 : type == 3 ? 2 : 0];
   }
 #endif
-  unsigned points = 0;
-  for (auto& curve : candidate.curves) {
-    int n = curve.points + 5;
-    if (n < 2 || n > 17) {
-      static char error[48];
-      snprintf(error, sizeof(error), "Invalid curve %u point count: %d",
-               unsigned(&curve - candidate.curves) + 1, n);
-      return error;
-    }
-    points += curve.type ? 2 * n - 2 : n;
-  }
-  if (points > MAX_CURVE_POINTS) return "model curve capacity exceeded";
   return nullptr;
 }
 void commitLoad(ModelData& model)

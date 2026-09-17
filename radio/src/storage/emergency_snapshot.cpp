@@ -7,7 +7,6 @@
 static_assert(MAX_CALIB_ANALOG_INPUTS <= 20 && MAX_SWITCHES <= 20 && MAX_FLEX_SWITCHES <= 20, "RTC controls");
 static_assert(MAX_MIXERS <= 64, "RTC mixer capacity");
 static_assert(MAX_OUTPUT_CHANNELS <= 32 && NUM_MODULES == 2, "RTC RF capacity");
-static_assert(MAX_CURVES <= 32 && MAX_CURVE_POINTS <= 512, "RTC curves");
 #if defined(FUNCTION_SWITCHES)
 static_assert(NUM_FUNCTIONS_SWITCHES <= 8, "RTC function switches");
 #endif
@@ -69,8 +68,6 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
     s.model.mixes[i].srcRaw = g_model.mixData[i].srcRaw;
     s.model.mixes[i].weight = g_model.mixData[i].weight;
     s.model.mixes[i].offset = g_model.mixData[i].offset;
-    s.model.mixes[i].curveType = g_model.mixData[i].curve.type;
-    s.model.mixes[i].curveValue = g_model.mixData[i].curve.value;
   }
 
   for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
@@ -80,12 +77,6 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
     s.model.limits[i].offset = g_model.limitData[i].offset;
     s.model.limits[i].symetrical = g_model.limitData[i].symetrical;
     s.model.limits[i].revert = g_model.limitData[i].revert;
-    s.model.limits[i].curve = g_model.limitData[i].curve;
-  }
-  for (unsigned i = 0; i < MAX_CURVES; ++i) {
-    s.model.curves[i].type = g_model.curves[i].type;
-    s.model.curves[i].smooth = g_model.curves[i].smooth;
-    s.model.curves[i].points = g_model.curves[i].points;
   }
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     s.model.modules[i].type = g_model.moduleData[i].type;
@@ -98,9 +89,6 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
   }
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     s.model.modelId[i] = g_model.header.modelId[i];
-  }
-  for (unsigned i = 0; i < MAX_CURVE_POINTS; ++i) {
-    s.model.points[i] = g_model.points[i];
   }
 #if defined(FUNCTION_SWITCHES)
   for (unsigned i = 0; i < NUM_FUNCTIONS_SWITCHES; ++i) {
@@ -170,8 +158,6 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
     g_model.mixData[i].srcRaw = s.model.mixes[i].srcRaw;
     g_model.mixData[i].weight = s.model.mixes[i].weight;
     g_model.mixData[i].offset = s.model.mixes[i].offset;
-    g_model.mixData[i].curve.type = s.model.mixes[i].curveType;
-    g_model.mixData[i].curve.value = s.model.mixes[i].curveValue;
   }
 
   for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
@@ -181,12 +167,6 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
     g_model.limitData[i].offset = s.model.limits[i].offset;
     g_model.limitData[i].symetrical = s.model.limits[i].symetrical;
     g_model.limitData[i].revert = s.model.limits[i].revert;
-    g_model.limitData[i].curve = s.model.limits[i].curve;
-  }
-  for (unsigned i = 0; i < MAX_CURVES; ++i) {
-    g_model.curves[i].type = s.model.curves[i].type;
-    g_model.curves[i].smooth = s.model.curves[i].smooth;
-    g_model.curves[i].points = s.model.curves[i].points;
   }
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     g_model.moduleData[i].type = s.model.modules[i].type;
@@ -200,12 +180,6 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     g_model.header.modelId[i] = s.model.modelId[i];
   }
-  for (unsigned i = 0; i < MAX_CURVE_POINTS; ++i) {
-    g_model.points[i] = s.model.points[i];
-  }
-  // Rebuild curveEnd[] since after a reboot it starts zeroed and is never
-  // otherwise recomputed for an emergency-restored model.
-  rebuildCurveCache();
 #if defined(FUNCTION_SWITCHES)
   for (unsigned i = 0; i < NUM_FUNCTIONS_SWITCHES; ++i) {
     g_model.customSwitches[i].type = s.model.switches[i].type;

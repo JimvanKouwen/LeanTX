@@ -7,10 +7,8 @@ OK 	offset	10	10
 OK 	weight	50	50
 OK 	name	In1	In1
 OK 	weight	50	50
-OK 	curveValue	50	50
 OK 	offset	10	10
 OK 	source	1	1
-OK 	curveType	1	1
 OK 	name	Mix1	Mix1
 OK 	min	-800	-800
 OK 	ppmCenter	10	10

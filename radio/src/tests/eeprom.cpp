@@ -51,8 +51,6 @@ void prepareBackup()
   g_model.mixData[0].weight = 87;
 
   g_model.limitData[0].offset = -120;
-  g_model.curves[0].points = 4;
-  g_model.points[0] = -100;
   g_model.throttleReversed = 1;
   g_model.jitterFilter = 2;
 #if defined(FUNCTION_SWITCHES)
@@ -180,7 +178,6 @@ TEST(EmergencySnapshot, DenseControlConfigurationFits) {
   };
   fill(g_model.mixData, sizeof(g_model.mixData));
   fill(g_model.limitData, sizeof(g_model.limitData));
-  fill(g_model.points, sizeof(g_model.points));
   rambackupWrite();
   EXPECT_EQ(EMERGENCY_SNAPSHOT_MAGIC, ramBackup->header.magic);
   EXPECT_LE(ramBackup->header.payloadLength, sizeof(ramBackup->data));

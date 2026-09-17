@@ -112,8 +112,6 @@ char *getTimerString(char *dest, int32_t tme,
 char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
 char *getFormattedTimerString(char *dest, int32_t tme,
                               TimerOptions timerOptions);
-char *getCurveString(char *dest, int idx);
-char *getCurveString(int idx);
 char *formatConfigValue(char *dest, size_t len, int16_t value, LcdFlags flags = 0,
                            const char *suffix = nullptr, int16_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);

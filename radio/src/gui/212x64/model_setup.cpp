@@ -119,7 +119,6 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_MODEL_TAB,
 
-  ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_TELEMETRY,
 
 #if defined(USBJ_EX)
@@ -425,9 +424,6 @@ void menuModelSetup(event_t event)
      VIEWOPT_ROW(LABEL(RadioMenuTabs)),
 
       VIEWOPT_ROW(LABEL(ModelMenuTabs)),
-
-      VIEWOPT_ROW(0),
-
 
       VIEWOPT_ROW(0),
 
@@ -897,9 +893,6 @@ void menuModelSetup(event_t event)
 
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawTextIndented(y, STR_MODEL_MENU_TABS);
-        break;
-      case ITEM_VIEW_OPTIONS_CURVES:
-        g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event, g_eeGeneral.modelCurvesDisabled);
         break;
       case ITEM_VIEW_OPTIONS_TELEMETRY:
         g_model.modelTelemetryDisabled = viewOptChoice(y, STR_MENUTELEMETRY, g_model.modelTelemetryDisabled, attr, event, g_eeGeneral.modelTelemetryDisabled);

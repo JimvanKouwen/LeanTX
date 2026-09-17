@@ -39,7 +39,6 @@
 #define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
-#define TR_QM_CURVES                    "Curves"
 #define TR_QM_TELEM                     "Telemetry"
 #define TR_QM_HARDWARE                  "Hardware"
 #define TR_QM_ABOUT                     "About\nEdgeTX"
@@ -76,7 +75,6 @@
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENULIMITS                   TR_BW_COL("OUTPUTS", "Outputs")
-#define TR_MENUCURVES                   TR_BW_COL("CURVES", "Curves")
 #define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
 #define TR_MENUTELEMETRY                TR_BW_COL("TELEMETRY", "Telemetry")
 #define TR_HARDWARE                     TR_BW_COL("HARDWARE", "Hardware")
@@ -153,17 +151,10 @@
 #define TR_COUNTDOWNVALUES_4           "30s"
 #define TR_VVARIOCENTER_1              "Tone"
 #define TR_VVARIOCENTER_2              "Silent"
-#define TR_CURVE_TYPES_1               "Standard"
-#define TR_CURVE_TYPES_2               "Custom"
 
 #define TR_ADCFILTERVALUES_1           "Global"
 #define TR_ADCFILTERVALUES_2           "Off"
 #define TR_ADCFILTERVALUES_3           "On"
-
-#define TR_VCURVETYPE_1                "Diff"
-#define TR_VCURVETYPE_2                "Expo"
-#define TR_VCURVETYPE_3                "Func"
-#define TR_VCURVETYPE_4                "Cstm"
 
 #define TR_VUNITSSYSTEM_1              "Metric"
 #define TR_VUNITSSYSTEM_2              TR("Imper.","Imperial")
@@ -346,11 +337,9 @@
 #define TR_SOURCE                       "Source"
 #define TR_WEIGHT                      "Weight"
 #define TR_OFFSET                       "Offset"
-#define TR_CURVE                       "Curve"
 #define TR_OFF                         "OFF"
 #define TR_ANTENNA                     "Antenna"
 #define TR_NO_INFORMATION              TR("No info", "No information")
-#define TR_CV                          "CV"
 #define TR_RANGE                       "Range"
 #define TR_CENTER                      "Center"
 #define TR_ALARM                       "Alarm"
@@ -807,17 +796,11 @@
 #define TR_POPUP                       "Popup"
 #define TR_MIN                         "Min"
 #define TR_MAX                         "Max"
-#define TR_CURVE_PRESET                "Preset..."
-#define TR_PRESET                      "Preset"
 #define TR_MIRROR                      "Mirror"
 #define TR_CLEAR                       "Clear"
 #define TR_CLEAR_BTN                   BUTTON("Clear")
 #define TR_RESET                       "Reset"
 #define TR_RESET_SUBMENU               "Reset..."
-#define TR_COUNT                       "Count"
-#define TR_PT                          "pt"
-#define TR_PTS                         "pts"
-#define TR_SMOOTH                      "Smooth"
 #define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy axis to subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "Copy min/max/center to all outputs")
 #define TR_MIXSOURCE                   "Source (%)"
@@ -848,7 +831,6 @@
 #define TR_LIMITS_HEADERS_MIN          "Min"
 #define TR_LIMITS_HEADERS_MAX          "Max"
 #define TR_LIMITS_HEADERS_DIRECTION    "Direction"
-#define TR_LIMITS_HEADERS_CURVE        "Curve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "Channel center"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
 #define TR_INVERTED                    "Inverted"

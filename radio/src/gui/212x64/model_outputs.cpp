@@ -27,7 +27,6 @@ enum LimitsItems {
   ITEM_LIMITS_MIN,
   ITEM_LIMITS_MAX,
   ITEM_LIMITS_DIRECTION,
-  ITEM_LIMITS_CURVE,
 #if defined(PPM_CENTER_ADJUSTABLE)
   ITEM_LIMITS_PPM_CENTER,
 #endif
@@ -45,13 +44,11 @@ enum LimitsItems {
   #define LIMITS_DIRECTION_POS    20*FW-3
     #define LIMITS_MAX_POS          24*FW+2
     #define LIMITS_REVERT_POS       25*FW-1
-    #define LIMITS_CURVE_POS        27*FW-1
     #define LIMITS_PPM_CENTER_POS   34*FW
 #else
   #define LIMITS_DIRECTION_POS    21*FW
   #define LIMITS_MAX_POS          26*FW
   #define LIMITS_REVERT_POS       27*FW
-  #define LIMITS_CURVE_POS        32*FW-3
 #endif
 
 #define CONVERT_US_MIN_MAX(x) (((x)*1280)/250)
@@ -74,7 +71,6 @@ void onLimitsMenu(const char *result)
     ld->offset = 0;
     ld->ppmCenter = 0;
     ld->revert = false;
-    ld->curve = 0;
     storageDirty(EE_MODEL);
   }
   else if (result == STR_COPY_STICKS_TO_OFS) {
@@ -185,17 +181,6 @@ void menuModelLimits(event_t event)
           }
           break;
         }
-
-        case ITEM_LIMITS_CURVE:
-          drawCurveName(LIMITS_CURVE_POS, y, ld->curve, attr);
-          if (attr && event==EVT_KEY_LONG(KEY_ENTER) && ld->curve>0) {
-            s_currIdxSubMenu = (ld->curve<0 ? -ld->curve-1 : ld->curve-1);
-            pushMenu(menuModelCurveOne);
-          }
-          if (active) {
-            CHECK_INCDEC_MODELVAR(event, ld->curve, -MAX_CURVES, +MAX_CURVES);
-          }
-          break;
 
 #if defined(PPM_CENTER_ADJUSTABLE)
         case ITEM_LIMITS_PPM_CENTER:

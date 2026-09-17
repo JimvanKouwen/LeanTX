@@ -75,7 +75,6 @@ enum RotaryEncoderMode {
 #include "debug.h"
 
 #include "myeeprom.h"
-#include "curves.h"
 
 void memswap(void * a, void * b, uint8_t size);
 
@@ -304,8 +303,6 @@ inline int calcRESXto100(int x)
 
 #define g_blinkTmr10ms    (*(uint8_t*)&g_tmr10ms)
 
-int expo(int x, int k);
-
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 
 int16_t applyLimits(uint8_t channel, int32_t value);
@@ -475,10 +472,6 @@ union ReusableBuffer
   } viewText;
 
   struct {
-    int8_t preset;
-  } curveEdit;
-
-  struct {
     int8_t antennaMode;
   } radioHardware;
 
@@ -629,7 +622,6 @@ extern uint8_t latencyToggleSwitch;
 #if defined(COLORLCD)
 extern bool radioThemesEnabled();
 #endif
-extern bool modelCurvesEnabled();
 extern bool modelTelemetryEnabled();
 
 int pwrDelayFromYaml(int delay);

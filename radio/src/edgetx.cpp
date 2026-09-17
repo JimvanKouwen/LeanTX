@@ -1537,10 +1537,6 @@ bool radioThemesEnabled() {
 
 // Model menu tab state
 
-bool modelCurvesEnabled() {
-  return FEATURE_ENABLED(modelCurvesDisabled);
-}
-
 bool modelTelemetryEnabled() {
   return FEATURE_ENABLED(modelTelemetryDisabled);
 }

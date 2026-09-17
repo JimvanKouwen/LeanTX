@@ -13,7 +13,6 @@ set_property(CACHE TRANSLATIONS PROPERTY STRINGS ${RADIO_LANGUAGES})
 set(DEFAULT_MODE "" CACHE STRING "Default sticks mode")
 set(POPUP_LEVEL 2 CACHE STRING "Popup level")
 
-option(CURVES "Curves" ON)
 option(GUI "GUI enabled" ON)
 option(PPM_CENTER_ADJUSTABLE "PPM center adjustable" ON)
 option(PPM_LIMITS_SYMETRICAL "PPM limits symetrical" OFF)
@@ -215,10 +214,6 @@ if(LUA)
   include(lua/CMakeLists.txt)
 endif()
 
-if(CURVES)
-  add_definitions(-DCURVES)
-  set(SRC ${SRC} curves.cpp)
-endif()
 
 if(FAI STREQUAL YES)
   add_definitions(-DFAI)

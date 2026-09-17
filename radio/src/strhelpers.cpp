@@ -325,26 +325,6 @@ void splitTimer(char *sDb0, char *sDb1, char *sUnit0, char *sUnit1, int tme,
   *s3 = 0;
 }
 
-char *getCurveString(char *dest, int idx)
-{
-  if (idx == 0) {
-    return getStringAtIndex(dest, STR_MMMINV, 0);
-  }
-
-  char *s = dest;
-  if (idx < 0) {
-    *s++ = '-';
-    idx = -idx;
-  }
-
-  if (g_model.curves[idx - 1].name[0])
-    strAppend(s, g_model.curves[idx - 1].name, LEN_CURVE_NAME);
-  else
-    strAppendStringWithIndex(s, STR_CV, idx);
-
-  return dest;
-}
-
 #if defined(COLORLCD)
 char *formatConfigValue(char *dest, size_t len, int16_t value,
                            LcdFlags flags, const char *suffix,
@@ -715,11 +695,6 @@ template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx, bool defaultO
 char *getSourceString(mixsrc_t idx, bool defaultOnly)
 {
   return getSourceString(_static_str_buffer, idx, defaultOnly);
-}
-
-char *getCurveString(int idx)
-{
-  return getCurveString(_static_str_buffer, idx);
 }
 
 char *getTimerString(int32_t tme, TimerOptions timerOptions)

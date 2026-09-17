@@ -21,7 +21,5 @@
 
 #pragma once
 
-constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
-constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
 constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 8) + 8;
 
