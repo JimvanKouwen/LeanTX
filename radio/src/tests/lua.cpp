@@ -66,12 +66,29 @@ TEST(Lua, TelemetrySourceCompatibility)
   telemetryItems[0].clear();
 }
 
+TEST(Lua, ConstantSourcesRemoved)
+{
+  MODEL_RESET();
+  luaExecStr("assert(MIXSRC_MIN == nil and MIXSRC_MAX == nil)");
+  luaExecStr("assert(getFieldInfo('min') == nil and getFieldInfo('max') == nil)");
+  luaExecStr("assert(getSourceIndex('MIN') == nil and getSourceIndex('MAX') == nil)");
+  luaExecStr("assert(getSourceValue('min') == nil and getSourceValue('max') == nil)");
+  luaExecStr("for id, name in sources() do "
+             "local f = getFieldInfo(id); "
+             "assert(f == nil or (f.name ~= 'min' and f.name ~= 'max')) end");
+}
+
 TEST(Lua, MixerOutputSourcesRemoved)
 {
   luaExecStr("assert(getFieldInfo('lua1a') == nil)");
   luaExecStr("assert(getFieldInfo('LUA1a') == nil)");
   luaExecStr("assert(getFieldInfo('lua1') == nil)");
-  luaExecStr("assert(getFieldInfo('ch1') ~= nil)");
+  luaExecStr("assert(getFieldInfo('timer1') ~= nil)");
+  luaExecStr("assert(getFieldInfo('ch1') == nil)");
+  luaExecStr("assert(getFieldInfo('ch32') == nil)");
+  luaExecStr("assert(MIXSRC_CH1 == nil)");
+  channelOutputs[0] = 777;
+  luaExecStr("assert(getOutputValue(0) == 777)");
   luaExecStr("assert(type(lcd.drawText) == 'function')");
   luaExecStr("assert(type(playFile) == 'function' and type(io.open) == 'function')");
   luaExecStr("assert(type(crossfireTelemetryPush) == 'function')");

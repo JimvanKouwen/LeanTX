@@ -58,14 +58,8 @@ void onSourceLongEnterPress(const char * result)
     checkIncDecSelection = MIXSRC_FIRST_STICK;
   else if (result == STR_MENU_POTS)
     checkIncDecSelection = MIXSRC_FIRST_POT;
-  else if (result == STR_MENU_MIN)
-    checkIncDecSelection = MIXSRC_MIN;
-  else if (result == STR_MENU_MAX)
-    checkIncDecSelection = MIXSRC_MAX;
   else if (result == STR_MENU_SWITCHES)
     checkIncDecSelection = MIXSRC_FIRST_SWITCH;
-  else if (result == STR_MENU_CHANNELS)
-    checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_CH, MIXSRC_LAST_CH, isSourceAvailable);
   else if (result == STR_MENU_TELEMETRY) {
     for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
       TelemetrySensor * sensor = & g_model.telemetrySensors[i];

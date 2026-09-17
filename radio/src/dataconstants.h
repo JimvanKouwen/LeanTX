@@ -341,19 +341,19 @@ enum MixSources {
   MIXSRC_LAST_SPACEMOUSE = MIXSRC_SPACEMOUSE_F,
 #endif
 
-  MIXSRC_MIN,
-  MIXSRC_MAX,
-
 #if defined(LUMINOSITY_SENSOR)
   MIXSRC_LIGHT,
 #endif
 
-  // Leave the removed trim-value IDs unused: shared source IDs are also
-  // persisted outside Mixes and exposed to Lua. Do not renumber them.
+  // Keep the removed trim-value range unavailable.
 #if defined(LUMINOSITY_SENSOR)
   MIXSRC_FIRST_SWITCH = MIXSRC_LIGHT + MAX_TRIMS + 1,
+#elif defined(PCBHORUS)
+  MIXSRC_FIRST_SWITCH = MIXSRC_LAST_SPACEMOUSE + MAX_TRIMS + 1,
+#elif defined(IMU)
+  MIXSRC_FIRST_SWITCH = MIXSRC_TILT_Y + MAX_TRIMS + 1,
 #else
-  MIXSRC_FIRST_SWITCH = MIXSRC_MAX + MAX_TRIMS + 1,
+  MIXSRC_FIRST_SWITCH = MIXSRC_LAST_POT + MAX_TRIMS + 1,
 #endif
   MIXSRC_LAST_SWITCH = MIXSRC_FIRST_SWITCH + MAX_SWITCHES - 1,
 
@@ -361,9 +361,6 @@ enum MixSources {
   MIXSRC_FIRST_CUSTOMSWITCH_GROUP,
   MIXSRC_LAST_CUSTOMSWITCH_GROUP = MIXSRC_FIRST_CUSTOMSWITCH_GROUP + NUM_FUNCTIONS_GROUPS - 1,
 #endif
-
-  MIXSRC_FIRST_CH,
-  MIXSRC_LAST_CH = MIXSRC_FIRST_CH + MAX_OUTPUT_CHANNELS - 1,
 
   MIXSRC_TX_VOLTAGE,
   MIXSRC_TX_TIME,
@@ -377,14 +374,6 @@ enum MixSources {
 
 };
 
-#define MIXSRC_LAST                 MIXSRC_LAST_CH
-
-
-#if defined(FUNCTION_SWITCHES)
-#define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1)
-#define MIXSRC_FIRST_FS_SWITCH      (MIXSRC_LAST_REGULAR_SWITCH + 1)
-#endif
-
 constexpr int16_t MIXSRC_MAX_VALUE = 30000;
 
 enum SrcTypes {
@@ -392,10 +381,8 @@ enum SrcTypes {
   SRC_POT = 1 << 3,
   SRC_TILT = 1 << 4,
   SRC_SPACEMOUSE = 1 << 5,
-  SRC_MINMAX = 1 << 6,
   SRC_SWITCH = 1 << 9,
   SRC_FUNC_SWITCH = 1 << 10,
-  SRC_CHANNEL = 1 << 13,
   SRC_TX = 1 << 16,
   SRC_TIMER = 1 << 17,
   SRC_TELEM = 1 << 18,

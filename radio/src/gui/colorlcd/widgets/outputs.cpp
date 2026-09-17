@@ -83,7 +83,7 @@ class ChannelValue : public Window
   void setChannel()
   {
     char s[16];
-    getSourceString(s, MIXSRC_FIRST_CH + channel);
+    strAppendStringWithIndex(s, STR_CH, channel + 1);
     lv_label_set_text(chanLabel, s);
   }
 

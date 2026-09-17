@@ -307,15 +307,8 @@ void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value,
     }
   }
 #endif
-  else if (source < MIXSRC_FIRST_CH) {
+  else if (source < MIXSRC_TX_VOLTAGE) {
     lcdDrawNumber(x, y, calcRESXto100(value), flags);
-  }
-  else if (source <= MIXSRC_LAST_CH) {
-    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
-      lcdDrawNumber(x, y, calcRESXto1000(value), flags|PREC1);
-    } else {
-      lcdDrawNumber(x, y, calcRESXto100(value), flags);
-    }
   }
   else {
     lcdDrawNumber(x, y, value, flags);

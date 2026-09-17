@@ -96,9 +96,6 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_F), "smF");
 #endif
 
-  EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
-  EXPECT_STREQ(getSourceString(MIXSRC_MAX), STR_MENU_MAX);
-
   for (int source = MIXSRC_FIRST_SWITCH - MAX_TRIMS; source < MIXSRC_FIRST_SWITCH; ++source)
     EXPECT_STREQ(getSourceString(source), "---");
 }

@@ -103,14 +103,12 @@ TEST_F(PhysicalControlTest, PhysicalInputLabelsPreserveControlNames)
   }
 }
 
-TEST_F(PhysicalControlTest, SharedSystemTimerAndChannelAPIsRemainReadable)
+TEST_F(PhysicalControlTest, SharedSystemAndTimerAPIsRemainReadable)
 {
   g_vbat100mV = 83;
   timersStates[0].val = 123;
-  channelOutputs[0] = 777;
   EXPECT_EQ(83, getValue(MIXSRC_TX_VOLTAGE));
   EXPECT_EQ(-123, getValue(-MIXSRC_FIRST_TIMER));
-  EXPECT_EQ(777, getValue(MIXSRC_FIRST_CH));
 }
 
 TEST_F(PhysicalControlTest, PhysicalTrimButtonsDoNotOffsetSticks)
@@ -191,9 +189,9 @@ TEST_F(PhysicalControlTest, ManualSelectionIgnoresHardwareMovement)
   EXPECT_EQ(SWSRC_FIRST_TRIM,
             checkIncDec(0, selected, SWSRC_NONE, SWSRC_LAST_TRIM,
                         INCDEC_SWITCH, nullptr));
-  onSourceLongEnterPress(STR_MENU_MAX);
-  EXPECT_EQ(MIXSRC_MAX,
-            checkIncDec(0, MIXSRC_FIRST_STICK, MIXSRC_NONE, MIXSRC_LAST_CH,
+  onSourceLongEnterPress(STR_MENU_SWITCHES);
+  EXPECT_EQ(MIXSRC_FIRST_SWITCH,
+            checkIncDec(0, MIXSRC_FIRST_STICK, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
                         INCDEC_SOURCE, isSourceAvailable));
 }
 #endif

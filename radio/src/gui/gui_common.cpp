@@ -186,12 +186,10 @@ static struct sourceAvailableCheck sourceChecks[] = {
 #if defined(PCBHORUS)
   { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
 #endif
-  { MIXSRC_MIN, MIXSRC_MAX, SRC_MINMAX, sourceIsAvailable },
   { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SRC_SWITCH, isSourceSwitchAvailable },
 #if defined(FUNCTION_SWITCHES)
   { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SRC_FUNC_SWITCH, isSourceFuncSwitchAvailable },
 #endif
-  { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
@@ -213,13 +211,13 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 }
 
 #define SRC_COMMON \
-            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | \
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | \
             SRC_SWITCH | SRC_FUNC_SWITCH
 
 bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
+            SRC_COMMON | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
             );
 }
 

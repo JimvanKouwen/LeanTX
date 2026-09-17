@@ -272,7 +272,9 @@ class USBChannelEditWindow : public Page
   void buildHeader(Window* window)
   {
     header->setTitle(STR_USBJOYSTICK_LABEL);
-    header->setTitle2(getSourceString(MIXSRC_FIRST_CH + channel));
+    char label[16];
+    strAppendStringWithIndex(label, STR_CH, channel + 1);
+    header->setTitle2(label);
 
     statusBar = new USBChannelEditStatusBar(
         window,
@@ -412,7 +414,9 @@ class USBChannelLineButton : public ListLineButton
     lv_obj_set_grid_cell(m_btns, LV_GRID_ALIGN_START, USBCH_BTN_MODE_COL + 1, 1,
                          LV_GRID_ALIGN_CENTER, USBCH_BTN_MODE_ROW, 1);
 
-    lv_label_set_text(m_chn, getSourceString(MIXSRC_FIRST_CH + index));
+    char label[16];
+    strAppendStringWithIndex(label, STR_CH, index + 1);
+    lv_label_set_text(m_chn, label);
     lv_label_set_text(m_mode, "");
     lv_label_set_text(m_param, "");
     lv_label_set_text(m_btn_mode, "");

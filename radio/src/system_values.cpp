@@ -67,13 +67,6 @@ static getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-  else if (i == MIXSRC_MIN) {
-    return -RESX;
-  }
-  else if (i == MIXSRC_MAX) {
-    return RESX;
-  }
-
 #if defined(LUMINOSITY_SENSOR)
   else if (i == MIXSRC_LIGHT) {
     return getLuxSensorValue() - RESX;
@@ -115,10 +108,6 @@ static getvalue_t _getValue(mixsrc_t i, bool* valid)
       return -RESX;
   }
 #endif
-
-   else if (i <= MIXSRC_LAST_CH) {
-    return channelOutputs[i - MIXSRC_FIRST_CH];
-  }
 
   else if (i == MIXSRC_TX_VOLTAGE) {
     return g_vbat100mV;

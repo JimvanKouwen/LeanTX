@@ -367,9 +367,6 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
 #endif
 
-    {MIXSRC_MIN, "min", "MIN"},
-    {MIXSRC_MAX, "max", "MAX"},
-
     {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
     {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},
 };
@@ -387,7 +384,6 @@ struct LuaMultipleField {
 
 // The list of Lua fields that have a range of values
 const LuaMultipleField luaMultipleFields[] = {
-    {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
     {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
 };
@@ -2643,10 +2639,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( CENTER, CENTERED )
   LROT_NUMENTRY( PREC1, PREC1 )
   LROT_NUMENTRY( PREC2, PREC2 )
-  LROT_NUMENTRY( MIXSRC_MIN, MIXSRC_MIN )
-  LROT_NUMENTRY( MIXSRC_MAX, MIXSRC_MAX )
   #include "lua_mixsrc.inc"
-  LROT_NUMENTRY( MIXSRC_CH1, MIXSRC_FIRST_CH )
   LROT_NUMENTRY( SWSRC_LAST, SWSRC_LAST )
   LROT_NUMENTRY( SWITCH_COUNT, SWSRC_COUNT )
   LROT_NUMENTRY( MAX_SENSORS, MAX_TELEMETRY_SENSORS )

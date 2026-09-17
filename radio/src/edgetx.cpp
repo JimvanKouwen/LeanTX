@@ -1420,11 +1420,7 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
 {
   int asrc = abs(source);
 
-  if (asrc < MIXSRC_FIRST_CH) {
-    valMax = 100;
-    valMin = -valMax;
-  }
-  else if (asrc <= MIXSRC_LAST_CH) {
+  if (asrc < MIXSRC_TX_VOLTAGE) {
     valMax = 100;
     valMin = -valMax;
   }

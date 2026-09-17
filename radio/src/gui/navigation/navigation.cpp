@@ -101,10 +101,7 @@ struct popupCheckDef {
 static const popupCheckDef popupChecks[] = {
   { MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, STR_MENU_STICKS },
   { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, STR_MENU_POTS },
-  { MIXSRC_MIN, MIXSRC_MIN, STR_MENU_MIN },
-  { MIXSRC_MAX, MIXSRC_MAX, STR_MENU_MAX },
   { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, STR_MENU_SWITCHES },
-  { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, STR_MENU_CHANNELS },
 };
 
 inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
@@ -133,8 +130,7 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
 
       newval = checkIncDecSelection;
 
-      if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
-        s_editMode = EDIT_MODIFY_FIELD;
+      s_editMode = EDIT_MODIFY_FIELD;
       checkIncDecSelection = 0;
     }
   }

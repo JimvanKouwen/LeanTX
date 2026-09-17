@@ -760,6 +760,67 @@ TEST_F(ModelConfigFile, LabelEditPreservesCandidateSources)
 #endif
 #if defined(COLORLCD)
 namespace {
+TEST_F(ModelConfig, WidgetSourceNamesRoundtrip)
+{
+  const struct { int id; const char* name; } sources[] = {
+    {MIXSRC_TX_VOLTAGE, "TX_VOLTAGE"},
+    {MIXSRC_TX_TIME, "TX_TIME"},
+    {MIXSRC_TX_GPS, "TX_GPS"},
+    {MIXSRC_FIRST_TIMER, "Tmr1"},
+    {MIXSRC_FIRST_TELEM, "tele(0)"},
+#if defined(IMU)
+    {MIXSRC_TILT_X, "TILT_X"},
+    {MIXSRC_TILT_Y, "TILT_Y"},
+#endif
+#if defined(PCBHORUS)
+    {MIXSRC_SPACEMOUSE_A, "SPACEMOUSE_A"},
+    {MIXSRC_SPACEMOUSE_B, "SPACEMOUSE_B"},
+    {MIXSRC_SPACEMOUSE_C, "SPACEMOUSE_C"},
+    {MIXSRC_SPACEMOUSE_D, "SPACEMOUSE_D"},
+    {MIXSRC_SPACEMOUSE_E, "SPACEMOUSE_E"},
+    {MIXSRC_SPACEMOUSE_F, "SPACEMOUSE_F"},
+#endif
+#if defined(LUMINOSITY_SENSOR)
+    {MIXSRC_LIGHT, "LIGHT"},
+#endif
+  };
+  for (const auto& source : sources) {
+    SCOPED_TRACE(source.name);
+    g_model.resetScreenData();
+    g_model = ModelData{};
+    g_model.setScreenLayoutId(0, "Layout1x1");
+    auto& zone = g_model.getScreenData(0)->layoutData.zones[0];
+    zone.widgetName = "Value";
+    zone.widgetData.options.resize(1);
+    zone.widgetData.options[0].type = WOV_Source;
+    zone.widgetData.options[0].value.unsignedValue = source.id;
+    input.clear();
+    ASSERT_TRUE(save(g_model));
+    EXPECT_NE(std::string::npos,
+              output.find(std::string("source: \"") + source.name + "\""));
+    input = output;
+    ASSERT_TRUE(load(g_model));
+    auto& options = g_model.getWidgetData(0, 0)->options;
+    ASSERT_EQ(1u, options.size());
+    EXPECT_EQ(WOV_Source, options[0].type);
+    EXPECT_EQ(unsigned(source.id), options[0].value.unsignedValue);
+  }
+  g_model.resetScreenData();
+}
+
+TEST_F(ModelConfig, WidgetConstantSourcesRejected)
+{
+  for (const char* source : {"TX_TIME", "MIN", "MAX", "!MIN", "!MAX"}) {
+    input = std::string("screenData:\n  0:\n    LayoutId: Layout1x1\n"
+        "    layoutData:\n      zones:\n        0:\n          widgetName: Value\n"
+        "          widgetData:\n            options:\n              0:\n"
+        "                type: Source\n                value:\n                  source: ") + source + "\n";
+    auto result = load(g_model);
+    EXPECT_EQ(!strcmp(source, "TX_TIME"), bool(result)) << source;
+  }
+  g_model.resetScreenData();
+}
+
 TEST_F(ModelConfig, EmptyAllocatedScreensAndOptionsAreOmitted)
 {
   g_model.resetScreenData();

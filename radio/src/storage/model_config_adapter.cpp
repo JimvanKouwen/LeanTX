@@ -64,8 +64,21 @@ const Enum FunctionStart[] = {
     {"START_OFF", 0}, {"START_ON", 1}, {"START_PREVIOUS", 2}, {nullptr, 0}};
 const Enum BooleanMode[] = {{"OFF", 0}, {"ON", 1}, {nullptr, 0}};
 const Enum sources[] = {{"NONE", MIXSRC_NONE},
-                        {"MIN", MIXSRC_MIN},
-                        {"MAX", MIXSRC_MAX},
+#if defined(IMU)
+                        {"TILT_X", MIXSRC_TILT_X},
+                        {"TILT_Y", MIXSRC_TILT_Y},
+#endif
+#if defined(PCBHORUS)
+                        {"SPACEMOUSE_A", MIXSRC_SPACEMOUSE_A},
+                        {"SPACEMOUSE_B", MIXSRC_SPACEMOUSE_B},
+                        {"SPACEMOUSE_C", MIXSRC_SPACEMOUSE_C},
+                        {"SPACEMOUSE_D", MIXSRC_SPACEMOUSE_D},
+                        {"SPACEMOUSE_E", MIXSRC_SPACEMOUSE_E},
+                        {"SPACEMOUSE_F", MIXSRC_SPACEMOUSE_F},
+#endif
+#if defined(LUMINOSITY_SENSOR)
+                        {"LIGHT", MIXSRC_LIGHT},
+#endif
                         {"TX_VOLTAGE", MIXSRC_TX_VOLTAGE},
                         {"TX_TIME", MIXSRC_TX_TIME},
                         {"TX_GPS", MIXSRC_TX_GPS},
@@ -162,8 +175,6 @@ bool sourceOutput(int n, char* out, size_t cap)
            n <= MIXSRC_LAST_CUSTOMSWITCH_GROUP)
     snprintf(out, cap, "GR%d", n - MIXSRC_FIRST_CUSTOMSWITCH_GROUP + 1);
 #endif
-  else if (n >= MIXSRC_FIRST_CH && n <= MIXSRC_LAST_CH)
-    snprintf(out, cap, "ch(%d)", n - MIXSRC_FIRST_CH);
   else if (n >= MIXSRC_FIRST_TIMER && n <= MIXSRC_LAST_TIMER)
     snprintf(out, cap, "Tmr%d", n - MIXSRC_FIRST_TIMER + 1);
   else if (n >= MIXSRC_FIRST_TELEM && n <= MIXSRC_LAST_TELEM) {
@@ -192,10 +203,6 @@ bool sourceInput(const char* text, int64_t& value)
   int n = -1, a = 0, used = 0;
   for (auto e = sources; e->name; ++e)
     if (!strcmp(p, e->name)) n = e->value;
-  used = 0;
-  if (n < 0 && sscanf(p, "ch(%d)%n", &a, &used) == 1 && used && !p[used] &&
-      a >= 0 && a < MAX_OUTPUT_CHANNELS)
-    n = MIXSRC_FIRST_CH + a;
   used = 0;
   if (n < 0 && sscanf(p, "Tmr%d%n", &a, &used) == 1 && !p[used] && a > 0 &&
       a <= MAX_TIMERS)

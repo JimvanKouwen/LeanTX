@@ -584,11 +584,6 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
   }
 #endif
-  else if (idx == MIXSRC_MIN) {
-    strncpy(dest, STR_MENU_MIN, dest_len - 1);
-  } else if (idx == MIXSRC_MAX) {
-    strncpy(dest, STR_MENU_MAX, dest_len - 1);
-  }
 #if defined(LUMINOSITY_SENSOR)
   else if (idx == MIXSRC_LIGHT) {
     strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
@@ -606,10 +601,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     char *pos = strAppend(dest, CHAR_SWITCH, sizeof(CHAR_SWITCH) - 1);
     getCustomSwitchesGroupName(pos, idx);
 #endif
-  }  else if (idx <= MIXSRC_LAST_CH) {
-    auto ch = idx - MIXSRC_FIRST_CH;
-    strAppendStringWithIndex(dest, STR_CH, ch + 1);
-  }  else if (idx < MIXSRC_FIRST_TIMER) {
+  } else if (idx < MIXSRC_FIRST_TIMER) {
     // Built-in sources: TX Voltage, Time, GPS (+ reserved)
     const char *src_str;
     switch (idx) {
@@ -652,7 +644,6 @@ bool sourceCanHaveCustomName(mixsrc_t idx)
   return (idx >= MIXSRC_FIRST_STICK && idx <= MIXSRC_LAST_STICK) ||
          (idx >= MIXSRC_FIRST_POT && idx <= MIXSRC_LAST_POT) ||
          (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) ||
-         (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH) ||
          (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER);
 }
 
@@ -783,17 +774,9 @@ char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
     return dest;
   }
 #endif
-  else if (source < MIXSRC_FIRST_CH) {
+  else if (source < MIXSRC_TX_VOLTAGE) {
     val = calcRESXto100(val);
     formatNumberAsString(dest, len, val, flags);
-  } else if (source <= MIXSRC_LAST_CH) {
-    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
-      val = calcRESXto1000(val);
-      formatNumberAsString(dest, len, val, flags | PREC1);
-    } else {
-      val = calcRESXto100(val);
-      formatNumberAsString(dest, len, val, flags);
-    }
   } else {
     formatNumberAsString(dest, len, val, flags);
   }

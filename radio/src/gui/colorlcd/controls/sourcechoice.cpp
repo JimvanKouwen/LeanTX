@@ -31,7 +31,13 @@ class SourceChoiceMenuToolbar : public MenuToolbar
   SourceChoiceMenuToolbar(SourceChoice* choice, Menu* menu) :
       MenuToolbar(choice, menu, FILTER_COLUMNS)
   {
-    auto lastSource = MIXSRC_MIN - 1;
+#if defined(PCBHORUS)
+    constexpr auto lastSource = MIXSRC_LAST_SPACEMOUSE;
+#elif defined(IMU)
+    constexpr auto lastSource = MIXSRC_TILT_Y;
+#else
+    constexpr auto lastSource = MIXSRC_LAST_POT;
+#endif
     addButton(
         CHAR_STICK, MIXSRC_FIRST_STICK, lastSource,
         [=](int16_t index) {
@@ -43,13 +49,18 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     addButton(CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT, nullptr,
               STR_MENU_POTS);
     addButton(
-        CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_LAST_TIMER,
+        CHAR_FUNCTION,
+#if defined(LUMINOSITY_SENSOR)
+        MIXSRC_LIGHT,
+#else
+        MIXSRC_TX_VOLTAGE,
+#endif
+        MIXSRC_LAST_TIMER,
         [=](int16_t index) {
 #if defined(LUMINOSITY_SENSOR)
           if (index == MIXSRC_LIGHT) return true;
 #endif
-          return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) ||
-                 (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
+          return index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER;
         },
         STR_MENU_OTHER);
 #if defined(FUNCTION_SWITCHES)
@@ -59,8 +70,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     addButton(CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, nullptr,
               STR_MENU_SWITCHES);
 #endif
-    addButton(CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
-              STR_MENU_CHANNELS);
     if (modelTelemetryEnabled())
       addButton(CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
                 nullptr, STR_MENU_TELEMETRY);
