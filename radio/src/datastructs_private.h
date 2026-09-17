@@ -32,6 +32,7 @@
 #include "input_mapping.h"
 #include "debug.h"
 #include "bitfield.h"
+#include "physical_input.h"
 
 #if defined(COLORLCD)
 #include "datastructs_screen.h"
@@ -60,19 +61,7 @@
   #define HORUS_FIELD(x)
 #endif
 
-/*
- * Mixer structure
- */
 
-PACK(struct MixData {
-  uint16_t destCh:5;
-  int16_t  srcRaw:10; // srcRaw=0 means not used
-  uint16_t reservedTrimCarry:1;
-  uint16_t spare:2;
-  int32_t weight:11;
-  int32_t offset:11;
-  char name[LEN_MIX_NAME];
-});
 
 /*
  * Timer structure
@@ -390,7 +379,6 @@ PACK(struct ModelData {
   uint8_t   disableThrottleWarning:1;
   uint8_t   displayChecklist:1;
   uint8_t   reservedExtendedTrims:1;
-  uint8_t   throttleReversed:1;
   uint8_t   enableCustomThrottleWarning:1;
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
@@ -403,7 +391,7 @@ PACK(struct ModelData {
 #endif
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
-  MixData   mixData[MAX_MIXERS];
+  ChannelMapping channelMappings[MAX_OUTPUT_CHANNELS];
 
   uint8_t thrTraceSrc;
 

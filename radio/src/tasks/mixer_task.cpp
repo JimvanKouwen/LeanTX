@@ -235,11 +235,11 @@ void doMixerCalculations()
   DEBUG_TIMER_STOP(debugTimerGetAdc);
 
   DEBUG_TIMER_START(debugTimerGetSwitches);
-  getSwitchesPosition(!s_mixer_first_run_done);
+  getSwitchesPosition(!controlsInitialized);
   DEBUG_TIMER_STOP(debugTimerGetSwitches);
 
   DEBUG_TIMER_START(debugTimerEvalMixes);
-  evalMixes();
+  updateChannelOutputs();
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
 
 #if defined(HALL_SYNC) && !defined(SIMU)

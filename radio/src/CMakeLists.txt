@@ -373,8 +373,9 @@ set(SRC
   strhelpers.cpp
   switches.cpp
   analogs.cpp
-  mixes.cpp
-  mixer.cpp
+  physical_input.cpp
+  control.cpp
+  system_values.cpp
   mixer_scheduler.cpp
   stamp.cpp
   timers.cpp

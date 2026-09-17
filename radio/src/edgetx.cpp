@@ -579,14 +579,9 @@ bool isThrottleWarningAlertNeeded()
   }
 
   if (!mixerTaskRunning()) getADC();
-  evalAnalogControls(e_perout_mode_preview); // let do evalAnalogControls do the job
+  evalAnalogControls(false); // let do evalAnalogControls do the job
 
   int16_t v = getValue(thr_src);
-
-  // TODO: this looks fishy....
-  if (g_model.thrTraceSrc && g_model.throttleReversed) {
-    v = -v;
-  }
 
   if (g_model.enableCustomThrottleWarning) {
     int16_t idleValue = (int32_t)RESX *
@@ -759,7 +754,7 @@ void flightReset(uint8_t check)
 
   telemetryReset();
 
-  s_mixer_first_run_done = false;
+  controlsInitialized = false;
 
   START_SILENCE_PERIOD();
 

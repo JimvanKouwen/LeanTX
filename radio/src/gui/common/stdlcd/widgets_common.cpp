@@ -52,17 +52,6 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, Lcd
   return editCheckBox(value, x, y, label, attr, event, 0);
 }
 
-int16_t editLiteralFieldValue(coord_t x, coord_t y, const char* title, int16_t value,
-                              int16_t min, int16_t max, LcdFlags attr, event_t event)
-{
-
-  if (title) lcdDrawTextAlignedLeft(y, title);
-  lcdDrawNumber(x, y, value, attr);
-  if (attr & (~RIGHT))
-    value = checkIncDec(event, value, min, max, EE_MODEL | NO_INCDEC_MARKS);
-  return value;
-
-}
 
 void editSingleName(coord_t x, coord_t y, const char * label, char *name, uint8_t size, event_t event, uint8_t active, uint8_t old_editMode, coord_t lblX)
 {

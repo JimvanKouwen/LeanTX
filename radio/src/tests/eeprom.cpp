@@ -47,10 +47,8 @@ void prepareBackup()
   g_model.moduleData[0].crsf.crsfArmingMode = 1;
   g_model.moduleData[0].crsf.crsfArmingTrigger = -3;
   g_model.header.modelId[0] = 42;
-  g_model.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
-  g_model.mixData[0].weight = 87;
+  g_model.channelMappings[0].source = physicalStick(0);
 
-  g_model.throttleReversed = 1;
   g_model.jitterFilter = 2;
 #if defined(FUNCTION_SWITCHES)
   g_model.customSwitches[0].state = 1;
@@ -79,10 +77,10 @@ void updateCRC()
 
 void expectRejected()
 {
-  g_model.mixData[0].weight = 51;
+  g_model.channelMappings[0].source = physicalStick(1);
   g_eeGeneral.stickMode = 1;
   EXPECT_FALSE(rambackupRestore());
-  EXPECT_EQ(51, g_model.mixData[0].weight);
+  EXPECT_EQ(physicalStick(1), g_model.channelMappings[0].source);
   EXPECT_EQ(1, g_eeGeneral.stickMode);
 }
 }
@@ -102,7 +100,7 @@ TEST(EmergencySnapshot, ControlAndRFRecovery)
   EXPECT_EQ(3, g_model.moduleData[0].crsf.telemetryBaudrate);
   EXPECT_EQ(-3, g_model.moduleData[0].crsf.crsfArmingTrigger);
   EXPECT_EQ(42, g_model.header.modelId[0]);
-  EXPECT_EQ(87, g_model.mixData[0].weight);
+  EXPECT_EQ(physicalStick(0), g_model.channelMappings[0].source);
   printf("Emergency snapshot: raw=%zu compressed=%u remaining=%zu\n",
          sizeof(expected), ramBackup->header.payloadLength,
          sizeof(ramBackup->data) - ramBackup->header.payloadLength);
@@ -158,7 +156,7 @@ TEST(EmergencySnapshot, SafeBootFallback) {
   EXPECT_EQ(MODULE_TYPE_NONE, g_eeGeneral.internalModule);
   for (const auto &module : g_model.moduleData)
     EXPECT_EQ(MODULE_TYPE_NONE, module.type);
-  EXPECT_EQ(0, g_model.mixData[0].srcRaw);
+  EXPECT_EQ(PhysicalInputId::None, g_model.channelMappings[0].source);
   prepareBackup();
   EXPECT_TRUE(rambackupRestoreOrReset());
   EXPECT_EQ(MODULE_TYPE_CROSSFIRE, g_model.moduleData[0].type);
@@ -174,7 +172,7 @@ TEST(EmergencySnapshot, DenseControlConfigurationFits) {
       *bytes++ = (random >> 24) | 1;
     }
   };
-  fill(g_model.mixData, sizeof(g_model.mixData));
+  fill(g_model.channelMappings, sizeof(g_model.channelMappings));
   rambackupWrite();
   EXPECT_EQ(EMERGENCY_SNAPSHOT_MAGIC, ramBackup->header.magic);
   EXPECT_LE(ramBackup->header.payloadLength, sizeof(ramBackup->data));
@@ -191,16 +189,15 @@ TEST(EmergencySnapshot, OversizedDecodedPayload) {
   updateCRC(); expectRejected();
 }
 class EmergencyControlTest : public EdgeTxTest {};
-TEST_F(EmergencyControlTest, MixerAndCRSFFrameAfterRecovery)
+TEST_F(EmergencyControlTest, PhysicalMappingAndCRSFFrameAfterRecovery)
 {
   const auto throttle = inputMappingGetThrottle();
   g_eeGeneral.stickMode = 1;
-  g_model.throttleReversed = 1;
   g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_CROSSFIRE;
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_CH5;
   anaSetFiltered(inputMappingConvertMode(throttle), -1024);
-  evalMixes();
-  ASSERT_EQ(1024, channelOutputs[throttle]);
+  updateChannelOutputs();
+  ASSERT_EQ(-1024, channelOutputs[throttle]);
   int16_t expected[MAX_OUTPUT_CHANNELS];
   memcpy(expected, channelOutputs, sizeof(expected));
   uint8_t frameBefore[CROSSFIRE_FRAME_MAXLEN]{};
@@ -211,8 +208,8 @@ TEST_F(EmergencyControlTest, MixerAndCRSFFrameAfterRecovery)
   MIXER_RESET();
   ASSERT_TRUE(rambackupRestoreOrReset());
   anaSetFiltered(inputMappingConvertMode(throttle), -1024);
-  evalMixes();
-  ASSERT_EQ(1024, channelOutputs[throttle]);
+  updateChannelOutputs();
+  ASSERT_EQ(-1024, channelOutputs[throttle]);
   EXPECT_EQ(0, memcmp(expected, channelOutputs, sizeof(expected)));
   int16_t restored[MAX_OUTPUT_CHANNELS];
   memcpy(restored, channelOutputs, sizeof(restored));

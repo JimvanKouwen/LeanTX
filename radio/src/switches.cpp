@@ -440,7 +440,7 @@ bool getSwitch(swsrc_t swtch)
   uint16_t cs_idx = abs(swtch);
 
   if (cs_idx == SWSRC_ONE) {
-    result = !s_mixer_first_run_done;
+    result = !controlsInitialized;
   }
   else if (cs_idx == SWSRC_ON) {
     result = true;
@@ -600,7 +600,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   }
 
   if (g_model.potsWarnMode) {
-    evalChannelMixes(e_perout_mode_normal);
+    evalAnalogControls();
     bad_pots = 0;
     for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;

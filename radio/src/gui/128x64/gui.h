@@ -30,7 +30,6 @@
 
 #define MENUS_SCROLLBAR_WIDTH          0
 
-#define MIXES_2ND_COLUMN               (10*FW)
 
 
 void drawProgressScreen(const char * title, const char * message, int num, int den);

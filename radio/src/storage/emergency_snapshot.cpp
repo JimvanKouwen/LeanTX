@@ -5,7 +5,7 @@
 // These limits belong to the RTC format, not to storage. A runtime expansion
 // requires an explicit snapshot review rather than silently changing the format.
 static_assert(MAX_CALIB_ANALOG_INPUTS <= 20 && MAX_SWITCHES <= 20 && MAX_FLEX_SWITCHES <= 20, "RTC controls");
-static_assert(MAX_MIXERS <= 64, "RTC mixer capacity");
+static_assert(MAX_OUTPUT_CHANNELS <= 32, "RTC channel capacity");
 static_assert(MAX_OUTPUT_CHANNELS <= 32 && NUM_MODULES == 2, "RTC RF capacity");
 #if defined(FUNCTION_SWITCHES)
 static_assert(NUM_FUNCTIONS_SWITCHES <= 8, "RTC function switches");
@@ -60,14 +60,9 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
     s.radio.switches[i].start = g_eeGeneral.switchConfig[i].start;
 #endif
   }
-  s.model.throttleReversed = g_model.throttleReversed;
   s.model.jitterFilter = g_model.jitterFilter;
-  for (unsigned i = 0; i < MAX_MIXERS; ++i) {
-    s.model.mixes[i].destCh = g_model.mixData[i].destCh;
-    s.model.mixes[i].srcRaw = g_model.mixData[i].srcRaw;
-    s.model.mixes[i].weight = g_model.mixData[i].weight;
-    s.model.mixes[i].offset = g_model.mixData[i].offset;
-  }
+  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i)
+    s.model.physicalInputs[i] = uint8_t(g_model.channelMappings[i].source);
 
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     s.model.modules[i].type = g_model.moduleData[i].type;
@@ -141,14 +136,9 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
     g_eeGeneral.switchConfig[i].start = s.radio.switches[i].start;
 #endif
   }
-  g_model.throttleReversed = s.model.throttleReversed;
   g_model.jitterFilter = s.model.jitterFilter;
-  for (unsigned i = 0; i < MAX_MIXERS; ++i) {
-    g_model.mixData[i].destCh = s.model.mixes[i].destCh;
-    g_model.mixData[i].srcRaw = s.model.mixes[i].srcRaw;
-    g_model.mixData[i].weight = s.model.mixes[i].weight;
-    g_model.mixData[i].offset = s.model.mixes[i].offset;
-  }
+  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i)
+    g_model.channelMappings[i].source = PhysicalInputId(s.model.physicalInputs[i]);
 
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     g_model.moduleData[i].type = s.model.modules[i].type;

@@ -37,7 +37,6 @@
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_MODEL_SETTINGS            "Model\nSettings"
 #define TR_QM_RADIO_SETTINGS            "Radio\nSettings"
-#define TR_QM_MIXES                     "Mixes"
 #define TR_QM_TELEM                     "Telemetry"
 #define TR_QM_HARDWARE                  "Hardware"
 #define TR_QM_ABOUT                     "About\nEdgeTX"
@@ -73,7 +72,6 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MIXES                        TR_BW_COL("MIXES", "Mixes")
 #define TR_MENUTELEMETRY                TR_BW_COL("TELEMETRY", "Telemetry")
 #define TR_HARDWARE                     TR_BW_COL("HARDWARE", "Hardware")
 #define TR_USER_INTERFACE               "Top Bar"
@@ -328,7 +326,6 @@
 #define TR_MODE                        "Mode"
 #define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     "Subtype"
-#define TR_NOFREEMIXER                 "No free mixer!"
 #define TR_SOURCE                       "Source"
 #define TR_WEIGHT                      "Weight"
 #define TR_OFFSET                       "Offset"
@@ -366,7 +363,6 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
 #define TR_THROTTLE_LABEL              "Throttle"
 #define TR_THROTTLE_START              "Throttle Start"
-#define TR_THROTTLEREVERSE             TR("T-Reverse", "Reverse")
 #define TR_MINUTEBEEP                  TR("Minute", "Minute call")
 #define TR_BEEPCOUNTDOWN               "Countdown"
 #define TR_PERSISTENT                  TR("Persist.", "Persistent")
@@ -515,7 +511,6 @@
 #define TR_BACKUP_MODEL                "Backup model"
 #define TR_DELETE_MODEL                "Delete model"
 #define TR_RESTORE_MODEL               "Restore model"
-#define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("SD error", "SD card error")
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"
@@ -535,7 +530,6 @@
 #define TR_PIN                         "Pin"
 #define TR_UPDATE_TX_OPTIONS           "Update TX options?"
 #define TR_MODULES_RX_VERSION          BUTTON("Modules / RX version")
-#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "MODULES / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
 #define TR_IMU                        "IMU"
@@ -649,7 +643,6 @@
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR            "CHANNELS MONITOR"
-#define TR_MIXERS_MONITOR              "MIXERS MONITOR"
 #define TR_PATH_TOO_LONG               "Path too long"
 #define TR_VIEW_TEXT                   "View text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloader"
@@ -1087,3 +1080,5 @@
 #define TR_UPDATE_LIST "[update list]"
 
 #define TR_TIMER_DIRECTION             "Direction"
+
+#define TR_CHANNEL_MAPPING "Channel mapping"

@@ -27,5 +27,3 @@ extern uint8_t menuCalibrationState;
 
 #define COPY_MODE 1
 #define MOVE_MODE 2
-
-extern int8_t s_currCh;

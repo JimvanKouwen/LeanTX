@@ -104,7 +104,7 @@ enum MenuRadioIndexes
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
   MENU_MODEL_SETUP,
-  MENU_MODEL_MIXES,
+  MENU_MODEL_CHANNEL_MAPPING,
 
   MENU_MODEL_TELEMETRY,
   MENU_MODEL_DISPLAY,
@@ -124,8 +124,7 @@ void menuServoPwmTool(event_t event);
 
 void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);
-void menuModelMixOne(event_t event);
-void menuModelMixAll(event_t event);
+void menuModelChannelMappings(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
@@ -142,10 +141,6 @@ extern uint8_t s_copyMode;
 extern int8_t s_copySrcRow;
 extern int8_t s_copyTgtOfs;
 extern uint8_t s_currIdx;
-extern uint8_t s_copySrcIdx;
-extern uint8_t s_copySrcCh;
-extern int8_t s_currCh;
-extern uint8_t s_maxLines;
 
 // Temporary no highlight
 extern uint8_t noHighlightCounter;

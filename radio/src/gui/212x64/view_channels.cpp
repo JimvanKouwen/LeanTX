@@ -23,10 +23,9 @@
 
 struct ViewChannelsState {
     bool secondPage;
-    bool mixersView;
 };
 
-static ViewChannelsState viewChannels = { false, false };
+static ViewChannelsState viewChannels = { false };
 
 void menuChannelsView(event_t event)
 {
@@ -50,18 +49,13 @@ void menuChannelsView(event_t event)
       viewChannels.secondPage = !viewChannels.secondPage;
       break;
 
-    case EVT_KEY_BREAK(KEY_ENTER):
-      viewChannels.mixersView = !viewChannels.mixersView;
-      break;
   }
 
   if (viewChannels.secondPage)
     ch = 16;
 
-  if (viewChannels.mixersView)
-    limits *= 2;  // this could be handled nicer, but slower, by checking actual range for this mixer
 
-  lcdDrawText(LCD_W / 2, 0, viewChannels.mixersView ? STR_MIXERS_MONITOR : STR_CHANNELS_MONITOR, CENTERED);
+  lcdDrawText(LCD_W / 2, 0, STR_CHANNELS_MONITOR, CENTERED);
   lcdInvertLine(0);
 
   // Column separator
@@ -74,7 +68,7 @@ void menuChannelsView(event_t event)
     // Channels
     for (uint8_t line=0; line < 8; line++) {
       const uint8_t y = 9 + line * 7;
-      const int32_t val = viewChannels.mixersView ? ex_chans[ch] : channelOutputs[ch];
+      const int32_t val = channelOutputs[ch];
       putsChn(x+1-ofs, y, ch+1, SMLSIZE);
 
       // Value

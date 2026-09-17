@@ -52,11 +52,6 @@ class ChannelBar : public Window
   void checkEvents() override;
 };
 
-class MixerChannelBar : public ChannelBar
-{
- public:
-  MixerChannelBar(Window* parent, const rect_t& rect, uint8_t channel);
-};
 
 class OutputChannelBar : public ChannelBar
 {

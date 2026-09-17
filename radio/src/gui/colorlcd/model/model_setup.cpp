@@ -198,13 +198,6 @@ const static SetupLineDef otherPageSetupLines[] = {
 
 const static SetupLineDef throttleParamsSetupLines[] = {
   {
-    // Throttle reversed
-    STR_DEF(STR_THROTTLEREVERSE),
-    [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.throttleReversed));
-    }
-  },
-  {
     // Throttle source
     STR_DEF(STR_TTRACE),
     [](Window* parent, coord_t x, coord_t y) {

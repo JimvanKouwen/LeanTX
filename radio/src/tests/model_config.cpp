@@ -46,8 +46,7 @@ TEST_F(ModelConfig, Roundtrip)
   a.rfAlarms.critical = 42;
   strcpy(a.header.name, "Test");
   a.header.modelId[0] = 42;
-  a.mixData[0].srcRaw = MIXSRC_FIRST_STICK;
-  a.mixData[0].weight = 81;
+  a.channelMappings[0].source = physicalStick(0);
 
   a.timers[0].start = 600;
   a.telemetrySensors[0].type = TELEM_TYPE_CALCULATED;
@@ -61,7 +60,7 @@ TEST_F(ModelConfig, Roundtrip)
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(0u, r.invalid);
   EXPECT_STREQ("Test", b.header.name);
-  EXPECT_EQ(81, b.mixData[0].weight);
+  EXPECT_EQ(physicalStick(0), b.channelMappings[0].source);
   EXPECT_EQ(4, b.telemetrySensors[0].cell.source);
   EXPECT_EQ(600u, b.timers[0].start);
 }
@@ -73,14 +72,40 @@ TEST_F(ModelConfig, LegacyMixerTimingIsDiscarded)
           "    speedUp: 250\n    speedDown: 250\n";
   ModelData model{};
   ASSERT_TRUE(load(model));
-  EXPECT_EQ(MIXSRC_FIRST_STICK, model.mixData[0].srcRaw);
-  EXPECT_EQ(75, model.mixData[0].weight);
-  EXPECT_EQ(12, model.mixData[0].offset);
+  EXPECT_EQ(PhysicalInputId::None, model.channelMappings[0].source);
   ASSERT_TRUE(save(model));
   for (const char* field : {"delayPrec:", "speedPrec:", "delayUp:",
                             "delayDown:", "speedUp:", "speedDown:"}) {
     EXPECT_EQ(std::string::npos, output.find(field)) << field;
   }
+}
+
+TEST_F(ModelConfig, DirectMappingRejectsNonphysicalSourcesAndDuplicateChannels)
+{
+  for (const char* source : {"MIN", "MAX", "ch(0)", "!stick(0)", "-1", "1",
+                             "stick(32)", "flex(-1)", "switch(32)", "tele(0)"}) {
+    input = std::string("channelMappings:\n  0:\n    source: ") + source + "\n";
+    ModelData model{};
+    model.channelMappings[0].source = physicalStick(1);
+    EXPECT_FALSE(load(model)) << source;
+    EXPECT_EQ(physicalStick(1), model.channelMappings[0].source);
+  }
+  input = "channelMappings:\n  0:\n    source: stick(0)\n  0:\n    source: stick(1)\n";
+  ModelData model{};
+  EXPECT_FALSE(load(model));
+}
+
+TEST_F(ModelConfig, RetiredMixerFieldsNeverMutatePhysicalMapping)
+{
+  input = "throttleReversed: 1\nmixData:\n  0:\n    srcRaw: MAX\n    weight: -500\n"
+          "channelMappings:\n  2:\n    source: stick(2)\n    weight: -100\n    offset: 75\n    destCh: 0\n";
+  ModelData model{};
+  ASSERT_TRUE(load(model));
+  EXPECT_EQ(physicalStick(2), model.channelMappings[2].source);
+  EXPECT_EQ(PhysicalInputId::None, model.channelMappings[0].source);
+  ASSERT_TRUE(save(model));
+  for (const char* field : {"throttleReversed", "mixData", "weight", "offset", "destCh"})
+    EXPECT_EQ(std::string::npos, output.find(field));
 }
 
 TEST_F(ModelConfig, UnknownAndUnavailable)
@@ -100,7 +125,7 @@ TEST_F(ModelConfig, UnknownAndUnavailable)
 TEST_F(ModelConfig, LuaMixerSourcesAreRejected)
 {
   for (const char* source : {"lua(0,0)", "lua(8,5)", "!lua(0,0)", "LUA1a"}) {
-    input = std::string("mixData:\n  0:\n    srcRaw: ") + source + "\n";
+    input = std::string("channelMappings:\n  0:\n    source: ") + source + "\n";
     ModelData model{};
     strcpy(model.header.name, "unchanged");
     EXPECT_FALSE(load(model)) << source;
@@ -143,12 +168,9 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
     g_model.timers[i].start = 1234 + i;
     g_model.timers[i].value = -25;
   }
-  for (unsigned i = 0; i < MAX_MIXERS; ++i) {
-    auto& m = g_model.mixData[i];
-    m.srcRaw = MIXSRC_FIRST_STICK + i % MAX_STICKS;
-    m.weight = i;
-    m.offset = -int(i);
-    m.destCh = i % MAX_OUTPUT_CHANNELS;
+  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
+    auto& m = g_model.channelMappings[i];
+    m.source = physicalStick(i % MAX_STICKS);
 
   }
 
@@ -181,7 +203,7 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   auto r = load(actual);
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(0,
-            memcmp(expected.mixData, actual.mixData, sizeof(expected.mixData)));
+            memcmp(ModelData{}.channelMappings, actual.channelMappings, sizeof(expected.channelMappings)));
   EXPECT_EQ(0, memcmp(expected.telemetrySensors, actual.telemetrySensors,
                       sizeof(expected.telemetrySensors)));
   ASSERT_TRUE(save(actual));
@@ -196,14 +218,14 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
 TEST_F(ModelConfig, NestedListsAndDefaults)
 {
   input =
-      "timers:\n  - start: 321\n    future:\n      - nested: yes\nmixData:\n  "
-      "- srcRaw: Rud\n    weight: 89\nscriptsData:\n  0:\n    file: mix\n    "
+      "timers:\n  - start: 321\n    future:\n      - nested: yes\nchannelMappings:\n  "
+      "- source: stick(0)\nscriptsData:\n  0:\n    file: mix\n    "
       "inputs:\n      0:\n        u:\n          source: ch(3)\n";
   ModelData m{};
   auto r = load(m);
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(321u, m.timers[0].start);
-  EXPECT_EQ(89, m.mixData[0].weight);
+  EXPECT_EQ(physicalStick(0), m.channelMappings[0].source);
   ASSERT_TRUE(save(m));
   EXPECT_EQ(std::string::npos, output.find("      - nested: yes"));
   input = output;
@@ -386,16 +408,17 @@ namespace
 {
 TEST_F(ModelConfig, UnavailableSourceWithComment)
 {
-  input = "mixData:\n  - srcRaw: P31 # larger radio\n    weight: 100\n";
+  input = "channelMappings:\n  - source: flex(31) # larger radio\n";
   ModelData m{};
   auto r = load(m);
   ASSERT_TRUE(r) << r.error;
   EXPECT_EQ(0u, r.unknown);
   ASSERT_TRUE(save(m));
-  EXPECT_EQ(std::string::npos, output.find("srcRaw: P31 # larger radio"));
-  m.mixData[0].srcRaw = MIXSRC_FIRST_CH;
+  EXPECT_EQ(physicalFlex(31), m.channelMappings[0].source);
+  EXPECT_NE(std::string::npos, output.find("flex(31)"));
+  m.channelMappings[0].source = physicalStick(1);
   ASSERT_TRUE(save(m));
-  EXPECT_EQ(std::string::npos, output.find("P31"));
+  EXPECT_EQ(std::string::npos, output.find("flex(31)"));
 }
 #if defined(COLORLCD)
 TEST_F(ModelConfig, WidgetUnionResolvedAfterType)
@@ -478,7 +501,7 @@ namespace
 {
 TEST_F(ModelConfig, EmptyCollectionsUseDefaults)
 {
-  input = "header:\n  modelId: []\nmixData: []\ntimers: {}\n";
+  input = "header:\n  modelId: []\nchannelMappings: []\ntimers: {}\n";
   ModelData model{};
   auto result = load(model);
   ASSERT_TRUE(result) << result.error;
@@ -581,23 +604,20 @@ TEST_F(ModelConfig, SparseSlotsKeepIndicesAndDefaultValues)
   ModelData model{};
   model.rfAlarms.warning = 45; model.rfAlarms.critical = 42;
   ASSERT_TRUE(save(model));
-  for (const char* section : {"mixData:", "telemetrySensors:", "scriptsData:", "screens:", "screenData:"})
+  for (const char* section : {"channelMappings:", "telemetrySensors:", "scriptsData:", "screens:", "screenData:"})
     EXPECT_EQ(std::string::npos, output.find(section)) << section;
-  model.mixData[7].srcRaw = MIXSRC_FIRST_STICK;
-  model.mixData[7].destCh = 3;
-  model.mixData[7].weight = 100;
+  model.channelMappings[7].source = physicalStick(0);
   model.timers[2].start = 50;
-  // Stale data in inactive slots must not create entries.
-  model.mixData[6].weight = 80;
+  // Unassigned channel slots must not create entries.
   ASSERT_TRUE(save(model));
   EXPECT_EQ(std::string::npos, output.find("  6:"));
   EXPECT_EQ(std::string::npos, output.find("scriptsData:"));
-  EXPECT_NE(std::string::npos, output.find("mixData:\n  7:"));
+  EXPECT_NE(std::string::npos, output.find("channelMappings:\n  7:"));
   input = output;
   ModelData loaded{};
   ASSERT_TRUE(load(loaded));
-  EXPECT_EQ(MIXSRC_FIRST_STICK, loaded.mixData[7].srcRaw);
-  EXPECT_EQ(0, loaded.mixData[6].weight);
+  EXPECT_EQ(physicalStick(0), loaded.channelMappings[7].source);
+  EXPECT_EQ(PhysicalInputId::None, loaded.channelMappings[6].source);
   EXPECT_EQ(50u, loaded.timers[2].start);
   EXPECT_EQ(45, loaded.rfAlarms.warning);
 }
@@ -631,11 +651,9 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
   put("header:\n  name: Original\n");
   auto original = get();
   // A dense meaningful model exceeds the deliberately fixed 16 KiB document.
-  for (unsigned i = 0; i < MAX_MIXERS; ++i) {
-    auto& mix = g_model.mixData[i];
-    mix.srcRaw = MIXSRC_FIRST_STICK; mix.weight = 100; mix.offset = 99;
-    mix.destCh = 15;
-    memset(mix.name, 'M', sizeof(mix.name));
+  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
+    auto& mix = g_model.channelMappings[i];
+    mix.source = physicalStick(0);
   }
 
   for (auto& sensor : g_model.telemetrySensors) {
@@ -664,14 +682,14 @@ TEST_F(ModelConfigFile, LabelEditPreservesCandidateSources)
 {
   strcpy(g_model.header.name, "Active");
   g_model.timers[0].start = 999;
-  put("header:\n  name: Other\nmixData:\n  0:\n    srcRaw: ch(3)\n    weight: 100\n");
+  put("header:\n  name: Other\nchannelMappings:\n  0:\n    source: stick(3)\n");
   ASSERT_EQ(nullptr, saveModelConfigLabels("/MODELS/test.yml", "new"));
   EXPECT_STREQ("Active", g_model.header.name);
   EXPECT_EQ(999u, g_model.timers[0].start);
-  EXPECT_NE(std::string::npos, get().find("srcRaw:"));
+  EXPECT_NE(std::string::npos, get().find("source:"));
   ASSERT_EQ(nullptr, loadModelConfig("/MODELS/test.yml", g_model));
   EXPECT_STREQ("new", g_model.header.labels);
-  EXPECT_EQ(MIXSRC_FIRST_CH + 3, g_model.mixData[0].srcRaw);
+  EXPECT_EQ(physicalStick(3), g_model.channelMappings[0].source);
 }
 }
 #endif

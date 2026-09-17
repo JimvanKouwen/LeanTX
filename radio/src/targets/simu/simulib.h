@@ -121,12 +121,10 @@ void WASM_EXPORT(simuLcdFlushed)();
 // Bulk copy channel outputs into buf (int16_t[]). Returns channel count.
 uint8_t  WASM_EXPORT(simuGetNumChannels)();
 uint8_t  WASM_EXPORT(simuCopyChannelOutputs)(int16_t* buf, uint8_t maxCount);
-uint8_t  WASM_EXPORT(simuCopyMixOutputs)(int16_t* buf, uint8_t maxCount);
 
 // Channel/mixer queries.
 bool     WASM_EXPORT(simuIsChannelUsed)(uint8_t channel);
 int      WASM_EXPORT(simuGetChannelsUsed)();
-uint8_t  WASM_EXPORT(simuGetMixCount)();
 
 // Aux serial: push bytes received from a host serial port into the firmware's
 // rx queue for the matching aux port (port_nr is 0 for AUX1, 1 for AUX2).

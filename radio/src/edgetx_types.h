@@ -85,7 +85,6 @@ typedef int32_t rotenc_t;
 typedef int32_t getvalue_t;
 typedef int32_t mixsrc_t;
 typedef int32_t swsrc_t;
-typedef uint32_t bitfield_channels_t;
 typedef uint16_t source_t;
 
 // 2 bits per switch, max 32 switches

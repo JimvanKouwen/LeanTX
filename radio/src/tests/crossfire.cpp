@@ -29,27 +29,24 @@
 
 uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses);
 
-class MixerRfTest : public EdgeTxTest {};
+class PhysicalControlRfTest : public EdgeTxTest {};
 
-TEST_F(MixerRfTest, PhysicalMappingReachesCRSFWithOnlyProtocolClamping)
+TEST_F(PhysicalControlRfTest, PhysicalMappingReachesCRSFWithOnlyProtocolClamping)
 {
   MODEL_RESET();
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = 0;
 #endif
   for (int ch = 0; ch < CROSSFIRE_CHANNELS_COUNT; ++ch) {
-    auto& mapping = g_model.mixData[ch];
-    mapping.srcRaw = MIXSRC_FIRST_STICK;
-    mapping.destCh = ch;
-    mapping.weight = 200;
+    g_model.channelMappings[ch].source = physicalStick(0);
   }
   const struct { int16_t physical, mapped; uint16_t encoded; } cases[] = {
-    {-1024, -2048, 0}, {-512, -1024, 173}, {-1, -2, 991},
-    {0, 0, 992}, {1, 2, 993}, {512, 1024, 1811}, {1024, 2048, 1984}
+    {-1024, -1024, 173}, {-512, -512, 583}, {-1, -1, 992},
+    {0, 0, 992}, {1, 1, 992}, {512, 512, 1401}, {1024, 1024, 1811}
   };
   for (const auto& test : cases) {
     anaSetFiltered(inputMappingConvertMode(0), test.physical);
-    evalMixes();
+    updateChannelOutputs();
     uint8_t frame[CROSSFIRE_FRAME_MAXLEN] = {};
     createCrossfireChannelsFrame(EXTERNAL_MODULE, frame, channelOutputs);
     for (int ch = 0; ch < CROSSFIRE_CHANNELS_COUNT; ++ch) {

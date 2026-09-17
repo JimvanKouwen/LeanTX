@@ -78,7 +78,6 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TOP_LCD_TIMER,
 #endif
   ITEM_MODEL_SETUP_THROTTLE_LABEL,
-  ITEM_MODEL_SETUP_THROTTLE_REVERSED,
   ITEM_MODEL_SETUP_THROTTLE_TRACE,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
@@ -390,7 +389,6 @@ void menuModelSetup(event_t event)
 
 
     0, // ITEM_MODEL_SETUP_THROTTLE_LABEL
-    THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_REVERSED
     THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_TRACE
 
     0,   // ITEM_MODEL_SETUP_PREFLIGHT_LABEL
@@ -576,10 +574,6 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_THROTTLE_LABEL:
         expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);
-        break;
-
-      case ITEM_MODEL_SETUP_THROTTLE_REVERSED:
-        g_model.throttleReversed = editCheckBox(g_model.throttleReversed, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLEREVERSE, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_TRACE:

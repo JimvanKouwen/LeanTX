@@ -39,7 +39,6 @@
 #if defined(COLORLCD)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
-  #define MAX_MIXERS                   64
 #if defined(STM32H7)
   #define MAX_TELEMETRY_SENSORS        99
 #else
@@ -49,12 +48,10 @@
 #elif defined(PCBX9DP) || defined(PCBX9E)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
-  #define MAX_MIXERS                   64
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
-  #define MAX_MIXERS                   64
   #define MAX_TELEMETRY_SENSORS        40
 #else
   #warning "Unknown board!"
@@ -66,17 +63,14 @@
   #define LEN_MODEL_NAME               15
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              14
-  #define LEN_MIX_NAME                 6
 #elif LCD_W == 212
   #define LEN_MODEL_NAME               12
   #define LEN_TIMER_NAME               8
   #define LEN_BITMAP_NAME              10
-  #define LEN_MIX_NAME                 6
 #else
   #define LEN_MODEL_NAME               10
   #define LEN_TIMER_NAME               3
   #define LEN_BITMAP_NAME              0
-  #define LEN_MIX_NAME                 6
 #endif
 
 #define NUM_MODULES                    2
@@ -426,16 +420,6 @@ enum MixSources {
 
 #define MIXSRC_LAST                 MIXSRC_LAST_CH
 
-// The shared source namespace also serves UI, audio and Lua. Only these
-// control families may feed a legacy Mixer line, including inverted sources.
-inline bool isMixerSource(int source)
-{
-  if (source < 0) source = -source;
-  return (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_POT) ||
-         source == MIXSRC_MIN || source == MIXSRC_MAX ||
-         (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) ||
-         (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH);
-}
 
 #if defined(FUNCTION_SWITCHES)
 #define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1)
@@ -530,8 +514,3 @@ enum PPMUnit {
     PPM_PERCENT_PREC1,
     PPM_US
 };
-
-constexpr int32_t MIX_WEIGHT_MAX = 500;
-constexpr int32_t MIX_WEIGHT_MIN = -500;
-constexpr int32_t MIX_OFFSET_MAX = 500;
-constexpr int32_t MIX_OFFSET_MIN = -500;

@@ -103,16 +103,6 @@ void ChannelBar::checkEvents()
 
 //-----------------------------------------------------------------------------
 
-MixerChannelBar::MixerChannelBar(Window* parent, const rect_t& rect,
-                                 uint8_t channel) :
-    ChannelBar(
-        parent, rect, channel, [=] { return ex_chans[channel]; },
-        COLOR_THEME_FOCUS_INDEX)
-{
-}
-
-//-----------------------------------------------------------------------------
-
 OutputChannelBar::OutputChannelBar(Window* parent, const rect_t& rect,
                                    uint8_t channel) :
     ChannelBar(parent, rect, channel,
@@ -133,11 +123,6 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
 
   outputChannelBar = new OutputChannelBar(
       this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, barW, ChannelBar::BAR_HEIGHT},
-      channel);
-
-  new MixerChannelBar(
-      this,
-      {PAD_TINY, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, barW, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number

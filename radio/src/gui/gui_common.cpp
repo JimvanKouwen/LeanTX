@@ -25,7 +25,6 @@
 
 #include "edgetx.h"
 #include "switches.h"
-#include "mixes.h"
 #include "os/sleep.h"
 
 #undef CPN
@@ -118,24 +117,15 @@ bool isTelemetryFieldComparisonAvailable(int index)
 
 bool isChannelUsed(int channel)
 {
-  for (int i=0; i<MAX_MIXERS; ++i) {
-    MixData *md = mixAddress(i);
-    if (md->srcRaw == 0) return false;
-    if (md->destCh == channel) return true;
-    if (md->destCh > channel) return false;
-  }
-  return false;
+  return channel >= 0 && channel < MAX_OUTPUT_CHANNELS &&
+         isPhysicalInputAvailable(g_model.channelMappings[channel].source);
 }
 
 int getChannelsUsed()
 {
   int result = 0;
-  int lastCh = -1;
-  for (int i=0; i<MAX_MIXERS; ++i) {
-    MixData *md = mixAddress(i);
-    if (md->srcRaw == 0) return result;
-    if (md->destCh != lastCh) { ++result; lastCh = md->destCh; }
-  }
+  for (int channel = 0; channel < MAX_OUTPUT_CHANNELS; ++channel)
+    if (isChannelUsed(channel)) ++result;
   return result;
 }
 
@@ -240,9 +230,30 @@ bool isSourceAvailable(int source)
             );
 }
 
-bool isMixerSourceAvailable(int source)
+// UI adapter only. Realtime routing never uses the generic source namespace.
+PhysicalInputId physicalInputFromSource(int source)
 {
-  return isMixerSource(source) && isSourceAvailable(source);
+  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK)
+    return physicalStick(source - MIXSRC_FIRST_STICK);
+  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
+    return physicalFlex(source - MIXSRC_FIRST_POT);
+  if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH)
+    return physicalSwitch(source - MIXSRC_FIRST_SWITCH);
+  return PhysicalInputId::None;
+}
+
+int physicalInputToSource(PhysicalInputId source)
+{
+  unsigned id = unsigned(source);
+  if (id >= 1 && id - 1 < MAX_STICKS) return MIXSRC_FIRST_STICK + id - 1;
+  if (id >= 33 && id - 33 < MAX_POTS) return MIXSRC_FIRST_POT + id - 33;
+  if (id >= 65 && id - 65 < MAX_SWITCHES) return MIXSRC_FIRST_SWITCH + id - 65;
+  return MIXSRC_NONE;
+}
+
+bool isPhysicalSourceAvailable(int source)
+{
+  return source == MIXSRC_NONE || isPhysicalInputAvailable(physicalInputFromSource(source));
 }
 
 bool isSourceAvailableForBacklightOrVolume(int source)

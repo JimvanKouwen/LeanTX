@@ -24,15 +24,12 @@
 const MenuHandler menuTabModel[] = {
     {menuModelSelect, nullptr},
     {menuModelSetup, nullptr},
-    {menuModelMixAll, nullptr},
+    {menuModelChannelMappings, nullptr},
     {menuModelTelemetry, modelTelemetryEnabled},
     {menuModelDisplay, nullptr}};
 
 uint8_t s_copyMode = 0;
 int8_t s_copySrcRow;
 int8_t s_copyTgtOfs;
-uint8_t s_maxLines = 8;
-uint8_t s_copySrcIdx;
-uint8_t s_copySrcCh;
 
 uint8_t s_currIdx;

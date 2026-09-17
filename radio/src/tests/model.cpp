@@ -31,8 +31,8 @@ TEST(Model, RetiredOutputSettingsAreIgnoredAndNotSaved)
       "limitData:\n  0:\n    min: 500\n    max: -500\n"
       "    offset: 250\n    revert: 1\n    symetrical: 1\n"
       "    ppmCenter: 100\n    name: Old\n    curve: 1\n");
-  evalMixes();
-  EXPECT_EQ(RESX, channelOutputs[0]);
+  updateChannelOutputs();
+  EXPECT_EQ(0, channelOutputs[0]);
   const auto yaml = saveModelYamlStr(g_model);
   EXPECT_EQ(std::string::npos, yaml.find("limitData:"));
   EXPECT_EQ(std::string::npos, yaml.find("extendedLimits:"));
@@ -259,31 +259,13 @@ TEST(Model, RemovedLineConditionsAreIgnored)
       "    weight: 50\n    swtch: ON\n    flightModes: 111111111\n"
       "    mltpx: REPL\n    mixWarn: 3\n    delayUp: 10\n    speedDown: 10\n"
       "");
-  EXPECT_EQ(4u, g_model.mixData[0].destCh);
-  EXPECT_EQ(MIXSRC_MAX, g_model.mixData[0].srcRaw);
-  EXPECT_EQ((50), g_model.mixData[0].weight);
-  evalMixes();
-  EXPECT_EQ(RESX * 256 / 2, chans[4]);
+  updateChannelOutputs();
+  EXPECT_EQ(0, channelOutputs[4]);
   const auto yaml = saveModelYamlStr(g_model);
   for (const char* field : {"mltpx:", "mixWarn:", "delayUp:", "speedDown:", "flightModes:"})
     EXPECT_EQ(std::string::npos, yaml.find(field));
 }
 
-TEST(Model, LiteralNumericSettingsRoundTrip)
-{
-  memset(&g_model, 0, sizeof(g_model));
-  loadModelYamlStr("gvars:\n  0:\n    value: 123\n");
-
-  g_model.mixData[0].srcRaw = MIXSRC_MAX;
-  g_model.mixData[0].weight = -500;
-  g_model.mixData[0].offset = 500;
-  std::string yaml = saveModelYamlStr(g_model);
-  EXPECT_EQ(std::string::npos, yaml.find("gvars"));
-  memset(&g_model, 0, sizeof(g_model));
-  loadModelYamlStr(yaml.c_str());
-  EXPECT_EQ(-500, g_model.mixData[0].weight);
-  EXPECT_EQ(500, g_model.mixData[0].offset);
-}
 
 TEST(Model, PhysicalSwitchSourceAndTimerConditionRoundTrip)
 {
@@ -295,12 +277,12 @@ TEST(Model, PhysicalSwitchSourceAndTimerConditionRoundTrip)
   const int position = SWSRC_FIRST_SWITCH + 3 * sw;
   loadModelYamlStr("logicalSw:\n  0:\n    func: AND\n    def: SA0,SB0\n");
 
-  g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH + sw;
+  g_model.channelMappings[0].source = physicalSwitch(sw);
   g_model.timers[0].swtch = -position;
   std::string yaml = saveModelYamlStr(g_model);
   EXPECT_EQ(std::string::npos, yaml.find("logicalSw"));
   memset(&g_model, 0, sizeof(g_model));
   loadModelYamlStr(yaml.c_str());
-  EXPECT_EQ(MIXSRC_FIRST_SWITCH + sw, g_model.mixData[0].srcRaw);
+  EXPECT_EQ(physicalSwitch(sw), g_model.channelMappings[0].source);
   EXPECT_EQ(-position, g_model.timers[0].swtch);
 }

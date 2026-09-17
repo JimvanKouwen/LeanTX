@@ -34,7 +34,6 @@
 #define MODEL_BITMAP_SIZE              BITMAP_BUFFER_SIZE(MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)
 #define LOAD_MODEL_BITMAP()            loadModelBitmap(g_model.header.bitmap, modelBitmap)
 
-#define MIXES_2ND_COLUMN               (18*FW)
 
 #define MENUS_SCROLLBAR_WIDTH          2
 

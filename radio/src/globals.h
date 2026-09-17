@@ -47,17 +47,12 @@ extern uint8_t requiredSpeakerVolume;
 
 extern uint8_t requiredBacklightBright;
 
-// static variables used in evalChannelMixes - moved here so they don't interfere with the stack
-// It's also easier to initialize them here.
-
-extern int32_t chans[MAX_OUTPUT_CHANNELS];
-extern int16_t ex_chans[MAX_OUTPUT_CHANNELS]; // Mapped values from the last mixer evaluation
 extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];
 
 typedef uint16_t BeepANACenter;
 extern BeepANACenter bpanaCenter;
 
-extern uint8_t s_mixer_first_run_done;
+extern uint8_t controlsInitialized;
 
 extern int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 

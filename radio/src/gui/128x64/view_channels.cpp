@@ -25,19 +25,9 @@ constexpr coord_t CHANNEL_NAME_OFFSET = 0;
 constexpr coord_t CHANNEL_VALUE_OFFSET = CHANNEL_NAME_OFFSET + 41;
 constexpr coord_t CHANNEL_BAR_WIDTH = 70;
 
-static bool mixersView = false;
-
 void menuChannelsViewCommon(event_t event)
 {
-  uint8_t ch;
-
-  switch (event) {
-    case EVT_KEY_BREAK(KEY_ENTER):
-      mixersView = !mixersView;
-      break;
-  }
-
-  ch = 8 * (g_eeGeneral.view / ALTERNATE_VIEW);
+  uint8_t ch = 8 * (g_eeGeneral.view / ALTERNATE_VIEW);
 
   coord_t vx = CHANNEL_VALUE_OFFSET;
   coord_t bw = CHANNEL_BAR_WIDTH;
@@ -47,13 +37,13 @@ void menuChannelsViewCommon(event_t event)
   }
 
   // Screen title
-  lcdDrawText(LCD_W / 2, 0, mixersView ? STR_MIXERS_MONITOR : STR_CHANNELS_MONITOR, CENTERED);
+  lcdDrawText(LCD_W / 2, 0, STR_CHANNELS_MONITOR, CENTERED);
   lcdInvertLine(0);
 
   // Channels
   for (uint8_t line = 0; line < 8; line++) {
     const uint8_t y = 9 + line * 7;
-    const int32_t val = mixersView ? ex_chans[ch] : channelOutputs[ch];
+    const int32_t val = channelOutputs[ch];
     putsChn(CHANNEL_NAME_OFFSET, y, ch + 1, SMLSIZE);
 
     // Value
@@ -68,12 +58,10 @@ void menuChannelsViewCommon(event_t event)
     // Gauge
     drawGauge(vx, y, bw, 6, val, RESX);
 
-    if (!mixersView) {
-      if (g_eeGeneral.ppmunit == PPM_US)
-        lcdDrawNumber(LCD_W + 1, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
-      else
-        lcdDrawNumber(LCD_W + 1, y + 1, PPM_CENTER + val / 2, TINSIZE | RIGHT);
-    }
+    if (g_eeGeneral.ppmunit == PPM_US)
+      lcdDrawNumber(LCD_W + 1, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
+    else
+      lcdDrawNumber(LCD_W + 1, y + 1, PPM_CENTER + val / 2, TINSIZE | RIGHT);
 
     ++ch;
   }

@@ -29,7 +29,7 @@ enum QMPage {
   QM_MANAGE_MODELS,
   // Model menu
   QM_MODEL_SETUP,
-  QM_MODEL_MIXES,
+  QM_MODEL_CHANNEL_MAPPING,
   QM_MODEL_TELEMETRY,
   QM_MODEL_NOTES,
   // Radio menu

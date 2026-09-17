@@ -390,7 +390,6 @@ set(SRC ${SRC}
 )
 
 set(GUI_SRC ${GUI_SRC}
-  model_mix_edit.cpp
   model_display.cpp
   radio_diagkeys.cpp
   radio_diaganas.cpp

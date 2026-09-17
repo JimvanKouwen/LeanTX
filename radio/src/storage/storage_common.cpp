@@ -23,7 +23,6 @@
 #include "os/sleep.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
-#include "mixes.h"
 #include "switches.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -112,44 +111,6 @@ void postRadioSettingsLoad()
 #endif
 }
 
-static bool sortMixerLines()
-{
-  // simple bubble sort
-  unsigned passes = 0;
-  unsigned swaps;
-  MixData tmp;
-
-  do {
-    swaps = 0;
-    for (int i = 0; i < MAX_MIXERS - 1; i++) {
-      auto a = mixAddress(i);
-      auto b = mixAddress(i + 1);
-
-      if (b->destCh < a->destCh) {
-        if (is_memclear(b, sizeof(MixData)))
-          break;
-
-        memcpy(&tmp, a, sizeof(MixData));
-        memcpy(a, b, sizeof(MixData));
-        memcpy(b, &tmp, sizeof(MixData));
-        ++swaps;
-      }
-    }
-    ++passes;
-  } while(swaps > 0);
-
-  // anything above 1 means that
-  // we changed something
-  return passes > 1;
-}
-
-static void sanitizeMixerLines()
-{
-  bool dirty = sortMixerLines();
-  updateMixCount();
-  if (dirty) storageDirty(EE_MODEL);
-}
-
 void postModelLoad(bool alarms)
 {
 #if defined(COLORLCD)
@@ -210,7 +171,6 @@ void postModelLoad(bool alarms)
     }
   }
 
-  sanitizeMixerLines();
 
 #if defined(GUI)
   if (alarms) {

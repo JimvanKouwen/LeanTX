@@ -265,7 +265,7 @@ TEST(Lua, testLegacyNames)
   MODEL_RESET();
   for (uint8_t i = 0; i < 4; i ++)
     anaSetFiltered(i, -1024);
-  evalAnalogControls(e_perout_mode_normal);
+  evalAnalogControls();
   luaExecStr("value = getValue('thr')");
   luaExecStr("if value ~= -1024 then error('thr not defined in Legacy') end");
   luaExecStr("value = getValue('ail')");
@@ -315,9 +315,7 @@ TEST(Lua, ActionConfigurationApisRemoved)
   luaExecStr("assert(type(model.setTimer) == 'function' and type(loadScript) == 'function')");
 }
 
-TEST(Lua, BasicMappingFields)
+TEST(Lua, MixerConfigurationApisRemoved)
 {
-  luaExecStr("model.deleteMixes()");
-  luaExecStr("model.insertMix(0, 0, {source=MIXSRC_Thr, weight=50, offset=-10})");
-  luaExecStr("local m=model.getMix(0,0); assert(m.weight==50 and m.offset==-10); assert(m.switch==nil and m.multiplex==nil and m.mixWarn==nil)");
+  luaExecStr("assert(model.deleteMixes == nil and model.insertMix == nil and model.getMix == nil and model.getMixesCount == nil and model.deleteMix == nil)");
 }

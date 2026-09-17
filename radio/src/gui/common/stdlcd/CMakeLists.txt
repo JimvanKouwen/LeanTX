@@ -7,7 +7,7 @@ set(GUI_SRC
   ../common/stdlcd/fonts.cpp
   ../common/stdlcd/utf8.cpp
   ../common/stdlcd/popups_common.cpp
-  ../common/stdlcd/model_mixes.cpp
+  ../common/stdlcd/model_channel_mappings.cpp
   ../common/stdlcd/view_text.cpp
   ../common/stdlcd/model_notes.cpp
   ../common/stdlcd/radio_hardware.cpp

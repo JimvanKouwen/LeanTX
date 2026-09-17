@@ -22,26 +22,16 @@
 #include "edgetx.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
-#include "mixes.h"
 
 #if defined(COLORLCD)
 #include "layout.h"
 #endif
 
-void clearMixes()
+void setDefaultChannelMappings()
 {
-  memset(g_model.mixData, 0, sizeof(g_model.mixData));
-}
-
-void setDefaultMixes()
-{
-  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
-  for (int i = 0; i < max_sticks; i++) {
-    MixData * mix = mixAddress(i);
-    mix->destCh = i;
-    mix->weight = 100;
-    mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(i);
-  }
+  memset(g_model.channelMappings, 0, sizeof(g_model.channelMappings));
+  for (unsigned i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); ++i)
+    g_model.channelMappings[i].source = physicalStick(inputMappingChannelOrder(i));
   storageDirty(EE_MODEL);
 }
 
@@ -90,7 +80,7 @@ void initCustomSwitches()
 
 void applyDefaultTemplate()
 {
-  setDefaultMixes();
+  setDefaultChannelMappings();
   setDefaultRSSIValues();
 
   setDefaultModelRegistrationID();

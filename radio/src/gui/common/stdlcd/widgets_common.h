@@ -39,8 +39,6 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
 uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
                      LcdFlags attr, event_t event, coord_t lblX);
 
-int16_t editLiteralFieldValue(coord_t x, coord_t y, const char* title, int16_t value,
-                              int16_t min, int16_t max, LcdFlags attr, event_t event);
 
 extern uint8_t editNameCursorPos;
 

@@ -203,15 +203,10 @@ inline void ALERT(const char *title, const char *msg, uint8_t sound)
 
 #endif // !COLORLCD && GUI
 
-enum PerOutMode {
-  e_perout_mode_normal = 0,
-  e_perout_mode_preview = 2,
-};
 
 extern uint32_t availableMemory();
 
-void evalChannelMixes(uint8_t mode);
-void evalMixes();
+void updateChannelOutputs();
 void doMixerCalculations();
 void doMixerPeriodicUpdates();
 
@@ -299,7 +294,7 @@ inline int calcRESXto100(int x)
 extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
 
 
-void evalAnalogControls(uint8_t mode);
+void evalAnalogControls(bool beep = true);
 uint16_t anaIn(uint8_t chan);
 
 #define FLASH_DURATION 20 /*200ms*/

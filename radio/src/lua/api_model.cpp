@@ -27,7 +27,6 @@
 #include "lua_api.h"
 #include "../timers.h"
 #include "model_init.h"
-#include "mixes.h"
 
 #include "lua_states.h"
 
@@ -311,178 +310,6 @@ static int luaModelResetTimer(lua_State *L)
   return 0;
 }
 
-static unsigned int getFirstMix(unsigned int chn)
-{
-  for (unsigned int i=0; i<MAX_MIXERS; i++) {
-    MixData * mix = mixAddress(i);
-    if (!mix->srcRaw || mix->destCh>=chn) {
-      return i;
-    }
-  }
-  return 0;
-}
-
-static unsigned int getMixesCountFromFirst(unsigned int chn, unsigned int first)
-{
-  unsigned int count = 0;
-  for (unsigned int i=first; i<MAX_MIXERS; i++) {
-    MixData * mix = mixAddress(i);
-    if (!mix->srcRaw || mix->destCh!=chn) break;
-    count++;
-  }
-  return count;
-}
-
-static unsigned int getMixesCount(unsigned int chn)
-{
-  return getMixesCountFromFirst(chn, getFirstMix(chn));
-}
-
-/*luadoc
-@function model.getMixesCount(channel)
-
-Get the number of Mixer lines that the specified Channel has
-
-@param channel (unsigned number) channel number (use 0 for CH1)
-
-@retval number number of mixes for requested channel
-
-@status current Introduced in 2.0.0
-*/
-static int luaModelGetMixesCount(lua_State *L)
-{
-  unsigned int chn = luaL_checkinteger(L, 1);
-  unsigned int count = getMixesCount(chn);
-  lua_pushinteger(L, count);
-  return 1;
-}
-
-/*luadoc
-@function model.getMix(channel, line)
-
-Get configuration for specified Mix
-
-@param channel (unsigned number) channel number (use 0 for CH1)
-
-@param line (unsigned number) mix number (use 0 for first line(mix))
-
-@retval nil requested channel or line does not exist
-
-@retval table mix data:
- * `name` (string) mix line name
- * `source` (number) source index
- * `weight` (number) literal weight (-500 to 500)
- * `offset` (number) literal offset (-500 to 500)
-
-*/
-static int luaModelGetMix(lua_State *L)
-{
-  unsigned int chn = luaL_checkinteger(L, 1);
-  unsigned int idx = luaL_checkinteger(L, 2);
-  unsigned int first = getFirstMix(chn);
-  unsigned int count = getMixesCountFromFirst(chn, first);
-  if (idx < count) {
-    MixData * mix = mixAddress(first+idx);
-    lua_newtable(L);
-    lua_pushtablenstring(L, "name", mix->name);
-    lua_pushtableinteger(L, "source", mix->srcRaw);
-    lua_pushtableinteger(L, "weight", (mix->weight));
-    lua_pushtableinteger(L, "offset", (mix->offset));
-  }
-  else {
-    lua_pushnil(L);
-  }
-  return 1;
-}
-
-/*luadoc
-@function model.insertMix(channel, line, value)
-
-Insert a mixer line into Channel
-
-@param channel (unsigned number) channel number (use 0 for CH1)
-
-@param line (unsigned number) mix number (use 0 for first line(mix))
-
-@param value (table) see model.getMix() for table format
-
-@status current Introduced in 2.0.0
-*/
-static int luaModelInsertMix(lua_State *L)
-{
-  unsigned int chn = luaL_checkinteger(L, 1);
-  unsigned int idx = luaL_checkinteger(L, 2);
-
-  unsigned int first = getFirstMix(chn);
-  unsigned int count = getMixesCountFromFirst(chn, first);
-
-  if (chn<MAX_OUTPUT_CHANNELS && getMixCount()<MAX_MIXERS && idx<=count) {
-    idx += first;
-    insertMix(idx, chn);
-    MixData *mix = mixAddress(idx);
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      luaL_checktype(L, -2, LUA_TSTRING); // key is string
-      const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "name")) {
-        const char * name = luaL_checkstring(L, -1);
-        strncpy(mix->name, name, sizeof(mix->name));
-      }
-      else if (!strcmp(key, "source")) {
-        mix->srcRaw = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "weight")) {
-        mix->weight = (luaL_checkinteger(L, -1));
-      }
-      else if (!strcmp(key, "offset")) {
-        mix->offset = (luaL_checkinteger(L, -1));
-      }
-
-    }
-  }
-
-  return 0;
-}
-
-/*luadoc
-@function model.deleteMix(channel, line)
-
-Delete mixer line from specified Channel
-
-@param channel (unsigned number) channel number (use 0 for CH1)
-
-@param line (unsigned number) mix number (use 0 for first line(mix))
-
-@status current Introduced in 2.0.0
-*/
-static int luaModelDeleteMix(lua_State *L)
-{
-  unsigned int chn = luaL_checkinteger(L, 1);
-  unsigned int idx = luaL_checkinteger(L, 2);
-
-  unsigned int first = getFirstMix(chn);
-  unsigned int count = getMixesCountFromFirst(chn, first);
-
-  if (idx < count) {
-    deleteMix(first+idx);
-  }
-
-  return 0;
-}
-
-/*luadoc
-@function model.deleteMixes()
-
-Remove all mixers
-
-@status current Introduced in 2.0.0
-*/
-static int luaModelDeleteMixes(lua_State *L)
-{
-  memset(g_model.mixData, 0, sizeof(g_model.mixData));
-  return 0;
-}
-
 /*luadoc
 @function model.getSwitchWarning(switch)
 
@@ -646,11 +473,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getTimer, luaModelGetTimer )
   LROT_FUNCENTRY( setTimer, luaModelSetTimer )
   LROT_FUNCENTRY( resetTimer, luaModelResetTimer )
-  LROT_FUNCENTRY( getMixesCount, luaModelGetMixesCount )
-  LROT_FUNCENTRY( getMix, luaModelGetMix )
-  LROT_FUNCENTRY( insertMix, luaModelInsertMix )
-  LROT_FUNCENTRY( deleteMix, luaModelDeleteMix )
-  LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
   LROT_FUNCENTRY( getSwitchWarning, luaModelGetSwitchWarning )
   LROT_FUNCENTRY( setSwitchWarning, luaModelSetSwitchWarning )
   LROT_FUNCENTRY( getSensor, luaModelGetSensor )

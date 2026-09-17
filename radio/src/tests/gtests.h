@@ -30,7 +30,6 @@
 #include "switches.h"
 #include "hal/switch_driver.h"
 
-#define CHANNEL_MAX (1024*256)
 
 
 // from hal/adc_driver.cpp
@@ -82,15 +81,13 @@ inline void MODEL_RESET()
 {
   memset(&g_model, 0, sizeof(g_model));
   anaResetFiltered();
-  extern uint8_t s_mixer_first_run_done;
-  s_mixer_first_run_done = false;
+  extern uint8_t controlsInitialized;
+  controlsInitialized = false;
 }
 
 inline void MIXER_RESET()
 {
   memset(channelOutputs, 0, sizeof(channelOutputs));
-  memset(chans, 0, sizeof(chans));
-  memset(ex_chans, 0, sizeof(ex_chans));
 }
 
 // Find a hardware switch matching the given type (SWITCH_3POS, SWITCH_2POS,

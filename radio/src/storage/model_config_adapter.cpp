@@ -437,6 +437,36 @@ bool relevant(const Context& c, const char* path, unsigned i, unsigned j,
 #define ACCESS_JoystickMode(m, l, h) ACCESS_ENUM(m, l, h, JoystickMode)
 #define ACCESS_JoystickChannel(m, l, h) ACCESS_ENUM(m, l, h, JoystickChannel)
 #define ACCESS_Hats(m, l, h) ACCESS_ENUM(m, l, h, Hats)
+bool physicalInputValue(PhysicalInputId& source, Field& field, const char* text)
+{
+  if (text) {
+    auto& name = scalarBuffer;
+    size_t length;
+    if (!string(text, name, sizeof(name) - 1, length)) return false;
+    name[length] = 0;
+    if (!strcmp(name, "NONE")) { source = PhysicalInputId::None; return true; }
+    const char* families[] = {"stick(%u)%n", "flex(%u)%n", "switch(%u)%n"};
+    for (unsigned family = 0; family < 3; ++family) {
+      unsigned index = 0;
+      int used = 0;
+      if (sscanf(name, families[family], &index, &used) == 1 && used &&
+          !name[used] && index < 32) {
+        // Keep portable hardware IDs even if this radio lacks that control.
+        source = PhysicalInputId(1 + family * 32 + index);
+        return true;
+      }
+    }
+    return false;
+  }
+  unsigned id = unsigned(source);
+  if (!id) { strcpy(field.value, "NONE"); return true; }
+  if (id > 96) return false;
+  const char* families[] = {"stick", "flex", "switch"};
+  snprintf(field.value, sizeof(field.value), "%s(%u)", families[(id - 1) / 32], (id - 1) % 32);
+  return true;
+}
+#define ACCESS_PhysicalInput(member, lo, hi) return physicalInputValue(m.member, f, t);
+
 #define ACCESS_Source(member, lo, hi)                         \
   if (t) {                                                    \
     int64_t v;                                                \
@@ -815,7 +845,7 @@ bool used(const Context& c, const char* section, const unsigned* index)
            ;
   }
 #endif
-  if (!strcmp(section, "mixData/%u")) return i < MAX_MIXERS && m.mixData[i].srcRaw;
+  if (!strcmp(section, "channelMappings/%u")) return i < MAX_OUTPUT_CHANNELS && m.channelMappings[i].source != PhysicalInputId::None;
   if (!strcmp(section, "telemetrySensors/%u")) return i < MAX_TELEMETRY_SENSORS && (m.telemetrySensors[i].id || m.telemetrySensors[i].label[0] || m.telemetrySensors[i].type);
 #if !defined(COLORLCD)
   if (!strncmp(section, "screenData/", 11) || !strncmp(section, "topbarData/", 11) || !strncmp(section, "topbarWidgetWidth/", 18)) return false;

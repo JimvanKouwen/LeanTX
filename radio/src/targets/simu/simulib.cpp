@@ -34,7 +34,6 @@
 #include "switches.h"
 #include "input_mapping.h"
 #include "gui/gui_common.h"
-#include "mixes.h"
 #include "telemetry/crossfire.h"
 #if defined(LUA)
 #include "lua/lua_api.h"
@@ -743,12 +742,6 @@ uint8_t simuCopyChannelOutputs(int16_t* buf, uint8_t maxCount)
   return n;
 }
 
-uint8_t simuCopyMixOutputs(int16_t* buf, uint8_t maxCount)
-{
-  uint8_t n = MAX_OUTPUT_CHANNELS < maxCount ? MAX_OUTPUT_CHANNELS : maxCount;
-  memcpy(buf, ex_chans, n * sizeof(int16_t));
-  return n;
-}
 
 bool simuIsChannelUsed(uint8_t channel)
 {
@@ -760,10 +753,6 @@ int simuGetChannelsUsed()
   return getChannelsUsed();
 }
 
-uint8_t simuGetMixCount()
-{
-  return getMixCount();
-}
 
 bool simuGetBacklightState()
 {
