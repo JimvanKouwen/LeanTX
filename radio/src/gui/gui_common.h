@@ -55,7 +55,6 @@ bool isChannelUsed(int channel);
 int getChannelsUsed();
 bool checkSourceAvailable(int source, uint32_t sourceTypes);
 bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
-bool isThrottleSourceAvailable(int source);
 bool isSourceAvailableForBacklightOrVolume(int source);
 bool isSourceAvailable(int source);
 enum class PhysicalInputId : uint8_t;

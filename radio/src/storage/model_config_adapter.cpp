@@ -492,20 +492,6 @@ bool physicalInputValue(PhysicalInputId& source, Field& field, const char* text)
     return true;                                      \
   }                                                   \
   return formatInteger(f.value, sizeof(f.value), m.member + 8);
-#define ACCESS_Throttle(member, lo, hi)                                   \
-  if (t) {                                                                \
-    int64_t v;                                                            \
-    if (!sourceInput(t, v)) return false;                                 \
-    int x = source2ThrottleSource(v);                                     \
-    if (x < 0) return false;                                              \
-    m.member = x;                                                         \
-    return true;                                                          \
-  }                                                                       \
-  {                                                                       \
-    char s[64];                                                           \
-    return sourceOutput(throttleSource2Source(m.member), s, sizeof(s)) && \
-           quoted(f.value, sizeof(f.value), s, strlen(s));                \
-  }
 #define ACCESS_ModelIds(member, lo, hi) return modelIds(m.member, f, t);
 bool modelIds(uint8_t* ids, Field& f, const char* t)
 {
@@ -712,8 +698,7 @@ bool portableUnavailable(const char* codec, const char* text)
     name[length] = 0;
     return strcmp(name, "TYPE_NONE") && strcmp(name, "TYPE_CROSSFIRE");
   }
-  if (!strstr(codec, "Source") && strcmp(codec, "Switch") &&
-      strcmp(codec, "Throttle"))
+  if (!strstr(codec, "Source") && strcmp(codec, "Switch"))
     return false;
   int64_t n;
   if (!strcmp(codec, "Switch") ? switchInput(text, n) : sourceInput(text, n))

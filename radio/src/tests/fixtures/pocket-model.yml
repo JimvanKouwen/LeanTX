@@ -86,7 +86,6 @@ mixData:
    weight: 100
    offset: 0
    name: ""
-thrTraceSrc: Thr
 switchWarning: 
    SA:
       pos: up

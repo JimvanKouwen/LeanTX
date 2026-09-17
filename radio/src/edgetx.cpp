@@ -570,18 +570,10 @@ bool isThrottleWarningAlertNeeded()
     return false;
   }
 
-  uint8_t thr_src = throttleSource2Source(g_model.thrTraceSrc);
-
-  // in case an output channel is choosen as throttle source
-  // we assume the throttle stick is the input (no computed channels yet)
-  if (thr_src >= MIXSRC_FIRST_CH) {
-    thr_src = throttleSource2Source(0);
-  }
-
   if (!mixerTaskRunning()) getADC();
   evalAnalogControls(false); // let do evalAnalogControls do the job
 
-  int16_t v = getValue(thr_src);
+  int16_t v = getValue(MIXSRC_FIRST_STICK + inputMappingGetThrottle());
 
   if (g_model.enableCustomThrottleWarning) {
     int16_t idleValue = (int32_t)RESX *
@@ -728,8 +720,6 @@ uint16_t lightOffCounter;
 uint8_t flashCounter = 0;
 
 uint16_t sessionTimer;
-uint16_t s_timeCumThr;    // THR in 1/16 sec
-uint16_t s_timeCum16ThrP; // THR% in 1/16 sec
 
 void flightReset(uint8_t check)
 {
@@ -757,8 +747,6 @@ void flightReset(uint8_t check)
   controlsInitialized = false;
 
   START_SILENCE_PERIOD();
-
-  RESET_THR_TRACE();
 
   if (check) {
     checkAll();

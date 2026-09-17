@@ -1272,7 +1272,6 @@ limitData:
       symetrical: 0
       revert: 1
       name: ""
-thrTraceSrc: Thr
 voltsSource: none
 altitudeSource: none
 rfAlarms: 

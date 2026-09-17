@@ -486,17 +486,6 @@ bool isSwitch2POSWarningStateAvailable(int state)
 }
 #endif // #if defined(COLORLCD)
 
-bool isThrottleSourceAvailable(int src)
-{
-#if !defined(COLORLCD)
-  src = throttleSource2Source(src);
-#endif
-  return isSourceAvailable(src) &&
-    ((src == MIXSRC_FIRST_STICK + inputMappingGetThrottle()) ||
-     ((src >= MIXSRC_FIRST_POT) && (src <= MIXSRC_LAST_POT)) ||
-     ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
-}
-
 int timersSetupCount()
 {
   int tc = 0;

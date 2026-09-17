@@ -293,7 +293,6 @@
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_NEXT                        "Next"
-#define TR_TTRACE                      TR("T-Source", "Source")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Beep when centered")
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
   #define TR_REFRESHRATE               TR("Refresh", "Refresh rate")

@@ -51,9 +51,6 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 static LAYOUT_ORIENTATION(DBG_COL_CNT, 4, 3)
 static LAYOUT_ORIENTATION(DBG_B_WIDTH, (LCD_W - 20) / 4, (LCD_W - 20) / 2)
 static LAYOUT_VAL_SCALED(DBG_B_HEIGHT, 20)
-static LAYOUT_ORIENTATION(CV_SCALE, 3, 4)
-#define CV_WIDTH MAXTRACE
-#define CV_HEIGHT (CV_SCALE * EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL + 1)
 static LAYOUT_VAL_SCALED(RST_BTN_H, 24)
 
 template <class T>
@@ -74,64 +71,6 @@ class DebugInfoNumber : public Window
                                 {prefixSize, 0, rect.w - prefixSize, rect.h},
                                 numberHandler);
   }
-};
-
-class ThrottleCurveWindow : public Window
-{
- public:
-  ThrottleCurveWindow(Window* parent, const rect_t& rect) : Window(parent, rect)
-  {
-    lv_coord_t x, h = height();
-    int i;
-
-    axis[0] = {0, 0};
-    axis[1] = {0, (lv_coord_t)(h - PAD_THREE)};
-    axis[2] = {(lv_coord_t)width(), (lv_coord_t)(h - PAD_THREE)};
-    auto axisLine = lv_line_create(lvobj);
-    etx_obj_add_style(axisLine, styles->div_line_black, LV_PART_MAIN);
-    lv_line_set_points(axisLine, axis, 3);
-
-    for (x = 0, i = 0; x < width(); x += 6, i += 2) {
-      ticks[i] = {x, (lv_coord_t)(h - PAD_SMALL - 1)};
-      ticks[i + 1] = {x, h};
-      auto tick = lv_line_create(lvobj);
-      lv_line_set_points(tick, &ticks[i], 2);
-      etx_obj_add_style(tick, styles->div_line_black, LV_PART_MAIN);
-    }
-
-    line = lv_line_create(lvobj);
-    etx_obj_add_style(line, styles->graph_line, LV_PART_MAIN);
-  }
-
-  void checkEvents() override
-  {
-    Window::checkEvents();
-    // Copy current value as mixer may update it
-    uint16_t traceWr = s_traceWr;
-    if (previousTraceWr != traceWr) {
-      previousTraceWr = traceWr;
-
-      graphSize = 0;
-      uint16_t traceRd = traceWr > width() ? traceWr % width() : 0;
-      for (lv_coord_t x = 0; x < width() && traceRd < traceWr; x += 1) {
-        uint8_t h = s_traceBuf[traceRd];
-        lv_coord_t y = height() - PAD_THREE - CV_SCALE * h;
-        graph[x] = {x, y};
-        graphSize += 1;
-        traceRd += 1;
-        if (traceRd >= width()) traceRd = 0;
-      }
-      lv_line_set_points(line, graph, graphSize);
-    }
-  }
-
- protected:
-  unsigned previousTraceWr = 0;
-  lv_point_t graph[MAXTRACE];
-  lv_point_t axis[3];
-  lv_point_t ticks[((MAXTRACE + 3) / 6) * 2];
-  lv_obj_t* line = nullptr;
-  int16_t graphSize = 0;
 };
 
 StatisticsViewPage::StatisticsViewPage(const PageDef& pageDef) :
@@ -164,34 +103,11 @@ void StatisticsViewPage::build(Window* window)
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
 
-  // Throttle
-  new StaticText(line, rect_t{}, STR_THROTTLE_LABEL);
-  new DynamicText(
-      line, rect_t{}, [] { return getTimerString(s_timeCumThr); });
-
-  // Throttle %  data
-  new StaticText(line, rect_t{}, STR_THROTTLE_PERCENT_LABEL);
-  new DynamicText(
-      line, rect_t{}, [] { return getTimerString(s_timeCum16ThrP / 16); });
-
-  line = window->newLine(grid);
-  line->padAll(PAD_ZERO);
-
   // Timers
   new StaticText(line, rect_t{}, STR_TIMER_LABEL);
   for (int i = 0; i < TIMERS; i += 1)
     new DynamicText(
         line, rect_t{}, [=] { return getTimerString(timersStates[i].val); });
-
-  line = window->newLine(grid);
-  line->padAll(PAD_ZERO);
-  line->padTop(3);
-
-  // Throttle curve
-  auto curve = new ThrottleCurveWindow(line, {0, 0, CV_WIDTH, CV_HEIGHT});
-
-  lv_obj_set_grid_cell(curve->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 4,
-                       LV_GRID_ALIGN_CENTER, 0, 1);
 
   line = window->newLine(grid);
   line->padAll(PAD_SMALL);
@@ -202,9 +118,6 @@ void StatisticsViewPage::build(Window* window)
                               g_eeGeneral.globalTimer = 0;
                               storageDirty(EE_GENERAL);
                               sessionTimer = 0;
-                              s_timeCumThr = 0;
-                              s_timeCum16ThrP = 0;
-                              s_traceWr = 0;
                               return 0;
                             });
 

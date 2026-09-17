@@ -84,6 +84,24 @@ TEST_F(ModelConfig, LegacyTelemetryDisplaysAreDiscarded)
   EXPECT_NE(std::string::npos, output.find("Volt"));
 }
 
+TEST_F(ModelConfig, LegacyThrottleTraceIsDiscarded)
+{
+  input = "thrTraceSrc: ch(3)\n"
+          "timers:\n  0:\n    start: 600\n"
+          "disableThrottleWarning: 1\n";
+  ModelData model{};
+  ASSERT_TRUE(load(model));
+  EXPECT_EQ(600u, model.timers[0].start);
+  EXPECT_TRUE(model.disableThrottleWarning);
+  ASSERT_TRUE(save(model));
+  EXPECT_EQ(std::string::npos, output.find("thrTraceSrc"));
+  input = output;
+  ModelData restored{};
+  ASSERT_TRUE(load(restored));
+  EXPECT_EQ(600u, restored.timers[0].start);
+  EXPECT_TRUE(restored.disableThrottleWarning);
+}
+
 TEST_F(ModelConfig, LegacyMixerTimingIsDiscarded)
 {
   input = "mixData:\n  - srcRaw: Rud\n    weight: 75\n    offset: 12\n"

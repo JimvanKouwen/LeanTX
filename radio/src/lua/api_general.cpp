@@ -1339,8 +1339,6 @@ Returns radio timers
 @retval table with elements:
 * `gtimer` (number) radio global timer in seconds
 * `session` (number) radio session in seconds
-* `ttimer` (number) radio throttle timer in seconds
-* `tptimer` (number) radio throttle percent timer in seconds
 
 @status current Introduced added in 2.3.0.
 
@@ -1350,8 +1348,6 @@ static int luaGetGlobalTimer(lua_State * L)
   lua_newtable(L);
   lua_pushtableinteger(L, "total", g_eeGeneral.globalTimer + sessionTimer);
   lua_pushtableinteger(L, "session", sessionTimer);
-  lua_pushtableinteger(L, "throttle", s_timeCumThr);
-  lua_pushtableinteger(L, "throttlepct", s_timeCum16ThrP/16);
   return 1;
 }
 
@@ -1787,10 +1783,8 @@ static int luaGetAvailableMemory(lua_State * L)
 
  Resets the radio global timer to 0.
 
-@param (optional) : if set to 'all', throttle ,throttle percent and session timers are reset too
+@param (optional) : if set to 'all', session timer is reset too
                     if set to 'session', radio session timer is reset too
-                    if set to 'ttimer', radio throttle timer is reset too
-                    if set to  'tptimer', radio throttle percent timer is reset too
 
 @status current Introduced in 2.2.2, param added in 2.3
 */
@@ -1801,8 +1795,6 @@ static int luaResetGlobalTimer(lua_State * L)
   if (!strcmp(option, "all")) {
     g_eeGeneral.globalTimer = 0;
     sessionTimer = 0;
-    s_timeCumThr = 0;
-    s_timeCum16ThrP = 0;
   }
   else if (!strcmp(option, "total")) {
     g_eeGeneral.globalTimer = 0;
@@ -1810,12 +1802,6 @@ static int luaResetGlobalTimer(lua_State * L)
   }
   else if (!strcmp(option, "session")) {
     sessionTimer = 0;
-  }
-  else if (!strcmp(option, "throttle")) {
-    s_timeCumThr = 0;
-  }
-  else if (!strcmp(option, "throttlepct")) {
-    s_timeCum16ThrP = 0;
   }
   storageDirty(EE_GENERAL);
   return 0;

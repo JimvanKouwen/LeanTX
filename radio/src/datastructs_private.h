@@ -363,7 +363,6 @@ PACK(struct ModelData {
   BeepANACenter beepANACenter;
   ChannelMapping channelMappings[MAX_OUTPUT_CHANNELS];
 
-  uint8_t thrTraceSrc;
 
   swarnstate_t switchWarning;
 

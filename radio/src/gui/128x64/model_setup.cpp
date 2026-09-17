@@ -106,8 +106,6 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_GROUP4_ALWAYS_ON,
   ITEM_MODEL_SETUP_GROUP4_START,
 #endif
-  ITEM_MODEL_SETUP_THROTTLE_LABEL,
-  ITEM_MODEL_SETUP_THROTTLE_TRACE,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
   ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE,
@@ -174,7 +172,6 @@ enum MenuModelSetupItems {
 
 PACK(struct ModelSetupExpandState {
   uint8_t preflight:1;
-  uint8_t throttle:1;
   uint8_t viewOpt:1;
   uint8_t functionSwitches:1;
 });
@@ -182,8 +179,6 @@ PACK(struct ModelSetupExpandState {
 static struct ModelSetupExpandState expandState;
 
 static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
-
-static uint8_t THROTTLE_ROW(uint8_t value) { return expandState.throttle ? value : HIDDEN_ROW; }
 
 #if defined(FUNCTION_SWITCHES)
 static uint8_t FS_ROW(uint8_t value) { return expandState.functionSwitches ? value : HIDDEN_ROW; }
@@ -607,8 +602,6 @@ void menuModelSetup(event_t event)
     TIMER_ROWS(1),
     TIMER_ROWS(2),
     FUNCTION_SWITCHES_ROWS
-    0, // Throttle section
-    THROTTLE_ROW(0), // Throttle trace source
 
     0,   // Preflight section
       PREFLIGHT_ROW(0), // Checklist
@@ -911,24 +904,6 @@ void menuModelSetup(event_t event)
         }
         break;
 #endif
-
-      case ITEM_MODEL_SETUP_THROTTLE_LABEL:
-        expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);
-        break;
-
-      case ITEM_MODEL_SETUP_THROTTLE_TRACE:
-      {
-        lcdDrawTextIndented(y, STR_TTRACE);
-        if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO_CHECK(
-              event, g_model.thrTraceSrc,
-              adcGetMaxInputs(ADC_INPUT_FLEX) + MAX_OUTPUT_CHANNELS,
-              isThrottleSourceAvailable);
-
-        uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
-        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, idx, attr);
-        break;
-      }
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
         expandState.preflight = expandableSection(y, STR_PREFLIGHT, expandState.preflight, attr, event);

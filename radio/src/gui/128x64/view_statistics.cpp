@@ -69,12 +69,6 @@ void menuStatisticsView(event_t event)
   lcdDrawText(STATS_1ST_COLUMN, FH*2+1, "TOT", BOLD);
   drawTimer(STATS_1ST_COLUMN + STATS_LABEL_WIDTH, FH*2+1, g_eeGeneral.globalTimer + sessionTimer, TIMEHOUR, 0);
 
-  // Throttle special timers
-  lcdDrawText(STATS_2ND_COLUMN, FH*0+1, "THR", BOLD);
-  drawTimer(STATS_2ND_COLUMN + STATS_LABEL_WIDTH, FH*0+1, s_timeCumThr);
-  lcdDrawText(STATS_2ND_COLUMN, FH*1+1, "TH%", BOLD);
-  drawTimer(STATS_2ND_COLUMN + STATS_LABEL_WIDTH, FH*1+1, s_timeCum16ThrP/16);
-
   // Timers
   for (int i=0; i<TIMERS; i++) {
     drawStringWithIndex(STATS_3RD_COLUMN, FH*i+1, "TM", i+1, BOLD);
@@ -84,21 +78,6 @@ void menuStatisticsView(event_t event)
       drawTimer(STATS_3RD_COLUMN + STATS_LABEL_WIDTH, FH*i+1, timersStates[i].val);
   }
 
-#if defined(THRTRACE)
-  const coord_t x = 5;
-  const coord_t y = 60;
-  lcdDrawSolidHorizontalLine(x-3, y, MAXTRACE+3+3);
-  lcdDrawSolidVerticalLine(x, y-32, 32+3);
-  for (coord_t i=0; i<MAXTRACE; i+=6) {
-    lcdDrawSolidVerticalLine(x+i+6, y-1, 3);
-  }
-
-  uint16_t traceRd = s_traceWr > MAXTRACE ? s_traceWr - MAXTRACE : 0;
-  for (coord_t i=1; i<=MAXTRACE && traceRd<s_traceWr; i++, traceRd++) {
-    uint8_t h = s_traceBuf[traceRd % MAXTRACE];
-    lcdDrawSolidVerticalLine(x+i, y-h, h);
-  }
-#endif
 }
 
 #define MENU_DEBUG_COL1_OFS          (11*FW-3)

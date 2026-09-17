@@ -196,26 +196,6 @@ const static SetupLineDef otherPageSetupLines[] = {
   {nullptr, nullptr},
 };
 
-const static SetupLineDef throttleParamsSetupLines[] = {
-  {
-    // Throttle source
-    STR_DEF(STR_TTRACE),
-    [](Window* parent, coord_t x, coord_t y) {
-      auto sc = new SourceChoice(parent, {x, y, 0, 0}, 0, MIXSRC_LAST_CH,
-                                []() {return throttleSource2Source(g_model.thrTraceSrc); },
-                                [](int16_t src) {
-                                  int16_t val = source2ThrottleSource(src);
-                                  if (val >= 0) {
-                                    g_model.thrTraceSrc = val;
-                                    SET_DIRTY();
-                                  }
-                                });
-      sc->setAvailableHandler(isThrottleSourceAvailable);
-    }
-  },
-  {nullptr, nullptr},
-};
-
 #if defined(USE_HATS_AS_KEYS)
 static LAYOUT_VAL_SCALED(HATSMODE_W, 120)
 #endif
@@ -323,7 +303,6 @@ const static PageButtonDef modelSetupButtons[] = {
 #if defined(USE_HATS_AS_KEYS)
   {STR_DEF(STR_HATSMODE), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_HATSMODE, buttonsSetupLines); }},
 #endif
-  {STR_DEF(STR_THROTTLE_LABEL), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_THROTTLE_LABEL, throttleParamsSetupLines); }},
   {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
 #if defined(USBJ_EX)
   {STR_DEF(STR_USBJOYSTICK_LABEL), []() { new ModelUSBJoystickPage(); }},

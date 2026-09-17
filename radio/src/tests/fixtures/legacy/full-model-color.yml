@@ -1273,7 +1273,6 @@ limitData:
       symetrical: 0
       revert: 1
       name: ""
-thrTraceSrc: Thr
 rfAlarms: 
    warning: 45
    critical: 42

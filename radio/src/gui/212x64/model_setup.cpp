@@ -77,8 +77,6 @@ enum MenuModelSetupItems {
 #if defined(PCBX9E)
   ITEM_MODEL_SETUP_TOP_LCD_TIMER,
 #endif
-  ITEM_MODEL_SETUP_THROTTLE_LABEL,
-  ITEM_MODEL_SETUP_THROTTLE_TRACE,
   ITEM_MODEL_SETUP_PREFLIGHT_LABEL,
   ITEM_MODEL_SETUP_CHECKLIST_DISPLAY,
   ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE,
@@ -136,15 +134,12 @@ enum MenuModelSetupItems {
 
 PACK(struct ModelSetupExpandState {
   uint8_t preflight:1;
-  uint8_t throttle:1;
   uint8_t viewOpt:1;
 });
 
 static struct ModelSetupExpandState expandState;
 
 static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
-
-static uint8_t THROTTLE_ROW(uint8_t value) { return expandState.throttle ? value : HIDDEN_ROW; }
 
 static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
 
@@ -387,10 +382,6 @@ void menuModelSetup(event_t event)
 
     TOPLCD_ROWS
 
-
-    0, // ITEM_MODEL_SETUP_THROTTLE_LABEL
-    THROTTLE_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_TRACE
-
     0,   // ITEM_MODEL_SETUP_PREFLIGHT_LABEL
       PREFLIGHT_ROW(0), // ITEM_MODEL_SETUP_CHECKLIST_DISPLAY
       PREFLIGHT_ROW(g_model.displayChecklist ? 0 : HIDDEN_ROW), // Checklist interactive
@@ -571,24 +562,6 @@ void menuModelSetup(event_t event)
         }
         break;
 #endif
-
-      case ITEM_MODEL_SETUP_THROTTLE_LABEL:
-        expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);
-        break;
-
-      case ITEM_MODEL_SETUP_THROTTLE_TRACE:
-      {
-        lcdDrawTextIndented(y, STR_TTRACE);
-        if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO_CHECK(
-              event, g_model.thrTraceSrc,
-              MAX_POTS + MAX_OUTPUT_CHANNELS,
-              isThrottleSourceAvailable);
-
-        uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, idx, attr);
-        break;
-      }
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
         expandState.preflight = expandableSection(y, STR_PREFLIGHT, expandState.preflight, attr, event);

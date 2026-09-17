@@ -36,8 +36,6 @@ PACK(struct GlobalData {
 extern GlobalData globalData;
 
 extern uint16_t sessionTimer;
-extern uint16_t s_timeCumThr;
-extern uint16_t s_timeCum16ThrP;
 
 extern uint32_t maxMixerDuration;
 
