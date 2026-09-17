@@ -112,7 +112,7 @@ moduleData:
          crsf: 
             telemetryBaudrate: 0
             crsfArmingMode: 0
-            crsfArmingTrigger: "NONE"
+            crsfArmingCondition: 0
             spare3: 0
 potsWarnEnabled: 0
 telemetrySensors: 

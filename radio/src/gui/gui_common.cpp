@@ -468,9 +468,15 @@ bool isControlSwitchAvailable(int swtch)
   return isSwitchAvailable(swtch, ControlSwitchContext);
 }
 
-bool isSwitchAvailableForArming(int swtch)
+void getPhysicalSwitchConditionLabel(char (&dest)[32], int condition)
 {
-  return isSwitchAvailable(swtch, AllSwitchesContext);
+  if (condition <= 0 || condition > PHYSICAL_SWITCH_CONDITION_MAX ||
+      (condition - 1) / 3 >= switchGetMaxAllSwitches()) {
+    snprintf(dest, sizeof(dest), "%s", STR_EMPTY);
+    return;
+  }
+  getSwitchName(dest, (condition - 1) / 3);
+  strAppend(dest + strlen(dest), getSwitchPositionSymbol((condition - 1) % 3));
 }
 
 #if defined(COLORLCD)

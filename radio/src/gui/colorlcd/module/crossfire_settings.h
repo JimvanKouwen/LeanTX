@@ -23,7 +23,7 @@
 
 #include "window.h"
 #include "module_setup.h"
-#include "switchchoice.h"
+#include "choice.h"
 
 struct ModuleData;
 
@@ -32,7 +32,7 @@ class CrossfireSettings : public Window, public ModuleOptions
   ModuleData* md;
   StaticText *lblArmMode;
   Choice *choArmMode;
-  SwitchChoice *choArmSwitch;
+  Choice *choArmSwitch;
   uint8_t moduleIdx;
 
   void checkEvents() override;

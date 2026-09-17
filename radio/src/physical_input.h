@@ -15,3 +15,11 @@ struct ChannelMapping {
   PhysicalInputId source;
 };
 void updateChannelOutputs();
+
+// Physical switch conditions have their own namespace, with no inversion or
+// generic value sources. Positions: 0 = up, 1 = middle, 2 = down.
+constexpr int PHYSICAL_SWITCH_CONDITION_MAX = 96;
+constexpr uint8_t physicalSwitchCondition(unsigned index, unsigned position)
+{ return index < 32 && position < 3 ? 1 + index * 3 + position : 0; }
+bool isPhysicalSwitchConditionAvailable(int condition);
+bool readPhysicalSwitchCondition(uint8_t condition);

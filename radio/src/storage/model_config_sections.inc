@@ -43,7 +43,7 @@ static_assert(sameKey(descriptors[38].path, "moduleData/%u/channelsStart") && de
 static_assert(sameKey(descriptors[39].path, "moduleData/%u/channelsCount") && descriptors[39].count == 2 && descriptors[39].stride == 1 && descriptors[39].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[40].path, "moduleData/%u/mod/crsf/telemetryBaudrate") && descriptors[40].count == 2 && descriptors[40].stride == 1 && descriptors[40].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[41].path, "moduleData/%u/mod/crsf/crsfArmingMode") && descriptors[41].count == 2 && descriptors[41].stride == 1 && descriptors[41].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[42].path, "moduleData/%u/mod/crsf/crsfArmingTrigger") && descriptors[42].count == 2 && descriptors[42].stride == 1 && descriptors[42].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[42].path, "moduleData/%u/mod/crsf/crsfArmingCondition") && descriptors[42].count == 2 && descriptors[42].stride == 1 && descriptors[42].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[43].path, "telemetrySensors/%u/id1/id") && descriptors[43].count == 99 && descriptors[43].stride == 1 && descriptors[43].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[44].path, "telemetrySensors/%u/id1/persistentValue") && descriptors[44].count == 99 && descriptors[44].stride == 1 && descriptors[44].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[45].path, "telemetrySensors/%u/id2/instance") && descriptors[45].count == 99 && descriptors[45].stride == 1 && descriptors[45].innerStride == 1, "regenerate model_config_sections.inc");
@@ -212,7 +212,7 @@ void enter(void* ctx, const Node& parent, const char* key, const char* text, Nod
     case 48: // /moduleData/%u/mod/crsf
       if (!strcmp(key, "telemetryBaudrate")) { readLeaf(ctx, 40, child.index[0] * 1, text, result); return; }
       if (!strcmp(key, "crsfArmingMode")) { readLeaf(ctx, 41, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "crsfArmingTrigger")) { readLeaf(ctx, 42, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "crsfArmingCondition")) { readLeaf(ctx, 42, child.index[0] * 1, text, result); return; }
       break;
     case 52: // /telemetrySensors
       { int64_t i; if (!integer(key, 0, 98, i)) break;
@@ -581,7 +581,7 @@ void writeSection(Context& context, unsigned section, unsigned* index, Writer& w
     case 48: // /moduleData/%u/mod/crsf
       writeLeaf(context, 40, index[0] * 1, "telemetryBaudrate", writer, field);
       writeLeaf(context, 41, index[0] * 1, "crsfArmingMode", writer, field);
-      writeLeaf(context, 42, index[0] * 1, "crsfArmingTrigger", writer, field);
+      writeLeaf(context, 42, index[0] * 1, "crsfArmingCondition", writer, field);
       break;
     case 52: // /telemetrySensors
       for (index[0] = 0; index[0] < 99; ++index[0]) {

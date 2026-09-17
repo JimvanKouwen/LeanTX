@@ -5,7 +5,7 @@
 // Native scalar layout is intentional: snapshots are local to this firmware.
 // Bump the version whenever fields or their interpretation change.
 constexpr uint32_t EMERGENCY_SNAPSHOT_MAGIC = 0x45525443;
-constexpr uint16_t EMERGENCY_SNAPSHOT_VERSION = 7;
+constexpr uint16_t EMERGENCY_SNAPSHOT_VERSION = 8;
 struct EmergencySnapshotHeader {
   uint32_t magic;
   uint16_t version;
@@ -21,7 +21,7 @@ struct EmergencyModuleSnapshot {
   int8_t antennaMode;
   uint8_t telemetryBaudrate;
   uint8_t crsfArmingMode;
-  int16_t crsfArmingTrigger;
+  uint8_t crsfArmingCondition;
 };
 struct EmergencySwitchSnapshot {
   uint8_t type;

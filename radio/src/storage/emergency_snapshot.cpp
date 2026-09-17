@@ -71,7 +71,7 @@ void captureEmergencySnapshot(EmergencySnapshot &s)
     s.model.modules[i].antennaMode = g_model.moduleData[i].antennaMode;
     s.model.modules[i].telemetryBaudrate = g_model.moduleData[i].crsf.telemetryBaudrate;
     s.model.modules[i].crsfArmingMode = g_model.moduleData[i].crsf.crsfArmingMode;
-    s.model.modules[i].crsfArmingTrigger = g_model.moduleData[i].crsf.crsfArmingTrigger;
+    s.model.modules[i].crsfArmingCondition = g_model.moduleData[i].crsf.crsfArmingCondition;
   }
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     s.model.modelId[i] = g_model.header.modelId[i];
@@ -147,7 +147,7 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
     g_model.moduleData[i].antennaMode = s.model.modules[i].antennaMode;
     g_model.moduleData[i].crsf.telemetryBaudrate = s.model.modules[i].telemetryBaudrate;
     g_model.moduleData[i].crsf.crsfArmingMode = s.model.modules[i].crsfArmingMode;
-    g_model.moduleData[i].crsf.crsfArmingTrigger = s.model.modules[i].crsfArmingTrigger;
+    g_model.moduleData[i].crsf.crsfArmingCondition = s.model.modules[i].crsfArmingCondition;
   }
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     g_model.header.modelId[i] = s.model.modelId[i];

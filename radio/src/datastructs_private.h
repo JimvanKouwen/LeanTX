@@ -176,8 +176,8 @@ PACK(struct ModuleData {
       uint8_t telemetryBaudrate:3;
       uint8_t crsfArmingMode:1;
       uint8_t spare2:4;
-      int16_t crsfArmingTrigger:10;
-      int16_t spare3:6;
+      // Physical condition: 0 = none, otherwise 1 + switch index * 3 + position.
+      uint8_t crsfArmingCondition;
     }) crsf;
   };
 

@@ -1129,10 +1129,16 @@ void menuModelSetup(event_t event)
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
 #endif
-        lcdDrawTextIndented(y, STR_SWITCH);
-        drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, attr);
-        if(attr)
-          CHECK_INCDEC_SWITCH(event, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
+        {
+          auto& condition = g_model.moduleData[moduleIdx].crsf.crsfArmingCondition;
+          char label[32];
+          getPhysicalSwitchConditionLabel(label, condition);
+          lcdDrawTextIndented(y, STR_SWITCH);
+          lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, label, attr);
+          if (attr && s_editMode > 0)
+            condition = checkIncDec(event, condition, 0, PHYSICAL_SWITCH_CONDITION_MAX,
+                                    EE_MODEL, isPhysicalSwitchConditionAvailable);
+        }
         break;
 #endif
 

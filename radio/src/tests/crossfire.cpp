@@ -132,7 +132,7 @@ TEST(Crossfire, ExpressLRSArmingExtension_SwitchMode)
   }
 
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_SWITCH;
-  g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger = SWSRC_NONE;
+  g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingCondition = 0;
 
   uint8_t len = createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart);
 
@@ -140,11 +140,105 @@ TEST(Crossfire, ExpressLRSArmingExtension_SwitchMode)
   ASSERT_EQ(crossfire[0], MODULE_ADDRESS);
   ASSERT_EQ(crossfire[1], 25);
   ASSERT_EQ(crossfire[2], CHANNELS_ID);
-  ASSERT_EQ(crossfire[25], 0); // SWSRC_NONE -> not armed, bit 1 clear (Switch mode)
+  ASSERT_EQ(crossfire[25], 0); // Empty condition -> not armed, bit 1 clear (Switch mode)
 
   uint8_t crc = crc8(&crossfire[2], 24);
   ASSERT_EQ(crossfire[26], crc);
 }
+
+TEST_F(PhysicalControlRfTest, ArmingUsesPhysicalPositionsImmediately)
+{
+  MODEL_RESET();
+  int16_t pulses[CROSSFIRE_CHANNELS_COUNT] = {};
+  uint8_t frame[CROSSFIRE_FRAME_MAXLEN] = {};
+  auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  md.crsf.crsfArmingMode = ARMING_MODE_SWITCH;
+  for (auto type : {SWITCH_2POS, SWITCH_3POS}) {
+    int sw = findHwSwitch(type);
+    ASSERT_GE(sw, 0);
+    for (int active = 0; active < 3; ++active) {
+      md.crsf.crsfArmingCondition = physicalSwitchCondition(sw, active);
+      EXPECT_EQ(type == SWITCH_3POS || active != 1,
+                isPhysicalSwitchConditionAvailable(md.crsf.crsfArmingCondition));
+      for (int position : {-1, 0, 1}) {
+        if (type == SWITCH_2POS && position == 0) continue;
+        simuSetSwitch(sw, position);
+        ASSERT_EQ(27, createCrossfireChannelsFrame(EXTERNAL_MODULE, frame, pulses));
+        EXPECT_EQ(active == position + 1, frame[25]);
+        EXPECT_EQ(crc8(frame + 2, 24), frame[26]);
+      }
+    }
+    g_eeGeneral.switchSetType(sw, SWITCH_NONE);
+    createCrossfireChannelsFrame(EXTERNAL_MODULE, frame, pulses);
+    EXPECT_EQ(0, frame[25]);
+  }
+  for (int condition : {0, 97, 255}) {
+    md.crsf.crsfArmingCondition = condition;
+    createCrossfireChannelsFrame(EXTERNAL_MODULE, frame, pulses);
+    EXPECT_EQ(0, frame[25]);
+  }
+  setModuleType(EXTERNAL_MODULE, MODULE_TYPE_CROSSFIRE);
+  EXPECT_EQ(ARMING_MODE_CH5, md.crsf.crsfArmingMode);
+  EXPECT_EQ(0, md.crsf.crsfArmingCondition);
+}
+
+#if defined(FUNCTION_SWITCHES)
+TEST_F(PhysicalControlRfTest, FunctionSwitchArmingUsesConfiguredState)
+{
+  MODEL_RESET();
+  setModelDefaults();
+  int16_t pulses[CROSSFIRE_CHANNELS_COUNT] = {};
+  uint8_t frame[CROSSFIRE_FRAME_MAXLEN] = {};
+  auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  md.crsf.crsfArmingMode = ARMING_MODE_SWITCH;
+  for (unsigned sw = 0; sw < switchGetMaxSwitches(); ++sw) {
+    if (!switchIsCustomSwitch(sw)) continue;
+    g_model.cfsSetType(sw, SWITCH_TOGGLE);
+    for (int active : {0, 2}) {
+      md.crsf.crsfArmingCondition = physicalSwitchCondition(sw, active);
+      ASSERT_TRUE(isPhysicalSwitchConditionAvailable(md.crsf.crsfArmingCondition));
+      for (bool state : {false, true}) {
+        g_model.cfsSetState(sw, state);
+        createCrossfireChannelsFrame(EXTERNAL_MODULE, frame, pulses);
+        EXPECT_EQ(state == (active == 2), frame[25]);
+      }
+    }
+    EXPECT_FALSE(isPhysicalSwitchConditionAvailable(physicalSwitchCondition(sw, 1)));
+  }
+}
+#endif
+
+#if defined(LUA)
+TEST_F(PhysicalControlRfTest, OlderElrsClearsConditionEvenInCH5Mode)
+{
+  MODEL_RESET();
+  uint8_t info[64] = {};
+  info[1] = 19; // one-byte (empty) name plus device info
+  info[2] = DEVICE_INFO_ID;
+  info[4] = MODULE_ADDRESS;
+  memcpy(info + 6, "ELRS", 4);
+  auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  for (int version : {4, 3}) {
+    for (int mode : {ARMING_MODE_CH5, ARMING_MODE_SWITCH}) {
+      md.crsf.crsfArmingMode = mode;
+      md.crsf.crsfArmingCondition = physicalSwitchCondition(0, 2);
+      info[15] = version;
+      processCrossfireTelemetryFrame(EXTERNAL_MODULE, info, 21);
+      EXPECT_EQ(version == 4 ? mode : ARMING_MODE_CH5, md.crsf.crsfArmingMode);
+      EXPECT_EQ(version == 4 ? physicalSwitchCondition(0, 2) : 0,
+                md.crsf.crsfArmingCondition);
+    }
+  }
+  // A non-ELRS module must not inherit the previous module's ELRS flag.
+  memset(info + 6, 0, 4);
+  info[15] = 4;
+  md.crsf.crsfArmingMode = ARMING_MODE_SWITCH;
+  md.crsf.crsfArmingCondition = physicalSwitchCondition(0, 2);
+  processCrossfireTelemetryFrame(EXTERNAL_MODULE, info, 21);
+  EXPECT_EQ(ARMING_MODE_CH5, md.crsf.crsfArmingMode);
+  EXPECT_EQ(0, md.crsf.crsfArmingCondition);
+}
+#endif
 
 TEST(Crossfire, crc8)
 {

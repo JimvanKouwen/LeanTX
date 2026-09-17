@@ -174,7 +174,7 @@ TEST(Model, CompactCrsfSettingsRoundTrip)
     md.channelsCount = 8;
     md.crsf.telemetryBaudrate = 3;
     md.crsf.crsfArmingMode = ARMING_MODE_SWITCH;
-    md.crsf.crsfArmingTrigger = SWSRC_ON;
+    md.crsf.crsfArmingCondition = physicalSwitchCondition(0, 2);
   }
   auto& voltage = g_model.telemetrySensors[0];
   memcpy(voltage.label, "Volt", 4);
@@ -201,7 +201,7 @@ TEST(Model, CompactCrsfSettingsRoundTrip)
     EXPECT_EQ(8, md.channelsCount);
     EXPECT_EQ(3, md.crsf.telemetryBaudrate);
     EXPECT_EQ(ARMING_MODE_SWITCH, md.crsf.crsfArmingMode);
-    EXPECT_EQ(SWSRC_ON, md.crsf.crsfArmingTrigger);
+    EXPECT_EQ(physicalSwitchCondition(0, 2), md.crsf.crsfArmingCondition);
   }
   EXPECT_EQ(8, g_model.telemetrySensors[0].id);
   EXPECT_EQ(TELEMETRY_ENDPOINT_SPORT, g_model.telemetrySensors[0].instance);

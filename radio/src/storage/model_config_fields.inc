@@ -42,7 +42,7 @@ M("moduleData/%u/channelsStart", 2, i < NUM_MODULES, moduleData[i].channelsStart
 M("moduleData/%u/channelsCount", 2, i < NUM_MODULES, moduleData[i].channelsCount, -128, 127, ChannelCount)
 M("moduleData/%u/mod/crsf/telemetryBaudrate", 2, i < NUM_MODULES, moduleData[i].crsf.telemetryBaudrate, 0, 7, Number)
 M("moduleData/%u/mod/crsf/crsfArmingMode", 2, i < NUM_MODULES, moduleData[i].crsf.crsfArmingMode, 0, 1, Number)
-M("moduleData/%u/mod/crsf/crsfArmingTrigger", 2, i < NUM_MODULES, moduleData[i].crsf.crsfArmingTrigger, -512, 511, Switch)
+M("moduleData/%u/mod/crsf/crsfArmingCondition", 2, i < NUM_MODULES, moduleData[i].crsf.crsfArmingCondition, 0, 96, Number)
 M("telemetrySensors/%u/id1/id", 99, i < MAX_TELEMETRY_SENSORS, telemetrySensors[i].id, 0, 65535, Number)
 M("telemetrySensors/%u/id1/persistentValue", 99, i < MAX_TELEMETRY_SENSORS, telemetrySensors[i].persistentValue, 0, 65535, Number)
 M("telemetrySensors/%u/id2/instance", 99, i < MAX_TELEMETRY_SENSORS, telemetrySensors[i].instance, 0, 255, Number)

@@ -45,7 +45,7 @@ void prepareBackup()
   g_model.moduleData[0].channelsCount = 8;
   g_model.moduleData[0].crsf.telemetryBaudrate = 3;
   g_model.moduleData[0].crsf.crsfArmingMode = 1;
-  g_model.moduleData[0].crsf.crsfArmingTrigger = -3;
+  g_model.moduleData[0].crsf.crsfArmingCondition = 3;
   g_model.header.modelId[0] = 42;
   g_model.channelMappings[0].source = physicalStick(0);
 
@@ -98,7 +98,7 @@ TEST(EmergencySnapshot, ControlAndRFRecovery)
   EXPECT_EQ(0, memcmp(&expected, &actual, sizeof(expected)));
   EXPECT_EQ(MODULE_TYPE_CROSSFIRE, g_model.moduleData[0].type);
   EXPECT_EQ(3, g_model.moduleData[0].crsf.telemetryBaudrate);
-  EXPECT_EQ(-3, g_model.moduleData[0].crsf.crsfArmingTrigger);
+  EXPECT_EQ(3, g_model.moduleData[0].crsf.crsfArmingCondition);
   EXPECT_EQ(42, g_model.header.modelId[0]);
   EXPECT_EQ(physicalStick(0), g_model.channelMappings[0].source);
   printf("Emergency snapshot: raw=%zu compressed=%u remaining=%zu\n",

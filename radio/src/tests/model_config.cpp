@@ -65,6 +65,26 @@ TEST_F(ModelConfig, Roundtrip)
   EXPECT_EQ(4, b.telemetrySensors[0].cell.source);
   EXPECT_EQ(600u, b.timers[0].start);
 }
+TEST_F(ModelConfig, PhysicalArmingRoundtrip)
+{
+  for (int mode : {ARMING_MODE_CH5, ARMING_MODE_SWITCH}) {
+    for (int condition : {0, 1, 2, 3, 96}) {
+      ModelData a{};
+      a.moduleData[0].type = MODULE_TYPE_CROSSFIRE;
+      a.moduleData[0].crsf.crsfArmingMode = mode;
+      a.moduleData[0].crsf.crsfArmingCondition = condition;
+      ASSERT_TRUE(save(a));
+      EXPECT_EQ(std::string::npos, output.find("crsfArmingTrigger"));
+      input = output;
+      ModelData b{};
+      auto r = load(b);
+      ASSERT_TRUE(r) << r.error;
+      EXPECT_EQ(mode, b.moduleData[0].crsf.crsfArmingMode);
+      EXPECT_EQ(condition, b.moduleData[0].crsf.crsfArmingCondition);
+    }
+  }
+}
+
 TEST_F(ModelConfig, LegacyTelemetryDisplaysAreDiscarded)
 {
   input = "screens:\n"
@@ -242,7 +262,7 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   }
   g_model.moduleData[1].type = MODULE_TYPE_CROSSFIRE;
   g_model.moduleData[1].channelsCount = 8;
-  g_model.moduleData[1].crsf.crsfArmingTrigger = SWSRC_ON;
+  g_model.moduleData[1].crsf.crsfArmingCondition = physicalSwitchCondition(0, 2);
 #if defined(COLORLCD)
   input = legacyFixture("full-model-color.yml");
 #else

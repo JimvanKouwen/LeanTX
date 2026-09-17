@@ -128,3 +128,25 @@ void evalAnalogControls(bool beep)
   }
 }
 
+
+bool isPhysicalSwitchConditionAvailable(int condition)
+{
+  if (condition == 0) return true;
+  if (condition < 1 || condition > PHYSICAL_SWITCH_CONDITION_MAX) return false;
+  unsigned index = (condition - 1) / 3;
+  unsigned position = (condition - 1) % 3;
+  if (!isPhysicalInputAvailable(physicalSwitch(index))) return false;
+  if (switchIsFlex(index) && !switchIsFlexValid(index)) return false;
+#if defined(FUNCTION_SWITCHES)
+  if (switchIsCustomSwitch(index)) return position != 1;
+#endif
+  return position != 1 || g_model.getSwitchType(index) == SWITCH_3POS;
+}
+
+bool readPhysicalSwitchCondition(uint8_t condition)
+{
+  if (!condition || !isPhysicalSwitchConditionAvailable(condition)) return false;
+  unsigned index = (condition - 1) / 3;
+  int position = (condition - 1) % 3;
+  return readPhysicalInput(physicalSwitch(index)) == (position - 1) * RESX;
+}

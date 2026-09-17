@@ -73,8 +73,13 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
   box->padAll(PAD_TINY);
   box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
   choArmMode = new Choice(box, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(md->crsf.crsfArmingMode));
-  choArmSwitch = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
-  choArmSwitch->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
+  choArmSwitch = new Choice(box, rect_t{}, 0, PHYSICAL_SWITCH_CONDITION_MAX, GET_SET_DEFAULT(md->crsf.crsfArmingCondition));
+  choArmSwitch->setAvailableHandler(isPhysicalSwitchConditionAvailable);
+  choArmSwitch->setTextHandler([](int condition) {
+    char label[32];
+    getPhysicalSwitchConditionLabel(label, condition);
+    return std::string(label);
+  });
 
   update();
 }
