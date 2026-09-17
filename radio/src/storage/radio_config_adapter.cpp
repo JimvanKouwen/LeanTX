@@ -217,7 +217,7 @@ void scalarSet(RadioData& radio, unsigned id, int64_t value) {
 // Arrays have universal semantic shapes; HAL names identify physical controls.
 // These bounds are schema limits, not target RAM array dimensions.
 enum {
-  Strings = ScalarCount, Source = Strings + 6, Calib = Source + 2,
+  Strings = ScalarCount, Calib = Strings + 6,
   Sticks = Calib + 32 * 9, Pots = Sticks + 4 * 2,
   Switches = Pots + 16 * 3, Serial = Switches + 32 * 11,
   Flex = Serial + 3 * 2, Shortcuts = Flex + 16,
@@ -294,32 +294,12 @@ bool field(void* context, unsigned id, Field& f) {
     }
     return number(f, n);
   }
-  if (id < Source) {
+  if (id < Calib) {
     unsigned i = id - Strings;
     if (i == 5) return false;
     size_t size = 0; auto str = stringMember(i, size, radio);
     f.available = str && (i != 2 || available(Bluetooth));
     return !f.available || quoted(f, str, size);
-  }
-  if (id < Calib) {
-    if (f.metadataOnly) return true;
-    int source = id == Source ? radio.backlightSrc : radio.volumeSrc;
-    if (!source) { strcpy(f.value, "NONE"); return true; }
-    bool invert = source < 0;
-    if (invert) source = -source;
-    const char* name = nullptr;
-    if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
-      name = analogGetPhysicalName(ADC_INPUT_FLEX, source - MIXSRC_FIRST_POT);
-    else if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH)
-      name = switchGetDefaultName(source - MIXSRC_FIRST_SWITCH);
-#if defined(LUMINOSITY_SENSOR)
-    else if (source == MIXSRC_LIGHT) name = "LIGHT";
-#endif
-    if (!name || !isSourceAvailableForBacklightOrVolume(source)) return false;
-    char symbolic[40];
-    if (strlen(name) + 2 > sizeof(symbolic)) return false;
-    snprintf(symbolic, sizeof(symbolic), "%s%s", invert ? "!" : "", name);
-    return quoted(f, symbolic, sizeof(symbolic));
   }
   if (id < Sticks) {
     unsigned i = (id - Calib) / 9, part = (id - Calib) % 9;
@@ -479,32 +459,11 @@ bool set(void* context, unsigned id, const char* text) {
   auto& decoded = scalarBuffer; size_t len;
   if (!string(text, decoded, sizeof(decoded) - 1, len)) return false;
   decoded[len] = 0;
-  if (id < Source) {
+  if (id < Calib) {
     size_t size = 0; char* dst = stringMember(id - Strings, size, radio);
     if (!dst || len > size || !isText(text, decoded)) return false;
     if (id - Strings < 2 && (len != 2 || !isalpha((unsigned char)decoded[0]) || !isalpha((unsigned char)decoded[1]))) return false;
     memset(dst, 0, size); memcpy(dst, decoded, len); return true;
-  }
-  if (id < Calib) {
-    int source = 0;
-    const bool inverted = *decoded == '!';
-    const char* name = decoded + (inverted ? 1 : 0);
-    if (strcmp(name, "NONE") && strcmp(name, "0")) {
-      int index = analogLookupPhysicalIdx(ADC_INPUT_FLEX, name, strlen(name));
-      if (index >= 0) source = MIXSRC_FIRST_POT + index;
-      else {
-        index = switchLookupIdx(name, strlen(name));
-        if (index >= 0) source = MIXSRC_FIRST_SWITCH + index;
-#if defined(LUMINOSITY_SENSOR)
-        else if (!strcmp(name, "LIGHT")) source = MIXSRC_LIGHT;
-#endif
-        else return false;
-      }
-      if (!pending && !isSourceAvailableForBacklightOrVolume(source)) return false;
-    }
-    if (inverted) source = -source;
-    if (id == Source) radio.backlightSrc = source; else radio.volumeSrc = source;
-    return true;
   }
   if (id < Sticks) {
     unsigned i = (id - Calib) / 9, part = (id - Calib) % 9;
@@ -639,8 +598,6 @@ void enter(void* ctx, const Node& parent, const char* key, const char* text, Nod
         if (!strcmp(key, stringKeys[n])) id = Strings + n;
         if (!strcmp(key, aliasKeys[n])) id = Aliases + n;
       }
-      if (!strcmp(key, "backlightSrc")) id = Source;
-      if (!strcmp(key, "volumeSrc")) id = Source + 1;
       if (!strcmp(key, "configVersion")) id = Version;
       const char* names[] = {"calib", "sticksConfig", "potsConfig", "switchConfig", "serialPort", "flexSwitches", "keyShortcuts", "qmFavorites", "slidersConfig"};
       for (unsigned n = 0; n < 9; ++n) if (!strcmp(key, names[n])) child.section = Calibrations + n;
@@ -722,7 +679,7 @@ void save(void*, Writer& writer, Field& value)
   };
   for (unsigned id = 0; id < ScalarCount; ++id) leaf(id, scalars[id].key);
   for (unsigned i = 0; i < 5; ++i) leaf(Strings + i, stringKeys[i]);
-  leaf(Source, "backlightSrc"); leaf(Source + 1, "volumeSrc"); leaf(Version, "configVersion");
+  leaf(Version, "configVersion");
   writer.begin("calib");
   for (unsigned i = 0; i < adcGetMaxCalibratedInputs(); ++i) {
     writer.begin(adcGetInputName(i));
@@ -839,26 +796,6 @@ void resolveRadioSettingsLoad(config_stream::Result& result)
     const int channel = candidate.flex[i];
     if (channel >= 0 && potType(candidate.radio, channel) != FLEX_SWITCH)
       candidate.flex[i] = -1;
-  }
-  for (unsigned i = 0; i < 2; ++i) {
-    int source = i ? candidate.radio.volumeSrc : candidate.radio.backlightSrc;
-    source = abs(source);
-    bool valid = true;
-    if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT) {
-      const unsigned type = potType(candidate.radio, source - MIXSRC_FIRST_POT);
-      valid = type != FLEX_NONE && type < FLEX_SWITCH;
-    } else if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) {
-      const unsigned sw = source - MIXSRC_FIRST_SWITCH;
-      valid = sw < switchGetMaxSwitches() && candidate.radio.switchConfig[sw].type != SWITCH_NONE;
-#if defined(FUNCTION_SWITCHES)
-      if (switchIsCustomSwitch(sw) && g_model.cfsType(sw) != SWITCH_GLOBAL)
-        valid = g_model.cfsType(sw) != SWITCH_NONE;
-#endif
-    }
-    if (!valid) {
-      if (i) candidate.radio.volumeSrc = 0; else candidate.radio.backlightSrc = 0;
-      ++result.invalid;
-    }
   }
 }
 

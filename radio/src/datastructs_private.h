@@ -635,13 +635,9 @@ PACK(struct RadioData {
   char selectedTheme[SELECTED_THEME_NAME_LEN];
 #endif
 
-  int16_t backlightSrc:10;
-
   int16_t spareRadioViewOption:1;
   int16_t reservedModelFeature:1;
   int16_t reservedVariableFeature:1;
-
-  int16_t volumeSrc:10;
 
   int16_t reservedConditionFeature:1;
   int16_t modelTelemetryDisabled:1;

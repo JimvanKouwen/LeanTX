@@ -127,12 +127,11 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
           }
         }
       }
-      if (i_flags & INCDEC_SOURCE_INVERT) POPUP_MENU_ADD_ITEM(STR_MENU_INVERT);
       POPUP_MENU_START(onSourceLongEnterPress);
     }
     if (checkIncDecSelection != 0) {
 
-        newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
+      newval = checkIncDecSelection;
 
       if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
         s_editMode = EDIT_MODIFY_FIELD;
@@ -168,24 +167,6 @@ int checkMovedInput(int newval, unsigned int i_flags)
   }
 #endif
 
-#if defined(AUTOSOURCE)
-    if (i_flags & INCDEC_SOURCE) {
-      int source = getMovedSource(MIXSRC_FIRST_STICK);
-      if (source) {
-
-          newval = source;
-
-      }
-#if defined(AUTOSWITCH)
-    else {
-      uint8_t swtch = abs(getMovedSwitch());
-      if (swtch && swtch <= SWSRC_LAST_SWITCH) {
-        newval = switchToMix(swtch);
-      }
-    }
-#endif
-  }
-#endif
   return newval;
 }
 

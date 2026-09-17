@@ -369,7 +369,7 @@ uint16_t evalChkSum()
   return sum;
 }
 
-#if defined(AUTOSOURCE)
+#if defined(COLORLCD) && defined(AUTOSOURCE)
 constexpr int MULTIPOS_STEP_SIZE = (2 * RESX) / XPOTS_MULTIPOS_COUNT;
 
 int8_t getMovedSource(uint8_t min)
@@ -404,35 +404,6 @@ int8_t getMovedSource(uint8_t min)
   return result >= min ? result : 0;
 }
 #endif
-
-void calcBacklightValue(int16_t source)
-{
-  getvalue_t raw = getValue(source);
-#if defined(COLORLCD)
-  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright +
-      ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
-#elif OLED_SCREEN
-  requiredBacklightBright = (raw + 1024) * 254 / 2048;
-#else
-  requiredBacklightBright = (1024 - raw) * 100 / 2048;
-#endif
-}
-
-#define VOLUME_SOURCE_DEADZONE 10       // how much must a input value change to actually be considered for new volume setting
-
-void calcVolumeValue(int16_t source)
-{
-  int32_t shifted = 1024 + getValue(source);
-  int32_t v;
-  if (shifted < VOLUME_SOURCE_DEADZONE) {
-    v = 0;
-  } else {
-    v = 1 + ((shifted - VOLUME_SOURCE_DEADZONE) * (VOLUME_LEVEL_MAX - 1)) /
-            (2048 - VOLUME_SOURCE_DEADZONE);
-    if (v > VOLUME_LEVEL_MAX) v = VOLUME_LEVEL_MAX;
-  }
-  requiredSpeakerVolume = (int16_t)v;
-}
 
 void checkBacklight()
 {

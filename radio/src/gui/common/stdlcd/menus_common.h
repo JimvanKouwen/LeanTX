@@ -149,7 +149,6 @@ void pushMenuTextView(const char *filename);
 void pushModelNotes();
 void readModelNotes();
 
-uint8_t switchToMix(uint8_t source);
 
 void drawSplash();
 void doMainScreenGraphics();

@@ -57,13 +57,6 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
 
   if (s_editMode > 0) {
-    bool invert = false;
-    if ((i_flags & INCDEC_SOURCE_INVERT) && (newval < 0)) {
-      invert = true;
-      newval = -newval;
-      val = -val;
-    }
-
     int vmin = i_min;
     int vmax = i_max;
 
@@ -107,10 +100,6 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     if (!isValueAvailable || isValueAvailable(moved))
       newval = moved;
 
-    if (invert) {
-      newval = -newval;
-      val = -val;
-    }
   }
 
   newval = checkBoolean(event, i_min, i_max, newval, val);

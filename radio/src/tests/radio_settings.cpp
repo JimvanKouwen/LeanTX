@@ -112,15 +112,17 @@ TEST_F(RadioSettings, FutureVersionIsNotDowngraded) {
 }
 }
 namespace {
-TEST_F(RadioSettings, SwitchAndInvertedAnalogSourcesRoundtrip) {
-  g_eeGeneral.backlightSrc = MIXSRC_FIRST_SWITCH;
-  g_eeGeneral.volumeSrc = -MIXSRC_FIRST_POT;
-  ASSERT_TRUE(isSourceAvailableForBacklightOrVolume(g_eeGeneral.backlightSrc));
-  ASSERT_TRUE(isSourceAvailableForBacklightOrVolume(g_eeGeneral.volumeSrc));
-  ASSERT_EQ(nullptr, writeGeneralSettings());
+TEST_F(RadioSettings, RemovedControlSourcesKeepManualSettings) {
+  put("volumeSrc: '!S1'\nbacklightSrc: SA\nspeakerVolume: 3\nbacklightBright: 42\n");
   ASSERT_EQ(nullptr, loadRadioSettings());
-  EXPECT_EQ(MIXSRC_FIRST_SWITCH, g_eeGeneral.backlightSrc);
-  EXPECT_EQ(-MIXSRC_FIRST_POT, g_eeGeneral.volumeSrc);
+  EXPECT_EQ(3 - VOLUME_LEVEL_DEF, g_eeGeneral.speakerVolume);
+  EXPECT_EQ(42, g_eeGeneral.backlightBright);
+  ASSERT_EQ(nullptr, writeGeneralSettings());
+  EXPECT_EQ(std::string::npos, get().find("volumeSrc"));
+  EXPECT_EQ(std::string::npos, get().find("backlightSrc"));
+  ASSERT_EQ(nullptr, loadRadioSettings());
+  EXPECT_EQ(3 - VOLUME_LEVEL_DEF, g_eeGeneral.speakerVolume);
+  EXPECT_EQ(42, g_eeGeneral.backlightBright);
 }
 TEST_F(RadioSettings, CrsfRuntimeEnumIsNotABoolean) {
 #if defined(INTERNAL_MODULE_CRSF)
@@ -303,15 +305,9 @@ TEST_F(RadioSettings, CalibrationResolvesAfterHardwareRegardlessOfKeyOrder) {
 #endif
 }
 
-TEST_F(RadioSettings, SourcesAndFlexAssignmentsResolveAfterHardware) {
+TEST_F(RadioSettings, FlexAssignmentsResolveAfterHardware) {
   if (!adcGetMaxInputs(ADC_INPUT_FLEX)) GTEST_SKIP();
   const std::string name = analogGetPhysicalName(ADC_INPUT_FLEX, 0);
-  put("volumeSrc: '!" + name + "'\npotsConfig:\n  " + name + ":\n    type: none\n");
-  ASSERT_NE(nullptr, loadRadioSettingsYaml(true));
-  EXPECT_EQ(0, g_eeGeneral.volumeSrc);
-  put("volumeSrc: '!" + name + "'\npotsConfig:\n  " + name + ":\n    type: with_detent\n");
-  ASSERT_EQ(nullptr, loadRadioSettingsYaml(true));
-  EXPECT_EQ(-MIXSRC_FIRST_POT, g_eeGeneral.volumeSrc);
 #if MAX_FLEX_SWITCHES > 0
   const std::string flexName = switchGetDefaultName(switchGetMaxSwitches());
   put("flexSwitches:\n  " + flexName + ":\n    channel: " + name +

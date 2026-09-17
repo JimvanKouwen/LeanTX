@@ -256,11 +256,6 @@ void getPhysicalInputLabel(char (&dest)[32], PhysicalInputId source)
   snprintf(dest, sizeof(dest), "%s%s", icon, name);
 }
 
-bool isSourceAvailableForBacklightOrVolume(int source)
-{
-  return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);
-}
-
 bool isSwitchAvailable(int swtch, SwitchContext context)
 {
   if (swtch < SWSRC_FIRST || swtch > SWSRC_LAST) return false;

@@ -131,7 +131,6 @@ extern int8_t s_editMode; // global editmode
 #define INCDEC_SOURCE                  0x10
 #define INCDEC_REP10                   0x40
 #define NO_DBLKEYS                     0x80
-#define INCDEC_SOURCE_INVERT           0x100
 
 int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags = 0, IsValueAvailable isValueAvailable = nullptr,

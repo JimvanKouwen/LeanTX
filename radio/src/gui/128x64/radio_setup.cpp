@@ -47,8 +47,7 @@ enum {
           ITEM_RADIO_SETUP_BEEP_VOLUME) CASE_AUDIO(ITEM_RADIO_SETUP_BEEP_LENGTH)
           CASE_AUDIO(ITEM_RADIO_SETUP_SPEAKER_PITCH) CASE_AUDIO(
               ITEM_RADIO_SETUP_WAV_VOLUME)
-              CASE_AUDIO(ITEM_RADIO_SETUP_BACKGROUND_VOLUME) CASE_AUDIO(
-                  ITEM_RADIO_SETUP_VOLUME_SOURCE)
+              CASE_AUDIO(ITEM_RADIO_SETUP_BACKGROUND_VOLUME)
                       CASE_AUDIO(ITEM_RADIO_SETUP_START_SOUND)
                       CASE_VARIO(ITEM_RADIO_SETUP_VARIO_LABEL) CASE_VARIO(
                           ITEM_RADIO_SETUP_VARIO_VOLUME)
@@ -74,8 +73,7 @@ enum {
       CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_MODE)
           CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
               CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
-                  CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST) CASE_BACKLIGHT(
-                      ITEM_RADIO_SETUP_BACKLIGHT_SOURCE)
+                  CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
                           CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
                               CASE_KEY_LOCK(ITEM_RADIO_SETUP_KEY_LOCK)
                                   ITEM_RADIO_ONE_LOG_PER_DAY,
@@ -157,7 +155,7 @@ void menuRadioSetup(event_t event)
           CASE_AUDIO(0) CASE_AUDIO(SOUND_ROW(0)) CASE_AUDIO(SOUND_ROW(0))
               CASE_AUDIO(SOUND_ROW(0)) CASE_AUDIO(SOUND_ROW(0))
                   CASE_AUDIO(SOUND_ROW(0)) CASE_AUDIO(SOUND_ROW(0))
-                      CASE_AUDIO(SOUND_ROW(0)) CASE_AUDIO(SOUND_ROW(0))
+                      CASE_AUDIO(SOUND_ROW(0))
 
                               CASE_AUDIO(SOUND_ROW(0))
           // Vario
@@ -176,7 +174,7 @@ void menuRadioSetup(event_t event)
           ALARMS_ROW(0),
           // Backlight
           CASE_BACKLIGHT(LABEL(BACKLIGHT)) CASE_BACKLIGHT(0) CASE_BACKLIGHT(0)
-              CASE_BACKLIGHT(0) CASE_CONTRAST(0) CASE_BACKLIGHT(0)
+              CASE_BACKLIGHT(0) CASE_CONTRAST(0)
 
                       CASE_BACKLIGHT(0) CASE_KEY_LOCK(0) 0,  // One log per day
           CASE_SPLASH_PARAM(0) CASE_PWR_BUTTON_PRESS(0) CASE_PWR_BUTTON_PRESS(0)
@@ -334,15 +332,6 @@ void menuRadioSetup(event_t event)
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.speakerPitch, 0, 20);
           }
         }
-        break;
-
-      case ITEM_RADIO_SETUP_VOLUME_SOURCE:
-        lcdDrawTextIndented(y, STR_CONTROL);
-        drawSource(LCD_W-2, y, g_eeGeneral.volumeSrc, STREXPANDED|RIGHT|attr);
-        if (attr)
-          g_eeGeneral.volumeSrc = checkIncDec(event, g_eeGeneral.volumeSrc,
-                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
-                isSourceAvailableForBacklightOrVolume);
         break;
 
       case ITEM_RADIO_SETUP_START_SOUND:
@@ -512,15 +501,6 @@ void menuRadioSetup(event_t event)
           g_eeGeneral.backlightBright = 100 - b;
 #endif
         }
-        break;
-
-      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE:
-        lcdDrawTextIndented(y, STR_CONTROL);
-        drawSource(LCD_W-2, y, g_eeGeneral.backlightSrc, STREXPANDED|RIGHT|attr);
-        if (attr)
-          g_eeGeneral.backlightSrc = checkIncDec(event, g_eeGeneral.backlightSrc,
-                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
-                isSourceAvailableForBacklightOrVolume);
         break;
 
 #endif

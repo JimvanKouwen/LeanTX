@@ -602,15 +602,9 @@ void perMain()
 #endif
 
   // Apply the radio's controls independently of optional model features.
-  if (g_eeGeneral.backlightSrc && mixerTaskRunning())
-    calcBacklightValue(g_eeGeneral.backlightSrc);
-  else
-    requiredBacklightBright = g_eeGeneral.getBrightness();
+  requiredBacklightBright = g_eeGeneral.getBrightness();
 #if defined(AUDIO)
-  if (g_eeGeneral.volumeSrc && mixerTaskRunning())
-    calcVolumeValue(g_eeGeneral.volumeSrc);
-  else
-    requiredSpeakerVolume = limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
+  requiredSpeakerVolume = limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
 #endif
 
 #if defined(GUI)
