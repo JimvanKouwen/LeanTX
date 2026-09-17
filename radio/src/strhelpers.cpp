@@ -614,7 +614,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
   }
 #endif
-  else if (idx >= MIXSRC_FIRST_RESERVED_TRIM && idx <= MIXSRC_LAST_RESERVED_TRIM) {
+  else if (idx < MIXSRC_FIRST_SWITCH) {
     strAppend(dest, STR_EMPTY);
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
@@ -675,7 +675,6 @@ bool sourceCanHaveCustomName(mixsrc_t idx)
 {
   return (idx >= MIXSRC_FIRST_STICK && idx <= MIXSRC_LAST_STICK) ||
          (idx >= MIXSRC_FIRST_POT && idx <= MIXSRC_LAST_POT) ||
-         (idx >= MIXSRC_FIRST_RESERVED_TRIM && idx <= MIXSRC_LAST_RESERVED_TRIM) ||
          (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) ||
          (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH) ||
          (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER);

@@ -58,6 +58,7 @@ bool checkSwitchAvailable(int swtch, uint32_t swtchTypes);
 bool isThrottleSourceAvailable(int source);
 bool isSourceAvailableForBacklightOrVolume(int source);
 bool isSourceAvailable(int source);
+bool isMixerSourceAvailable(int source);
 int timersSetupCount();
 bool isTimerSourceAvailable(int source);
 bool isSwitchAvailable(int swtch, SwitchContext context);

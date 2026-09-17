@@ -312,7 +312,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-  else if (i >= MIXSRC_FIRST_RESERVED_TRIM && i <= MIXSRC_LAST_RESERVED_TRIM) {
+  else if (i < MIXSRC_FIRST_SWITCH) {
     if (valid != nullptr) *valid = false;
     return 0; // Reserved source IDs from the removed trim-value system.
   }
@@ -547,8 +547,8 @@ void evalChannelMixes(uint8_t mode)
       if (i == 0 || md->destCh != (md - 1)->destCh)
         chans[md->destCh] = 0;
 
-      // Ignore sources outside the ordinary mixer selector, including telemetry.
-      if (srcRawAbs > MIXSRC_LAST) continue;
+      // Reject non-control sources even when supplied by storage or Lua.
+      if (!isMixerSource(srcRaw)) continue;
 
       //========== VALUE ===============
       getvalue_t v = 0;

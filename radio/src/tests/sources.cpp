@@ -99,6 +99,6 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
   EXPECT_STREQ(getSourceString(MIXSRC_MAX), STR_MENU_MAX);
 
-  for (int source = MIXSRC_FIRST_RESERVED_TRIM; source <= MIXSRC_LAST_RESERVED_TRIM; ++source)
+  for (int source = MIXSRC_FIRST_SWITCH - MAX_TRIMS; source < MIXSRC_FIRST_SWITCH; ++source)
     EXPECT_STREQ(getSourceString(source), "---");
 }

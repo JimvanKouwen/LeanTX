@@ -240,6 +240,11 @@ bool isSourceAvailable(int source)
             );
 }
 
+bool isMixerSourceAvailable(int source)
+{
+  return isMixerSource(source) && isSourceAvailable(source);
+}
+
 bool isSourceAvailableForBacklightOrVolume(int source)
 {
   return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);

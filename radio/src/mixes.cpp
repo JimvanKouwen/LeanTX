@@ -41,8 +41,8 @@ void insertMix(uint8_t idx, uint8_t channel)
   mix->srcRaw = MIXSRC_FIRST_STICK +
       (channel < adcGetMaxInputs(ADC_INPUT_MAIN)
            ? inputMappingChannelOrder(channel) : channel);
-  while (!isSourceAvailable(mix->srcRaw)) {
-    mix->srcRaw += 1;
+  while (!isMixerSourceAvailable(mix->srcRaw)) {
+    if (++mix->srcRaw > MIXSRC_LAST) mix->srcRaw = MIXSRC_MAX;
   }
   mix->weight = 100;
   mixerTaskStart();

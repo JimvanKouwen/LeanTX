@@ -415,10 +415,13 @@ enum MixSources {
   MIXSRC_LIGHT,
 #endif
 
-  MIXSRC_FIRST_RESERVED_TRIM,
-  MIXSRC_LAST_RESERVED_TRIM = MIXSRC_FIRST_RESERVED_TRIM + MAX_TRIMS - 1,
-
-  MIXSRC_FIRST_SWITCH,
+  // Leave the removed trim-value IDs unused: shared source IDs are also
+  // persisted outside Mixes and exposed to Lua. Do not renumber them.
+#if defined(LUMINOSITY_SENSOR)
+  MIXSRC_FIRST_SWITCH = MIXSRC_LIGHT + MAX_TRIMS + 1,
+#else
+  MIXSRC_FIRST_SWITCH = MIXSRC_MAX + MAX_TRIMS + 1,
+#endif
   MIXSRC_LAST_SWITCH = MIXSRC_FIRST_SWITCH + MAX_SWITCHES - 1,
 
 #if defined(FUNCTION_SWITCHES)
@@ -443,6 +446,17 @@ enum MixSources {
 };
 
 #define MIXSRC_LAST                 MIXSRC_LAST_CH
+
+// The shared source namespace also serves UI, audio and Lua. Only these
+// control families may feed a legacy Mixer line, including inverted sources.
+inline bool isMixerSource(int source)
+{
+  if (source < 0) source = -source;
+  return (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_POT) ||
+         source == MIXSRC_MIN || source == MIXSRC_MAX ||
+         (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) ||
+         (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH);
+}
 
 #if defined(FUNCTION_SWITCHES)
 #define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1)

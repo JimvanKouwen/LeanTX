@@ -92,6 +92,58 @@ TEST_F(MixerTest, DirectTelemetrySourcesAreIgnored)
   telemetryItems[0].clear();
 }
 
+// A non-control line must be skipped before offset/curve processing, even
+// when its shared value is zero or the source was injected by Lua/storage.
+TEST_F(MixerTest, NonControlSourceFamiliesCannotRoute)
+{
+  MODEL_RESET();
+  MIXER_RESET();
+  const int rejected[] = {
+    MIXSRC_TX_VOLTAGE, MIXSRC_TX_TIME, MIXSRC_TX_GPS,
+    MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER,
+    MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
+    MIXSRC_FIRST_SWITCH - 1, MIXSRC_INVERT,
+#if defined(IMU)
+    MIXSRC_TILT_X, MIXSRC_TILT_Y,
+#endif
+#if defined(LUMINOSITY_SENSOR)
+    MIXSRC_LIGHT,
+#endif
+#if defined(PCBHORUS)
+    MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE,
+#endif
+#if defined(FUNCTION_SWITCHES)
+    MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP,
+#endif
+  };
+  for (int source : rejected) {
+    for (int sign : {-1, 1}) {
+      EXPECT_FALSE(isMixerSourceAvailable(sign * source)) << source;
+      auto &mix = g_model.mixData[0];
+      mix.srcRaw = sign * source;
+      mix.weight = 100;
+      mix.offset = 50;
+      for (auto mode : {e_perout_mode_normal, e_perout_mode_preview}) {
+        evalChannelMixes(mode);
+        EXPECT_EQ(0, chans[0]) << source;
+      }
+    }
+  }
+  EXPECT_FALSE(isMixerSourceAvailable(MIXSRC_NONE));
+}
+
+TEST_F(MixerTest, SharedSystemAndTimerValuesRemainReadable)
+{
+  g_vbat100mV = 83;
+  timersStates[0].val = 123;
+  EXPECT_EQ(83, getValue(MIXSRC_TX_VOLTAGE));
+  EXPECT_EQ(-83, getValue(-MIXSRC_TX_VOLTAGE));
+  EXPECT_EQ(123, getValue(MIXSRC_FIRST_TIMER));
+  EXPECT_EQ(-123, getValue(-MIXSRC_FIRST_TIMER));
+  EXPECT_FALSE(isMixerSourceAvailable(MIXSRC_TX_VOLTAGE));
+  EXPECT_FALSE(isMixerSourceAvailable(MIXSRC_FIRST_TIMER));
+}
+
   #define ELE_CHAN          1
   #define THR_STICK_MIN_THR_POS -1024
 
@@ -353,7 +405,7 @@ TEST_F(MixerTest, PhysicalTrimButtonsDoNotOffsetSticks)
 
 TEST_F(MixerTest, RemovedTrimValueSourcesAreUnavailable)
 {
-  for (int source = MIXSRC_FIRST_RESERVED_TRIM; source <= MIXSRC_LAST_RESERVED_TRIM; ++source) {
+  for (int source = MIXSRC_FIRST_SWITCH - MAX_TRIMS; source < MIXSRC_FIRST_SWITCH; ++source) {
     EXPECT_FALSE(isSourceAvailable(source));
     bool valid = true;
     EXPECT_EQ(0, getValue(source, &valid));
