@@ -176,7 +176,6 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 #define CHECK_INCDEC_MODELVAR_ZERO_CHECK(event, var, max, check) \
   var = checkIncDec(event, var, 0, max, EE_MODEL, check)
 
-#define AUTOSWITCH_ENTER_LONG() (attr && event==EVT_KEY_LONG(KEY_ENTER))
 #define CHECK_INCDEC_SWITCH(event, var, min, max, flags, available) \
   var = checkIncDec(event, var, min, max, (flags)|INCDEC_SWITCH, available)
 #define CHECK_INCDEC_MODELSWITCH(event, var, min, max, available) \
@@ -188,9 +187,6 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 #define CHECK_INCDEC_GENVAR(event, var, min, max) \
   var = checkIncDecGen(event, var, min, max)
 
-#if defined(AUTOSWITCH)
-swsrc_t checkIncDecMovedSwitch(swsrc_t val);
-#endif
 
 void repeatLastCursorMove(event_t event);
 #define repeatLastCursorHorMove(event) repeatLastCursorMove(event)

@@ -54,18 +54,6 @@ TEST_F(PreflightTest, SwitchCaptureReadsHardwareWithoutMovementPolling)
   EXPECT_EQ(0, g_model.getSwitchWarning(sw));
 }
 
-TEST_F(PreflightTest, WarningCaptureDoesNotConsumeSwitchMovement)
-{
-  int sw = findHwSwitch(SWITCH_3POS);
-  ASSERT_GE(sw, 0);
-  simuSetSwitch(sw, -1);
-  getMovedSwitch();
-  g_model.setSwitchWarning(sw, 1);
-  simuSetSwitch(sw, 1);
-  setAllPreflightSwitchStates();
-  EXPECT_EQ(SWSRC_FIRST_SWITCH + 3 * sw + 2, getMovedSwitch());
-}
-
 TEST_F(PreflightTest, TwoPositionWarningHasNoMiddleState)
 {
   int sw = findHwSwitch(SWITCH_3POS);

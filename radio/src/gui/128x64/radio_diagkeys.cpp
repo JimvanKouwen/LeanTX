@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "physical_input.h"
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
 #include "hal/key_driver.h"
@@ -148,7 +149,7 @@ void menuRadioDiagKeys(event_t event)
 
     if (i < switchGetMaxAllSwitches()) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
-        getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+        getvalue_t val = readPhysicalInput(physicalSwitch(i));
         getvalue_t sw =
             ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
         drawSwitch(sw_x, sw_y, sw, 0, false);

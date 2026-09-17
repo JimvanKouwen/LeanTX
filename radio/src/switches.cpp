@@ -351,7 +351,7 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
   }
 
   if (!(switchesPos & result)) {
-    PLAY_SWITCH_MOVED(index);
+    PLAY_SWITCH_MOVED(idx, pos);
   }
 
   return result;
@@ -396,7 +396,7 @@ void getSwitchesPosition(bool startup)
           potsLastposStart[i] = 0;
           potsPos[i] = (pos << 4) | pos;
           if (previousStoredPos != pos) {
-            PLAY_SWITCH_MOVED(SWSRC_LAST_SWITCH + i * XPOTS_MULTIPOS_COUNT + pos);
+            PLAY_MULTIPOS_MOVED(i, pos);
           }
         }
       }
@@ -502,83 +502,6 @@ uint8_t getXPotPosition(uint8_t idx)
 {
   if (idx >= MAX_POTS || !IS_POT_MULTIPOS(idx)) return 0;
   return potsPos[idx] & 0x0F;
-}
-
-static inline uint8_t _bits_set(uint8_t val, uint8_t bits)
-{
-  uint8_t bits_set = 0;
-  do {
-    if (val & 1) ++bits_set;
-    val >>= 1;
-  } while (--bits);
-
-  return bits_set;
-}
-
-static swarnstate_t switches_states = 0;
-
-swsrc_t getMovedSwitch()
-{
-  static tmr10ms_t s_move_last_time = 0;
-  swsrc_t result = 0;
-
-  // Switches
-  auto max_switches = switchGetMaxAllSwitches();
-  for (uint8_t i = 0; i < max_switches; i++) {
-    if (SWITCH_EXISTS(i)) {
-      swarnstate_t mask = ((swarnstate_t) 0x03 << (i * 2));
-      uint8_t prev = (switches_states & mask) >> (i * 2);
-      uint8_t next;
-#if defined(FUNCTION_SWITCHES)
-      if (switchIsCustomSwitch(i))
-        next = g_model.cfsState(i) ? 3 : 1;
-      else
-        next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
-#else
-      next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
-#endif
-      if (prev != next) {
-        switches_states =
-            (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 2));
-        result = (3 * i) + next;
-      }
-    }
-  }
-
-  // Multipos
-  for (int i = 0; i < MAX_POTS; i++) {
-    if (IS_POT_MULTIPOS(i)) {
-      StepsCalibData * calib = &g_eeGeneral.calib[MAX_STICKS + i].multipos;
-#if defined(SIMU)
-      {
-        uint8_t count = XPOTS_MULTIPOS_COUNT - 1;
-#else
-      if (IS_MULTIPOS_CALIBRATED(calib)) {
-        uint8_t count = calib->count;
-#endif
-        uint8_t prev = potsPos[i] & 0x0F;
-        uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / count);
-        if (prev != next) {
-          result = SWSRC_FIRST_MULTIPOS_SWITCH + i * XPOTS_MULTIPOS_COUNT + next;
-        }
-      }
-    }
-  }
-
-  // Each physical trim direction is an independent momentary control.
-  static uint32_t previousButtons = 0;
-  uint32_t buttons = readTrims();
-  uint32_t pressed = buttons & ~previousButtons;
-  previousButtons = buttons;
-  for (int i = 0; i < keysGetMaxTrims() * 2; ++i) {
-    if (pressed & (1u << i)) result = SWSRC_FIRST_TRIM + i;
-  }
-
-  if ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 100)
-    result = 0;
-
-  s_move_last_time = get_tmr10ms();
-  return result;
 }
 
 int16_t getPotWarningPosition(uint8_t index)

@@ -323,8 +323,7 @@ bool isAudioFileReferenced(uint32_t i, char * filename)
   }
     else if (category == SWITCH_AUDIO_CATEGORY) {
     if (sdAvailableSwitchAudioFiles.getBit(index)) {
-      getSwitchAudioFile(filename, SWSRC_FIRST_SWITCH + index);
-      return true;
+      return getSwitchAudioFile(filename, index);
     }
   }
 

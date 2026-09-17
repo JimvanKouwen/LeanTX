@@ -122,21 +122,6 @@ class Choice : public ChoiceBase
     isValueAvailable = std::move(handler);
   }
 
-  unsigned getIndexFromValue(int value) const
-  {
-    if (!isValueAvailable) {
-      return value - vmin;
-    }
-
-    unsigned index = 0;
-    for (int i = vmin; i < value; i++) {
-      if (isValueAvailable(i)) {
-        index++;
-      }
-    }
-    return index;
-  }
-
   int getValueFromIndex(int index) const
   {
     if (!isValueAvailable) {

@@ -39,8 +39,6 @@ class MenuToolbar : public Window
   MenuToolbar(Choice* choice, Menu* menu, const int columns);
   ~MenuToolbar();
 
-  void resetFilter();
-
   void nextFilter();
   void prevFilter();
 

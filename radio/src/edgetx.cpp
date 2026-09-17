@@ -369,41 +369,6 @@ uint16_t evalChkSum()
   return sum;
 }
 
-#if defined(COLORLCD) && defined(AUTOSOURCE)
-constexpr int MULTIPOS_STEP_SIZE = (2 * RESX) / XPOTS_MULTIPOS_COUNT;
-
-int8_t getMovedSource(uint8_t min)
-{
-  int8_t result = 0;
-  static tmr10ms_t s_move_last_time = 0;
-
-  static int16_t sourcesStates[MAX_ANALOG_INPUTS];
-  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
-    if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
-      auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
-      if (i >= offset) {
-        result = MIXSRC_FIRST_POT + i - offset;
-        break;
-      }
-      result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
-      break;
-    }
-  }
-
-  bool recent = ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 10);
-  if (recent) {
-    result = 0;
-  }
-
-  if (result || recent) {
-    memcpy(sourcesStates, calibratedAnalogs, sizeof(sourcesStates));
-  }
-
-  s_move_last_time = get_tmr10ms();
-
-  return result >= min ? result : 0;
-}
-#endif
 
 void checkBacklight()
 {

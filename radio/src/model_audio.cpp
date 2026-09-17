@@ -22,7 +22,7 @@
 #include "model_audio.h"
 
 #include "edgetx.h"
-#include "switches.h"
+#include "hal/switch_driver.h"
 
 char* getModelAudioPath(char* path, bool trailingSlash)
 {
@@ -43,19 +43,21 @@ char* getModelAudioPath(char* path, bool trailingSlash)
 
 static const char* const _sw_positions[] = {"-up", "-mid", "-down"};
 
-bool getSwitchAudioFile(char* path, swsrc_t index)
+bool getSwitchAudioFile(char* path, unsigned index)
 {
+  if (index >= MAX_SWITCHES * 3 + MAX_POTS * XPOTS_MULTIPOS_COUNT)
+    return false;
   char* str = getModelAudioPath(path);
 
-  if (index <= SWSRC_LAST_SWITCH) {
-    div_t swinfo = switchInfo(index);
+  if (index < MAX_SWITCHES * 3) {
+    div_t swinfo = div(int(index), 3);
     auto sw_name = switchGetDefaultName(swinfo.quot);
     if (!sw_name) return false;
     str = strAppend(str, sw_name);
     str = strAppend(str, _sw_positions[swinfo.rem]);
   } else {
     div_t swinfo =
-        div((int)(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
+        div((int)(index - MAX_SWITCHES * 3), XPOTS_MULTIPOS_COUNT);
     *str++ = 'S';
     *str++ = '1' + swinfo.quot;
     *str++ = '1' + swinfo.rem;

@@ -23,6 +23,7 @@
 
 #include "hal/rotary_encoder.h"
 #include "edgetx.h"
+#include "physical_input.h"
 
 #if defined(RADIO_PL18U)
   static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1,
@@ -195,7 +196,7 @@ class RadioKeyDiagsWindow : public Window
 
     for (i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
-        getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+        getvalue_t val = readPhysicalInput(physicalSwitch(i));
         getvalue_t sw =
             ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
         lv_label_set_text(switchValues[i], getSwitchPositionName(sw));

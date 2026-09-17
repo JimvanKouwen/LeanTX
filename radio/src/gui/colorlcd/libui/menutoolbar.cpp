@@ -91,15 +91,6 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
 
 MenuToolbar::~MenuToolbar() { lv_group_del(group); }
 
-void MenuToolbar::resetFilter()
-{
-  if (lv_group_get_focused(group) != lvobj) {
-    lv_group_focus_obj(lvobj);
-    choice->fillMenu(menu);
-    menu->setTitle(choice->getTitle());
-  }
-}
-
 void MenuToolbar::nextFilter()
 {
   lv_group_focus_next(group);

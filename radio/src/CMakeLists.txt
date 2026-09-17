@@ -15,8 +15,6 @@ set(POPUP_LEVEL 2 CACHE STRING "Popup level")
 
 option(GUI "GUI enabled" ON)
 option(FAI "Competition mode (no telemetry)" OFF)
-option(AUTOSOURCE "Automatic source detection in menus" ON)
-option(AUTOSWITCH "Automatic switch detection in menus" ON)
 option(SEMIHOSTING "Enable debugger semihosting" OFF)
 option(JITTER_MEASURE "Enable ADC jitter measurement" OFF)
 option(WATCHDOG "Enable hardware Watchdog" ON)
@@ -217,14 +215,6 @@ if(FAI STREQUAL YES)
   add_definitions(-DFAI)
 elseif(FAI STREQUAL CHOICE)
   add_definitions(-DFAI_CHOICE)
-endif()
-
-if(AUTOSOURCE)
-  add_definitions(-DAUTOSOURCE)
-endif()
-
-if(AUTOSWITCH)
-  add_definitions(-DAUTOSWITCH)
 endif()
 
 if(JITTER_MEASURE)

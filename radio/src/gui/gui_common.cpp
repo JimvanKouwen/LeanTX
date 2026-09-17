@@ -29,12 +29,6 @@
 
 #undef CPN
 
-uint8_t switchToMix(uint8_t source)
-{
-  div_t qr = div(source-1, 3);
-  return qr.quot + MIXSRC_FIRST_SWITCH;
-}
-
 bool isVarioSensorAvailable(int sensor)
 {
   if (sensor == 0)

@@ -35,7 +35,6 @@ uint8_t getSwitchCount();
 
 uint8_t switchGetMaxRow(uint8_t col);
 
-swsrc_t getMovedSwitch();
 
 bool getSwitch(swsrc_t swtch);
 uint8_t getXPotPosition(uint8_t idx);

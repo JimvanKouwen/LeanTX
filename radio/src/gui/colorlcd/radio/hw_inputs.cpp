@@ -24,6 +24,7 @@
 #include "analogs.h"
 #include "choice.h"
 #include "edgetx.h"
+#include "physical_input.h"
 #include "getset_helpers.h"
 #if defined(IMU)
   #include "gyro.h"
@@ -203,7 +204,7 @@ class SwitchDynamicLabel : public StaticText
 
   uint8_t position()
   {
-    auto value = getValue(MIXSRC_FIRST_SWITCH + index);
+    auto value = readPhysicalInput(physicalSwitch(index));
     if (value > 0)
       return 2;
     else if (value < 0)

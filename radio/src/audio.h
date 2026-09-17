@@ -544,12 +544,14 @@ void playModelName();
 #if defined(AUDIO)
   extern tmr10ms_t timeAutomaticPromptsSilence;
   void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
-  #define PLAY_SWITCH_MOVED(sw)         playModelEvent(SWITCH_AUDIO_CATEGORY, sw)
+  #define PLAY_SWITCH_MOVED(sw, pos)    playModelEvent(SWITCH_AUDIO_CATEGORY, (sw) * 3 + (pos))
+  #define PLAY_MULTIPOS_MOVED(pot, pos) playModelEvent(SWITCH_AUDIO_CATEGORY, MAX_SWITCHES * 3 + (pot) * XPOTS_MULTIPOS_COUNT + (pos))
   #define PLAY_MODEL_NAME()             playModelName()
   #define START_SILENCE_PERIOD()        timeAutomaticPromptsSilence = get_tmr10ms()
   #define IS_SILENCE_PERIOD_ELAPSED()   (get_tmr10ms()-timeAutomaticPromptsSilence > 50)
 #else
-  #define PLAY_SWITCH_MOVED(sw)
+  #define PLAY_SWITCH_MOVED(sw, pos)
+  #define PLAY_MULTIPOS_MOVED(pot, pos)
   #define PLAY_MODEL_NAME()
   #define START_SILENCE_PERIOD()
   #define IS_SILENCE_PERIOD_ELAPSED()   true

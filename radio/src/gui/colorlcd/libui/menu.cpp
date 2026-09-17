@@ -433,11 +433,6 @@ void Menu::setCancelHandler(std::function<void()> handler)
   cancelHandler = std::move(handler);
 }
 
-void Menu::setWaitHandler(std::function<void()> handler)
-{
-  waitHandler = std::move(handler);
-}
-
 void Menu::setLongPressHandler(std::function<void()> handler)
 {
   longPressHandler = std::move(handler);
@@ -454,10 +449,3 @@ unsigned Menu::count() const { return content->count(); }
 int Menu::selection() const { return content->selection(); }
 
 void Menu::select(int index) { content->setIndex(index); }
-
-void Menu::checkEvents()
-{
-  ModalWindow::checkEvents();
-  if (waitHandler)
-    waitHandler();
-}

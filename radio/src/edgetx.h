@@ -215,9 +215,6 @@ void perMain();
 
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
-#if defined(COLORLCD) && defined(AUTOSOURCE)
-int8_t getMovedSource(uint8_t min);
-#endif
 
 void flightReset(uint8_t check=true);
 

@@ -135,9 +135,6 @@ int SourceChoice::getIntValue() const
   return value;
 }
 
-// defined in gui/gui_common.cpp
-uint8_t switchToMix(uint8_t source);
-
 void SourceChoice::openMenu()
 {
   setEditMode(true);  // this needs to be done first before menu is created.
@@ -154,27 +151,6 @@ void SourceChoice::openMenu()
   if (canInvert)
     menu->setLongPressHandler([=]() { tb->invertChoice(); });
 
-#if defined(AUTOSOURCE)
-  menu->setWaitHandler([=]() {
-    int16_t val = getMovedSource(vmin);
-    if (val) {
-      tb->resetFilter();
-      menu->select(getIndexFromValue(val));
-    }
-#if defined(AUTOSWITCH)
-    else {
-      swsrc_t swtch = abs(getMovedSwitch());
-      if (swtch && swtch <= SWSRC_LAST_SWITCH) {
-        val = switchToMix(swtch);
-        if (val && (val >= vmin) && (val <= vmax)) {
-          tb->resetFilter();
-          menu->select(getIndexFromValue(val));
-        }
-      }
-    }
-#endif
-  });
-#endif
 
   // fillMenu(menu); - called by MenuToolbar
 

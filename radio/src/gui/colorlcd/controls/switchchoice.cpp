@@ -128,26 +128,6 @@ void SwitchChoice::openMenu()
 
   menu->setLongPressHandler([=]() { tb->invertChoice(); });
 
-#if defined(AUTOSWITCH)
-  menu->setWaitHandler([=]() {
-    swsrc_t val = 0;
-    swsrc_t swtch = getMovedSwitch();
-    if (swtch) {
-      div_t info = switchInfo(swtch);
-      if (swtch <= SWSRC_LAST_SWITCH && IS_CONFIG_TOGGLE(info.quot)) {
-        if (info.rem != 0) {
-          val = (val == swtch ? swtch - 2 : swtch);
-        }
-      } else {
-        val = swtch;
-      }
-      if (val && (!isValueAvailable || isValueAvailable(val))) {
-        tb->resetFilter();
-        menu->select(getIndexFromValue(val));
-      }
-    }
-  });
-#endif
 
   // fillMenu(menu); - called by MenuToolbar
 

@@ -21,10 +21,9 @@
 
 #pragma once
 
-#include "edgetx_types.h"
-
 char* getModelAudioPath(char* path, bool trailingSlash = true);
 
-bool getSwitchAudioFile(char* path, swsrc_t index);
+// Zero-based audio slots: physical switch positions, then multipos positions.
+bool getSwitchAudioFile(char* path, unsigned index);
 
 bool matchSwitchAudioFile(const char* filename, int& sw_pos);

@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "physical_input.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/usb_driver.h"
@@ -316,7 +317,7 @@ void onMainViewMenu(const char * result)
 void displaySwitch(coord_t x, coord_t y, int width, unsigned int index)
 {
   if (SWITCH_EXISTS(index)) {
-    int val = getValue(MIXSRC_FIRST_SWITCH+index);
+    int val = readPhysicalInput(physicalSwitch(index));
 
     if (val >= 0) {
       lcdDrawSolidHorizontalLine(x, y, width);
@@ -430,7 +431,7 @@ void menuMainView(event_t event)
                       (switch_display.row < 4 ? 0 : 20) +
                       (switch_display.col == 0 ? 0 : shiftright);
           coord_t y = 25 + (switch_display.row % 4) * FH;
-          getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+          getvalue_t val = readPhysicalInput(physicalSwitch(i));
           getvalue_t sw =
               ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
           drawSwitch(x, y, sw, 0, false);

@@ -25,25 +25,6 @@
 #include "hal/switch_driver.h"
 #include "switches.h"
 
-#if defined(AUTOSWITCH)
-swsrc_t checkIncDecMovedSwitch(swsrc_t val)
-{
-  swsrc_t swtch = getMovedSwitch();
-  if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) return swtch;
-  if (swtch) {
-    div_t info = switchInfo(swtch);
-    if (IS_CONFIG_TOGGLE(info.quot)) {
-      if (info.rem != 0) {
-        val = (val == swtch ? swtch-2 : swtch);
-      }
-    }
-    else {
-      val = swtch;
-    }
-  }
-  return val;
-}
-#endif
 
 int checkIncDecSelection = 0;
 

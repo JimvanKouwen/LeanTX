@@ -159,17 +159,6 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
   return newval;
 }
 
-int checkMovedInput(int newval, unsigned int i_flags)
-{
-#if defined(AUTOSWITCH)
-  if (i_flags & INCDEC_SWITCH) {
-    newval = checkIncDecMovedSwitch(newval);
-  }
-#endif
-
-  return newval;
-}
-
 int checkBoolean(event_t event, int i_min, int i_max, int newval, int val)
 {
   if (i_min == 0 && i_max == 1 &&

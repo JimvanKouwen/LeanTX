@@ -150,22 +150,6 @@ TEST_F(PhysicalControlTest, RemovedTrimValueSourcesAreUnavailable)
   }
 }
 
-// checkIncDecMovedSwitch belongs to monochrome menu navigation.
-#if defined(AUTOSWITCH) && !defined(COLORLCD)
-TEST_F(PhysicalControlTest, PhysicalTrimButtonsAutoSelectWithoutTrimModes)
-{
-  getMovedSwitch(); // Establish the polling baseline.
-  for (int button = 0; button < keysGetMaxTrims() * 2; ++button) {
-    ++g_tmr10ms;
-    simuSetTrim(button, true);
-    EXPECT_EQ(SWSRC_FIRST_TRIM + button, checkIncDecMovedSwitch(SWSRC_NONE));
-    ++g_tmr10ms;
-    simuSetTrim(button, false);
-    getMovedSwitch();
-  }
-}
-#endif
-
 TEST_F(PhysicalControlTest, DefaultQuadUsesPhysicalAETRControls)
 {
   generalDefault();
@@ -186,3 +170,30 @@ TEST_F(PhysicalControlTest, DefaultQuadUsesPhysicalAETRControls)
   }
 }
 
+
+#if !defined(COLORLCD)
+TEST_F(PhysicalControlTest, ManualSelectionIgnoresHardwareMovement)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  ASSERT_GE(sw, 0);
+  s_editMode = EDIT_MODIFY_FIELD;
+  int selected = SWSRC_FIRST_SWITCH + sw * 3;
+  for (int position : {-1, 1, 0}) {
+    simuSetSwitch(sw, position);
+    EXPECT_EQ(selected, checkIncDec(0, selected, SWSRC_NONE, SWSRC_LAST_SWITCH,
+                                   INCDEC_SWITCH, nullptr));
+    EXPECT_EQ(MIXSRC_FIRST_STICK,
+              checkIncDec(0, MIXSRC_FIRST_STICK, MIXSRC_FIRST_STICK,
+                          MIXSRC_LAST_SWITCH, INCDEC_SOURCE, isSourceAvailable));
+  }
+  // The manual category menu still selects sources and switches.
+  onSwitchLongEnterPress(STR_MENU_TRIMS);
+  EXPECT_EQ(SWSRC_FIRST_TRIM,
+            checkIncDec(0, selected, SWSRC_NONE, SWSRC_LAST_TRIM,
+                        INCDEC_SWITCH, nullptr));
+  onSourceLongEnterPress(STR_MENU_MAX);
+  EXPECT_EQ(MIXSRC_MAX,
+            checkIncDec(0, MIXSRC_FIRST_STICK, MIXSRC_NONE, MIXSRC_LAST_CH,
+                        INCDEC_SOURCE, isSourceAvailable));
+}
+#endif
