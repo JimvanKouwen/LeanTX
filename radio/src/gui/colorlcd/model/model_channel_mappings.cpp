@@ -1,6 +1,6 @@
 #include "model_channel_mappings.h"
 #include "edgetx.h"
-#include "sourcechoice.h"
+#include "choice.h"
 #include "static.h"
 
 void ModelChannelMappingsPage::build(Window* window)
@@ -9,13 +9,20 @@ void ModelChannelMappingsPage::build(Window* window)
   for (unsigned channel = 0; channel < MAX_OUTPUT_CHANNELS; ++channel) {
     auto row = new Window(window, rect_t{0, 0, lv_pct(100), LV_SIZE_CONTENT});
     row->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-    new StaticText(row, rect_t{}, getSourceString(MIXSRC_FIRST_CH + channel));
-    auto choice = new SourceChoice(row, rect_t{}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
-      [=]() { return physicalInputToSource(g_model.channelMappings[channel].source); },
-      [=](int16_t source) {
-        g_model.channelMappings[channel].source = physicalInputFromSource(source);
+    char label[32];
+    strAppendStringWithIndex(label, STR_CH, channel + 1);
+    new StaticText(row, rect_t{}, label);
+    auto choice = new Choice(row, rect_t{}, int(PhysicalInputId::None), int(physicalSwitch(31)),
+      [=]() { return int(g_model.channelMappings[channel].source); },
+      [=](int source) {
+        g_model.channelMappings[channel].source = PhysicalInputId(source);
         storageDirty(EE_MODEL);
-      });
-    choice->setAvailableHandler(isPhysicalSourceAvailable);
+      }, STR_SOURCE);
+    choice->setAvailableHandler(isChannelMappingInputAvailable);
+    choice->setTextHandler([](int source) {
+      char label[32];
+      getPhysicalInputLabel(label, PhysicalInputId(source));
+      return std::string(label);
+    });
   }
 }

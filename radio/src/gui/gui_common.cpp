@@ -230,30 +230,31 @@ bool isSourceAvailable(int source)
             );
 }
 
-// UI adapter only. Realtime routing never uses the generic source namespace.
-PhysicalInputId physicalInputFromSource(int source)
+// Integer widget values are PhysicalInputId values, including the empty slot.
+bool isChannelMappingInputAvailable(int value)
 {
-  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK)
-    return physicalStick(source - MIXSRC_FIRST_STICK);
-  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
-    return physicalFlex(source - MIXSRC_FIRST_POT);
-  if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH)
-    return physicalSwitch(source - MIXSRC_FIRST_SWITCH);
-  return PhysicalInputId::None;
+  return value == int(PhysicalInputId::None) ||
+         (value > 0 && value <= int(physicalSwitch(31)) &&
+          isPhysicalInputAvailable(PhysicalInputId(value)));
 }
 
-int physicalInputToSource(PhysicalInputId source)
+void getPhysicalInputLabel(char (&dest)[32], PhysicalInputId source)
 {
   unsigned id = unsigned(source);
-  if (id >= 1 && id - 1 < MAX_STICKS) return MIXSRC_FIRST_STICK + id - 1;
-  if (id >= 33 && id - 33 < MAX_POTS) return MIXSRC_FIRST_POT + id - 33;
-  if (id >= 65 && id - 65 < MAX_SWITCHES) return MIXSRC_FIRST_SWITCH + id - 65;
-  return MIXSRC_NONE;
-}
-
-bool isPhysicalSourceAvailable(int source)
-{
-  return source == MIXSRC_NONE || isPhysicalInputAvailable(physicalInputFromSource(source));
+  const char* icon = "";
+  const char* name = STR_EMPTY;
+  if (id >= 1 && id - 1 < adcGetMaxInputs(ADC_INPUT_MAIN)) {
+    icon = CHAR_STICK;
+    name = getMainControlLabel(id - 1);
+  } else if (id >= 33 && id - 33 < adcGetMaxInputs(ADC_INPUT_FLEX)) {
+    icon = IS_SLIDER(id - 33) ? CHAR_SLIDER : CHAR_POT;
+    name = getPotLabel(id - 33);
+  } else if (id >= 65 && id - 65 < switchGetMaxAllSwitches()) {
+    char* pos = strAppend(dest, CHAR_SWITCH);
+    getSwitchName(pos, id - 65);
+    return;
+  }
+  snprintf(dest, sizeof(dest), "%s%s", icon, name);
 }
 
 bool isSourceAvailableForBacklightOrVolume(int source)

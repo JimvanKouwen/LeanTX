@@ -77,15 +77,30 @@ TEST_F(PhysicalControlTest, FlexInputsKeepNativeResolution)
   }
 }
 
-TEST_F(PhysicalControlTest, UISelectorRejectsConstantsChannelsAndInversion)
+TEST_F(PhysicalControlTest, UISelectorUsesPhysicalIds)
 {
-  for (int source : std::initializer_list<int>{MIXSRC_MIN, MIXSRC_MAX, MIXSRC_FIRST_CH, MIXSRC_LAST_CH,
-                     -MIXSRC_FIRST_STICK, MIXSRC_FIRST_TIMER, MIXSRC_TX_VOLTAGE,
-                     MIXSRC_FIRST_TELEM}) {
-    EXPECT_FALSE(isPhysicalSourceAvailable(source));
-    EXPECT_EQ(PhysicalInputId::None, physicalInputFromSource(source));
+  EXPECT_TRUE(isChannelMappingInputAvailable(0));
+  for (int id = 1; id <= 255; ++id)
+    EXPECT_EQ(isPhysicalInputAvailable(PhysicalInputId(id)),
+              isChannelMappingInputAvailable(id)) << id;
+  for (int id : {-256, -1, 256, 257, 321})
+    EXPECT_FALSE(isChannelMappingInputAvailable(id));
+}
+
+TEST_F(PhysicalControlTest, PhysicalInputLabelsPreserveControlNames)
+{
+  char label[32];
+  getPhysicalInputLabel(label, PhysicalInputId::None);
+  EXPECT_STREQ(STR_EMPTY, label);
+  for (int id = 1; id <= 96; ++id) {
+    auto source = PhysicalInputId(id);
+    if (!isPhysicalInputAvailable(source)) continue;
+    getPhysicalInputLabel(label, source);
+    int legacySource = id < 33 ? MIXSRC_FIRST_STICK + id - 1 :
+                       id < 65 ? MIXSRC_FIRST_POT + id - 33 :
+                                 MIXSRC_FIRST_SWITCH + id - 65;
+    EXPECT_STREQ(getSourceString(legacySource), label) << id;
   }
-  EXPECT_TRUE(isPhysicalSourceAvailable(MIXSRC_NONE));
 }
 
 TEST_F(PhysicalControlTest, SharedSystemTimerAndChannelAPIsRemainReadable)
