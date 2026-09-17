@@ -53,7 +53,6 @@
 #define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_MINUS)
 #define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
 #elif defined(NAVIGATION_X7_RM) || defined(NAVIGATION_X7_HRS)
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
@@ -61,14 +60,12 @@
 #define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
 #define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
-#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_TELE)
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
 #define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
 #define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MENU)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_MENU)
-#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_PAGEUP)
 #else
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_UP)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_DOWN)
@@ -76,21 +73,7 @@
 #define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_LEFT)
 #define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_RIGHT)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_LEFT)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
 #define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
-#endif
-
-// Telemtry view navigation mapping
-
-#if defined(NAVIGATION_X7_RM) || defined(RADIO_COMMANDO8)
-  #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_FIRST(KEY_PAGEUP))
-  #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_FIRST(KEY_PAGEDN))
-#elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-  #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_BREAK(KEY_PAGEUP))
-  #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_BREAK(KEY_PAGEDN))
-#else
-  #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_FIRST(KEY_UP))
-  #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_FIRST(KEY_DOWN))
 #endif
 
 // Open Channel view

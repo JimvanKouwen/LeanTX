@@ -83,7 +83,6 @@ void menuFirstCalib(event_t event);
 void menuChannelsViewCommon(event_t event);
 void menuChannelsView(event_t event);
 void menuMainView(event_t event);
-void menuViewTelemetry(event_t event);
 void menuStatisticsView(event_t event);
 void menuStatisticsDebug(event_t event);
 void menuStatisticsDebug2(event_t event);
@@ -107,7 +106,6 @@ enum MenuModelIndexes {
   MENU_MODEL_CHANNEL_MAPPING,
 
   MENU_MODEL_TELEMETRY,
-  MENU_MODEL_DISPLAY,
   MENU_MODEL_PAGES_COUNT
 };
 
@@ -127,7 +125,6 @@ void menuModelSetup(event_t event);
 void menuModelChannelMappings(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);
-void menuModelDisplay(event_t event);
 #if defined(USBJ_EX)
 void menuModelUSBJoystick(event_t event);
 #endif
@@ -159,4 +156,3 @@ void doMainScreenGraphics();
 void drawAlertBox(const char * title, const char * text, const char * action);
 
 #define IS_MAIN_VIEW_DISPLAYED()       menuHandlers[0] == menuMainView
-#define IS_TELEMETRY_VIEW_DISPLAYED()  menuHandlers[0] == menuViewTelemetry

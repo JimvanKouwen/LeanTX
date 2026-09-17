@@ -99,8 +99,6 @@ void TextKeyboard::onPressSYS() { if (hasTwoPageKeys) changeMode(); else cursorL
 void TextKeyboard::onLongPressSYS() { if (!hasTwoPageKeys) cursorStart(); }
 void TextKeyboard::onPressMDL() { if (!hasTwoPageKeys) changeMode(); }
 void TextKeyboard::onLongPressMDL() { backspace(); }
-void TextKeyboard::onPressTELE() { if (hasTwoPageKeys) toggleCase(); else cursorRight(); }
-void TextKeyboard::onLongPressTELE() { if (hasTwoPageKeys) deleteChar(); else cursorEnd(); }
 void TextKeyboard::onPressPGUP() { if (hasTwoPageKeys) cursorLeft(); else deleteChar(); }
 void TextKeyboard::onPressPGDN() { if (hasTwoPageKeys) cursorRight(); else toggleCase(); }
 void TextKeyboard::onLongPressPGUP() { cursorStart(); }

@@ -446,17 +446,12 @@ bool handleGui(event_t event)
 {
   bool refreshNeeded;
 #if defined(LUA)
-  bool isTelemView =
-      menuHandlers[menuLevel] == menuViewTelemetry &&
-      TELEMETRY_SCREEN_TYPE(selectedTelemView) == TELEMETRY_SCREEN_TYPE_SCRIPT;
-  bool isStandalone = scriptInternalData[0].reference == SCRIPT_STANDALONE;
-  if ((isTelemView || isStandalone) && event) {
+  bool isStandalone = luaScriptsCount != 0;
+  if (isStandalone && event) {
     luaPushEvent(event);
   }
   refreshNeeded = luaTask(true);
-  if (isTelemView)
-    menuHandlers[menuLevel](event);
-  else if (scriptInternalData[0].reference != SCRIPT_STANDALONE)
+  if (luaScriptsCount == 0)
 #endif
   // No foreground Lua script is running - clear the screen show normal menu
   {

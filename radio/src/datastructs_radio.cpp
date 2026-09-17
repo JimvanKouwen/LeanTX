@@ -187,8 +187,6 @@ void RadioData::defaultKeyShortcuts()
   setKeyShortcut(EVT_KEY_LONG(KEY_MODEL), QM_MANAGE_MODELS);
   setKeyShortcut(EVT_KEY_BREAK(KEY_SYS), QM_OPEN_QUICK_MENU);
   setKeyShortcut(EVT_KEY_LONG(KEY_SYS), QM_TOOLS_APPS);
-  setKeyShortcut(EVT_KEY_BREAK(KEY_TELE), QM_UI_SCREEN1);
-  setKeyShortcut(EVT_KEY_LONG(KEY_TELE), QM_TOOLS_CHAN_MON);
 }
 
 static char _keyToolNames[MAX_KEY_SHORTCUTS][RadioData::ToolNameCapacity];

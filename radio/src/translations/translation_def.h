@@ -117,7 +117,6 @@
 #define TR_VBEEPMODE                SA4(TR_VBEEPMODE)
 #define TR_USBMODES                 SA4(TR_USBMODES)
 #define TR_COUNTDOWNVALUES          SA4(TR_COUNTDOWNVALUES)
-#define TR_VTELEMSCREENTYPE         SA4(TR_VTELEMSCREENTYPE)
 #define TR_HATSOPT                  SA4(TR_HATSOPT)
 #if defined(PCBX12S)
 #define TR_ANTENNA_MODES            SA4(TR_ANTENNA_MODES)

@@ -144,7 +144,6 @@ void FullScreenDialog::onPressSYS() { alertCancel(); }
 void FullScreenDialog::onPressMDL() { alertCancel(); }
 void FullScreenDialog::onPressPGUP() { alertCancel(); }
 void FullScreenDialog::onPressPGDN() { alertCancel(); }
-void FullScreenDialog::onPressTELE() { alertCancel(); }
 #endif
 
 void FullScreenDialog::setMessage(const char* text)

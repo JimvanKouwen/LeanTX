@@ -54,7 +54,6 @@ class FullScreenDialog : public NavWindow
   void onPressMDL() override;
   void onPressPGUP() override;
   void onPressPGDN() override;
-  void onPressTELE() override;
 #endif
 
   static LAYOUT_SIZE_SCALED(ALERT_FRAME_TOP, 50, 70)

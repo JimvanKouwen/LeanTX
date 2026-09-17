@@ -4,6 +4,7 @@
 #include "edgetx.h"
 #include "gtest/gtest.h"
 #include "storage/model_config_adapter.h"
+#include "storage/config_file_workspace.h"
 namespace
 {
 struct ModelConfig : testing::Test {
@@ -64,6 +65,25 @@ TEST_F(ModelConfig, Roundtrip)
   EXPECT_EQ(4, b.telemetrySensors[0].cell.source);
   EXPECT_EQ(600u, b.timers[0].start);
 }
+TEST_F(ModelConfig, LegacyTelemetryDisplaysAreDiscarded)
+{
+  input = "screens:\n"
+          "  0:\n    type: VALUES\n    u:\n      lines:\n"
+          "        0:\n          sources:\n            0:\n              val: tele(0)\n"
+          "  1:\n    type: BARS\n    u:\n      bars:\n"
+          "        0:\n          source: tele(0)\n          barMin: -30\n          barMax: 100\n"
+          "  2:\n    type: SCRIPT\n    u:\n      script:\n        file: test\n"
+          "        inputs:\n          0:\n            val: 42\n"
+          "telemetrySensors:\n  0:\n    label: Volt\n    unit: 1\n    prec: 2\n";
+  ModelData model{};
+  ASSERT_TRUE(load(model));
+  EXPECT_STREQ("Volt", model.telemetrySensors[0].label);
+  EXPECT_EQ(2, model.telemetrySensors[0].prec);
+  ASSERT_TRUE(save(model));
+  EXPECT_EQ(std::string::npos, output.find("\nscreens:"));
+  EXPECT_NE(std::string::npos, output.find("Volt"));
+}
+
 TEST_F(ModelConfig, LegacyMixerTimingIsDiscarded)
 {
   input = "mixData:\n  - srcRaw: Rud\n    weight: 75\n    offset: 12\n"
@@ -187,12 +207,6 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   g_model.moduleData[1].type = MODULE_TYPE_CROSSFIRE;
   g_model.moduleData[1].channelsCount = 8;
   g_model.moduleData[1].crsf.crsfArmingTrigger = SWSRC_ON;
-#if !defined(COLORLCD)
-  g_model.setTelemetryScreenType(0, TELEMETRY_SCREEN_TYPE_BARS);
-  g_model.screens[0].bars[0].source = MIXSRC_FIRST_TELEM;
-  g_model.screens[0].bars[0].barMin = -30;
-  g_model.screens[0].bars[0].barMax = 100;
-#endif
 #if defined(COLORLCD)
   input = legacyFixture("full-model-color.yml");
 #else
@@ -207,6 +221,7 @@ TEST_F(ModelConfig, LegacyFullModelRoundtrip)
   EXPECT_EQ(0, memcmp(expected.telemetrySensors, actual.telemetrySensors,
                       sizeof(expected.telemetrySensors)));
   ASSERT_TRUE(save(actual));
+  EXPECT_EQ(std::string::npos, output.find("\nscreens:"));
   input = output;
   auto first = output;
   ModelData again{};
@@ -650,28 +665,22 @@ TEST_F(ModelConfigFile, OversizedSaveLeavesOriginal)
 {
   put("header:\n  name: Original\n");
   auto original = get();
-  // A dense meaningful model exceeds the deliberately fixed 16 KiB document.
-  for (unsigned i = 0; i < MAX_OUTPUT_CHANNELS; ++i) {
-    auto& mix = g_model.channelMappings[i];
-    mix.source = physicalStick(0);
-  }
-
-  for (auto& sensor : g_model.telemetrySensors) {
-    memset(sensor.label, 'S', sizeof(sensor.label));
-    sensor.id = 1234;
-    sensor.instance = 3;
-    sensor.subId = 2;
-    sensor.unit = UNIT_VOLTS;
-    sensor.prec = 2;
-    sensor.custom.ratio = 1234;
-    sensor.custom.offset = -1234;
-    sensor.logs = 1;
-    sensor.filter = 1;
-    sensor.autoOffset = 1;
-    sensor.onlyPositive = 1;
-    sensor.persistent = 1;
-  }
-  EXPECT_STREQ("configuration file too large", saveModelConfig("/MODELS/test.yml"));
+  // Exercise the file limit independently of the shrinking model schema.
+  config_stream::Document oversized{};
+  oversized.save = [](void*, config_stream::Writer& writer,
+                      config_stream::Field& field) {
+    memset(field.value, 'x', sizeof(field.value) - 1);
+    field.value[sizeof(field.value) - 1] = 0;
+    for (unsigned i = 0; i <= config_stream::DocumentCapacity /
+                                  (sizeof(field.value) - 1); ++i) {
+      writer.begin(i);
+      writer.value("payload", field.value);
+      writer.end();
+    }
+  };
+  config_file::Guard guard;
+  EXPECT_STREQ("configuration file too large",
+               config_file::save("/MODELS/test.yml", oversized));
   EXPECT_EQ(original, get());
   EXPECT_FALSE(std::filesystem::exists(root / "MODELS/test.yml.tmp"));
 }

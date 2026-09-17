@@ -48,8 +48,6 @@ const Enum JoystickChannel[] = {{"CH_NONE", 0},
                                 {"CH_AXIS", 2},
                                 {"CH_SIM", 3},
                                 {nullptr, 0}};
-const Enum ScreenType[] = {
-    {"NONE", 0}, {"VALUES", 1}, {"BARS", 2}, {"SCRIPT", 3}, {nullptr, 0}};
 const Enum Hats[] = {{"TRIMS_ONLY", 0},
                      {"KEYS_ONLY", 1},
                      {"SWITCHABLE", 2},
@@ -337,16 +335,6 @@ struct SensorStage {
   uint32_t values[16];
 };
 static SensorStage sensorStage[MAX_TELEMETRY_SENSORS];
-#if !defined(COLORLCD)
-static TelemetryScreenData monoStage[4][3];
-#endif
-int screenVariant(const char* path)
-{
-  return strstr(path, "/u/bars/")     ? 0
-         : strstr(path, "/u/lines/")  ? 1
-         : strstr(path, "/u/script/") ? 2
-                                      : -1;
-}
 int sensorSlot(const char* path, unsigned j)
 {
   const char* suffix = strstr(path, "/id1/");
@@ -395,13 +383,6 @@ bool relevant(const Context& c, const char* path, unsigned i, unsigned j,
       return slot == 8;
     return slot >= 12;
   }
-#if !defined(COLORLCD)
-  if (!strncmp(path, "screens/", 8)) {
-    int variant = screenVariant(path);
-    unsigned type = c.model->getTelemetryScreenType(i);
-    if (variant >= 0) return variant == int(type == 1 ? 1 : type == 3 ? 2 : 0);
-  }
-#endif
   return true;
 }
 
@@ -615,26 +596,6 @@ struct Descriptor {
 #define MTOP UNAVAILABLE
 #endif
 #define MSENSOR2(p, n, a, m, l, h, c) ROW(p, n, 4, a, m, l, h, c)
-#define ACCESS_ScreenType(member, lo, hi)                               \
-  if (t) {                                                              \
-    int64_t v;                                                          \
-    if (!enumeration(ScreenType, t, v) || v < 0 || v > 3) return false; \
-    m.setTelemetryScreenType(i, v);                                     \
-    return true;                                                        \
-  }                                                                     \
-  return enumOutput(ScreenType, m.getTelemetryScreenType(i), f);
-#if !defined(COLORLCD)
-#define MMONO M
-#define MMONO4(p, n, a, m, l, h, c) ROW(p, n, 4, a, m, l, h, c)
-#define MMONO8(p, n, a, m, l, h, c) ROW(p, n, 8, a, m, l, h, c)
-#define MMONOLINES(p, n, a, m, l, h, c) ROW3(p, n, 12, 3, a, m, l, h, c)
-#else
-#define MMONO UNAVAILABLE
-#define MMONO4(p, n, a, m, l, h, c) ROW(p, n, 4, false, view, 0, 0, Number)
-#define MMONO8(p, n, a, m, l, h, c) ROW(p, n, 8, false, view, 0, 0, Number)
-#define MMONOLINES(p, n, a, m, l, h, c) \
-  ROW3(p, n, 12, 3, false, view, 0, 0, Number)
-#endif
 #if defined(COLORLCD)
 #define MCOLOR10(p, n, a, m, l, h, c) ROW(p, n, 10, a, m, l, h, c)
 #define MCOLOR500(p, n, a, m, l, h, c) ROW3(p, n, 500, 50, a, m, l, h, c)
@@ -719,19 +680,10 @@ bool set(void* ctx, unsigned row, unsigned id, const char* text)
   auto& f = defaultField; f.reset();
   if (!d) return false;
   unsigned i = id / d->stride, j = id % d->stride;
-#if !defined(COLORLCD)
-  int variant = !strncmp(d->path, "screens/", 8) ? screenVariant(d->path) : -1;
-  if (c.loading && variant >= 0 && i < 4)
-    c.model->screens[i] = monoStage[i][variant];
-#endif
   if (!d->access(*c.model, id, f, text)) {
     TRACE("model configuration: invalid %s: %s", d->path, text);
     return false;
   }
-#if !defined(COLORLCD)
-  if (c.loading && variant >= 0 && i < 4)
-    monoStage[i][variant] = c.model->screens[i];
-#endif
   if (c.loading && !strncmp(d->path, "telemetrySensors/", 17) &&
       i < MAX_TELEMETRY_SENSORS) {
     int slot = sensorSlot(d->path, j);
@@ -849,10 +801,8 @@ bool used(const Context& c, const char* section, const unsigned* index)
   if (!strcmp(section, "telemetrySensors/%u")) return i < MAX_TELEMETRY_SENSORS && (m.telemetrySensors[i].id || m.telemetrySensors[i].label[0] || m.telemetrySensors[i].type);
 #if !defined(COLORLCD)
   if (!strncmp(section, "screenData/", 11) || !strncmp(section, "topbarData/", 11) || !strncmp(section, "topbarWidgetWidth/", 18)) return false;
-  if (!strncmp(section, "screens/", 8)) return i < MAX_TELEMETRY_SCREENS && m.getTelemetryScreenType(i);
 #else
   if (!strncmp(section, "topbarWidgetWidth/", 18)) return i < MAX_TOPBAR_ZONES && !topbarFor(*c.model).zones[i].widgetName.empty();
-  if (!strncmp(section, "screens/", 8)) return false;
   if (!strncmp(section, "screenData/", 11)) {
     if (i >= MAX_CUSTOM_SCREENS || (&m == &candidate ? stagedScreens[i].LayoutId.empty() : (!m.hasScreenData(i) || m.getScreenData(i)->LayoutId.empty()))) return false;
     if (strstr(section, "/zones/")) {
@@ -944,9 +894,7 @@ config_stream::Document beginLoad()
   beginFunctions();
 #endif
   memset(sensorStage, 0, sizeof(sensorStage));
-#if !defined(COLORLCD)
-  memset(monoStage, 0, sizeof(monoStage));
-#else
+#if defined(COLORLCD)
   for (auto& screen : stagedScreens) {
     screen.LayoutId.clear();
     screen.layoutData.clear();
@@ -987,12 +935,6 @@ const char* resolveLoad()
     else
       for (unsigned j = 0; j < 4; ++j) s.calc.sources[j] = v[12 + j];
   }
-#if !defined(COLORLCD)
-  for (unsigned i = 0; i < MAX_TELEMETRY_SCREENS; ++i) {
-    unsigned type = candidate.getTelemetryScreenType(i);
-    candidate.screens[i] = monoStage[i][type == 1 ? 1 : type == 3 ? 2 : 0];
-  }
-#endif
   return nullptr;
 }
 void commitLoad(ModelData& model)

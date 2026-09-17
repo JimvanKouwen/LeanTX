@@ -536,16 +536,6 @@ inline bool IS_TXBATT_WARNING()
   return g_vbat100mV <= g_eeGeneral.vBatWarn;
 }
 
-enum TelemetryViews {
-  TELEMETRY_CUSTOM_SCREEN_1,
-  TELEMETRY_CUSTOM_SCREEN_2,
-  TELEMETRY_CUSTOM_SCREEN_3,
-  TELEMETRY_CUSTOM_SCREEN_4,
-  TELEMETRY_VIEW_MAX = TELEMETRY_CUSTOM_SCREEN_4
-};
-
-extern uint8_t selectedTelemView;
-
 constexpr uint32_t EARTH_RADIUS = 6371009;
 
 void varioWakeup();

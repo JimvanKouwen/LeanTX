@@ -78,16 +78,7 @@
 #define XPOTS_MULTIPOS_COUNT           6
 
 #if defined(COLORLCD)
-enum MainViews {
-  VIEW_BLANK,
-  VIEW_TIMERS_ALTITUDE,
-  VIEW_CHANNELS,
-  VIEW_TELEM1,
-  VIEW_TELEM2,
-  VIEW_TELEM3,
-  VIEW_TELEM4,
-  VIEW_COUNT
-};
+enum MainViews { VIEW_BLANK, VIEW_TIMERS_ALTITUDE, VIEW_CHANNELS, VIEW_COUNT };
 #elif LCD_W >= 212
 enum MainViews {
   VIEW_TIMERS,
@@ -240,37 +231,6 @@ enum TelemetryUnit {
   UNIT_DATETIME_HOUR_MIN,
   UNIT_DATETIME_SEC
 };
-
-// TODO: move to stdlcd UI
-#if LCD_W >= 212
-  #define NUM_LINE_ITEMS 3
-#else
-  #define NUM_LINE_ITEMS 2
-#endif
-
-#if defined(PCBTARANIS)
-  #define MAX_TELEM_SCRIPT_INPUTS  8
-#endif
-
-enum TelemetryScreenType {
-  TELEMETRY_SCREEN_TYPE_NONE,
-  TELEMETRY_SCREEN_TYPE_VALUES,
-  TELEMETRY_SCREEN_TYPE_BARS,
-  TELEMETRY_SCREEN_TYPE_SCRIPT,
-#if defined(LUA)
-  TELEMETRY_SCREEN_TYPE_MAX = TELEMETRY_SCREEN_TYPE_SCRIPT
-#else
-  TELEMETRY_SCREEN_TYPE_MAX = TELEMETRY_SCREEN_TYPE_BARS
-#endif
-};
-
-#define MAX_TELEMETRY_SCREENS 4
-
-#define TELEMETRY_SCREEN_TYPE(screenIndex)                              \
-  TelemetryScreenType((g_model.screensType >> (2 * (screenIndex))) & 0x03)
-
-#define IS_BARS_SCREEN(screenIndex)                                     \
-  (TELEMETRY_SCREEN_TYPE(screenIndex) == TELEMETRY_SCREEN_TYPE_BARS)
 
 #define LEN_SCRIPT_FILENAME            6
 

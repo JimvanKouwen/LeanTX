@@ -116,8 +116,6 @@ void NumberKeyboard::onPressSYS() { if (hasTwoPageKeys) decLarge(); else decSmal
 void NumberKeyboard::onLongPressSYS() { setMIN(); }
 void NumberKeyboard::onPressMDL() { incLarge(); }
 void NumberKeyboard::onLongPressMDL() { if (hasTwoPageKeys) setMAX(); else changeSign(); }
-void NumberKeyboard::onPressTELE() { if (hasTwoPageKeys) changeSign(); else incSmall(); }
-void NumberKeyboard::onLongPressTELE() { if (hasTwoPageKeys) setDEF(); else setMAX(); }
 void NumberKeyboard::onPressPGUP() { if (hasTwoPageKeys) decSmall(); else setDEF(); }
 void NumberKeyboard::onPressPGDN() { if (hasTwoPageKeys) incSmall(); else decLarge(); }
 

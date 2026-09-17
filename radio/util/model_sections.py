@@ -8,7 +8,7 @@ rows=[]
 for l in src.splitlines():
  m=re.match(r'(\w+)\("([^"]+)", (\d+),',l)
  if not m: continue
- macro,path,count=m.groups(); stride,inner={'MSENSOR2':(4,1),'MMONO4':(4,1),'MMONO8':(8,1),'MMONOLINES':(12,3),'MCOLOR10':(10,1),'MCOLOR500':(500,50),'MCOLOR50':(50,1)}.get(macro,(1,1))
+ macro,path,count=m.groups(); stride,inner={'MSENSOR2':(4,1),'MCOLOR10':(10,1),'MCOLOR500':(500,50),'MCOLOR50':(50,1)}.get(macro,(1,1))
  rows.append((path,int(count),stride,inner))
 class Node:
  def __init__(self,path=''): self.path=path; self.children={}; self.row=None; self.id=0; self.extent=0

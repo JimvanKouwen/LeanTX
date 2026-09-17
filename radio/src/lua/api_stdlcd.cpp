@@ -34,7 +34,7 @@ Refresh the LCD screen
 
 @status current Introduced in 2.2.0
 
-@notice This function only works in stand-alone and telemetry scripts.
+@notice This function only works in stand-alone scripts.
 */
 static int luaLcdRefresh(lua_State *L)
 {
@@ -51,7 +51,7 @@ Clear the LCD screen
 
 @status current Introduced in 2.0.0, `color` parameter introduced in 2.2.0 RC12
 
-@notice This function only works in stand-alone and telemetry scripts.
+@notice This function only works in stand-alone scripts.
 */
 static int luaLcdClear(lua_State *L)
 {

@@ -1271,27 +1271,12 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
-#if !defined(COLORLCD)
-  #define IS_STANDALONE() (scriptInternalData[0].reference == SCRIPT_STANDALONE)
-  #define IS_MASKABLE(key)                      \
-    ((key) != KEY_EXIT && (key) != KEY_ENTER && \
-     (!keyIsSupported(KEY_MENU) || (IS_STANDALONE() || ((key) != KEY_PAGEDN))))
-#else
-  #define IS_STANDALONE() (false)
-  #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
-#endif
-
   event_t key = EVT_KEY_MASK(luaL_checkinteger(L, 1));
-  // prevent killing maskable keys (only in telemetry scripts)
-  // TODO add which type of script is running before lua_resume()
-  if (IS_MASKABLE(key)) {
+  if (key != KEY_EXIT && key != KEY_ENTER) {
     killEvents(key);
     luaEmptyEventBuffer();
-   }
+  }
   return 0;
-
-#undef IS_MASKABLE
-#undef IS_STANDALONE
 }
 
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
@@ -1393,7 +1378,7 @@ Run function (key pressed)
 
 @retval "CANCEL" user pushed EXIT key
 
-@notice Use only from stand-alone and telemetry scripts.
+@notice Use only from stand-alone scripts.
 
 @status current Introduced in 2.0.0
 */
@@ -1435,7 +1420,7 @@ Run function (key pressed)
 
 @retval "CANCEL" user pushed EXIT key
 
-@notice Use only from stand-alone and telemetry scripts.
+@notice Use only from stand-alone scripts.
 
 @status current Introduced in 2.2.0
 */
@@ -1485,7 +1470,7 @@ Run function (key pressed)
 
 @retval "CANCEL" user pushed EXIT key
 
-@notice Use only from stand-alone and telemetry scripts.
+@notice Use only from stand-alone scripts.
 
 @status current Introduced in 2.2.0, changed to (title, message, event) in 2.3.8
 */

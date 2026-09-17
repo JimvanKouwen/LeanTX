@@ -49,7 +49,6 @@ class SetupTopBarWidgetsPage : public NavWindow
   void onPressPGDN() override {}
   void onLongPressPGUP() override {}
   void onLongPressPGDN() override {}
-  void onPressTELE() override { onCancel(); }
 #endif
 };
 

@@ -27,6 +27,7 @@
 
 #include "edgetx.h"
 #include "lua/lua_states.h"
+#include "lua/lua_event.h"
 
 #include <filesystem>
 #include <fstream>
@@ -88,7 +89,6 @@ class LuaApplications : public testing::Test
   {
     char path[] = "/tmp/leantx-lua-apps-XXXXXX";
     root = mkdtemp(path);
-    std::filesystem::create_directories(root / "SCRIPTS/TELEMETRY");
     std::filesystem::create_directories(root / "SCRIPTS/TOOLS");
     simuFatfsSetPaths(root.c_str(), nullptr);
     luaClose();
@@ -107,37 +107,27 @@ class LuaApplications : public testing::Test
   }
 };
 
-TEST_F(LuaApplications, TelemetrySlotsAndStandaloneToolsStillRun)
+TEST_F(LuaApplications, StandaloneToolsStillRun)
 {
-  std::ofstream(root / "SCRIPTS/TELEMETRY/test.lua") <<
-      "return {init=function() initialized=(initialized or 0)+1 end, "
-      "run=function(event) return 0 end, "
-      "background=function() backgroundRuns=(backgroundRuns or 0)+1 end}";
-  for (unsigned i = 0; i < MAX_TELEMETRY_SCREENS; ++i) {
-    g_model.setTelemetryScreenType(i, TELEMETRY_SCREEN_TYPE_SCRIPT);
-    strcpy(g_model.screens[i].script.file, "test");
-  }
   LUA_LOAD_MODEL_SCRIPTS();
-  for (int i = 0; i < 20 && luaState != INTERPRETER_START_RUNNING; ++i)
-    luaTask(false);
-  ASSERT_EQ(INTERPRETER_START_RUNNING, luaState);
-  ASSERT_EQ(unsigned(MAX_TELEMETRY_SCREENS), unsigned(luaScriptsCount));
-  for (unsigned i = 0; i < MAX_TELEMETRY_SCREENS; ++i) {
-    EXPECT_EQ(SCRIPT_TELEMETRY_FIRST + i, unsigned(scriptInternalData[i].reference));
-    EXPECT_EQ(SCRIPT_OK, scriptInternalData[i].state);
-  }
   luaTask(false);
-  luaExecStr(("assert(initialized == " + std::to_string(MAX_TELEMETRY_SCREENS) +
-              " and backgroundRuns == initialized)").c_str());
+  ASSERT_EQ(INTERPRETER_START_RUNNING, luaState);
+  ASSERT_EQ(0, luaScriptsCount);
 
   std::ofstream(root / "SCRIPTS/TOOLS/test.lua") <<
       "return {init=function() toolInitialized=true end, "
       "run=function(event) toolEvent=event; return 0 end}";
   luaExec("/SCRIPTS/TOOLS/test.lua");
   ASSERT_EQ(1, luaScriptsCount);
-  EXPECT_EQ(SCRIPT_STANDALONE, scriptInternalData[0].reference);
+  EXPECT_EQ(SCRIPT_OK, scriptInternalData[0].state);
   luaTask(true);
   luaExecStr("assert(toolInitialized and type(toolEvent) == 'number')");
+  luaPushEvent(EVT_KEY_LONG(KEY_EXIT));
+  luaTask(true);
+  EXPECT_EQ(INTERPRETER_RELOAD_PERMANENT_SCRIPTS, luaState);
+  luaTask(false);
+  EXPECT_EQ(0, luaScriptsCount);
+
 }
 #endif
 

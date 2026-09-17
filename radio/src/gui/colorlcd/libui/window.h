@@ -241,8 +241,6 @@ class NavWindow : public Window
   virtual void onLongPressSYS();
   virtual void onPressMDL();
   virtual void onLongPressMDL();
-  virtual void onPressTELE();
-  virtual void onLongPressTELE();
   virtual void onPressPGUP() {}
   virtual void onPressPGDN() {}
   virtual void onLongPressPGUP() {}

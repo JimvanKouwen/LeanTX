@@ -25,8 +25,7 @@ const MenuHandler menuTabModel[] = {
     {menuModelSelect, nullptr},
     {menuModelSetup, nullptr},
     {menuModelChannelMappings, nullptr},
-    {menuModelTelemetry, modelTelemetryEnabled},
-    {menuModelDisplay, nullptr}};
+    {menuModelTelemetry, modelTelemetryEnabled}};
 
 uint8_t s_copyMode = 0;
 int8_t s_copySrcRow;

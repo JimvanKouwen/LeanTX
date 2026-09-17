@@ -1,6 +1,6 @@
 // Explicit section dispatch for model_config_fields.inc. GPL-2.0-or-later.
 // Regenerate with radio/util/model_sections.py. No runtime path matching.
-static_assert(DescriptorCount == 131, "regenerate model_config_sections.inc");
+static_assert(DescriptorCount == 124, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[0].path, "semver") && descriptors[0].count == 1 && descriptors[0].stride == 1 && descriptors[0].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[1].path, "header/name") && descriptors[1].count == 1 && descriptors[1].stride == 1 && descriptors[1].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[2].path, "header/modelId") && descriptors[2].count == 1 && descriptors[2].stride == 1 && descriptors[2].innerStride == 1, "regenerate model_config_sections.inc");
@@ -86,52 +86,45 @@ static_assert(sameKey(descriptors[81].path, "voltsSource") && descriptors[81].co
 static_assert(sameKey(descriptors[82].path, "altitudeSource") && descriptors[82].count == 1 && descriptors[82].stride == 1 && descriptors[82].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[83].path, "thrTraceSrc") && descriptors[83].count == 1 && descriptors[83].stride == 1 && descriptors[83].innerStride == 1, "regenerate model_config_sections.inc");
 static_assert(sameKey(descriptors[84].path, "telemetrySensors/%u/cfg/calc/sources/%u/val") && descriptors[84].count == 396 && descriptors[84].stride == 4 && descriptors[84].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[85].path, "screens/%u/type") && descriptors[85].count == 4 && descriptors[85].stride == 1 && descriptors[85].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[86].path, "screens/%u/u/bars/%u/source") && descriptors[86].count == 16 && descriptors[86].stride == 4 && descriptors[86].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[87].path, "screens/%u/u/bars/%u/barMin") && descriptors[87].count == 16 && descriptors[87].stride == 4 && descriptors[87].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[88].path, "screens/%u/u/bars/%u/barMax") && descriptors[88].count == 16 && descriptors[88].stride == 4 && descriptors[88].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[89].path, "screens/%u/u/lines/%u/sources/%u/val") && descriptors[89].count == 48 && descriptors[89].stride == 12 && descriptors[89].innerStride == 3, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[90].path, "screens/%u/u/script/file") && descriptors[90].count == 4 && descriptors[90].stride == 1 && descriptors[90].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[91].path, "screens/%u/u/script/inputs/%u/val") && descriptors[91].count == 32 && descriptors[91].stride == 8 && descriptors[91].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[92].path, "screenData/%u/LayoutId") && descriptors[92].count == 10 && descriptors[92].stride == 1 && descriptors[92].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[93].path, "topbarWidgetWidth/%u/val") && descriptors[93].count == 16 && descriptors[93].stride == 1 && descriptors[93].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[94].path, "screenData/%u/layoutData/zones/%u/widgetName") && descriptors[94].count == 100 && descriptors[94].stride == 10 && descriptors[94].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[95].path, "screenData/%u/layoutData/options/%u/type") && descriptors[95].count == 100 && descriptors[95].stride == 10 && descriptors[95].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[96].path, "screenData/%u/layoutData/options/%u/value/unsignedValue") && descriptors[96].count == 100 && descriptors[96].stride == 10 && descriptors[96].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[97].path, "screenData/%u/layoutData/options/%u/value/boolValue") && descriptors[97].count == 100 && descriptors[97].stride == 10 && descriptors[97].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[98].path, "screenData/%u/layoutData/options/%u/value/color") && descriptors[98].count == 100 && descriptors[98].stride == 10 && descriptors[98].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[99].path, "topbarData/zones/%u/widgetName") && descriptors[99].count == 16 && descriptors[99].stride == 1 && descriptors[99].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[100].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/type") && descriptors[100].count == 5000 && descriptors[100].stride == 500 && descriptors[100].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[101].path, "topbarData/zones/%u/widgetData/options/%u/type") && descriptors[101].count == 800 && descriptors[101].stride == 50 && descriptors[101].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[102].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[102].count == 5000 && descriptors[102].stride == 500 && descriptors[102].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[103].path, "topbarData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[103].count == 800 && descriptors[103].stride == 50 && descriptors[103].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[104].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[104].count == 5000 && descriptors[104].stride == 500 && descriptors[104].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[105].path, "topbarData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[105].count == 800 && descriptors[105].stride == 50 && descriptors[105].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[106].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[106].count == 5000 && descriptors[106].stride == 500 && descriptors[106].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[107].path, "topbarData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[107].count == 800 && descriptors[107].stride == 50 && descriptors[107].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[108].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[108].count == 5000 && descriptors[108].stride == 500 && descriptors[108].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[109].path, "topbarData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[109].count == 800 && descriptors[109].stride == 50 && descriptors[109].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[110].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/source") && descriptors[110].count == 5000 && descriptors[110].stride == 500 && descriptors[110].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[111].path, "topbarData/zones/%u/widgetData/options/%u/value/source") && descriptors[111].count == 800 && descriptors[111].stride == 50 && descriptors[111].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[112].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/color") && descriptors[112].count == 5000 && descriptors[112].stride == 500 && descriptors[112].innerStride == 50, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[113].path, "topbarData/zones/%u/widgetData/options/%u/value/color") && descriptors[113].count == 800 && descriptors[113].stride == 50 && descriptors[113].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[114].path, "switchWarning/%u/pos") && descriptors[114].count == 32 && descriptors[114].stride == 1 && descriptors[114].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[115].path, "customSwitches/%u/sw") && descriptors[115].count == 16 && descriptors[115].stride == 1 && descriptors[115].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[116].path, "customSwitches/%u/name") && descriptors[116].count == 16 && descriptors[116].stride == 1 && descriptors[116].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[117].path, "customSwitches/%u/type") && descriptors[117].count == 16 && descriptors[117].stride == 1 && descriptors[117].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[118].path, "customSwitches/%u/group") && descriptors[118].count == 16 && descriptors[118].stride == 1 && descriptors[118].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[119].path, "customSwitches/%u/start") && descriptors[119].count == 16 && descriptors[119].stride == 1 && descriptors[119].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[120].path, "customSwitches/%u/state") && descriptors[120].count == 16 && descriptors[120].stride == 1 && descriptors[120].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[121].path, "customSwitches/%u/onColorLuaOverride") && descriptors[121].count == 16 && descriptors[121].stride == 1 && descriptors[121].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[122].path, "customSwitches/%u/offColorLuaOverride") && descriptors[122].count == 16 && descriptors[122].stride == 1 && descriptors[122].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[123].path, "customSwitches/%u/onColor/r") && descriptors[123].count == 16 && descriptors[123].stride == 1 && descriptors[123].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[124].path, "customSwitches/%u/onColor/g") && descriptors[124].count == 16 && descriptors[124].stride == 1 && descriptors[124].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[125].path, "customSwitches/%u/onColor/b") && descriptors[125].count == 16 && descriptors[125].stride == 1 && descriptors[125].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[126].path, "customSwitches/%u/offColor/r") && descriptors[126].count == 16 && descriptors[126].stride == 1 && descriptors[126].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[127].path, "customSwitches/%u/offColor/g") && descriptors[127].count == 16 && descriptors[127].stride == 1 && descriptors[127].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[128].path, "customSwitches/%u/offColor/b") && descriptors[128].count == 16 && descriptors[128].stride == 1 && descriptors[128].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[129].path, "cfsGroupOn/%u/v") && descriptors[129].count == 8 && descriptors[129].stride == 1 && descriptors[129].innerStride == 1, "regenerate model_config_sections.inc");
-static_assert(sameKey(descriptors[130].path, "channelMappings/%u/source") && descriptors[130].count == 32 && descriptors[130].stride == 1 && descriptors[130].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[85].path, "screenData/%u/LayoutId") && descriptors[85].count == 10 && descriptors[85].stride == 1 && descriptors[85].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[86].path, "topbarWidgetWidth/%u/val") && descriptors[86].count == 16 && descriptors[86].stride == 1 && descriptors[86].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[87].path, "screenData/%u/layoutData/zones/%u/widgetName") && descriptors[87].count == 100 && descriptors[87].stride == 10 && descriptors[87].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[88].path, "screenData/%u/layoutData/options/%u/type") && descriptors[88].count == 100 && descriptors[88].stride == 10 && descriptors[88].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[89].path, "screenData/%u/layoutData/options/%u/value/unsignedValue") && descriptors[89].count == 100 && descriptors[89].stride == 10 && descriptors[89].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[90].path, "screenData/%u/layoutData/options/%u/value/boolValue") && descriptors[90].count == 100 && descriptors[90].stride == 10 && descriptors[90].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[91].path, "screenData/%u/layoutData/options/%u/value/color") && descriptors[91].count == 100 && descriptors[91].stride == 10 && descriptors[91].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[92].path, "topbarData/zones/%u/widgetName") && descriptors[92].count == 16 && descriptors[92].stride == 1 && descriptors[92].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[93].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/type") && descriptors[93].count == 5000 && descriptors[93].stride == 500 && descriptors[93].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[94].path, "topbarData/zones/%u/widgetData/options/%u/type") && descriptors[94].count == 800 && descriptors[94].stride == 50 && descriptors[94].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[95].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[95].count == 5000 && descriptors[95].stride == 500 && descriptors[95].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[96].path, "topbarData/zones/%u/widgetData/options/%u/value/unsignedValue") && descriptors[96].count == 800 && descriptors[96].stride == 50 && descriptors[96].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[97].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[97].count == 5000 && descriptors[97].stride == 500 && descriptors[97].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[98].path, "topbarData/zones/%u/widgetData/options/%u/value/signedValue") && descriptors[98].count == 800 && descriptors[98].stride == 50 && descriptors[98].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[99].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[99].count == 5000 && descriptors[99].stride == 500 && descriptors[99].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[100].path, "topbarData/zones/%u/widgetData/options/%u/value/boolValue") && descriptors[100].count == 800 && descriptors[100].stride == 50 && descriptors[100].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[101].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[101].count == 5000 && descriptors[101].stride == 500 && descriptors[101].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[102].path, "topbarData/zones/%u/widgetData/options/%u/value/stringValue") && descriptors[102].count == 800 && descriptors[102].stride == 50 && descriptors[102].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[103].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/source") && descriptors[103].count == 5000 && descriptors[103].stride == 500 && descriptors[103].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[104].path, "topbarData/zones/%u/widgetData/options/%u/value/source") && descriptors[104].count == 800 && descriptors[104].stride == 50 && descriptors[104].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[105].path, "screenData/%u/layoutData/zones/%u/widgetData/options/%u/value/color") && descriptors[105].count == 5000 && descriptors[105].stride == 500 && descriptors[105].innerStride == 50, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[106].path, "topbarData/zones/%u/widgetData/options/%u/value/color") && descriptors[106].count == 800 && descriptors[106].stride == 50 && descriptors[106].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[107].path, "switchWarning/%u/pos") && descriptors[107].count == 32 && descriptors[107].stride == 1 && descriptors[107].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[108].path, "customSwitches/%u/sw") && descriptors[108].count == 16 && descriptors[108].stride == 1 && descriptors[108].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[109].path, "customSwitches/%u/name") && descriptors[109].count == 16 && descriptors[109].stride == 1 && descriptors[109].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[110].path, "customSwitches/%u/type") && descriptors[110].count == 16 && descriptors[110].stride == 1 && descriptors[110].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[111].path, "customSwitches/%u/group") && descriptors[111].count == 16 && descriptors[111].stride == 1 && descriptors[111].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[112].path, "customSwitches/%u/start") && descriptors[112].count == 16 && descriptors[112].stride == 1 && descriptors[112].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[113].path, "customSwitches/%u/state") && descriptors[113].count == 16 && descriptors[113].stride == 1 && descriptors[113].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[114].path, "customSwitches/%u/onColorLuaOverride") && descriptors[114].count == 16 && descriptors[114].stride == 1 && descriptors[114].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[115].path, "customSwitches/%u/offColorLuaOverride") && descriptors[115].count == 16 && descriptors[115].stride == 1 && descriptors[115].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[116].path, "customSwitches/%u/onColor/r") && descriptors[116].count == 16 && descriptors[116].stride == 1 && descriptors[116].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[117].path, "customSwitches/%u/onColor/g") && descriptors[117].count == 16 && descriptors[117].stride == 1 && descriptors[117].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[118].path, "customSwitches/%u/onColor/b") && descriptors[118].count == 16 && descriptors[118].stride == 1 && descriptors[118].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[119].path, "customSwitches/%u/offColor/r") && descriptors[119].count == 16 && descriptors[119].stride == 1 && descriptors[119].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[120].path, "customSwitches/%u/offColor/g") && descriptors[120].count == 16 && descriptors[120].stride == 1 && descriptors[120].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[121].path, "customSwitches/%u/offColor/b") && descriptors[121].count == 16 && descriptors[121].stride == 1 && descriptors[121].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[122].path, "cfsGroupOn/%u/v") && descriptors[122].count == 8 && descriptors[122].stride == 1 && descriptors[122].innerStride == 1, "regenerate model_config_sections.inc");
+static_assert(sameKey(descriptors[123].path, "channelMappings/%u/source") && descriptors[123].count == 32 && descriptors[123].stride == 1 && descriptors[123].innerStride == 1, "regenerate model_config_sections.inc");
 void enter(void* ctx, const Node& parent, const char* key, const char* text, Node& child, Result& result)
 {
   child = parent; child.section = -1;
@@ -170,14 +163,13 @@ void enter(void* ctx, const Node& parent, const char* key, const char* text, Nod
       if (!strcmp(key, "voltsSource")) { readLeaf(ctx, 81, 0, text, result); return; }
       if (!strcmp(key, "altitudeSource")) { readLeaf(ctx, 82, 0, text, result); return; }
       if (!strcmp(key, "thrTraceSrc")) { readLeaf(ctx, 83, 0, text, result); return; }
-      if (!strcmp(key, "screens")) { child.section = 112; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "screenData")) { child.section = 131; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "topbarWidgetWidth")) { child.section = 156; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "topbarData")) { child.section = 159; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "switchWarning")) { child.section = 174; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "customSwitches")) { child.section = 177; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "cfsGroupOn")) { child.section = 195; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "channelMappings")) { child.section = 198; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "screenData")) { child.section = 112; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "topbarWidgetWidth")) { child.section = 137; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "topbarData")) { child.section = 140; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "switchWarning")) { child.section = 155; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "customSwitches")) { child.section = 158; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "cfsGroupOn")) { child.section = 176; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "channelMappings")) { child.section = 179; if (*text) result.error = "expected configuration mapping"; return; }
       break;
     case 2: // /header
       if (!strcmp(key, "name")) { readLeaf(ctx, 1, 0, text, result); return; }
@@ -318,189 +310,142 @@ void enter(void* ctx, const Node& parent, const char* key, const char* text, Nod
       if (!strcmp(key, "warning")) { readLeaf(ctx, 79, 0, text, result); return; }
       if (!strcmp(key, "critical")) { readLeaf(ctx, 80, 0, text, result); return; }
       break;
-    case 112: // /screens
-      { int64_t i; if (!integer(key, 0, 3, i)) break;
+    case 112: // /screenData
+      { int64_t i; if (!integer(key, 0, 9, i)) break;
         child.index[0] = i; child.section = 113; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 113: // /screens/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 85, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "u")) { child.section = 115; if (*text) result.error = "expected configuration mapping"; return; }
+    case 113: // /screenData/%u
+      if (!strcmp(key, "LayoutId")) { readLeaf(ctx, 85, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "layoutData")) { child.section = 115; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 115: // /screens/%u/u
-      if (!strcmp(key, "bars")) { child.section = 116; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "lines")) { child.section = 121; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "script")) { child.section = 126; if (*text) result.error = "expected configuration mapping"; return; }
+    case 115: // /screenData/%u/layoutData
+      if (!strcmp(key, "zones")) { child.section = 116; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "options")) { child.section = 130; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 116: // /screens/%u/u/bars
-      { int64_t i; if (!integer(key, 0, 3, i)) break;
+    case 116: // /screenData/%u/layoutData/zones
+      { int64_t i; if (!integer(key, 0, 9, i)) break;
         child.index[1] = i; child.section = 117; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 117: // /screens/%u/u/bars/%u
-      if (!strcmp(key, "source")) { readLeaf(ctx, 86, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "barMin")) { readLeaf(ctx, 87, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "barMax")) { readLeaf(ctx, 88, child.index[0] * 4 + child.index[1] * 1, text, result); return; }
+    case 117: // /screenData/%u/layoutData/zones/%u
+      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 87, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "widgetData")) { child.section = 119; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 121: // /screens/%u/u/lines
-      { int64_t i; if (!integer(key, 0, 3, i)) break;
-        child.index[1] = i; child.section = 122; if (*text) result.error = "expected configuration mapping"; return; }
+    case 119: // /screenData/%u/layoutData/zones/%u/widgetData
+      if (!strcmp(key, "options")) { child.section = 120; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 122: // /screens/%u/u/lines/%u
-      if (!strcmp(key, "sources")) { child.section = 123; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 123: // /screens/%u/u/lines/%u/sources
-      { int64_t i; if (!integer(key, 0, 2, i)) break;
-        child.index[2] = i; child.section = 124; if (*text) readLeaf(ctx, 89, child.index[0] * 12 + child.index[1] * 3 + child.index[2] * 1, text, result); return; }
-      break;
-    case 124: // /screens/%u/u/lines/%u/sources/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 89, child.index[0] * 12 + child.index[1] * 3 + child.index[2] * 1, text, result); return; }
-      break;
-    case 126: // /screens/%u/u/script
-      if (!strcmp(key, "file")) { readLeaf(ctx, 90, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "inputs")) { child.section = 128; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 128: // /screens/%u/u/script/inputs
-      { int64_t i; if (!integer(key, 0, 7, i)) break;
-        child.index[1] = i; child.section = 129; if (*text) readLeaf(ctx, 91, child.index[0] * 8 + child.index[1] * 1, text, result); return; }
-      break;
-    case 129: // /screens/%u/u/script/inputs/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 91, child.index[0] * 8 + child.index[1] * 1, text, result); return; }
-      break;
-    case 131: // /screenData
-      { int64_t i; if (!integer(key, 0, 9, i)) break;
-        child.index[0] = i; child.section = 132; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 132: // /screenData/%u
-      if (!strcmp(key, "LayoutId")) { readLeaf(ctx, 92, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "layoutData")) { child.section = 134; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 134: // /screenData/%u/layoutData
-      if (!strcmp(key, "zones")) { child.section = 135; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "options")) { child.section = 149; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 135: // /screenData/%u/layoutData/zones
-      { int64_t i; if (!integer(key, 0, 9, i)) break;
-        child.index[1] = i; child.section = 136; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 136: // /screenData/%u/layoutData/zones/%u
-      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 94, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "widgetData")) { child.section = 138; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 138: // /screenData/%u/layoutData/zones/%u/widgetData
-      if (!strcmp(key, "options")) { child.section = 139; if (*text) result.error = "expected configuration mapping"; return; }
-      break;
-    case 139: // /screenData/%u/layoutData/zones/%u/widgetData/options
+    case 120: // /screenData/%u/layoutData/zones/%u/widgetData/options
       { int64_t i; if (!integer(key, 0, 49, i)) break;
-        child.index[2] = i; child.section = 140; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[2] = i; child.section = 121; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 140: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 100, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { child.section = 142; if (*text) result.error = "expected configuration mapping"; return; }
+    case 121: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 93, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { child.section = 123; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 142: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
-      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 102, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 104, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 106, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 108, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "source")) { readLeaf(ctx, 110, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
-      if (!strcmp(key, "color")) { readLeaf(ctx, 112, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+    case 123: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
+      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 95, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 97, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 99, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 101, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "source")) { readLeaf(ctx, 103, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
+      if (!strcmp(key, "color")) { readLeaf(ctx, 105, child.index[0] * 500 + child.index[1] * 50 + child.index[2] * 1, text, result); return; }
       break;
-    case 149: // /screenData/%u/layoutData/options
+    case 130: // /screenData/%u/layoutData/options
       { int64_t i; if (!integer(key, 0, 9, i)) break;
-        child.index[1] = i; child.section = 150; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[1] = i; child.section = 131; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 150: // /screenData/%u/layoutData/options/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 95, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { child.section = 152; if (*text) result.error = "expected configuration mapping"; return; }
+    case 131: // /screenData/%u/layoutData/options/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 88, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { child.section = 133; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 152: // /screenData/%u/layoutData/options/%u/value
-      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 96, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 97, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "color")) { readLeaf(ctx, 98, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+    case 133: // /screenData/%u/layoutData/options/%u/value
+      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 89, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 90, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "color")) { readLeaf(ctx, 91, child.index[0] * 10 + child.index[1] * 1, text, result); return; }
       break;
-    case 156: // /topbarWidgetWidth
+    case 137: // /topbarWidgetWidth
       { int64_t i; if (!integer(key, 0, 15, i)) break;
-        child.index[0] = i; child.section = 157; if (*text) readLeaf(ctx, 93, child.index[0] * 1, text, result); return; }
+        child.index[0] = i; child.section = 138; if (*text) readLeaf(ctx, 86, child.index[0] * 1, text, result); return; }
       break;
-    case 157: // /topbarWidgetWidth/%u
-      if (!strcmp(key, "val")) { readLeaf(ctx, 93, child.index[0] * 1, text, result); return; }
+    case 138: // /topbarWidgetWidth/%u
+      if (!strcmp(key, "val")) { readLeaf(ctx, 86, child.index[0] * 1, text, result); return; }
       break;
-    case 159: // /topbarData
-      if (!strcmp(key, "zones")) { child.section = 160; if (*text) result.error = "expected configuration mapping"; return; }
+    case 140: // /topbarData
+      if (!strcmp(key, "zones")) { child.section = 141; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 160: // /topbarData/zones
+    case 141: // /topbarData/zones
       { int64_t i; if (!integer(key, 0, 15, i)) break;
-        child.index[0] = i; child.section = 161; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 142; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 161: // /topbarData/zones/%u
-      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 99, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "widgetData")) { child.section = 163; if (*text) result.error = "expected configuration mapping"; return; }
+    case 142: // /topbarData/zones/%u
+      if (!strcmp(key, "widgetName")) { readLeaf(ctx, 92, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "widgetData")) { child.section = 144; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 163: // /topbarData/zones/%u/widgetData
-      if (!strcmp(key, "options")) { child.section = 164; if (*text) result.error = "expected configuration mapping"; return; }
+    case 144: // /topbarData/zones/%u/widgetData
+      if (!strcmp(key, "options")) { child.section = 145; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 164: // /topbarData/zones/%u/widgetData/options
+    case 145: // /topbarData/zones/%u/widgetData/options
       { int64_t i; if (!integer(key, 0, 49, i)) break;
-        child.index[1] = i; child.section = 165; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[1] = i; child.section = 146; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 165: // /topbarData/zones/%u/widgetData/options/%u
-      if (!strcmp(key, "type")) { readLeaf(ctx, 101, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "value")) { child.section = 167; if (*text) result.error = "expected configuration mapping"; return; }
+    case 146: // /topbarData/zones/%u/widgetData/options/%u
+      if (!strcmp(key, "type")) { readLeaf(ctx, 94, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "value")) { child.section = 148; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 167: // /topbarData/zones/%u/widgetData/options/%u/value
-      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 103, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 105, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 107, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 109, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "source")) { readLeaf(ctx, 111, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
-      if (!strcmp(key, "color")) { readLeaf(ctx, 113, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+    case 148: // /topbarData/zones/%u/widgetData/options/%u/value
+      if (!strcmp(key, "unsignedValue")) { readLeaf(ctx, 96, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "signedValue")) { readLeaf(ctx, 98, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "boolValue")) { readLeaf(ctx, 100, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "stringValue")) { readLeaf(ctx, 102, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "source")) { readLeaf(ctx, 104, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
+      if (!strcmp(key, "color")) { readLeaf(ctx, 106, child.index[0] * 50 + child.index[1] * 1, text, result); return; }
       break;
-    case 174: // /switchWarning
+    case 155: // /switchWarning
       { int64_t i; int physical = switchLookupIdx(key, strlen(key));
         if (physical >= 0) i = physical; else if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 175; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 156; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 175: // /switchWarning/%u
-      if (!strcmp(key, "pos")) { readLeaf(ctx, 114, child.index[0] * 1, text, result); return; }
+    case 156: // /switchWarning/%u
+      if (!strcmp(key, "pos")) { readLeaf(ctx, 107, child.index[0] * 1, text, result); return; }
       break;
-    case 177: // /customSwitches
+    case 158: // /customSwitches
       { int64_t i; if (!integer(key, 0, 15, i)) break;
-        child.index[0] = i; child.section = 178; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 159; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 178: // /customSwitches/%u
-      if (!strcmp(key, "sw")) { readLeaf(ctx, 115, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "name")) { readLeaf(ctx, 116, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "type")) { readLeaf(ctx, 117, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "group")) { readLeaf(ctx, 118, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "start")) { readLeaf(ctx, 119, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "state")) { readLeaf(ctx, 120, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "onColorLuaOverride")) { readLeaf(ctx, 121, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "offColorLuaOverride")) { readLeaf(ctx, 122, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "onColor")) { child.section = 187; if (*text) result.error = "expected configuration mapping"; return; }
-      if (!strcmp(key, "offColor")) { child.section = 191; if (*text) result.error = "expected configuration mapping"; return; }
+    case 159: // /customSwitches/%u
+      if (!strcmp(key, "sw")) { readLeaf(ctx, 108, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "name")) { readLeaf(ctx, 109, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "type")) { readLeaf(ctx, 110, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "group")) { readLeaf(ctx, 111, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "start")) { readLeaf(ctx, 112, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "state")) { readLeaf(ctx, 113, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "onColorLuaOverride")) { readLeaf(ctx, 114, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "offColorLuaOverride")) { readLeaf(ctx, 115, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "onColor")) { child.section = 168; if (*text) result.error = "expected configuration mapping"; return; }
+      if (!strcmp(key, "offColor")) { child.section = 172; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 187: // /customSwitches/%u/onColor
-      if (!strcmp(key, "r")) { readLeaf(ctx, 123, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "g")) { readLeaf(ctx, 124, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "b")) { readLeaf(ctx, 125, child.index[0] * 1, text, result); return; }
+    case 168: // /customSwitches/%u/onColor
+      if (!strcmp(key, "r")) { readLeaf(ctx, 116, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "g")) { readLeaf(ctx, 117, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "b")) { readLeaf(ctx, 118, child.index[0] * 1, text, result); return; }
       break;
-    case 191: // /customSwitches/%u/offColor
-      if (!strcmp(key, "r")) { readLeaf(ctx, 126, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "g")) { readLeaf(ctx, 127, child.index[0] * 1, text, result); return; }
-      if (!strcmp(key, "b")) { readLeaf(ctx, 128, child.index[0] * 1, text, result); return; }
+    case 172: // /customSwitches/%u/offColor
+      if (!strcmp(key, "r")) { readLeaf(ctx, 119, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "g")) { readLeaf(ctx, 120, child.index[0] * 1, text, result); return; }
+      if (!strcmp(key, "b")) { readLeaf(ctx, 121, child.index[0] * 1, text, result); return; }
       break;
-    case 195: // /cfsGroupOn
+    case 176: // /cfsGroupOn
       { int64_t i; if (!integer(key, 0, 7, i)) break;
-        child.index[0] = i; child.section = 196; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 177; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 196: // /cfsGroupOn/%u
-      if (!strcmp(key, "v")) { readLeaf(ctx, 129, child.index[0] * 1, text, result); return; }
+    case 177: // /cfsGroupOn/%u
+      if (!strcmp(key, "v")) { readLeaf(ctx, 122, child.index[0] * 1, text, result); return; }
       break;
-    case 198: // /channelMappings
+    case 179: // /channelMappings
       { int64_t i; if (!integer(key, 0, 31, i)) break;
-        child.index[0] = i; child.section = 199; if (*text) result.error = "expected configuration mapping"; return; }
+        child.index[0] = i; child.section = 180; if (*text) result.error = "expected configuration mapping"; return; }
       break;
-    case 199: // /channelMappings/%u
-      if (!strcmp(key, "source")) { readLeaf(ctx, 130, child.index[0] * 1, text, result); return; }
+    case 180: // /channelMappings/%u
+      if (!strcmp(key, "source")) { readLeaf(ctx, 123, child.index[0] * 1, text, result); return; }
       break;
   }
   if (*text) ++result.unknown;
@@ -558,29 +503,26 @@ void writeSection(Context& context, unsigned section, unsigned* index, Writer& w
       writeLeaf(context, 81, 0, "voltsSource", writer, field);
       writeLeaf(context, 82, 0, "altitudeSource", writer, field);
       writeLeaf(context, 83, 0, "thrTraceSrc", writer, field);
-      writer.begin("screens");
+      writer.begin("screenData");
       writeSection(context, 112, index, writer, field);
       writer.end();
-      writer.begin("screenData");
-      writeSection(context, 131, index, writer, field);
-      writer.end();
       writer.begin("topbarWidgetWidth");
-      writeSection(context, 156, index, writer, field);
+      writeSection(context, 137, index, writer, field);
       writer.end();
       writer.begin("topbarData");
-      writeSection(context, 159, index, writer, field);
+      writeSection(context, 140, index, writer, field);
       writer.end();
       writer.begin("switchWarning");
-      writeSection(context, 174, index, writer, field);
+      writeSection(context, 155, index, writer, field);
       writer.end();
       writer.begin("customSwitches");
-      writeSection(context, 177, index, writer, field);
+      writeSection(context, 158, index, writer, field);
       writer.end();
       writer.begin("cfsGroupOn");
-      writeSection(context, 195, index, writer, field);
+      writeSection(context, 176, index, writer, field);
       writer.end();
       writer.begin("channelMappings");
-      writeSection(context, 198, index, writer, field);
+      writeSection(context, 179, index, writer, field);
       writer.end();
       break;
     case 2: // /header
@@ -774,290 +716,211 @@ void writeSection(Context& context, unsigned section, unsigned* index, Writer& w
       writeLeaf(context, 79, 0, "warning", writer, field);
       writeLeaf(context, 80, 0, "critical", writer, field);
       break;
-    case 112: // /screens
-      for (index[0] = 0; index[0] < 4; ++index[0]) {
-        if (!used(context, "screens/%u", index)) continue;
+    case 112: // /screenData
+      for (index[0] = 0; index[0] < 10; ++index[0]) {
+        if (!used(context, "screenData/%u", index)) continue;
         writer.begin(index[0]);
       writeSection(context, 113, index, writer, field);
       writer.end();
       }
       break;
-    case 113: // /screens/%u
-      writeLeaf(context, 85, index[0] * 1, "type", writer, field);
-      writer.begin("u");
+    case 113: // /screenData/%u
+      writeLeaf(context, 85, index[0] * 1, "LayoutId", writer, field);
+      writer.begin("layoutData");
       writeSection(context, 115, index, writer, field);
       writer.end();
       break;
-    case 115: // /screens/%u/u
-      writer.begin("bars");
+    case 115: // /screenData/%u/layoutData
+      writer.begin("zones");
       writeSection(context, 116, index, writer, field);
       writer.end();
-      writer.begin("lines");
-      writeSection(context, 121, index, writer, field);
-      writer.end();
-      writer.begin("script");
-      writeSection(context, 126, index, writer, field);
+      writer.begin("options");
+      writeSection(context, 130, index, writer, field);
       writer.end();
       break;
-    case 116: // /screens/%u/u/bars
-      for (index[1] = 0; index[1] < 4; ++index[1]) {
-        if (!used(context, "screens/%u/u/bars/%u", index)) continue;
+    case 116: // /screenData/%u/layoutData/zones
+      for (index[1] = 0; index[1] < 10; ++index[1]) {
+        if (!used(context, "screenData/%u/layoutData/zones/%u", index)) continue;
         writer.begin(index[1]);
       writeSection(context, 117, index, writer, field);
       writer.end();
       }
       break;
-    case 117: // /screens/%u/u/bars/%u
-      writeLeaf(context, 86, index[0] * 4 + index[1] * 1, "source", writer, field);
-      writeLeaf(context, 87, index[0] * 4 + index[1] * 1, "barMin", writer, field);
-      writeLeaf(context, 88, index[0] * 4 + index[1] * 1, "barMax", writer, field);
-      break;
-    case 121: // /screens/%u/u/lines
-      for (index[1] = 0; index[1] < 4; ++index[1]) {
-        if (!used(context, "screens/%u/u/lines/%u", index)) continue;
-        writer.begin(index[1]);
-      writeSection(context, 122, index, writer, field);
-      writer.end();
-      }
-      break;
-    case 122: // /screens/%u/u/lines/%u
-      writer.begin("sources");
-      writeSection(context, 123, index, writer, field);
-      writer.end();
-      break;
-    case 123: // /screens/%u/u/lines/%u/sources
-      for (index[2] = 0; index[2] < 3; ++index[2]) {
-        if (!used(context, "screens/%u/u/lines/%u/sources/%u", index)) continue;
-        writer.begin(index[2]);
-      writeSection(context, 124, index, writer, field);
-      writer.end();
-      }
-      break;
-    case 124: // /screens/%u/u/lines/%u/sources/%u
-      writeLeaf(context, 89, index[0] * 12 + index[1] * 3 + index[2] * 1, "val", writer, field);
-      break;
-    case 126: // /screens/%u/u/script
-      writeLeaf(context, 90, index[0] * 1, "file", writer, field);
-      writer.begin("inputs");
-      writeSection(context, 128, index, writer, field);
-      writer.end();
-      break;
-    case 128: // /screens/%u/u/script/inputs
-      for (index[1] = 0; index[1] < 8; ++index[1]) {
-        if (!used(context, "screens/%u/u/script/inputs/%u", index)) continue;
-        writer.begin(index[1]);
-      writeSection(context, 129, index, writer, field);
-      writer.end();
-      }
-      break;
-    case 129: // /screens/%u/u/script/inputs/%u
-      writeLeaf(context, 91, index[0] * 8 + index[1] * 1, "val", writer, field);
-      break;
-    case 131: // /screenData
-      for (index[0] = 0; index[0] < 10; ++index[0]) {
-        if (!used(context, "screenData/%u", index)) continue;
-        writer.begin(index[0]);
-      writeSection(context, 132, index, writer, field);
-      writer.end();
-      }
-      break;
-    case 132: // /screenData/%u
-      writeLeaf(context, 92, index[0] * 1, "LayoutId", writer, field);
-      writer.begin("layoutData");
-      writeSection(context, 134, index, writer, field);
-      writer.end();
-      break;
-    case 134: // /screenData/%u/layoutData
-      writer.begin("zones");
-      writeSection(context, 135, index, writer, field);
-      writer.end();
-      writer.begin("options");
-      writeSection(context, 149, index, writer, field);
-      writer.end();
-      break;
-    case 135: // /screenData/%u/layoutData/zones
-      for (index[1] = 0; index[1] < 10; ++index[1]) {
-        if (!used(context, "screenData/%u/layoutData/zones/%u", index)) continue;
-        writer.begin(index[1]);
-      writeSection(context, 136, index, writer, field);
-      writer.end();
-      }
-      break;
-    case 136: // /screenData/%u/layoutData/zones/%u
-      writeLeaf(context, 94, index[0] * 10 + index[1] * 1, "widgetName", writer, field);
+    case 117: // /screenData/%u/layoutData/zones/%u
+      writeLeaf(context, 87, index[0] * 10 + index[1] * 1, "widgetName", writer, field);
       writer.begin("widgetData");
-      writeSection(context, 138, index, writer, field);
+      writeSection(context, 119, index, writer, field);
       writer.end();
       break;
-    case 138: // /screenData/%u/layoutData/zones/%u/widgetData
+    case 119: // /screenData/%u/layoutData/zones/%u/widgetData
       writer.begin("options");
-      writeSection(context, 139, index, writer, field);
+      writeSection(context, 120, index, writer, field);
       writer.end();
       break;
-    case 139: // /screenData/%u/layoutData/zones/%u/widgetData/options
+    case 120: // /screenData/%u/layoutData/zones/%u/widgetData/options
       for (index[2] = 0; index[2] < 50; ++index[2]) {
         if (!used(context, "screenData/%u/layoutData/zones/%u/widgetData/options/%u", index)) continue;
         writer.begin(index[2]);
-      writeSection(context, 140, index, writer, field);
+      writeSection(context, 121, index, writer, field);
       writer.end();
       }
       break;
-    case 140: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
-      writeLeaf(context, 100, index[0] * 500 + index[1] * 50 + index[2] * 1, "type", writer, field);
+    case 121: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u
+      writeLeaf(context, 93, index[0] * 500 + index[1] * 50 + index[2] * 1, "type", writer, field);
       writer.begin("value");
-      writeSection(context, 142, index, writer, field);
+      writeSection(context, 123, index, writer, field);
       writer.end();
       break;
-    case 142: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
-      writeLeaf(context, 102, index[0] * 500 + index[1] * 50 + index[2] * 1, "unsignedValue", writer, field);
-      writeLeaf(context, 104, index[0] * 500 + index[1] * 50 + index[2] * 1, "signedValue", writer, field);
-      writeLeaf(context, 106, index[0] * 500 + index[1] * 50 + index[2] * 1, "boolValue", writer, field);
-      writeLeaf(context, 108, index[0] * 500 + index[1] * 50 + index[2] * 1, "stringValue", writer, field);
-      writeLeaf(context, 110, index[0] * 500 + index[1] * 50 + index[2] * 1, "source", writer, field);
-      writeLeaf(context, 112, index[0] * 500 + index[1] * 50 + index[2] * 1, "color", writer, field);
+    case 123: // /screenData/%u/layoutData/zones/%u/widgetData/options/%u/value
+      writeLeaf(context, 95, index[0] * 500 + index[1] * 50 + index[2] * 1, "unsignedValue", writer, field);
+      writeLeaf(context, 97, index[0] * 500 + index[1] * 50 + index[2] * 1, "signedValue", writer, field);
+      writeLeaf(context, 99, index[0] * 500 + index[1] * 50 + index[2] * 1, "boolValue", writer, field);
+      writeLeaf(context, 101, index[0] * 500 + index[1] * 50 + index[2] * 1, "stringValue", writer, field);
+      writeLeaf(context, 103, index[0] * 500 + index[1] * 50 + index[2] * 1, "source", writer, field);
+      writeLeaf(context, 105, index[0] * 500 + index[1] * 50 + index[2] * 1, "color", writer, field);
       break;
-    case 149: // /screenData/%u/layoutData/options
+    case 130: // /screenData/%u/layoutData/options
       for (index[1] = 0; index[1] < 10; ++index[1]) {
         if (!used(context, "screenData/%u/layoutData/options/%u", index)) continue;
         writer.begin(index[1]);
-      writeSection(context, 150, index, writer, field);
+      writeSection(context, 131, index, writer, field);
       writer.end();
       }
       break;
-    case 150: // /screenData/%u/layoutData/options/%u
-      writeLeaf(context, 95, index[0] * 10 + index[1] * 1, "type", writer, field);
+    case 131: // /screenData/%u/layoutData/options/%u
+      writeLeaf(context, 88, index[0] * 10 + index[1] * 1, "type", writer, field);
       writer.begin("value");
-      writeSection(context, 152, index, writer, field);
+      writeSection(context, 133, index, writer, field);
       writer.end();
       break;
-    case 152: // /screenData/%u/layoutData/options/%u/value
-      writeLeaf(context, 96, index[0] * 10 + index[1] * 1, "unsignedValue", writer, field);
-      writeLeaf(context, 97, index[0] * 10 + index[1] * 1, "boolValue", writer, field);
-      writeLeaf(context, 98, index[0] * 10 + index[1] * 1, "color", writer, field);
+    case 133: // /screenData/%u/layoutData/options/%u/value
+      writeLeaf(context, 89, index[0] * 10 + index[1] * 1, "unsignedValue", writer, field);
+      writeLeaf(context, 90, index[0] * 10 + index[1] * 1, "boolValue", writer, field);
+      writeLeaf(context, 91, index[0] * 10 + index[1] * 1, "color", writer, field);
       break;
-    case 156: // /topbarWidgetWidth
+    case 137: // /topbarWidgetWidth
       for (index[0] = 0; index[0] < 16; ++index[0]) {
         if (!used(context, "topbarWidgetWidth/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 157, index, writer, field);
+      writeSection(context, 138, index, writer, field);
       writer.end();
       }
       break;
-    case 157: // /topbarWidgetWidth/%u
-      writeLeaf(context, 93, index[0] * 1, "val", writer, field);
+    case 138: // /topbarWidgetWidth/%u
+      writeLeaf(context, 86, index[0] * 1, "val", writer, field);
       break;
-    case 159: // /topbarData
+    case 140: // /topbarData
       writer.begin("zones");
-      writeSection(context, 160, index, writer, field);
+      writeSection(context, 141, index, writer, field);
       writer.end();
       break;
-    case 160: // /topbarData/zones
+    case 141: // /topbarData/zones
       for (index[0] = 0; index[0] < 16; ++index[0]) {
         if (!used(context, "topbarData/zones/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 161, index, writer, field);
+      writeSection(context, 142, index, writer, field);
       writer.end();
       }
       break;
-    case 161: // /topbarData/zones/%u
-      writeLeaf(context, 99, index[0] * 1, "widgetName", writer, field);
+    case 142: // /topbarData/zones/%u
+      writeLeaf(context, 92, index[0] * 1, "widgetName", writer, field);
       writer.begin("widgetData");
-      writeSection(context, 163, index, writer, field);
+      writeSection(context, 144, index, writer, field);
       writer.end();
       break;
-    case 163: // /topbarData/zones/%u/widgetData
+    case 144: // /topbarData/zones/%u/widgetData
       writer.begin("options");
-      writeSection(context, 164, index, writer, field);
+      writeSection(context, 145, index, writer, field);
       writer.end();
       break;
-    case 164: // /topbarData/zones/%u/widgetData/options
+    case 145: // /topbarData/zones/%u/widgetData/options
       for (index[1] = 0; index[1] < 50; ++index[1]) {
         if (!used(context, "topbarData/zones/%u/widgetData/options/%u", index)) continue;
         writer.begin(index[1]);
-      writeSection(context, 165, index, writer, field);
+      writeSection(context, 146, index, writer, field);
       writer.end();
       }
       break;
-    case 165: // /topbarData/zones/%u/widgetData/options/%u
-      writeLeaf(context, 101, index[0] * 50 + index[1] * 1, "type", writer, field);
+    case 146: // /topbarData/zones/%u/widgetData/options/%u
+      writeLeaf(context, 94, index[0] * 50 + index[1] * 1, "type", writer, field);
       writer.begin("value");
-      writeSection(context, 167, index, writer, field);
+      writeSection(context, 148, index, writer, field);
       writer.end();
       break;
-    case 167: // /topbarData/zones/%u/widgetData/options/%u/value
-      writeLeaf(context, 103, index[0] * 50 + index[1] * 1, "unsignedValue", writer, field);
-      writeLeaf(context, 105, index[0] * 50 + index[1] * 1, "signedValue", writer, field);
-      writeLeaf(context, 107, index[0] * 50 + index[1] * 1, "boolValue", writer, field);
-      writeLeaf(context, 109, index[0] * 50 + index[1] * 1, "stringValue", writer, field);
-      writeLeaf(context, 111, index[0] * 50 + index[1] * 1, "source", writer, field);
-      writeLeaf(context, 113, index[0] * 50 + index[1] * 1, "color", writer, field);
+    case 148: // /topbarData/zones/%u/widgetData/options/%u/value
+      writeLeaf(context, 96, index[0] * 50 + index[1] * 1, "unsignedValue", writer, field);
+      writeLeaf(context, 98, index[0] * 50 + index[1] * 1, "signedValue", writer, field);
+      writeLeaf(context, 100, index[0] * 50 + index[1] * 1, "boolValue", writer, field);
+      writeLeaf(context, 102, index[0] * 50 + index[1] * 1, "stringValue", writer, field);
+      writeLeaf(context, 104, index[0] * 50 + index[1] * 1, "source", writer, field);
+      writeLeaf(context, 106, index[0] * 50 + index[1] * 1, "color", writer, field);
       break;
-    case 174: // /switchWarning
+    case 155: // /switchWarning
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "switchWarning/%u", index)) continue;
         writer.begin(switchGetDefaultName(index[0]));
-      writeSection(context, 175, index, writer, field);
+      writeSection(context, 156, index, writer, field);
       writer.end();
       }
       break;
-    case 175: // /switchWarning/%u
-      writeLeaf(context, 114, index[0] * 1, "pos", writer, field);
+    case 156: // /switchWarning/%u
+      writeLeaf(context, 107, index[0] * 1, "pos", writer, field);
       break;
-    case 177: // /customSwitches
+    case 158: // /customSwitches
       for (index[0] = 0; index[0] < 16; ++index[0]) {
         if (!used(context, "customSwitches/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 178, index, writer, field);
+      writeSection(context, 159, index, writer, field);
       writer.end();
       }
       break;
-    case 178: // /customSwitches/%u
-      writeLeaf(context, 115, index[0] * 1, "sw", writer, field);
-      writeLeaf(context, 116, index[0] * 1, "name", writer, field);
-      writeLeaf(context, 117, index[0] * 1, "type", writer, field);
-      writeLeaf(context, 118, index[0] * 1, "group", writer, field);
-      writeLeaf(context, 119, index[0] * 1, "start", writer, field);
-      writeLeaf(context, 120, index[0] * 1, "state", writer, field);
-      writeLeaf(context, 121, index[0] * 1, "onColorLuaOverride", writer, field);
-      writeLeaf(context, 122, index[0] * 1, "offColorLuaOverride", writer, field);
+    case 159: // /customSwitches/%u
+      writeLeaf(context, 108, index[0] * 1, "sw", writer, field);
+      writeLeaf(context, 109, index[0] * 1, "name", writer, field);
+      writeLeaf(context, 110, index[0] * 1, "type", writer, field);
+      writeLeaf(context, 111, index[0] * 1, "group", writer, field);
+      writeLeaf(context, 112, index[0] * 1, "start", writer, field);
+      writeLeaf(context, 113, index[0] * 1, "state", writer, field);
+      writeLeaf(context, 114, index[0] * 1, "onColorLuaOverride", writer, field);
+      writeLeaf(context, 115, index[0] * 1, "offColorLuaOverride", writer, field);
       writer.begin("onColor");
-      writeSection(context, 187, index, writer, field);
+      writeSection(context, 168, index, writer, field);
       writer.end();
       writer.begin("offColor");
-      writeSection(context, 191, index, writer, field);
+      writeSection(context, 172, index, writer, field);
       writer.end();
       break;
-    case 187: // /customSwitches/%u/onColor
-      writeLeaf(context, 123, index[0] * 1, "r", writer, field);
-      writeLeaf(context, 124, index[0] * 1, "g", writer, field);
-      writeLeaf(context, 125, index[0] * 1, "b", writer, field);
+    case 168: // /customSwitches/%u/onColor
+      writeLeaf(context, 116, index[0] * 1, "r", writer, field);
+      writeLeaf(context, 117, index[0] * 1, "g", writer, field);
+      writeLeaf(context, 118, index[0] * 1, "b", writer, field);
       break;
-    case 191: // /customSwitches/%u/offColor
-      writeLeaf(context, 126, index[0] * 1, "r", writer, field);
-      writeLeaf(context, 127, index[0] * 1, "g", writer, field);
-      writeLeaf(context, 128, index[0] * 1, "b", writer, field);
+    case 172: // /customSwitches/%u/offColor
+      writeLeaf(context, 119, index[0] * 1, "r", writer, field);
+      writeLeaf(context, 120, index[0] * 1, "g", writer, field);
+      writeLeaf(context, 121, index[0] * 1, "b", writer, field);
       break;
-    case 195: // /cfsGroupOn
+    case 176: // /cfsGroupOn
       for (index[0] = 0; index[0] < 8; ++index[0]) {
         if (!used(context, "cfsGroupOn/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 196, index, writer, field);
+      writeSection(context, 177, index, writer, field);
       writer.end();
       }
       break;
-    case 196: // /cfsGroupOn/%u
-      writeLeaf(context, 129, index[0] * 1, "v", writer, field);
+    case 177: // /cfsGroupOn/%u
+      writeLeaf(context, 122, index[0] * 1, "v", writer, field);
       break;
-    case 198: // /channelMappings
+    case 179: // /channelMappings
       for (index[0] = 0; index[0] < 32; ++index[0]) {
         if (!used(context, "channelMappings/%u", index)) continue;
         writer.begin(index[0]);
-      writeSection(context, 199, index, writer, field);
+      writeSection(context, 180, index, writer, field);
       writer.end();
       }
       break;
-    case 199: // /channelMappings/%u
-      writeLeaf(context, 130, index[0] * 1, "source", writer, field);
+    case 180: // /channelMappings/%u
+      writeLeaf(context, 123, index[0] * 1, "source", writer, field);
       break;
   }
 }

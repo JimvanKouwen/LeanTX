@@ -87,36 +87,6 @@ PACK(struct RFAlarmData {
   int8_t critical;
 });
 
-typedef int16_t telemetry_value_t;
-
-#if !defined(COLORLCD)
-PACK(struct TelemetryBarData {
-  source_t source;
-  telemetry_value_t barMin;           // minimum for bar display
-  telemetry_value_t barMax;           // ditto for max display (would usually = ratio)
-});
-
-PACK(struct TelemetryLineData {
-  source_t sources[NUM_LINE_ITEMS];
-});
-
-#if defined(PCBTARANIS)
-PACK(struct TelemetryScriptData {
-  char    file[LEN_SCRIPT_FILENAME];
-  int16_t inputs[MAX_TELEM_SCRIPT_INPUTS];
-});
-#endif
-
-union TelemetryScreenData {
-  TelemetryBarData  bars[4];
-  TelemetryLineData lines[4];
-#if defined(PCBTARANIS)
-  TelemetryScriptData script;
-#endif
-};
-
-#endif
-
 PACK(struct VarioData {
   uint8_t source:7; // telemetry sensor idx + 1
   uint8_t centerSilent:1;
@@ -418,7 +388,6 @@ PACK(struct ModelData {
 
 #if defined(COLORLCD)
   uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES];
-  uint8_t view;
 
   void resetScreenData();
   const char* getScreenLayoutId(int screenNum);
@@ -429,13 +398,8 @@ PACK(struct ModelData {
   LayoutPersistentData* getScreenLayoutData(int screenNum);
   WidgetPersistentData* getWidgetData(int screenNum, int zoneNum);
   void removeScreenLayout(int idx);
-#else
-  uint8_t screensType; /* 2bits per screen (None/Gauges/Numbers/Script) */
-  TelemetryScreenData screens[MAX_TELEMETRY_SCREENS];
-  uint8_t getTelemetryScreenType(unsigned screen) const { return bfGet<uint8_t>(screensType, screen * 2, 2); }
-  void setTelemetryScreenType(unsigned screen, uint8_t type) { screensType = bfSet<uint8_t>(screensType, type, screen * 2, 2); }
-  uint8_t view;
 #endif
+  uint8_t view;
 
   FUNCTION_SWITCHS_FIELDS
 

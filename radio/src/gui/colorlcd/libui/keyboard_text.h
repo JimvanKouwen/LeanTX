@@ -62,8 +62,6 @@ class TextKeyboard : public Keyboard
   void onLongPressSYS() override;
   void onPressMDL() override;
   void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
   void onPressPGUP() override;
   void onPressPGDN() override;
   void onLongPressPGUP() override;

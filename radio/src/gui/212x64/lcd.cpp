@@ -145,36 +145,6 @@ void lcdDrawHexNumber(coord_t x, coord_t y, uint32_t val, LcdFlags flags)
 #endif
 
 #if !defined(BOOT)
-void drawTelemetryTopBar()
-{
-  drawModelName(0, 0, g_model.header.name, g_eeGeneral.currModel, 0);
-  uint8_t att = (IS_TXBATT_WARNING() ? BLINK : 0);
-  putsVBat(12*FW, 0, att);
-  if (g_model.timers[0].mode) {
-    TimerData *timer =  &g_model.timers[0];
-    int32_t val = 0;
-    if (g_model.timers[0].showElapsed)
-      val = timer->start - timersStates[0].val;
-    else
-      val = timersStates[0].val;
-    LcdFlags att = (val < 0 ? BLINK : 0) | TIMEHOUR;
-    drawTimer(18*FW, 0, val, att, att);
-    lcdDrawText(18*FW, 0, "T1:", RIGHT);
-  }
-  if (g_model.timers[1].mode) {
-    TimerData *timer =  &g_model.timers[1];
-    int32_t val = 0;
-    if (g_model.timers[1].showElapsed)
-      val = timer->start - timersStates[1].val;
-    else
-      val = timersStates[1].val;
-    LcdFlags att = (val < 0 ? BLINK : 0) | TIMEHOUR;
-    drawTimer(28*FW, 0, val, att, att);
-    lcdDrawText(28*FW, 0, "T2:", RIGHT);
-  }
-  lcdInvertLine(0);
-}
-
 void drawMainControlLabel(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
   lcdDrawSizedText(x, y, getMainControlLabel(idx), UINT8_MAX, att);

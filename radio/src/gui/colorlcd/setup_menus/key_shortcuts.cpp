@@ -103,12 +103,10 @@ QMKeyShortcutsPage::QMKeyShortcutsPage():
   setupLine(STR_SHORT_PRESS, nullptr);
   addKey(EVT_KEY_BREAK(KEY_SYS), qmPages, "SYS");
   addKey(EVT_KEY_BREAK(KEY_MODEL), qmPages, "MDL");
-  addKey(EVT_KEY_BREAK(KEY_TELE), qmPages, "TELE");
 
   setupLine(STR_LONG_PRESS, nullptr);
   addKey(EVT_KEY_LONG(KEY_SYS), qmPages, "SYS");
   addKey(EVT_KEY_LONG(KEY_MODEL), qmPages, "MDL");
-  addKey(EVT_KEY_LONG(KEY_TELE), qmPages, "TELE");
 
   new TextButton(body, {LV_PCT(10), y + PAD_LARGE, LV_PCT(80), 0}, STR_RESET,
                   [=]() {

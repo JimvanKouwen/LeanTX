@@ -99,25 +99,9 @@ enum ScriptState {
   SCRIPT_PANIC
 };
 
-enum ScriptReference {
-  SCRIPT_REF_FIRST = 0,
-#if defined(PCBTARANIS)
-  SCRIPT_TELEMETRY_FIRST = SCRIPT_REF_FIRST,
-  SCRIPT_TELEMETRY_LAST = SCRIPT_TELEMETRY_FIRST + MAX_TELEMETRY_SCREENS - 1,
-  SCRIPT_REF_LAST = SCRIPT_TELEMETRY_LAST + 1,
-#else
-  SCRIPT_REF_LAST = SCRIPT_REF_FIRST,
-#endif
-#if !defined(COLORLCD)
-  SCRIPT_STANDALONE = SCRIPT_REF_LAST
-#endif
-};
-
 struct ScriptInternalData {
-  uint8_t reference;
   uint8_t state;
   int run;
-  int background;
 #if defined(COLORLCD)  
   bool useLvgl;
 #endif
@@ -140,18 +124,13 @@ extern uint8_t luaState;
 extern uint8_t luaScriptsCount;
 extern bool    luaLcdAllowed;
 
-#if defined(PCBTARANIS)
-constexpr unsigned MAX_LOADED_SCRIPTS = MAX_TELEMETRY_SCREENS;
-#else
 constexpr unsigned MAX_LOADED_SCRIPTS = 1;
-#endif
 
 extern ScriptInternalData scriptInternalData[MAX_LOADED_SCRIPTS];
 
 bool luaTask(bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
-bool isTelemetryScriptAvailable();
 
 #define LUA_LOAD_MODEL_SCRIPTS()   luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS
 

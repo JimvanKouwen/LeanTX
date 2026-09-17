@@ -53,10 +53,9 @@ extern FIL g_oLogFile;
 #define LAYOUTS_PATH        ROOT_PATH "LAYOUTS"
 #define WIDGETS_PATH        ROOT_PATH "WIDGETS"
 #define WIZARD_NAME         "wizard.lua"
-#define SCRIPTS_TELEM_PATH  SCRIPTS_PATH PATH_SEPARATOR "TELEMETRY"
 #define SCRIPTS_TOOLS_PATH  SCRIPTS_PATH PATH_SEPARATOR "TOOLS"
 
-#define LEN_FILE_PATH_MAX   (sizeof(SCRIPTS_TELEM_PATH)+1)  // longest + "/"
+#define LEN_FILE_PATH_MAX   20  // directory prefix capacity, including trailing "/"
 
 #define RADIO_FILENAME      "radio.bin"
 const char RADIO_SETTINGS_PATH[] = RADIO_PATH PATH_SEPARATOR RADIO_FILENAME;

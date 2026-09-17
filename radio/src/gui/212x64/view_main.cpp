@@ -381,10 +381,6 @@ void menuMainView(event_t event)
       }
       break;
 
-    case EVT_KEY_TELEMETRY:
-      chainMenu(menuViewTelemetry);
-      break;
-
     case EVT_KEY_FIRST(KEY_EXIT):
       break;
 

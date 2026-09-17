@@ -12,7 +12,6 @@ set(GUI_SRC
   ../common/stdlcd/model_notes.cpp
   ../common/stdlcd/radio_hardware.cpp
   ../common/stdlcd/radio_version.cpp
-  ../common/stdlcd/view_telemetry.cpp
   ../common/stdlcd/calibration.cpp
   ../common/stdlcd/splash.cpp
   ../common/stdlcd/radio_sdmanager.cpp

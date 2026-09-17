@@ -185,10 +185,6 @@
 #define TR_VTELEMUNIT_29               "km"
 #define TR_VTELEMUNIT_30               "dBm"
 
-#define TR_VTELEMSCREENTYPE_1          "None"
-#define TR_VTELEMSCREENTYPE_2          "Nums"
-#define TR_VTELEMSCREENTYPE_3          "Bars"
-#define TR_VTELEMSCREENTYPE_4          "Script"
 #define TR_GPSFORMAT_1                 "DMS"
 #define TR_GPSFORMAT_2                 "NMEA"
 
@@ -488,7 +484,6 @@
 #define TR_PITCH_AT_MAX                "Pitch max"
 #define TR_REPEAT_AT_ZERO              "Repeat zero"
 #define TR_BATT_CALIB                  TR("Batt. calib", "Battery calibration")
-#define TR_VOLTAGE                     TR("Voltage", "Voltage source")
 #define TR_SELECT_MODEL                "Select model"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Create model"
@@ -566,7 +561,6 @@
 #define TR_NO_SOUNDS_ON_SD             "No sounds on SD"
 #define TR_NO_MODELS_ON_SD             "No models on SD"
 #define TR_NO_BITMAPS_ON_SD            "No bitmaps on SD"
-#define TR_NO_SCRIPTS_ON_SD            "No scripts on SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntax error", "Script syntax error")
 #define TR_SCRIPT_PANIC                "Script panic"
 #define TR_SCRIPT_ERROR                "Unknown error"
@@ -799,7 +793,6 @@
 #define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Inputs"
-#define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
@@ -852,7 +845,6 @@
 #define TR_MODULE_RESET                "Module reset..."
 #define TR_UNSUPPORTED_RX "Unsupported RX"
 #define TR_DEVICE_RESET                "Device reset..."
-#define TR_ALTITUDE                    "Altitude"
 #define TR_SCALE                       "Scale"
 #define TR_VIEW_CHANNELS               "View Channels"
 #define TR_VIEW_NOTES                  "View Notes"
@@ -897,7 +889,6 @@
 #define TR_MENU_SWITCHES               CHAR_SWITCH "Switches"
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Channels"
 #define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetry"
-#define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
 #define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")

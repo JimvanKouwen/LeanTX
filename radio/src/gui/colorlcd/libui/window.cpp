@@ -599,11 +599,9 @@ void NavWindow::onEvent(event_t event)
       break;
 
     case EVT_KEY_BREAK(KEY_TELE):
-      onPressTELE();
       break;
 
     case EVT_KEY_LONG(KEY_TELE):
-      onLongPressTELE();
       break;
 
     case EVT_KEY_BREAK(KEY_PAGEDN):
@@ -644,8 +642,6 @@ void NavWindow::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
 void NavWindow::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
 void NavWindow::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
 void NavWindow::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
-void NavWindow::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
-void NavWindow::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 #endif
 
 //-----------------------------------------------------------------------------
