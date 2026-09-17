@@ -98,10 +98,10 @@ void memswap(void * a, void * b, uint8_t size);
 #define IS_SWITCH_MULTIPOS(x) \
   (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
 
-#define GET_LOWRES_POT_POSITION(i) (getValue(MIXSRC_FIRST_POT + (i)) >> 4)
+int16_t getPotWarningPosition(uint8_t index);
 
 #define SAVE_POT_POSITION(i) \
-  g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
+  g_model.potsWarnPosition[i] = getPotWarningPosition(i)
 
 #define ANALOG_CENTER_BEEP(x) \
   (g_model.beepANACenter & ((BeepANACenter)1 << (x)))

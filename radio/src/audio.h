@@ -521,7 +521,6 @@ enum AutomaticPromptsCategories {
 void pushPrompt(uint16_t prompt, uint8_t id=0, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
 void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
 void playModelName();
-void playValue(mixsrc_t source, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME);
 
 #define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id, fragmentVolume)
 #define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id, fragmentVolume)
@@ -534,7 +533,6 @@ void playValue(mixsrc_t source, uint8_t id, int8_t fragmentVolume = USE_SETTINGS
 #define IS_PLAY_TIME()           (flags & PLAY_TIME)
 #define IS_PLAY_LONG_TIMER()     (flags & PLAY_LONG_TIMER)
 #define IS_PLAYING(id)           audioQueue.isPlaying((id))
-#define PLAY_VALUE(v, id)        playValue((v), (id), USE_SETTINGS_VOLUME)
 #define PLAY_FILE(f, flags, id)  audioQueue.playFile((f), (flags), (id), USE_SETTINGS_VOLUME)
 #define STOP_PLAY(id)            audioQueue.stopPlay((id))
 

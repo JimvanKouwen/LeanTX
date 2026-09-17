@@ -573,7 +573,7 @@ bool isThrottleWarningAlertNeeded()
   if (!mixerTaskRunning()) getADC();
   evalAnalogControls(false); // let do evalAnalogControls do the job
 
-  int16_t v = getValue(MIXSRC_FIRST_STICK + inputMappingGetThrottle());
+  int16_t v = calibratedAnalogs[inputMappingConvertMode(inputMappingGetThrottle())];
 
   if (g_model.enableCustomThrottleWarning) {
     int16_t idleValue = (int32_t)RESX *

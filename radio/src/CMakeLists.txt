@@ -369,7 +369,6 @@ set(SRC
   edgetx.cpp
   datastructs_model.cpp
   datastructs_radio.cpp
-  audio_value.cpp
   strhelpers.cpp
   switches.cpp
   analogs.cpp

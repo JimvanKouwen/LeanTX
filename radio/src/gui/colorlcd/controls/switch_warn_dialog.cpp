@@ -49,8 +49,10 @@ void SwitchWarnDialog::checkEvents()
       if (warnState) {
         swarnstate_t swState = g_model.getSwitchStateForWarning(i);
         if (warnState != swState) {
-          warn_txt +=
-              getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + warnState - 1);
+          char name[LEN_SWITCH_NAME + 1];
+          getSwitchName(name, i);
+          warn_txt += name;
+          warn_txt += getSwitchWarnSymbol(warnState);
           warn_txt += " ";
         }
       }
@@ -66,7 +68,7 @@ void SwitchWarnDialog::checkEvents()
         continue;
       }
       if ((g_model.potsWarnEnabled & (1 << i))) {
-        if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
+        if (abs(g_model.potsWarnPosition[i] - getPotWarningPosition(i)) > 1) {
           warn_txt += CHAR_POT;
           warn_txt += getPotLabel(i);
           warn_txt += " ";

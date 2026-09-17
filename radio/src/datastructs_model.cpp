@@ -64,8 +64,12 @@ uint8_t ModelData::getSwitchStateForWarning(uint8_t n)
     return cfsState(n) ? 3 : 1;
   } 
 #endif
-  extern swarnstate_t switches_states;
-  return (switches_states >> (n * 2)) & 3;
+  auto type = getSwitchType(n);
+  if (type == SWITCH_NONE) return 0;
+  auto pos = switchGetPosition(n);
+  if (type == SWITCH_3POS) return pos + 1;
+  // Two-position switches treat the hardware middle position as down.
+  return pos == SWITCH_HW_UP ? 1 : 3;
 }
 
 #if defined(FUNCTION_SWITCHES)

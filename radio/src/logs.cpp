@@ -23,6 +23,7 @@
 #include "ff.h"
 
 #include "analogs.h"
+#include "physical_input.h"
 #include "switches.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
@@ -82,11 +83,6 @@ void initLoggingTimer()
 }
 
 void writeHeader();
-
-int getSwitchState(uint8_t swtch) {
-  int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
-  return (value == 0) ? 0 : (value < 0) ? -1 : +1;
-}
 
 void logsInit()
 {
@@ -332,7 +328,7 @@ void logsWrite()
 
       for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
-          f_printf(&g_oLogFile, "%d,", getSwitchState(i));
+          f_printf(&g_oLogFile, "%d,", readPhysicalInput(physicalSwitch(i)) / RESX);
         }
       }
 

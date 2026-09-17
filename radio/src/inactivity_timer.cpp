@@ -21,6 +21,7 @@
 
 #include "inactivity_timer.h"
 #include "hal/adc_driver.h"
+#include "physical_input.h"
 #include "edgetx.h"
 
 void inactivityTimerReset(ActivitySource src)
@@ -70,16 +71,15 @@ bool inactivityCheckInputs()
   }
 
   for (uint8_t i = 0; i < getSwitchCount(); i++)
-    sum += getValue(MIXSRC_FIRST_SWITCH + i) >> INAC_SWITCHES_SHIFT;
+    sum += readPhysicalInput(physicalSwitch(i)) >> INAC_SWITCHES_SHIFT;
 
 #if defined(IMU)
-  for (uint8_t i = 0; i < 2; i++)
-    sum += getValue(MIXSRC_TILT_X + i) >> INAC_STICKS_SHIFT;
+  sum += gyroScaledX() >> INAC_STICKS_SHIFT;
+  sum += gyroScaledY() >> INAC_STICKS_SHIFT;
 #endif
 
 #if defined(SPACEMOUSE)
-  for (uint8_t i = 0; i < (MIXSRC_LAST_SPACEMOUSE - MIXSRC_FIRST_SPACEMOUSE + 1);
-       i++)
+  for (uint8_t i = 0; i < SPACEMOUSE_CHANNEL_COUNT; i++)
     sum += get_spacemouse_value(i) >> INAC_STICKS_SHIFT;
 #endif
 

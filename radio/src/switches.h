@@ -35,7 +35,6 @@ uint8_t getSwitchCount();
 
 uint8_t switchGetMaxRow(uint8_t col);
 
-extern swarnstate_t switches_states;
 swsrc_t getMovedSwitch();
 
 bool getSwitch(swsrc_t swtch);

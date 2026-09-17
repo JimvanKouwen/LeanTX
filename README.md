@@ -133,7 +133,6 @@ Old action configurations are discarded, including channel-override assignments.
 - Audio playback, haptic output, screenshots, timer set/reset, flight and
   telemetry reset, module binding, Lua execution, hardware switches, key locking,
   touch hardware, microphone recording, and logging implementations remain.
-- `playValue()` is declared in `audio.h` and implemented in `audio_value.cpp`.
 - `AudioQueue::setBackgroundPaused()` controls background playback directly;
   queued background files play without a function-active bit. Flushing audio
   clears the pause state.

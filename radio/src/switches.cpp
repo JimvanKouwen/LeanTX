@@ -515,7 +515,7 @@ static inline uint8_t _bits_set(uint8_t val, uint8_t bits)
   return bits_set;
 }
 
-swarnstate_t switches_states = 0;
+static swarnstate_t switches_states = 0;
 
 swsrc_t getMovedSwitch()
 {
@@ -581,10 +581,16 @@ swsrc_t getMovedSwitch()
   return result;
 }
 
+int16_t getPotWarningPosition(uint8_t index)
+{
+  if (index >= adcGetMaxInputs(ADC_INPUT_FLEX) ||
+      !IS_POT_SLIDER_AVAILABLE(index)) return 0;
+  return calibratedAnalogs[adcGetInputOffset(ADC_INPUT_FLEX) + index] >> 4;
+}
+
 bool isSwitchWarningRequired(uint16_t &bad_pots)
 {
   if (!mixerTaskRunning()) getADC();
-  getMovedSwitch();
 
   bool warn = false;
   for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
@@ -605,7 +611,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
     for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
       if ((g_model.potsWarnEnabled & (1 << i)) &&
-          (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
+          (abs(g_model.potsWarnPosition[i] - getPotWarningPosition(i)) > 1)) {
         warn = true;
         bad_pots |= (1 << i);
       }
@@ -653,7 +659,11 @@ void checkSwitches()
     resetBacklightTimeout();
 
     // first - display warning
-    if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
+    swarnstate_t warning_switches = 0;
+    for (uint8_t i = 0; i < switchGetMaxAllSwitches(); ++i) {
+      warning_switches |= swarnstate_t(g_model.getSwitchStateForWarning(i)) << (i * 2);
+    }
+    if (last_bad_switches != warning_switches || last_bad_pots != bad_pots) {
       drawAlertBox(STR_SWITCHWARN, nullptr, STR_PRESS_ANY_KEY_TO_SKIP);
       if (last_bad_switches == 0xff || last_bad_pots == 0xff) {
         AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
@@ -669,7 +679,10 @@ void checkSwitches()
             if (warnState != swState) {
               if (++numWarnings < 6) {
                 const char* s = getSwitchWarnSymbol(warnState);
-                drawSource(x, y, MIXSRC_FIRST_SWITCH + i, INVERS);
+                char name[LEN_SWITCH_NAME + 1];
+                getSwitchName(name, i);
+                lcdDrawText(x, y, CHAR_SWITCH, INVERS);
+                lcdDrawText(lcdNextPos, y, name, INVERS);
                 lcdDrawText(lcdNextPos, y, s, INVERS);
                 x = lcdNextPos + 3;
               }
@@ -682,17 +695,18 @@ void checkSwitches()
         for (int i = 0; i < MAX_POTS; i++) {
           if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
           if (g_model.potsWarnEnabled & (1 << i)) {
-            if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
+            if (abs(g_model.potsWarnPosition[i] - getPotWarningPosition(i)) > 1) {
               if (++numWarnings < 6) {
-                drawSource(x, y, MIXSRC_FIRST_POT + i, INVERS);
+                lcdDrawText(x, y, IS_SLIDER(i) ? CHAR_SLIDER : CHAR_POT, INVERS);
+                lcdDrawText(lcdNextPos, y, getPotLabel(i), INVERS);
                 const char* symbol;
                 auto warn_pos = g_model.potsWarnPosition[i];
                 if (IS_SLIDER(i)) {
-                  symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
+                  symbol =  warn_pos > getPotWarningPosition(i)
                     ? CHAR_UP
                     : CHAR_DOWN;
                 } else {
-                  symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
+                  symbol =  warn_pos > getPotWarningPosition(i)
                     ? CHAR_RIGHT
                     : CHAR_LEFT;
                 }
@@ -714,7 +728,7 @@ void checkSwitches()
       lcdSetContrast();
       waitKeysReleased();
 
-      last_bad_switches = switches_states;
+      last_bad_switches = warning_switches;
     }
 
     if (keyDown())
@@ -753,15 +767,13 @@ void checkSwitches()
 
 void setAllPreflightSwitchStates()
 {
-  getMovedSwitch();
-  // Mask switches enabled for warnings
-  swarnstate_t sw_mask = 0;
-  for(uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
-    if (SWITCH_WARNING_ALLOWED(i))
-      if (g_model.getSwitchWarning(i))
-        sw_mask |= (0x03 << (2 * i));
+  swarnstate_t states = 0;
+  for (uint8_t i = 0; i < switchGetMaxAllSwitches(); ++i) {
+    auto state = SWITCH_WARNING_ALLOWED(i) && g_model.getSwitchWarning(i)
+                   ? g_model.getSwitchStateForWarning(i) : 0;
+    states |= swarnstate_t(state) << (i * 2);
   }
-  g_model.switchWarning = switches_states & sw_mask;
+  g_model.switchWarning = states;
   AUDIO_WARNING1();
   storageDirty(EE_MODEL);
 }
