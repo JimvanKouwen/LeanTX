@@ -231,7 +231,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
 #if defined(LUA)
     else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
       menu->addLine(STR_EXECUTE_FILE, [=]() {
-        luaExecStandalone(fullpath);
+        LuaRuntime::executeStandalone(fullpath);
       });
     }
 #endif

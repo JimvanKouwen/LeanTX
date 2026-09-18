@@ -26,6 +26,7 @@
 #include <cmath>
 
 #include "edgetx.h"
+#include "lua_host_api.h"
 #include "widget.h"
 
 #include "lua_api.h"
@@ -85,7 +86,7 @@ static int luaLcdResetBacklightTimeout(lua_State * L)
   if (!luaLcdAllowed)
     return 0;
 
-  resetBacklightTimeout();
+  LuaHostApi::resetBacklight();
   return 0;
 }
 

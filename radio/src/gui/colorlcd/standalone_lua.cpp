@@ -221,7 +221,11 @@ void StandaloneLuaWindow::deleteLater()
 void StandaloneLuaWindow::checkEvents()
 {
   Window::checkEvents();
+  LuaRuntime::runStandalone(*this);
+}
 
+void StandaloneLuaWindow::runCallback()
+{
   if (initFunction != LUA_REFNIL) {
     lua_rawgeti(lsStandalone, LUA_REGISTRYINDEX, initFunction);
     if (lua_pcall(lsStandalone, 0, 0, 0) != LUA_OK) {
@@ -285,7 +289,7 @@ void StandaloneLuaWindow::checkEvents()
           _instance = nullptr;
           lua_settop(lsStandalone, 0);
           deleteLater();
-          luaExecStandalone(nextScript);
+          LuaRuntime::executeStandalone(nextScript);
         }
       }
     }

@@ -476,3 +476,76 @@ TEST(Crossfire, frameParser_multipleJumboFrames)
 }
 #endif // HARDWARE_EXTERNAL_MODULE
 #endif
+
+#if defined(CROSSFIRE)
+#include "telemetry/crsf_device.h"
+#include "pulses/crossfire.h"
+
+TEST_F(PhysicalControlRfTest, DeviceTrafficCannotStarveOrReplaceChannels)
+{
+  MODEL_RESET();
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
+  moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
+  moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID_SENT;
+  crossfireModuleStatus[EXTERNAL_MODULE].queryCompleted = true;
+  CrsfDevice::cancel();
+  uint8_t frame[64];
+  uint8_t expected[64];
+  for (int i = 0; i < CROSSFIRE_CHANNELS_COUNT; ++i) channelOutputs[i] = i * 100 - 800;
+  auto channelSize = createCrossfireChannelsFrame(EXTERNAL_MODULE, expected, channelOutputs);
+  const uint8_t request[] = {0xEE, 0xEA, 1, 6};
+  bool lastDevice = false;
+  unsigned channelCount = 0, deviceCount = 0;
+  for (int slot = 0; slot < 200; ++slot) {
+    if (CrsfDevice::available()) {
+      ASSERT_TRUE(CrsfDevice::send(0x2D, request, sizeof(request)));
+    }
+    EXPECT_FALSE(CrsfDevice::send(0x16, request, sizeof(request)));
+    EXPECT_FALSE(CrsfDevice::send(0x17, request, sizeof(request)));
+    auto size = setupPulsesCrossfire(EXTERNAL_MODULE, frame, channelOutputs);
+    if (frame[2] == CHANNELS_ID) {
+      EXPECT_EQ(channelSize, size);
+      EXPECT_EQ(0, memcmp(expected, frame, channelSize));
+      ++channelCount;
+      lastDevice = false;
+    } else if (frame[2] == 0x2D) {
+      EXPECT_FALSE(lastDevice);
+      lastDevice = true;
+      ++deviceCount;
+    }
+  }
+  EXPECT_GE(channelCount, 99u);
+  EXPECT_GE(deviceCount, 99u);
+  CrsfDevice::cancel();
+}
+#endif
+
+#if defined(CROSSFIRE)
+TEST_F(PhysicalControlRfTest, DeviceServiceEnforcesBoundsAndRouting)
+{
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  CrsfDevice::cancel();
+  uint8_t payload[61] = {0xEE, 0xEA, 1, 0};
+  EXPECT_FALSE(CrsfDevice::send(0x2D, payload, 61));
+  EXPECT_FALSE(CrsfDevice::send(0x2D, payload, SIZE_MAX));
+  EXPECT_FALSE(CrsfDevice::send(0x2D, nullptr, 4));
+  EXPECT_FALSE(CrsfDevice::send(0x28, payload, 4));
+  EXPECT_FALSE(CrsfDevice::send(0x2C, payload, 60));
+  EXPECT_TRUE(CrsfDevice::available());
+  ASSERT_TRUE(CrsfDevice::send(0x2D, payload, 60));
+  uint8_t frame[64] = {};
+  EXPECT_EQ(0u, CrsfDevice::take(INTERNAL_MODULE, frame, sizeof(frame)));
+  EXPECT_EQ(0u, CrsfDevice::take(EXTERNAL_MODULE, frame, sizeof(frame) - 1));
+  EXPECT_FALSE(CrsfDevice::available());
+  EXPECT_EQ(64u, CrsfDevice::take(EXTERNAL_MODULE, frame, sizeof(frame)));
+  EXPECT_EQ(0xEE, frame[3]);
+  EXPECT_EQ(0xEA, frame[4]);
+  EXPECT_EQ(crc8(frame + 2, 61), frame[63]);
+  EXPECT_TRUE(CrsfDevice::available());
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  EXPECT_FALSE(CrsfDevice::active());
+  EXPECT_FALSE(CrsfDevice::send(0x2D, payload, 4));
+}
+#endif

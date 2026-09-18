@@ -205,14 +205,14 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #if !defined(BOOT)
 #if defined(LUA)
   case UART_MODE_LUA:
-    luaSetSendCb(ctx, sendByte);
+    LuaRuntime::setSerialSend(ctx, sendByte);
     if (getByte) {
-      luaSetGetSerialByte(ctx, getByte);
+      LuaRuntime::setSerialRead(ctx, getByte);
     } else if (setRxCb) {
-      luaAllocRxFifo();
-      setRxCb(ctx, luaReceiveData);
+      LuaRuntime::allocateSerialBuffer();
+      setRxCb(ctx, LuaRuntime::receiveSerial);
     } else {
-      luaFreeRxFifo();
+      LuaRuntime::freeSerialBuffer();
     }
     break;
 #endif

@@ -26,6 +26,7 @@
 #include "edgetx.h"
 #include "stamp.h"
 #include "lua_api.h"
+#include "lua_host_api.h"
 #include "api_filesystem.h"
 #include "hal/module_port.h"
 #include "hal/adc_driver.h"
@@ -262,7 +263,7 @@ static int luaGetRtcTime(lua_State * L)
 }
 #endif
 
-static void luaPushLatLon(lua_State* L, TelemetrySensor & telemetrySensor, TelemetryItem & telemetryItem)
+static void luaPushLatLon(lua_State* L, const TelemetrySensor & telemetrySensor, const TelemetryItem & telemetryItem)
 /* result is lua table containing members ["lat"] and ["lon"] as lua_Number (doubles) in decimal degrees */
 {
   lua_createtable(L, 0, 5);
@@ -276,13 +277,13 @@ static void luaPushLatLon(lua_State* L, TelemetrySensor & telemetrySensor, Telem
     lua_pushtableinteger(L, "delay", delay);
 }
 
-static void luaPushTelemetryDateTime(lua_State* L, TelemetrySensor & telemetrySensor, TelemetryItem & telemetryItem)
+static void luaPushTelemetryDateTime(lua_State* L, const TelemetrySensor & telemetrySensor, const TelemetryItem & telemetryItem)
 {
   luaPushDateTime(L, telemetryItem.datetime.year, telemetryItem.datetime.month, telemetryItem.datetime.day,
                   telemetryItem.datetime.hour, telemetryItem.datetime.min, telemetryItem.datetime.sec);
 }
 
-static void luaPushCells(lua_State* L, TelemetrySensor & telemetrySensor, TelemetryItem & telemetryItem)
+static void luaPushCells(lua_State* L, const TelemetrySensor & telemetrySensor, const TelemetryItem & telemetryItem)
 {
   if (telemetryItem.cells.count == 0)
     lua_pushinteger(L, (int)0); // returns zero if no cells
@@ -298,26 +299,26 @@ static void luaPushCells(lua_State* L, TelemetrySensor & telemetrySensor, Teleme
 
 static void luaGetValueAndPush(lua_State* L, int src)
 {
-  getvalue_t value = getValue(src); // ignored for GPS, DATETIME, and CELLS
+  getvalue_t value = LuaHostApi::value(src); // ignored for GPS, DATETIME, and CELLS
 
   if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
     div_t qr = div(src-MIXSRC_FIRST_TELEM, 3);
     // telemetry values
-    if (TELEMETRY_STREAMING() && telemetryItems[qr.quot].isAvailable()) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[qr.quot];
+    if (TELEMETRY_STREAMING() && LuaHostApi::telemetry(qr.quot).isAvailable()) {
+      const TelemetrySensor & telemetrySensor = LuaHostApi::model().telemetrySensors[qr.quot];
       switch (telemetrySensor.unit) {
         case UNIT_GPS:
-          luaPushLatLon(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushLatLon(L, telemetrySensor, LuaHostApi::telemetry(qr.quot));
           break;
         case UNIT_DATETIME:
-          luaPushTelemetryDateTime(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushTelemetryDateTime(L, telemetrySensor, LuaHostApi::telemetry(qr.quot));
           break;
         case UNIT_TEXT:
-          lua_pushstring(L, telemetryItems[qr.quot].text);
+          lua_pushstring(L, LuaHostApi::telemetry(qr.quot).text);
           break;
         case UNIT_CELLS:
           if (qr.rem == 0) {
-            luaPushCells(L, telemetrySensor, telemetryItems[qr.quot]);
+            luaPushCells(L, telemetrySensor, LuaHostApi::telemetry(qr.quot));
             break;
           }
           // deliberate no break here to properly return `Cels-` and `Cels+`
@@ -483,7 +484,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   field.desc[0] = '\0';
   for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
     if (isTelemetryFieldAvailable(i)) {
-      const char* sensorName = g_model.telemetrySensors[i].label;
+      const char* sensorName = LuaHostApi::model().telemetrySensors[i].label;
       int len = strnlen(sensorName, TELEM_LABEL_LEN);
       if (!strncmp(sensorName, name, len)) {
         if (name[len] == '\0') {
@@ -543,7 +544,7 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   if (id >= MIXSRC_FIRST_TELEM && id <= MIXSRC_LAST_TELEM) {
     int i = (id - MIXSRC_FIRST_TELEM) / 3;
     if (isTelemetryFieldAvailable(i)) {
-      char* s = strAppend(field.name, g_model.telemetrySensors[i].label, TELEM_LABEL_LEN);
+      char* s = strAppend(field.name, LuaHostApi::model().telemetrySensors[i].label, TELEM_LABEL_LEN);
       int index = (id - MIXSRC_FIRST_TELEM) % 3;
       if (index == 1)
         strAppend(s, "-");
@@ -610,7 +611,7 @@ static int luaGetFieldInfo(lua_State * L)
     lua_pushtablestring(L, "name", field.name);
     lua_pushtablestring(L, "desc", field.desc);
     if (field.id >= MIXSRC_FIRST_TELEM && field.id <= MIXSRC_LAST_TELEM) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(int)((field.id-MIXSRC_FIRST_TELEM)/3)];
+      const TelemetrySensor & telemetrySensor = LuaHostApi::model().telemetrySensors[(int)((field.id-MIXSRC_FIRST_TELEM)/3)];
       lua_pushtableinteger(L, "unit", telemetrySensor.unit);
     }
     return 1;
@@ -740,7 +741,7 @@ static int luaGetSourceValue(lua_State * L)
 
   // Get source value. Ignored for GPS, DATETIME, and CELLS
   bool valid = true;
-  getvalue_t value = getValue(src, &valid);
+  getvalue_t value = LuaHostApi::value(src, &valid);
 
   if (!valid)
   {
@@ -750,28 +751,28 @@ static int luaGetSourceValue(lua_State * L)
   if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
     div_t qr = div(src-MIXSRC_FIRST_TELEM, 3);
     // telemetry values
-    if (telemetryItems[qr.quot].isAvailable()) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[qr.quot];
+    if (LuaHostApi::telemetry(qr.quot).isAvailable()) {
+      const TelemetrySensor & telemetrySensor = LuaHostApi::model().telemetrySensors[qr.quot];
       switch (telemetrySensor.unit) {
         case UNIT_GPS:
-          luaPushLatLon(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushLatLon(L, telemetrySensor, LuaHostApi::telemetry(qr.quot));
           break;
         case UNIT_DATETIME:
-          luaPushTelemetryDateTime(L, telemetrySensor, telemetryItems[qr.quot]);
+          luaPushTelemetryDateTime(L, telemetrySensor, LuaHostApi::telemetry(qr.quot));
           break;
         case UNIT_TEXT:
-          lua_pushstring(L, telemetryItems[qr.quot].text);
+          lua_pushstring(L, LuaHostApi::telemetry(qr.quot).text);
           break;
         case UNIT_CELLS:
           if (qr.rem == 0) {
             // Return nil if there are no cells
-            if (telemetryItems[qr.quot].cells.count == 0) {
+            if (LuaHostApi::telemetry(qr.quot).cells.count == 0) {
               lua_pushnil(L);
               lua_pushboolean(L, false);
               lua_pushboolean(L, false);
               return 3;
             }
-            luaPushCells(L, telemetrySensor, telemetryItems[qr.quot]);
+            luaPushCells(L, telemetrySensor, LuaHostApi::telemetry(qr.quot));
             break;
           }
           // deliberate no break here to properly return `Cels-` and `Cels+`
@@ -782,8 +783,8 @@ static int luaGetSourceValue(lua_State * L)
             lua_pushinteger(L, value);
           break;
       }
-      lua_pushboolean(L, !telemetryItems[qr.quot].isOld());
-      lua_pushboolean(L, telemetryItems[qr.quot].isFresh());
+      lua_pushboolean(L, !LuaHostApi::telemetry(qr.quot).isOld());
+      lua_pushboolean(L, LuaHostApi::telemetry(qr.quot).isFresh());
     }
     else { // telemetry is not available
       return 0;
@@ -831,7 +832,7 @@ Return rotary encoder mode
 static int luaGetRotEncMode(lua_State * L)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-  lua_pushinteger(L, g_eeGeneral.rotEncMode);
+  lua_pushinteger(L, LuaHostApi::radio().rotEncMode);
 #else
   lua_pushinteger(L, 0);
 #endif
@@ -898,7 +899,10 @@ static int luaCrossfireTelemetryPop(lua_State * L)
 /*luadoc
 @function crossfireTelemetryPush()
 
-This functions allows for sending telemetry data toward the TBS Crossfire link.
+Queues validated CRSF device discovery (0x28), parameter reads (0x2C),
+and parameter writes/commands (0x2D). Other frame types are rejected.
+Payloads must contain destination and handset origin (0xEA, or ELRS 0xEF
+when addressing the TX module), and fit in a 64-byte CRSF frame.
 
 When called without parameters, it will only return the status of the output buffer without sending anything.
 
@@ -914,65 +918,38 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaCrossfireTelemetryPush(lua_State* L)
 {
-  bool external =
-      (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
-  bool internal =
-      (moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
-
-  if (!internal && !external) {
+  if (!LuaHostApi::deviceActive()) {
     lua_pushnil(L);
     return 1;
   }
-
   if (lua_gettop(L) == 0) {
-    lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
-  } else if (lua_gettop(L) > TELEMETRY_OUTPUT_BUFFER_SIZE) {
+    lua_pushboolean(L, LuaHostApi::deviceAvailable());
+    return 1;
+  }
+  auto command = luaL_checkinteger(L, 1);
+  luaL_checktype(L, 2, LUA_TTABLE);
+  // Validate before any narrowing, stack growth or publication. rawlen avoids
+  // invoking a script's __len metamethod on this byte-array API.
+  size_t length = lua_rawlen(L, 2);
+  if (command < 0 || command > 255 || lua_tonumber(L, 1) != command ||
+      length > LuaHostApi::DeviceMaxPayload) {
     lua_pushboolean(L, false);
     return 1;
-  } else if (outputTelemetryBuffer.isAvailable()) {
-    uint8_t command = luaL_checkinteger(L, 1);
-    luaL_checktype(L, 2, LUA_TTABLE);
-    uint8_t length = luaL_len(L, 2);
-
-    outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
-
-    // LENGTH
-    if (command == COMMAND_ID) {
-      // 1(COMMAND) + length(data) + 1(CRC_BA) + 1(CRC_D5)
-      outputTelemetryBuffer.pushByte(3 + length);
-    } else {
-      // 1(COMMAND) + length(data) + 1(CRC_D5)
-      outputTelemetryBuffer.pushByte(2 + length);
-    }
-
-    // COMMAND
-    outputTelemetryBuffer.pushByte(command);
-
-    // PAYLOAD
-    for (int i = 0; i < length; i++) {
-      lua_rawgeti(L, 2, i + 1);
-      outputTelemetryBuffer.pushByte(luaL_checkinteger(L, -1));
-    }
-
-    // CRC
-    if (command == COMMAND_ID) {
-      // 1 byte CRC8_BA (counted from COMMAND byte)
-      outputTelemetryBuffer.pushByte(
-          crc8_BA(outputTelemetryBuffer.data + 2, 1 + length));
-      // 1 byte CRC8_D5 (counted from COMMAND byte including CRC8_BA byte)
-      outputTelemetryBuffer.pushByte(
-          crc8(outputTelemetryBuffer.data + 2, 2 + length));
-    } else {
-      // 1 byte CRC8_D5 (counted from COMMAND byte)
-      outputTelemetryBuffer.pushByte(
-          crc8(outputTelemetryBuffer.data + 2, 1 + length));
-    }
-
-    outputTelemetryBuffer.setDestination(internal ? 0 : TELEMETRY_ENDPOINT_SPORT);
-    lua_pushboolean(L, true);
-  } else {
-    lua_pushboolean(L, false);
   }
+  uint8_t payload[LuaHostApi::DeviceMaxPayload];
+  for (size_t i = 0; i < length; ++i) {
+    lua_rawgeti(L, 2, i + 1);
+    int isInteger = 0;
+    auto byte = lua_tointegerx(L, -1, &isInteger);
+    bool valid = isInteger && byte >= 0 && byte <= 255 && lua_tonumber(L, -1) == byte;
+    lua_pop(L, 1);
+    if (!valid) {
+      lua_pushboolean(L, false);
+      return 1;
+    }
+    payload[i] = byte;
+  }
+  lua_pushboolean(L, LuaHostApi::deviceSend(command, payload, length));
   return 1;
 }
 #endif
@@ -1053,10 +1030,10 @@ static int luaPlayFile(lua_State * L)
     char * str = getAudioPath(file);
     strncpy(str, filename, AUDIO_FILENAME_MAXLEN - (str-file));
     file[AUDIO_FILENAME_MAXLEN] = 0;
-    audioQueue.playFile(file, 0, 0, volume);
+    LuaHostApi::playFile(file, 0, 0, volume);
   }
   else {
-    audioQueue.playFile(filename, 0, 0, volume);
+    LuaHostApi::playFile(filename, 0, 0, volume);
   }
   return 0;
 }
@@ -1101,7 +1078,7 @@ static int luaPlayNumber(lua_State * L)
   if(volume != USE_SETTINGS_VOLUME)
     volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
 
-  playNumber(number, unit, att, 0, volume);
+  LuaHostApi::playNumber(number, unit, att, 0, volume);
   return 0;
 }
 
@@ -1141,7 +1118,7 @@ static int luaPlayDuration(lua_State * L)
   if(volume != USE_SETTINGS_VOLUME)
     volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
 
-  playDuration(duration, playTime ? PLAY_TIME : 0, 0, volume);
+  LuaHostApi::playDuration(duration, playTime ? PLAY_TIME : 0, 0, volume);
   return 0;
 }
 
@@ -1192,7 +1169,7 @@ static int luaPlayTone(lua_State * L)
   if(volume != USE_SETTINGS_VOLUME)
     volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
 
-  audioQueue.playTone(frequency, length, pause, flags, freqIncr, volume);
+  LuaHostApi::playTone(frequency, length, pause, flags, freqIncr, volume);
   return 0;
 }
 
@@ -1216,7 +1193,7 @@ static int luaPlayTone(lua_State * L)
 static int luaScreenshot(lua_State * L)
 {
   UNUSED(L);
-  writeScreenshot();
+  LuaHostApi::screenshot();
   return 0;
 }
 
@@ -1250,7 +1227,7 @@ static int luaPlayHaptic(lua_State * L)
     if (intensity < 0) intensity = 0;
     else if (intensity > 100) intensity = 100;
   }
-  haptic.play(length, pause, flags, intensity);
+  LuaHostApi::playHaptic(length, pause, flags, intensity);
 #else
   UNUSED(L);
 #endif
@@ -1319,13 +1296,13 @@ Returns (some of) the general radio settings
 static int luaGetGeneralSettings(lua_State * L)
 {
   lua_newtable(L);
-  lua_pushtablenumber(L, "battWarn", (g_eeGeneral.vBatWarn) * 0.1f);
-  lua_pushtablenumber(L, "battMin", (90+g_eeGeneral.vBatMin) * 0.1f);
-  lua_pushtablenumber(L, "battMax", (120+g_eeGeneral.vBatMax) * 0.1f);
-  lua_pushtableinteger(L, "imperial", g_eeGeneral.imperial);
+  lua_pushtablenumber(L, "battWarn", (LuaHostApi::radio().vBatWarn) * 0.1f);
+  lua_pushtablenumber(L, "battMin", (90+LuaHostApi::radio().vBatMin) * 0.1f);
+  lua_pushtablenumber(L, "battMax", (120+LuaHostApi::radio().vBatMax) * 0.1f);
+  lua_pushtableinteger(L, "imperial", LuaHostApi::radio().imperial);
   lua_pushtablestring(L, "language", TRANSLATIONS);
   lua_pushtablestring(L, "voice", TRANSLATIONS);
-  lua_pushtableinteger(L, "gtimer", g_eeGeneral.globalTimer);
+  lua_pushtableinteger(L, "gtimer", LuaHostApi::radio().globalTimer);
   return 1;
 }
 
@@ -1344,7 +1321,7 @@ Returns radio timers
 static int luaGetGlobalTimer(lua_State * L)
 {
   lua_newtable(L);
-  lua_pushtableinteger(L, "total", g_eeGeneral.globalTimer + sessionTimer);
+  lua_pushtableinteger(L, "total", LuaHostApi::radio().globalTimer + sessionTimer);
   lua_pushtableinteger(L, "session", sessionTimer);
   return 1;
 }
@@ -1633,7 +1610,7 @@ flushes audio queue
 */
 static int luaFlushAudio(lua_State * L)
 {
-  audioQueue.flush();
+  LuaHostApi::flushAudio();
   return 0;
 }
 
@@ -1656,8 +1633,8 @@ static int luaGetRSSI(lua_State * L)
     lua_pushinteger(L, min((uint8_t)99, TELEMETRY_RSSI()));
   else
     lua_pushinteger(L, 0);
-  lua_pushinteger(L, g_model.rfAlarms.warning);
-  lua_pushinteger(L, g_model.rfAlarms.critical);
+  lua_pushinteger(L, LuaHostApi::model().rfAlarms.warning);
+  lua_pushinteger(L, LuaHostApi::model().rfAlarms.critical);
   return 3;
 }
 
@@ -1790,18 +1767,7 @@ static int luaResetGlobalTimer(lua_State * L)
 {
   size_t length;
   const char * option = luaL_optlstring(L, 1, "total", &length);
-  if (!strcmp(option, "all")) {
-    g_eeGeneral.globalTimer = 0;
-    sessionTimer = 0;
-  }
-  else if (!strcmp(option, "total")) {
-    g_eeGeneral.globalTimer = 0;
-    sessionTimer = 0;
-  }
-  else if (!strcmp(option, "session")) {
-    sessionTimer = 0;
-  }
-  storageDirty(EE_GENERAL);
+  LuaHostApi::resetGlobalTimer(option);
   return 0;
 }
 
@@ -2065,7 +2031,7 @@ static int luaGetSwitchInfo(lua_State * L)
     lua_newtable(L);
     char name[32];
     getSwitchName(name, idx);
-    lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
+    lua_pushtableinteger(L, "type", LuaHostApi::switchType(idx));
     lua_pushtableboolean(L, "isCustomisableSwitch", switchIsCustomSwitch(idx));
     lua_pushtablestring(L, "name", name);
   }
@@ -2314,7 +2280,7 @@ static int luaGetOutputValue(lua_State * L)
 {
   lua_Integer idx = luaL_checkinteger(L, 1);
   if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
-    lua_pushinteger(L, channelOutputs[idx]);
+    lua_pushinteger(L, LuaHostApi::output(idx));
   } else {
     lua_pushinteger(L, 0);
   }
@@ -2363,20 +2329,20 @@ static int luaSetRgbLedColor(lua_State * L)
 #if CFS_LED_STRIP_LENGTH > 0
 #if BLING_LED_STRIP_LENGTH > 0
   if (id < BLING_LED_STRIP_LENGTH) {
-    rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+    LuaHostApi::setLedColor(id + BLING_LED_STRIP_START, r, g, b);
     lua_pushboolean(L, true);
     return 1;
   }
   id -= BLING_LED_STRIP_LENGTH;
 #endif
   uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
-  if (g_model.getSwitchType(swIdx) != SWITCH_NONE) {
+  if (LuaHostApi::switchType(swIdx) != SWITCH_NONE) {
     lua_pushboolean(L, false);
     return 1;
   }
-  rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
+  LuaHostApi::setLedColor(id + CFS_LED_STRIP_START, r, g, b);
 #else
-  rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+  LuaHostApi::setLedColor(id + BLING_LED_STRIP_START, r, g, b);
 #endif
 
   lua_pushboolean(L, true);
@@ -2431,7 +2397,7 @@ static int luaSetCFSLedColor(lua_State * L)
     b = luaL_checkunsigned(L, 4);
   }
 
-  setFSLedOverride(cfsIdx, n > 1, r, g, b);
+  LuaHostApi::setFunctionLed(cfsIdx, n > 1, r, g, b);
 
   lua_pushboolean(L, true);
   return 1;
@@ -2449,7 +2415,7 @@ static int luaSetCFSLedColor(lua_State * L)
 
 static int luaApplyRGBLedColors(lua_State * L)
 {
-  rgbLedColorApply();
+  LuaHostApi::applyLedColors();
   return 1;
 }
 #endif
@@ -2464,7 +2430,7 @@ static int luaApplyRGBLedColors(lua_State * L)
 
 static int luaGetStickMode(lua_State* const L)
 {
-  lua_pushinteger(L,  g_eeGeneral.stickMode + 1);
+  lua_pushinteger(L,  LuaHostApi::radio().stickMode + 1);
   return 1;
 }
 

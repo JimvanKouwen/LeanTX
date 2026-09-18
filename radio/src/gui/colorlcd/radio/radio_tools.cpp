@@ -50,7 +50,7 @@ static void run_lua_tool(const std::string& path)
   *((char*)getBasename(toolPath) - 1) = '\0';
   f_chdir(toolPath);
 
-  luaExecStandalone(path.c_str());
+  LuaRuntime::executeStandalone(path.c_str());
 }
 
 void unloadLuaTools()

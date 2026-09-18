@@ -364,3 +364,96 @@ TEST(Lua, NumericSourceBounds)
     luaExecStr((std::string("assert(getSourceValue(") + id + ") == nil)").c_str());
   }
 }
+
+#if defined(CROSSFIRE)
+#include "telemetry/crsf_device.h"
+#include "telemetry/crossfire.h"
+#include "crc.h"
+
+TEST(Lua, DeviceRequestsAreValidatedAndAtomic)
+{
+  auto oldInternal = moduleState[INTERNAL_MODULE].protocol;
+  auto oldExternal = moduleState[EXTERNAL_MODULE].protocol;
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  CrsfDevice::cancel();
+  // Traffic used by ExpressLRS: broadcast discovery, chunk read, command write.
+  for (const char* request : {
+         "assert(crossfireTelemetryPush(0x28, {0, 0xEA}))",
+         "assert(crossfireTelemetryPush(0x2C, {0xEE, 0xEA, 1, 0}))",
+         "assert(crossfireTelemetryPush(0x2D, {0xEE, 0xEA, 1, 6}))"}) {
+    luaExecStr(request);
+    uint8_t frame[64] = {};
+    size_t size = CrsfDevice::take(INTERNAL_MODULE, frame, sizeof(frame));
+    ASSERT_GE(size, 6u);
+    EXPECT_EQ(MODULE_ADDRESS, frame[0]);
+    EXPECT_EQ(RADIO_ADDRESS, frame[4]);
+    EXPECT_EQ(size - 2, frame[1]);
+    EXPECT_EQ(crc8(frame + 2, size - 3), frame[size - 1]);
+  }
+  // ELRS 3.x's dedicated Lua origin is preserved, only for TX requests.
+  luaExecStr("assert(crossfireTelemetryPush(0x2C,{0xEE,0xEF,1,0}))");
+  uint8_t legacyFrame[64];
+  EXPECT_EQ(8u, CrsfDevice::take(INTERNAL_MODULE, legacyFrame, sizeof(legacyFrame)));
+  EXPECT_EQ(0xEF, legacyFrame[4]);
+  luaExecStr("assert(not crossfireTelemetryPush(0x2C,{0xEC,0xEF,1,0}))");
+  luaExecStr("for _, t in ipairs({0x16,0x17,0x32,0x116,-1,256}) do "
+             "assert(not crossfireTelemetryPush(t,{0xEE,0xEA,1,0})) end");
+  luaExecStr("for _, p in ipairs({{}, {0,0xEA,1,0}, {0xEA,0xEA,1,0}, "
+             "{0xEE,0,1,0}, {0xEE,0xEA,1,256}, {0xEE,0xEA,1,-1}, "
+             "{0xEE,0xEA,1,'bad'}, {0xEE,0xEA,1,1.5}}) do "
+             "assert(not crossfireTelemetryPush(0x2D,p)) end");
+  luaExecStr("assert(crossfireTelemetryPush())");
+  // Raw table lengths of 61 and 256 previously overflowed or wrapped uint8_t.
+  luaExecStr("for _, n in ipairs({61,256,4096}) do local p={0xEE,0xEA}; "
+             "for i=3,n do p[i]=1 end; assert(not crossfireTelemetryPush(0x2D,p)); "
+             "assert(crossfireTelemetryPush()) end");
+  luaExecStr("local p={0xEE,0xEA}; for i=3,60 do p[i]=1 end; "
+             "assert(crossfireTelemetryPush(0x2D,p)); "
+             "assert(not crossfireTelemetryPush(0x28,{0,0xEA}))");
+  uint8_t frame[66];
+  memset(frame, 0xA5, sizeof(frame));
+  EXPECT_EQ(64u, CrsfDevice::take(INTERNAL_MODULE, frame + 1, 64));
+  EXPECT_EQ(0xA5, frame[0]);
+  EXPECT_EQ(0xA5, frame[65]);
+  EXPECT_EQ(62, frame[2]);
+  EXPECT_EQ(crc8(frame + 3, 61), frame[64]);
+  extern lua_State* lsScripts;
+  int top = lua_gettop(lsScripts);
+  for (int i = 0; i < 100; ++i) {
+    luaExecStr("assert(crossfireTelemetryPush(0x28,{0,0xEA}))");
+    CrsfDevice::cancel();
+  }
+  EXPECT_EQ(top, lua_gettop(lsScripts));
+  moduleState[INTERNAL_MODULE].protocol = oldInternal;
+  moduleState[EXTERNAL_MODULE].protocol = oldExternal;
+}
+
+TEST(Lua, ControlConfigurationIsReadOnly)
+{
+  auto oldFilter = g_model.jitterFilter;
+  auto oldModule = g_model.moduleData[0];
+  luaExecStr("assert(model.setModule == nil and type(model.getModule) == 'function')");
+  luaExecStr("model.setInfo({jitterFilter=2})");
+  EXPECT_EQ(oldFilter, g_model.jitterFilter);
+  EXPECT_EQ(0, memcmp(&oldModule, &g_model.moduleData[0], sizeof(oldModule)));
+}
+#endif
+
+#if defined(CROSSFIRE)
+TEST(Lua, DeviceResponsesReachTheToolThroughRuntime)
+{
+  // Pop allocates the existing per-tool queue. This path is shared by the
+  // decoder and covers discovery, parameter chunks and command responses.
+  luaExecStr("while crossfireTelemetryPop() do end");
+  uint8_t discovery[] = {7, 0x29, 0xEA, 0xEE, 'T', 'X', 0};
+  LuaRuntime::receiveTelemetry(discovery, sizeof(discovery));
+  luaExecStr("local t,p=crossfireTelemetryPop(); assert(t==0x29 and #p==5 "
+             "and p[1]==0xEA and p[2]==0xEE and p[3]==84)");
+  uint8_t parameter[] = {7, 0x2B, 0xEF, 0xEE, 1, 0, 6};
+  LuaRuntime::receiveTelemetry(parameter, sizeof(parameter));
+  luaExecStr("local t,p=crossfireTelemetryPop(); assert(t==0x2B and #p==5 "
+             "and p[1]==0xEF and p[2]==0xEE and p[3]==1 and p[5]==6); "
+             "assert(crossfireTelemetryPop()==nil)");
+}
+#endif

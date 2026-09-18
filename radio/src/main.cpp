@@ -424,10 +424,10 @@ void guiMain(event_t evt)
     maxLuaInterval = interval;
   }
 
-  luaDoGc(lsWidgets, false);
+  LuaRuntime::collectWidgetGarbage();
 
   DEBUG_TIMER_START(debugTimerLua);
-  luaTask(false);
+  LuaRuntime::run(false);
   DEBUG_TIMER_STOP(debugTimerLua);
 
   t0 = get_tmr10ms() - t0;
@@ -448,9 +448,9 @@ bool handleGui(event_t event)
 #if defined(LUA)
   bool isStandalone = luaScriptsCount != 0;
   if (isStandalone && event) {
-    luaPushEvent(event);
+    LuaRuntime::receiveEvent(event);
   }
-  refreshNeeded = luaTask(true);
+  refreshNeeded = LuaRuntime::run(true);
   if (luaScriptsCount == 0)
 #endif
   // No foreground Lua script is running - clear the screen show normal menu
@@ -477,7 +477,7 @@ void guiMain(event_t evt)
 
   // run Lua scripts that don't use LCD (to use CPU time while LCD DMA is
   // running)
-  luaTask(false);
+  LuaRuntime::run(false);
 
   t0 = get_tmr10ms() - t0;
   if (t0 > maxLuaDuration) {

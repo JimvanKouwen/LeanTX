@@ -418,7 +418,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       }
 
       // destination address and CRC are skipped
-      pushTelemetryDataToQueues(rxBuffer + 1, rxBufferCount - 2);
+      LuaRuntime::receiveTelemetry(rxBuffer + 1, rxBufferCount - 2);
       break;
 #endif
   }

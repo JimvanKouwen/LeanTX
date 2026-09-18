@@ -155,7 +155,7 @@ void onSdManagerMenu(const char * result)
 #if defined(LUA)
   else if (result == STR_EXECUTE_FILE) {
     getSelectionFullPath(lfn);
-    luaExec(lfn);
+    LuaRuntime::execute(lfn);
   }
 #endif
 }

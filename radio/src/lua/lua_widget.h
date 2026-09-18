@@ -27,6 +27,7 @@
 #include "widget.h"
 #include "lua_states.h"
 #include "lua_api.h"
+#include "lua_runtime.h"
 #include "lua_lvgl_widget.h"
 #include "telemetry/telemetry.h"
 
@@ -104,6 +105,15 @@ class LuaScriptManager : public LuaEventHandler
 
 class LuaWidget : public Widget, public LuaScriptManager
 {
+ private:
+  friend void LuaRuntime::createWidget(LuaWidget&, int, const char*);
+  void createCallback(int createFunctionRef, const char* path);
+  friend void LuaRuntime::updateWidget(LuaWidget&);
+  friend void LuaRuntime::refreshWidget(LuaWidget&, BitmapBuffer*);
+  friend void LuaRuntime::backgroundWidget(LuaWidget&);
+  void updateCallback();
+  void refreshCallback(BitmapBuffer* dc);
+  void backgroundCallback();
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
             int screenNum, int zoneNum, int zoneRectDataRef,

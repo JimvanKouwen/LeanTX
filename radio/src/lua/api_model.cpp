@@ -24,6 +24,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "edgetx.h"
+#include "lua_host_api.h"
 #include "lua_api.h"
 #include "../timers.h"
 #include "model_init.h"
@@ -48,19 +49,19 @@ Get current Model information
 static int luaModelGetInfo(lua_State *L)
 {
   lua_newtable(L);
-  lua_pushtablenstring(L, "name", g_model.header.name);
-  lua_pushtableinteger(L, "jitterFilter", g_model.jitterFilter);
+  lua_pushtablenstring(L, "name", LuaHostApi::model().header.name);
+  lua_pushtableinteger(L, "jitterFilter", LuaHostApi::model().jitterFilter);
 #if LCD_DEPTH > 1
-  lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
+  lua_pushtablenstring(L, "bitmap", LuaHostApi::model().header.bitmap);
 #endif
 
 #if defined(STORAGE_MODELSLIST)
-  lua_pushtablenstring(L, "labels", g_model.header.labels);
-  lua_pushtablenstring(L, "filename", g_eeGeneral.currModelFilename);
+  lua_pushtablenstring(L, "labels", LuaHostApi::model().header.labels);
+  lua_pushtablenstring(L, "filename", LuaHostApi::radio().currModelFilename);
 #else
   lua_pushtablenstring(L, "labels", "");
   char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
-  getModelNumberStr(g_eeGeneral.currModel, fname);
+  getModelNumberStr(LuaHostApi::radio().currModel, fname);
   strcat(fname, YAML_EXT);
   lua_pushtablenstring(L, "filename", fname);
 #endif
@@ -71,7 +72,8 @@ static int luaModelGetInfo(lua_State *L)
 /*luadoc
 @function model.setInfo(value)
 
-Set the current Model information
+Set cosmetic model information (name and bitmap only). Control preprocessing
+fields such as jitterFilter are read-only and ignored by this setter.
 
 @param value model information data, see model.getInfo()
 
@@ -88,21 +90,15 @@ static int luaModelSetInfo(lua_State *L)
     const char * key = luaL_checkstring(L, -2);
     if (!strcmp(key, "name")) {
       const char * name = luaL_checkstring(L, -1);
-      strncpy(g_model.header.name, name, sizeof(g_model.header.name));
-    }
-    else if (!strcmp(key, "jitterFilter")) {
-      auto j = lua_tointeger(L, -1);
-      if (j > OVERRIDE_ON) j = OVERRIDE_ON;
-      g_model.jitterFilter = j;
+      LuaHostApi::setModelName(name);
     }
 #if LCD_DEPTH > 1
     else if (!strcmp(key, "bitmap")) {
       const char * name = luaL_checkstring(L, -1);
-      strncpy(g_model.header.bitmap, name, LEN_BITMAP_NAME);
+      LuaHostApi::setModelBitmap(name);
     }
 #endif
   }
-  storageDirty(EE_MODEL);
   return 0;
 }
 
@@ -119,10 +115,10 @@ static int luaModelGetModule(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   if (idx < NUM_MODULES) {
-    ModuleData & module = g_model.moduleData[idx];
+    const ModuleData & module = LuaHostApi::model().moduleData[idx];
     lua_newtable(L);
     lua_pushtableinteger(L, "subType", 0);
-    lua_pushtableinteger(L, "modelId", g_model.header.modelId[idx]);
+    lua_pushtableinteger(L, "modelId", LuaHostApi::model().header.modelId[idx]);
     lua_pushtableinteger(L, "firstChannel", module.channelsStart);
     lua_pushtableinteger(L, "channelsCount", module.getChannelsCount());
     lua_pushtableinteger(L, "Type", module.type);
@@ -131,56 +127,6 @@ static int luaModelGetModule(lua_State *L)
     lua_pushnil(L);
   }
   return 1;
-}
-
-/*luadoc
-@function model.setModule(index, value)
-
-Set RF module parameters
-
-@param index (number) module index (0 for internal, 1 for external)
-
-@param value module parameters, see model.getModule()
-
-@notice If a parameter is missing from the value, then
-that parameter remains unchanged.
-
-@status current Introduced in 2.2.0, modified in 2.3.12 (proto/subproto)
-*/
-static int luaModelSetModule(lua_State *L)
-{
-  unsigned int idx = luaL_checkinteger(L, 1);
-
-  if (idx < NUM_MODULES) {
-
-    ModuleData & module = g_model.moduleData[idx];
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      luaL_checktype(L, -2, LUA_TSTRING); // key is string
-      const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "Type")) {
-        auto requested = luaL_checkinteger(L, -1);
-        uint8_t newtype = requested == MODULE_TYPE_CROSSFIRE ? MODULE_TYPE_CROSSFIRE : MODULE_TYPE_NONE;
-        if (newtype != module.type) {
-          setModuleType(idx, newtype);
-        }
-      }
-      else if (!strcmp(key, "subType")) {
-        // CRSF has no RF sub-protocol.
-      }
-      else if (!strcmp(key, "modelId")) {
-        g_model.header.modelId[idx] = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "firstChannel")) {
-        module.channelsStart = limit<int>(0, luaL_checkinteger(L, -1), MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT);
-      }
-      else if (!strcmp(key, "channelsCount")) {
-        module.channelsCount = CROSSFIRE_CHANNELS_COUNT - 8;
-      }
-    }
-    storageDirty(EE_MODEL);
-  }
-  return 0;
 }
 
 /*luadoc
@@ -207,10 +153,10 @@ static int luaModelGetTimer(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   if (idx < MAX_TIMERS) {
-    TimerData & timer = g_model.timers[idx];
+    const TimerData & timer = LuaHostApi::model().timers[idx];
     lua_newtable(L);
     lua_pushtableinteger(L, "start", timer.start);
-    lua_pushtableinteger(L, "value", timersStates[idx].val);
+    lua_pushtableinteger(L, "value", LuaHostApi::timerValue(idx));
     lua_pushtableinteger(L, "countdownBeep", timer.countdownBeep);
     lua_pushtableboolean(L, "minuteBeep", timer.minuteBeep);
     lua_pushtableinteger(L, "persistent", timer.persistent);
@@ -244,7 +190,9 @@ static int luaModelSetTimer(lua_State *L)
   unsigned int idx = luaL_checkinteger(L, 1);
 
   if (idx < MAX_TIMERS) {
-    TimerData & timer = g_model.timers[idx];
+    TimerData timer = LuaHostApi::model().timers[idx];
+    int32_t value = 0;
+    bool updateValue = false;
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
@@ -253,7 +201,8 @@ static int luaModelSetTimer(lua_State *L)
         timer.start = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "value")) {
-        timersStates[idx].val = luaL_checkinteger(L, -1);
+        value = luaL_checkinteger(L, -1);
+        updateValue = true;
       }
       else if (!strcmp(key, "countdownBeep")) {
         timer.countdownBeep = luaL_checkinteger(L, -1);
@@ -278,7 +227,7 @@ static int luaModelSetTimer(lua_State *L)
         timer.extraHaptic = lua_tointeger(L, -1);
       }
     }
-    storageDirty(EE_MODEL);
+    LuaHostApi::setTimer(idx, timer, value, updateValue);
   }
   return 0;
 }
@@ -296,7 +245,7 @@ static int luaModelResetTimer(lua_State *L)
 {
   unsigned int idx = luaL_checkinteger(L, 1);
   if (idx < MAX_TIMERS) {
-    timerReset(idx);
+    LuaHostApi::resetTimer(idx);
   }
   return 0;
 }
@@ -460,7 +409,6 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getInfo, luaModelGetInfo )
   LROT_FUNCENTRY( setInfo, luaModelSetInfo )
   LROT_FUNCENTRY( getModule, luaModelGetModule )
-  LROT_FUNCENTRY( setModule, luaModelSetModule )
   LROT_FUNCENTRY( getTimer, luaModelGetTimer )
   LROT_FUNCENTRY( setTimer, luaModelSetTimer )
   LROT_FUNCENTRY( resetTimer, luaModelResetTimer )

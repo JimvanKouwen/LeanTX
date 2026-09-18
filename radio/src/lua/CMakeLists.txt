@@ -17,6 +17,8 @@ include_directories(${LUA_DIR})
 
 
 set(SRC ${SRC}
+  lua/lua_runtime.cpp
+  lua/lua_host_api.cpp
   lua/interface.cpp
   lua/api_general.cpp
   lua/api_model.cpp

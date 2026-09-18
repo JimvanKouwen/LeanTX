@@ -31,6 +31,8 @@ extern void luaExecStandalone(const char * filename);
 
 class StandaloneLuaWindow : public Window, public LuaScriptManager
 {
+  friend void LuaRuntime::runStandalone(StandaloneLuaWindow&);
+  void runCallback();
   static StandaloneLuaWindow* _instance;
 
   explicit StandaloneLuaWindow(bool useLvgl, int initFn, int runFn);
