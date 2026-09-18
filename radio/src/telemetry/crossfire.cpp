@@ -81,7 +81,7 @@ const CrossfireSensor crossfireSensors[] = {
 };
 // clang-format on
 
-CrossfireModuleStatus crossfireModuleStatus[2] = {0};
+
 
 const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
 {
@@ -149,10 +149,7 @@ bool getCrossfireTelemetryValue(uint8_t index, int32_t& value,
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount)
 {
-  if (telemetryState == TELEMETRY_INIT &&
-      moduleState[module].counter != CRSF_FRAME_MODELID_SENT) {
-    moduleState[module].counter = CRSF_FRAME_MODELID;
-  }
+  if (telemetryState == TELEMETRY_INIT) RfService::beginDiscovery(module);
 
   uint8_t crsfPayloadLen = rxBuffer[1];
   uint8_t id = rxBuffer[2];
@@ -305,7 +302,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
             value =
                 ((unsigned)value < DIM(power_values) ? power_values[value] : 0);
           } else if (i == RX_ANTENNA_INDEX &&
-                     crossfireModuleStatus[module].isELRS) {
+                     RfService::capabilities(module).isELRS) {
             value += 1;  // 0 = Antenna 1, 1 = Antenna 2
           }
           processCrossfireTelemetryValue(i, value);
@@ -387,40 +384,18 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
           offset /= 10;
 
           //TRACE("[XF] Rate: %d, Lag: %d", update_interval, offset);
-          getModuleSyncStatus(module).update(update_interval, offset);
+          RfService::updateSync(module, update_interval, offset);
         }
       }
       break;
 
-#if defined(LUA)
     default:
-      if (id == DEVICE_INFO_ID && rxBuffer[4]== MODULE_ADDRESS) {
-        uint8_t nameSize = rxBuffer[1] - 18;
-        strncpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], CRSF_NAME_MAXSIZE);
-        crossfireModuleStatus[module].name[CRSF_NAME_MAXSIZE -1] = 0; // For some reason, GH din't like strlcpy
-        crossfireModuleStatus[module].isELRS =
-            strncmp((const char *) &rxBuffer[5 + nameSize], "ELRS", 4) == 0;
-        crossfireModuleStatus[module].major = rxBuffer[14 + nameSize];
-        crossfireModuleStatus[module].minor = rxBuffer[15 + nameSize];
-        crossfireModuleStatus[module].revision = rxBuffer[16 + nameSize];
-
-        ModuleData *md = &g_model.moduleData[module];
-
-        if(!CRSF_ELRS_MIN_VER(module, 4, 0) &&
-           (md->crsf.crsfArmingMode != ARMING_MODE_CH5 || md->crsf.crsfArmingCondition != 0)) {
-          md->crsf.crsfArmingMode = ARMING_MODE_CH5;
-          md->crsf.crsfArmingCondition = 0;
-
-          storageDirty(EE_MODEL);
-        }
-
-        crossfireModuleStatus[module].queryCompleted = true;
-      }
-
+      if (id == DEVICE_INFO_ID) RfService::receiveDeviceInfo(module, rxBuffer, rxBufferCount);
+#if defined(LUA)
       // destination address and CRC are skipped
       LuaRuntime::receiveTelemetry(rxBuffer + 1, rxBufferCount - 2);
-      break;
 #endif
+      break;
   }
 }
 

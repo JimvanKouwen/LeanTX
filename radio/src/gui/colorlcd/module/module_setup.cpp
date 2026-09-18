@@ -85,12 +85,12 @@ class ModuleWindow : public Window
                       *modelId = value;
                       modelslist.updateCurrentModelCell();
                       updateIDStaticText(moduleIdx);
-                      moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
+                      RfService::requestModelId(moduleIdx);
                       SET_DIRTY();
                     });
     bindButton = new TextButton(box, rect_t{}, STR_MODULE_BIND, [=]() -> uint8_t {
       if (isModuleBindAvailable(moduleIdx)) {
-        moduleState[moduleIdx].mode = MODULE_MODE_BIND;
+        RfService::setMode(moduleIdx, MODULE_MODE_BIND);
         AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP);
       }
       return 0;

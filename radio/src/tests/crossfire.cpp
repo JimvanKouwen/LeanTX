@@ -21,13 +21,14 @@
 
 #include "gtest/gtest.h"
 #include "gtests.h"
+#include "pulses/rf_internal.h"
 #include "telemetry/telemetry.h"
 #include "telemetry/crossfire.h"
 #include "crc.h"
 
 #if defined(CROSSFIRE)
 
-uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses);
+uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, const int16_t * pulses);
 
 class PhysicalControlRfTest : public EdgeTxTest {};
 
@@ -208,7 +209,7 @@ TEST_F(PhysicalControlRfTest, FunctionSwitchArmingUsesConfiguredState)
 }
 #endif
 
-#if defined(LUA)
+#if defined(CROSSFIRE)
 TEST_F(PhysicalControlRfTest, OlderElrsClearsConditionEvenInCH5Mode)
 {
   MODEL_RESET();
@@ -549,3 +550,42 @@ TEST_F(PhysicalControlRfTest, DeviceServiceEnforcesBoundsAndRouting)
   EXPECT_FALSE(CrsfDevice::send(0x2D, payload, 4));
 }
 #endif
+
+TEST_F(PhysicalControlRfTest, RfCapabilityDiscoveryRejectsMalformedFrames)
+{
+  MODEL_RESET();
+  uint8_t info[21] = {};
+  info[1] = sizeof(info) - 2;
+  info[2] = DEVICE_INFO_ID;
+  info[4] = MODULE_ADDRESS;
+  memcpy(info + 6, "ELRS", 4);
+  info[15] = 4;
+  info[16] = 1;
+  RfService::receiveDeviceInfo(EXTERNAL_MODULE, info, sizeof(info));
+  ASSERT_TRUE(RfService::elrsVersionAtLeast(EXTERNAL_MODULE, 4, 1));
+  EXPECT_FALSE(RfService::elrsVersionAtLeast(EXTERNAL_MODULE, 4, 2));
+  auto snapshot = RfService::capabilities(EXTERNAL_MODULE);
+  snapshot.major = 0;
+  EXPECT_EQ(0, snapshot.major);
+  EXPECT_EQ(4, RfService::capabilities(EXTERNAL_MODULE).major);
+  for (size_t len = 0; len < sizeof(info); ++len) {
+    info[15] = 3;
+    RfService::receiveDeviceInfo(EXTERNAL_MODULE, info, len);
+    EXPECT_EQ(4, RfService::capabilities(EXTERNAL_MODULE).major);
+  }
+  RfService::receiveDeviceInfo(EXTERNAL_MODULE, nullptr, sizeof(info));
+  RfService::receiveDeviceInfo(NUM_MODULES, info, sizeof(info));
+  info[5] = 'X'; // name now consumes the first byte of the fixed info block
+  RfService::receiveDeviceInfo(EXTERNAL_MODULE, info, sizeof(info));
+  EXPECT_EQ(4, RfService::capabilities(EXTERNAL_MODULE).major);
+  EXPECT_FALSE(RfService::setModulePower(-1, true));
+  EXPECT_FALSE(RfService::setModulePower(NUM_MODULES, true));
+  EXPECT_FALSE(RfService::setBootPin(-1, true));
+  EXPECT_FALSE(RfService::setBootPin(NUM_MODULES, true));
+  EXPECT_FALSE(RfService::usesTxHardware(NUM_MODULES, info));
+  EXPECT_FALSE(RfService::restartAsync(NUM_MODULES, 1));
+  RfService::setMode(NUM_MODULES, MODULE_MODE_BIND);
+  EXPECT_EQ(MODULE_MODE_NORMAL, RfService::mode(NUM_MODULES));
+  EXPECT_FALSE(RfService::active(NUM_MODULES));
+  EXPECT_FALSE(RfService::capabilities(NUM_MODULES).queryCompleted);
+}

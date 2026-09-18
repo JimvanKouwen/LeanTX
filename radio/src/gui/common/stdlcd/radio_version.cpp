@@ -68,7 +68,7 @@ void menuRadioModulesVersion(event_t event)
 {
   if (menuEvent) {
     for (uint8_t i = 0; i < MAX_MODULES; i++) {
-      moduleState[i].mode = MODULE_MODE_NORMAL;
+      RfService::setMode(i, MODULE_MODE_NORMAL);
     }
     return;
   }
@@ -115,13 +115,13 @@ void menuRadioModulesVersion(event_t event)
                 1000000 / getMixerSchedulerPeriod()/*, UINT32_C(telemetryErrors)*/);
         lcdDrawText(COLUMN2_X, y, statusText);
         y += FH;
-        lcdDrawText(INDENT_WIDTH, y, crossfireModuleStatus[module].name);
+        lcdDrawText(INDENT_WIDTH, y, RfService::capabilities(module).name);
         lcdDrawChar(lcdNextPos + 5, y, 'V');
-        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].major);
+        lcdDrawNumber(lcdNextPos, y, RfService::capabilities(module).major);
         lcdDrawChar(lcdNextPos, y, '.');
-        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].minor);
+        lcdDrawNumber(lcdNextPos, y, RfService::capabilities(module).minor);
         lcdDrawChar(lcdNextPos, y, '.');
-        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].revision);
+        lcdDrawNumber(lcdNextPos, y, RfService::capabilities(module).revision);
         y += FH;
         continue;
       }

@@ -244,9 +244,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     if (port && !ctx) { // de-init
       etx_module_port_t mod_port;
       memset(&mod_port, 0, sizeof(mod_port));
-      auto mod_st = modulePortGetState(EXTERNAL_MODULE);
-      if (mod_st && mod_st->tx.port &&
-          mod_st->tx.port->hw_def == port->hw_def) {
+      if (RfService::usesTxHardware(EXTERNAL_MODULE, port->hw_def)) {
         // port is in use, let's stop it
         mixerTaskStop();
         pulsesStop();

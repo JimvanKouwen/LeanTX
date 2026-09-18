@@ -20,6 +20,7 @@
  */
 
 #include "gtests.h"
+#include "pulses/rf_internal.h"
 #include "hal/module_driver.h"
 #include "hal/module_port.h"
 #include "hal/serial_driver.h"
@@ -88,7 +89,7 @@ TEST(ports, RfChannelWindowStaysInsideOutputs)
   auto savedState = moduleState[EXTERNAL_MODULE];
   int calls = 0;
   etx_proto_driver_t probe{};
-  probe.sendPulses = [](void* context, uint8_t*, int16_t* channels, uint8_t count) {
+  probe.sendPulses = [](void* context, uint8_t*, const int16_t* channels, uint8_t count) {
     ++*static_cast<int*>(context);
     EXPECT_EQ(CROSSFIRE_CHANNELS_COUNT, count);
     ASSERT_GE(channels, channelOutputs);

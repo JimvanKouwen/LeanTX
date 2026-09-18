@@ -1115,15 +1115,15 @@ int cliSet(const char **argv)
 #endif
   else if (!strcmp(argv[1], "rfmod")) {
     int module = 0;
-    if (toInt(argv, 2, &module) < 0) {
+    if (toInt(argv, 2, &module) < 0 || module < 0 || module >= NUM_MODULES) {
       cliSerialPrint("%s: invalid module argument '%s'", argv[0], argv[2]);
       return -1;
     }
     if (!strcmp(argv[3], "power")) {
       if (!strcmp("on", argv[4])) {
-        modulePortSetPower(module, true);
+        RfService::setModulePower(module, true);
       } else if (!strcmp("off", argv[4])) {
-        modulePortSetPower(module, false);
+        RfService::setModulePower(module, false);
       } else {
         cliSerialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
         return -1;
@@ -1136,12 +1136,10 @@ int cliSet(const char **argv)
         cliSerialPrint("%s: invalid bootpin argument '%s'", argv[0], argv[4]);
         return -1;
       }
-      const auto* mod = modulePortGetModuleDescription(INTERNAL_MODULE);
-      if (!mod || !mod->set_bootcmd) {
+      if (!RfService::setBootPin(module, level != 0)) {
         cliSerialPrint("%s: invalid module or has no bootcmd pin", argv[0]);
         return -1;
       }
-      mod->set_bootcmd(level);
       if (level) {
         cliSerialPrint("%s: bootcmd set", argv[0]);
       } else {

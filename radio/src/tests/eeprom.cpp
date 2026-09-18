@@ -20,6 +20,7 @@
  */
 
 #include "gtests.h"
+#include "pulses/rf_internal.h"
 
 #if defined(RTC_BACKUP_RAM)
 #include "storage/rtc_backup.h"
@@ -27,7 +28,7 @@
 #include "hal/switch_driver.h"
 #include "telemetry/crossfire.h"
 
-uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t *frame, int16_t *pulses);
+uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t *frame, const int16_t *pulses);
 namespace {
 void prepareBackup()
 {

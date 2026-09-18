@@ -162,7 +162,7 @@ class VersionDialog : public BaseDialog
       // snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       snprintf(statusText, 64, "%d Hz", hz);
       status->setText(statusText);
-      snprintf(statusText, 64, "%s V%u.%u.%u", crossfireModuleStatus[module].name, crossfireModuleStatus[module].major, crossfireModuleStatus[module].minor, crossfireModuleStatus[module].revision);
+      snprintf(statusText, 64, "%s V%u.%u.%u", RfService::capabilities(module).name, RfService::capabilities(module).major, RfService::capabilities(module).minor, RfService::capabilities(module).revision);
       name->setText(statusText);
       module_status_w->show();
     }

@@ -58,7 +58,6 @@
 #define COMMAND_MODEL_SELECT_ID        0x05
 #define SUBCOMMAND_CRSF_BIND           0x01
 
-constexpr uint8_t CRSF_NAME_MAXSIZE = 16;
 
 enum CrossfireSensorIndexes {
   RX_RSSI1_INDEX,
@@ -107,17 +106,7 @@ enum CrossfireFrames{
   CRSF_FRAME_MODELID_SENT
 };
 
-struct CrossfireModuleStatus
-{
-    uint8_t major;
-    uint8_t minor;
-    uint8_t revision;
-    char name[CRSF_NAME_MAXSIZE];
-    bool queryCompleted;
-    bool isELRS;
-};
-
-extern CrossfireModuleStatus crossfireModuleStatus[2];
+#include "pulses/rf_service.h"
 
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
@@ -167,11 +156,7 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
 #endif
 
 #if defined(CROSSFIRE)
-#define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) \
-        (crossfireModuleStatus[moduleIdx].isELRS \
-         && (crossfireModuleStatus[moduleIdx].major > maj \
-          || (crossfireModuleStatus[moduleIdx].major == maj \
-           && crossfireModuleStatus[moduleIdx].minor >= min)))
+#define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) RfService::elrsVersionAtLeast(moduleIdx, maj, min)
 #else
 #define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) false
 #endif

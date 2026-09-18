@@ -21,6 +21,7 @@
 
 #include <math.h>
 #include "gtests.h"
+#include "pulses/rf_internal.h"
 #include "location.h"
 
 #if defined(LUA)

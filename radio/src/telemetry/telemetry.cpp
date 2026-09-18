@@ -133,33 +133,7 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
   auto module = (uint8_t)ulParameter2;
   _poll_frame_queued[module] = false;
 
-  auto mod = pulsesGetModuleDriver(module);
-  if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv))
-    return;
-
-  auto ctx = mod->ctx;
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
-  auto serial_ctx = modulePortGetCtx(mod_st->rx);
-
-  if (!serial_drv || !serial_ctx || !serial_drv->copyRxBuffer)
-    return;
-
-  uint8_t frame[TELEMETRY_RX_PACKET_SIZE];
-
-  int frame_len = serial_drv->copyRxBuffer(serial_ctx, frame, TELEMETRY_RX_PACKET_SIZE);
-  if (frame_len > 0) {
-
-    LOG_TELEMETRY_WRITE_START();
-    for (int i = 0; i < frame_len; i++) {
-      telemetryMirrorSend(frame[i]);
-      LOG_TELEMETRY_WRITE_BYTE(frame[i]);
-    }
-
-    uint8_t* rxBuffer = getTelemetryRxBuffer(module);
-    uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
-    drv->processFrame(ctx, frame, frame_len, rxBuffer, &rxBufferCount);
-  }
+  RfService::pollFrame(module, drv);
 
   _telemetryIsPolling = false;
 }
@@ -169,38 +143,12 @@ void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
   async_call_isr(_poll_frame, &_poll_frame_queued[module], (void*)drv, module);
 }
 
-static inline void pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
-{
-  if (!drv || !drv->processData) return;
-
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
-  auto serial_ctx = modulePortGetCtx(mod_st->rx);
-
-  if (!serial_drv  || !serial_ctx || !serial_drv->getByte)
-    return;
-
-  uint8_t* rxBuffer = getTelemetryRxBuffer(module);
-  uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
-
-  uint8_t data;
-  if (serial_drv->getByte(serial_ctx, &data) > 0) {
-    LOG_TELEMETRY_WRITE_START();
-    do {
-      telemetryMirrorSend(data);
-      drv->processData(ctx, data, rxBuffer, &rxBufferCount);
-      LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (serial_drv->getByte(serial_ctx, &data) > 0);
-  }
-}
 
 void telemetryWakeup()
 {
   _telemetryIsPolling = true;
   for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    auto mod = pulsesGetModuleDriver(i);
-    if (!mod) continue;
-    pollTelemetry(i, mod->drv, mod->ctx);
+    RfService::pollTelemetry(i);
   }
   _telemetryIsPolling = false;
 
@@ -258,13 +206,13 @@ void telemetryWakeup()
           // TODO: move to crossfire code
 #if defined(HARDWARE_EXTERNAL_MODULE)
           if (isModuleCrossfire(EXTERNAL_MODULE)) {
-            moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
+            RfService::requestModelId(EXTERNAL_MODULE);
           }
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
           if (isModuleCrossfire(INTERNAL_MODULE)) {
-            moduleState[INTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
+            RfService::requestModelId(INTERNAL_MODULE);
           }
 #endif
 #endif
@@ -342,95 +290,3 @@ void logTelemetryWriteByte(uint8_t data)
 #endif
 
 OutputTelemetryBuffer outputTelemetryBuffer __DMA_NO_CACHE;
-
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-static ModuleSyncStatus moduleSyncStatus[NUM_MODULES];
-
-ModuleSyncStatus &getModuleSyncStatus(uint8_t moduleIdx)
-{
-  return moduleSyncStatus[moduleIdx];
-}
-#else
-static ModuleSyncStatus moduleSyncStatus;
-
-ModuleSyncStatus &getModuleSyncStatus(uint8_t moduleIdx)
-{
-  return moduleSyncStatus;
-}
-#endif
-
-ModuleSyncStatus::ModuleSyncStatus()
-{
-  memset(this, 0, sizeof(ModuleSyncStatus));
-}
-
-void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
-{
-  if (!newRefreshRate)
-    return;
-
-  if (newRefreshRate < MIN_REFRESH_RATE)
-    newRefreshRate = newRefreshRate * (MIN_REFRESH_RATE / (newRefreshRate + 1));
-  else if (newRefreshRate > MAX_REFRESH_RATE)
-    newRefreshRate = MAX_REFRESH_RATE;
-
-  refreshRate = newRefreshRate;
-  inputLag    = newInputLag;
-  currentLag  = newInputLag;
-  lastUpdate  = get_tmr10ms();
-
-#if 0
-  TRACE("[SYNC] update rate = %dus; lag = %dus",refreshRate,currentLag);
-#endif
-}
-
-void ModuleSyncStatus::invalidate() {
-  //make invalid after use
-  currentLag = 0;
-}
-
-uint16_t ModuleSyncStatus::getAdjustedRefreshRate()
-{
-  int16_t lag = currentLag;
-  int32_t newRefreshRate = refreshRate;
-
-  if (lag == 0) {
-    return refreshRate;
-  }
-
-  newRefreshRate += lag;
-
-  if (newRefreshRate < MIN_REFRESH_RATE) {
-      newRefreshRate = MIN_REFRESH_RATE;
-  }
-  else if (newRefreshRate > MAX_REFRESH_RATE) {
-    newRefreshRate = MAX_REFRESH_RATE;
-  }
-
-  currentLag -= newRefreshRate - refreshRate;
-#if 0
-  TRACE("[SYNC] mod rate = %dus; lag = %dus",newRefreshRate,currentLag);
-#endif
-
-  return (uint16_t)newRefreshRate;
-}
-
-void ModuleSyncStatus::getRefreshString(char * statusText)
-{
-  if (!isValid()) {
-    return;
-  }
-
-  char * tmp = statusText;
-#if defined(DEBUG)
-  *tmp++ = 'L';
-  tmp = strAppendSigned(tmp, inputLag, 5);
-  tmp = strAppend(tmp, "R");
-  tmp = strAppendUnsigned(tmp, refreshRate, 5);
-#else
-  tmp = strAppend(tmp, "Sync ");
-  tmp = strAppendUnsigned(tmp, refreshRate);
-#endif
-  tmp = strAppend(tmp, "us");
-}

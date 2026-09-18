@@ -26,74 +26,33 @@
 #include "pulses_common.h"
 #include "hal/module_driver.h"
 
-PACK(struct ModuleState {
-  uint8_t protocol;
-  uint8_t mode:4;
-  uint8_t forced_off:1;
-  uint8_t settings_updated:1;
-  uint8_t spare:2;
-  uint16_t counter;
+#include "rf_service.h"
 
-});
+inline bool isModuleBeeping(uint8_t module)
+{ return getModuleMode(module) == MODULE_MODE_BIND; }
 
-extern ModuleState moduleState[NUM_MODULES];
+// Compatibility entry points for platform lifecycle callers. State belongs to RF.
+inline void pulsesStopModule(uint8_t module) { RfService::stopModule(module); }
 
-inline bool isModuleBeeping(uint8_t moduleIndex)
-{
+inline void restartModule(uint8_t module) { RfService::restart(module); }
+inline bool restartModuleAsync(uint8_t module, uint8_t delay)
+{ return RfService::restartAsync(module, delay); }
 
-  return moduleState[moduleIndex].mode == MODULE_MODE_BIND;
-}
-
-#define CROSSFIRE_FRAME_MAXLEN 64
-
-  #define MODULE_BUFFER_SIZE 64
-
-struct module_pulse_buffer {
-  uint8_t _buffer[MODULE_BUFFER_SIZE];
-};
-
-struct module_pulse_driver {
-  module_pulse_buffer buffer;
-  const etx_proto_driver_t* drv;
-  void* ctx;
-};
-
-module_pulse_driver* pulsesGetModuleDriver(uint8_t module);
-uint8_t* pulsesGetModuleBuffer(uint8_t module);
-
-void pulsesStopModule(uint8_t module);
-void pulsesSendNextFrame(uint8_t module);
-void pulsesSendChannels();
-
-typedef void (*module_init_cb_t)(uint8_t, const etx_proto_driver_t*);
-typedef void (*module_deinit_cb_t)(uint8_t, const etx_proto_driver_t*);
-
-void pulsesSetModuleInitCb(module_init_cb_t cb);
-void pulsesSetModuleDeInitCb(module_deinit_cb_t cb);
-
-void restartModule(uint8_t module);
-bool restartModuleAsync(uint8_t module, uint8_t cnt_delay);
-
-// Re-Init module
-// 
-// Note: this can only be used from within
-//       module init.
-void pulsesRestartModuleUnsafe(uint8_t module);
-
-void pulsesModuleSettingsUpdate(uint8_t module);
+inline void pulsesModuleSettingsUpdate(uint8_t module)
+{ RfService::settingsChanged(module); }
 
 
-void pulsesInit();
-void pulsesStart();
-void pulsesStop();
+inline void pulsesInit() { RfService::init(); }
+inline void pulsesStart() { RfService::start(); }
+inline void pulsesStop() { RfService::stop(); }
 
 inline bool isModuleInBeepMode()
 {
-  if (moduleState[0].mode == MODULE_MODE_BIND)
+  if (getModuleMode(0) == MODULE_MODE_BIND)
     return true;
 
 #if NUM_MODULES > 1
-  if (moduleState[1].mode == MODULE_MODE_BIND)
+  if (getModuleMode(1) == MODULE_MODE_BIND)
     return true;
 #endif
 

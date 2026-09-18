@@ -56,7 +56,7 @@ static void editCrsfReceiver(uint8_t moduleIdx, coord_t y, LcdFlags attr, event_
   if (attr && menuHorizontalPosition == 0 && s_editMode > 0) {
     CHECK_INCDEC_MODELVAR_ZERO(event, g_model.header.modelId[moduleIdx], MAX_RXNUM);
     if (checkIncDec_Ret) {
-      moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
+      RfService::requestModelId(moduleIdx);
       modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
     }
   }
@@ -65,7 +65,7 @@ static void editCrsfReceiver(uint8_t moduleIdx, coord_t y, LcdFlags attr, event_
                  TELEMETRY_STREAMING() ? STR_MODULE_UNBIND : STR_MODULE_BIND,
                  menuHorizontalPosition == 1 ? attr : 0);
     if (attr && menuHorizontalPosition == 1 && event == EVT_KEY_BREAK(KEY_ENTER)) {
-      moduleState[moduleIdx].mode = MODULE_MODE_BIND;
+      RfService::setMode(moduleIdx, MODULE_MODE_BIND);
       AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP);
       s_editMode = 0;
     }

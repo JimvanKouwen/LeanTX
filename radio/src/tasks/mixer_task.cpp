@@ -188,7 +188,7 @@ void mixerTask()
       mixerTaskLock();
 
       doMixerCalculations();
-      pulsesSendChannels();
+      RfService::sendChannels();
       doMixerPeriodicUpdates();
 
       // TODO: what are these for???

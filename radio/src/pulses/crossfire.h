@@ -26,4 +26,4 @@
 extern const etx_proto_driver_t CrossfireDriver;
 
 // buffer must hold CROSSFIRE_FRAME_MAXLEN bytes.
-size_t setupPulsesCrossfire(uint8_t module, uint8_t* buffer, int16_t* channels);
+size_t setupPulsesCrossfire(uint8_t module, uint8_t* buffer, const int16_t* channels);

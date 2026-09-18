@@ -42,7 +42,7 @@ inline bool isModuleNone(uint8_t idx)
 
 inline bool isModuleELRS(uint8_t idx)
 {
-  return isModuleCrossfire(idx) && crossfireModuleStatus[idx].isELRS;
+  return isModuleCrossfire(idx) && RfService::capabilities(idx).isELRS;
 }
 
 inline bool isInternalModuleCrossfire()

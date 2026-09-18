@@ -132,7 +132,7 @@ if(HAPTIC)
 endif()
 
 add_definitions(-DCROSSFIRE)
-set(PULSES_SRC ${PULSES_SRC} crossfire.cpp)
+set(PULSES_SRC ${PULSES_SRC} crossfire.cpp crsf_device.cpp)
 set(SRC ${SRC} telemetry/crossfire.cpp io/elrs_firmware_update.cpp)
 if(BLUETOOTH)
   set(SRC ${SRC} io/bluetooth_firmware_container.cpp)

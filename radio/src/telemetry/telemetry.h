@@ -197,35 +197,3 @@ extern TelemetryQueue* luaInputTelemetryFifo;
 void registerTelemetryQueue(TelemetryQueue*);
 void deregisterTelemetryQueue(TelemetryQueue*);
 #endif
-
-// Module pulse synchronization
-struct ModuleSyncStatus
-{
-  // feedback input: last received values
-  uint16_t  refreshRate; // in us
-  int16_t   inputLag;    // in us
-
-  tmr10ms_t lastUpdate;  // in 10ms
-  int16_t   currentLag;  // in us
-
-  inline bool isValid() const {
-    // 2 seconds
-    return (get_tmr10ms() - lastUpdate < 200);
-  }
-
-  // Set feedback from RF module
-  void update(uint16_t newRefreshRate, int16_t newInputLag);
-
-  //mark as timeouted
-  void invalidate();
-
-  // Get computed settings for scheduler
-  uint16_t getAdjustedRefreshRate();
-
-  // Status string for the UI
-  void getRefreshString(char* refreshText);
-
-  ModuleSyncStatus();
-};
-
-ModuleSyncStatus& getModuleSyncStatus(uint8_t moduleIdx);
