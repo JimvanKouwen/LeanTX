@@ -80,21 +80,35 @@ class ValueWidget : public Widget
   {
     if (!loaded || _deleted) return;
 
-    bool changed = false;
+    bool changed = refreshValue;
+    refreshValue = false;
 
     auto widgetData = getPersistentData();
 
     // get source from options[0]
-    mixsrc_t field = widgetData->options[0].value.unsignedValue;
+    const int32_t sourceId = widgetData->options[0].value.unsignedValue;
+    mixsrc_t source = sourceId >= -MIXSRC_LAST_TELEM && sourceId <= MIXSRC_LAST_TELEM
+                          ? sourceId : MIXSRC_NONE;
+    mixsrc_t field = abs(source);
 
-    // if value changed
-    auto newValue = getValue(field);
+    // GPS is structured data; compare its rendered state, not a scalar source.
+    std::string gpsText;
+#if defined(INTERNAL_GPS)
+    if (field == MIXSRC_TX_GPS) {
+      gpsText = getSourceCustomValueString(field, 0, valueFlags);
+      if (gpsText != lastGpsText) {
+        lastGpsText = gpsText;
+        changed = true;
+      }
+    }
+#endif
+    auto newValue = field == MIXSRC_TX_GPS ? 0 : getValue(source);
     if (lastValue != newValue) {
       lastValue = newValue;
       changed = true;
     } else {
       // if telemetry value, and telemetry offline or old data
-      if (field >= MIXSRC_FIRST_TELEM) {
+      if (field >= MIXSRC_FIRST_TELEM && field <= MIXSRC_LAST_TELEM) {
         TelemetryItem& telemetryItem =
             telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
         bool telemState = !telemetryItem.isAvailable() || telemetryItem.isOld();
@@ -120,7 +134,7 @@ class ValueWidget : public Widget
           lv_obj_add_state(label, ETX_STATE_TIMER_ELAPSED);
           lv_obj_add_state(value, ETX_STATE_TIMER_ELAPSED);
         }
-      } else if (field >= MIXSRC_FIRST_TELEM) {
+      } else if (field >= MIXSRC_FIRST_TELEM && field <= MIXSRC_LAST_TELEM) {
         TelemetryItem& telemetryItem =
             telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
         if (!telemetryItem.isAvailable() || telemetryItem.isOld()) {
@@ -133,7 +147,9 @@ class ValueWidget : public Widget
       std::string valueTxt;
 
       // Set value text
-      if (field == MIXSRC_TX_VOLTAGE) {
+      if (field == MIXSRC_TX_GPS) {
+        valueTxt = gpsText;
+      } else if (field == MIXSRC_TX_VOLTAGE) {
         valueTxt =
             getSourceCustomValueString(field, newValue, valueFlags);
         valueTxt += STR_V;
@@ -142,11 +158,10 @@ class ValueWidget : public Widget
         timerOptions.options = SHOW_TIME;
         valueTxt = getTimerString(newValue, timerOptions);
       } else if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
-        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIMER;
-        valueTxt = getTimerString(abs(timerState.val), timerOptions);
-      } else if (field >= MIXSRC_FIRST_TELEM) {
+        valueTxt = getTimerString(abs(newValue), timerOptions);
+      } else if (field >= MIXSRC_FIRST_TELEM && field <= MIXSRC_LAST_TELEM) {
         std::string getSensorCustomValue(uint8_t sensor, int32_t value,
                                          LcdFlags flags);
         valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3,
@@ -164,6 +179,8 @@ class ValueWidget : public Widget
   static const WidgetOption options[];
 
  protected:
+  bool refreshValue = true;
+  std::string lastGpsText;
   int32_t lastValue = -10000;
   bool lastTelemState = false;
   lv_style_t labelStyle;
@@ -181,12 +198,16 @@ class ValueWidget : public Widget
 
   void update() override
   {
+    refreshValue = true;
     if (!loaded || _deleted) return;
 
     auto widgetData = getPersistentData();
 
     // get source from options[0]
-    mixsrc_t field = widgetData->options[0].value.unsignedValue;
+    const int32_t sourceId = widgetData->options[0].value.unsignedValue;
+    mixsrc_t source = sourceId >= -MIXSRC_LAST_TELEM && sourceId <= MIXSRC_LAST_TELEM
+                          ? sourceId : MIXSRC_NONE;
+    mixsrc_t field = abs(source);
 
     // get color from options[1]
     etx_txt_color_from_flags(label, widgetData->options[1].value.unsignedValue);
@@ -226,7 +247,7 @@ class ValueWidget : public Widget
                : (valAlign == ALIGN_CENTER) ? 1
                                             : -PAD_SMALL;
       valueY = VAL_Y2;
-      if (field >= MIXSRC_FIRST_TELEM) {
+      if (field >= MIXSRC_FIRST_TELEM && field <= MIXSRC_LAST_TELEM) {
         int8_t sensor = 1 + (field - MIXSRC_FIRST_TELEM) / 3;
         if (!isGPSSensor(sensor) && !isSensorUnit(sensor, UNIT_DATETIME) && !isSensorUnit(sensor, UNIT_TEXT)) {
           // Set font to XL
@@ -256,7 +277,7 @@ class ValueWidget : public Widget
                                                          : LV_TEXT_ALIGN_LEFT);
 
     // Set label text
-    char* labelTxt = getSourceString(field);
+    char* labelTxt = getSourceString(source);
     lv_label_set_text(label, labelTxt);
     lv_label_set_text(labelShadow, labelTxt);
 

@@ -388,8 +388,6 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
 {
   if (idx == SWSRC_NONE) {
     return strcpy(dest, STR_EMPTY);
-  } else if (idx == SWSRC_OFF) {
-    return getStringAtIndex(dest, STR_OFFON, 0);
   }
 
   char *s = dest;
@@ -407,29 +405,8 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
     div_t swinfo =
         div(int(idx - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
     s = strAppendStringWithIndex(s, getPotLabel(swinfo.quot), swinfo.rem + 1);
-  } else if (idx <= SWSRC_LAST_TRIM) {
-    idx -= SWSRC_FIRST_TRIM;
-    // TODO: 't' or CHAR_TRIM
-    s = strAppend(s, getTrimLabel(idx / 2));
-    *s++ = idx & 1 ? '+' : '-';
+  } else {
     *s = '\0';
-  }  else if (idx <= SWSRC_ONE) {
-    idx -= SWSRC_ON;
-    getStringAtIndex(s, STR_ON_ONE_SWITCHES, idx);
-  } else if (idx == SWSRC_TELEMETRY_STREAMING) {
-    strcpy(s, "Tele");
-  } else if (idx == SWSRC_RADIO_ACTIVITY) {
-    strcpy(s, "Act");
-  }
-#if defined(DEBUG_LATENCY)
-  else if (idx == SWSRC_LATENCY_TOGGLE) {
-    strcpy(s, "Ltc");
-  }
-#endif
-  else {
-    strncpy(s, g_model.telemetrySensors[idx - SWSRC_FIRST_SENSOR].label,
-            TELEM_LABEL_LEN);
-    s[TELEM_LABEL_LEN] = '\0';
   }
 
   return dest;
@@ -450,7 +427,7 @@ int getSwitchIndex(const char* name, bool all)
   }
 
   for (swsrc_t idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (all || isSwitchAvailable(idx, AllSwitchesContext)) {
+    if (all || isSwitchAvailable(idx)) {
       char* s;
       if (switchCanHaveCustomName(idx)) {
         // Check default name
@@ -535,6 +512,7 @@ const char *getPotLabel(uint8_t idx, bool defaultOnly)
 template <size_t L>
 char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 {
+  if (idx < -MIXSRC_LAST_TELEM || idx > MIXSRC_LAST_TELEM) idx = MIXSRC_NONE;
   size_t dest_len = L;
   char* dest = destRef;
 
@@ -745,6 +723,8 @@ template <size_t L>
 char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags)
 {
+  dest[0] = 0;
+  if (source < -MIXSRC_LAST_TELEM || source > MIXSRC_LAST_TELEM) return dest;
   source = abs(source);
   size_t len = L - 1;
   if (source >= MIXSRC_FIRST_TELEM) {

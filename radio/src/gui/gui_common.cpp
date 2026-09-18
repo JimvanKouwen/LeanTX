@@ -71,11 +71,6 @@ bool isAltSensor(int sensor)
   return isSensorUnit(sensor, UNIT_DIST) || isSensorUnit(sensor, UNIT_FEET);
 }
 
-bool isVoltsSensor(int sensor)
-{
-  return isSensorUnit(sensor, UNIT_VOLTS) || isSensorUnit(sensor, UNIT_CELLS);
-}
-
 bool isCurrentSensor(int sensor)
 {
   return isSensorUnit(sensor, UNIT_AMPS);
@@ -124,6 +119,13 @@ int getChannelsUsed()
 }
 
 static bool sourceIsAvailable(int source) { return true; }
+
+static bool isTxSourceAvailable(int source) {
+#if !defined(INTERNAL_GPS)
+  if (source == MIXSRC_TX_GPS - MIXSRC_TX_VOLTAGE) return false;
+#endif
+  return true;
+}
 
 static bool isSourceStickAvailable(int source) {
   return source < adcGetMaxInputs(ADC_INPUT_MAIN);
@@ -190,7 +192,7 @@ static struct sourceAvailableCheck sourceChecks[] = {
 #if defined(FUNCTION_SWITCHES)
   { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SRC_FUNC_SWITCH, isSourceFuncSwitchAvailable },
 #endif
-  { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
+  { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, isTxSourceAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
   { MIXSRC_NONE, MIXSRC_NONE, SRC_NONE, sourceIsAvailable },
@@ -248,14 +250,11 @@ void getPhysicalInputLabel(char (&dest)[32], PhysicalInputId source)
   snprintf(dest, sizeof(dest), "%s%s", icon, name);
 }
 
-bool isSwitchAvailable(int swtch, SwitchContext context)
+bool isSwitchAvailable(int swtch)
 {
   if (swtch < SWSRC_FIRST || swtch > SWSRC_LAST) return false;
 
   if (swtch < 0) {
-    if (swtch == -SWSRC_ON || swtch == -SWSRC_ONE) {
-      return false;
-    }
     swtch = -swtch;
   }
 
@@ -281,19 +280,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
     int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
     return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
-  }
-
-  if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) {
-    int index = (swtch - SWSRC_FIRST_TRIM) / 2;
-    return index < keysGetMaxTrims();
-  }
-
-  if (context != AllSwitchesContext && (swtch == SWSRC_ON || swtch == SWSRC_ONE)) {
-    return false;
-  }
-
-  if (swtch >= SWSRC_FIRST_SENSOR && swtch <= SWSRC_LAST_SENSOR) {
-    return isTelemetryFieldAvailable(swtch - SWSRC_FIRST_SENSOR);
   }
 
   return true;
@@ -331,29 +317,6 @@ static bool isSwitchSwitchAvailable(int swtch, bool invert) {
   return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
 }
 
-static bool isSwitchTrimAvailable(int swtch, bool invert) {
-  int index = swtch / 2;
-  return index < keysGetMaxTrims();
-}
-
-static bool isSwitchTelemAvailable(int swtch, bool invert) {
-  return isTelemetryFieldAvailable(swtch);
-}
-
-static bool isSwitchOtherAvailable(int swtch, bool invert) {
-  swtch += SWSRC_ON;
-  if (invert && (swtch == SWSRC_ON || swtch == SWSRC_ONE))
-    return false;
-  if (swtch == SWSRC_ON || swtch == SWSRC_ONE || swtch == SWSRC_TELEMETRY_STREAMING ||
-      swtch == SWSRC_RADIO_ACTIVITY)
-    return true;
-#if defined(DEBUG_LATENCY)
-  if (swtch == SWSRC_LATENCY_TOGGLE)
-    return true;
-#endif
-  return false;
-}
-
 struct switchAvailableCheck {
   uint16_t first;
   uint16_t last;
@@ -363,9 +326,6 @@ struct switchAvailableCheck {
 
 static struct switchAvailableCheck switchChecks[] = {
   { SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SW_SWITCH, isSwitchSwitchAvailable },
-  { SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SW_TRIM, isSwitchTrimAvailable },
-  { SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SW_TELEM, isSwitchTelemAvailable },
-  { SWSRC_ON, SWSRC_COUNT - 1, SW_OTHER, isSwitchOtherAvailable },
   { SWSRC_NONE, SWSRC_NONE, SW_NONE, switchIsAvailable },
 };
 
@@ -457,7 +417,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings)
 
 bool isControlSwitchAvailable(int swtch)
 {
-  return isSwitchAvailable(swtch, ControlSwitchContext);
+  return isSwitchAvailable(swtch);
 }
 
 void getPhysicalSwitchConditionLabel(char (&dest)[32], int condition)
@@ -469,27 +429,6 @@ void getPhysicalSwitchConditionLabel(char (&dest)[32], int condition)
   }
   getSwitchName(dest, (condition - 1) / 3);
   strAppend(dest + strlen(dest), getSwitchPositionSymbol((condition - 1) % 3));
-}
-
-#if defined(COLORLCD)
-bool isSwitch2POSWarningStateAvailable(int state)
-{
-  return (state != 2); // two pos switch - middle state not available
-}
-#endif // #if defined(COLORLCD)
-
-int timersSetupCount()
-{
-  int tc = 0;
-  for (int i = 0; i < MAX_TIMERS; i += 1)
-    if (isTimerSourceAvailable(i))
-      tc += 1;
-  return tc;
-}
-
-bool isTimerSourceAvailable(int index)
-{
-  return index >= 0 && index < TIMERS;
 }
 
 #if defined(EXTERNAL_ANTENNA)
@@ -710,18 +649,6 @@ bool confirmModelChange()
     }
   }
   return true;
-}
-
-int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable)
-{
-  int retval = 0;
-  for (int i = min; i <= max; i++) {
-    if (isValueAvailable(i)) {
-      retval = i;
-      break;
-    }
-  }
-  return retval;
 }
 
 #if !defined(COLORLCD)

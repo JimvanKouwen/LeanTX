@@ -48,17 +48,6 @@ class ChannelsViewFooter : public Window
 
     new StaticText(this, {LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY2_INDEX);
 
-    int x = getTextWidth(STR_MONITOR_OUTPUT_DESC) + LEG_COLORBOX + PAD_MEDIUM * 2;
-
-    w = new Window(this, {x + PAD_MEDIUM, PAD_SMALL, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});
-    w->setWindowFlag(NO_FOCUS);
-    etx_solid_bg(w->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
-    w = new Window(w, {1, 1, LEG_COLORBOX, LEG_COLORBOX});
-    w->setWindowFlag(NO_FOCUS);
-    etx_solid_bg(w->getLvObj(), COLOR_THEME_FOCUS_INDEX);
-
-    new StaticText(this, {x + LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H},
-                   STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY2_INDEX);
   }
 
   static LAYOUT_VAL_SCALED(LEG_COLORBOX, 14)

@@ -199,25 +199,6 @@ void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags att)
   }
 }
 
-void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags att)
-{
-  sensor = (sensor-MIXSRC_FIRST_TELEM) / 3;
-	TelemetryItem & telemetryItem = telemetryItems[sensor];
-
-  att &= ~FONTSIZE_MASK;
-  lcdDrawNumber(x, y+1, telemetryItem.datetime.sec, att|LEADING0, 2);
-  lcdDrawText(lcdNextPos, y+1, ":", att);
-  lcdDrawNumber(lcdNextPos, y+1, telemetryItem.datetime.min, att|LEADING0, 2);
-  lcdDrawText(lcdNextPos, y+1, ":", att);
-  lcdDrawNumber(lcdNextPos, y+1, telemetryItem.datetime.hour, att|LEADING0, 2);
-
-  lcdDrawNumber(x, y+9, telemetryItem.datetime.day, att|LEADING0, 2);
-  lcdDrawText(lcdNextPos, y+9, "-", att);
-  lcdDrawNumber(lcdNextPos, y+9, telemetryItem.datetime.month, att|LEADING0, 2);
-  lcdDrawText(lcdNextPos, y+9, "-", att);
-  lcdDrawNumber(lcdNextPos, y+9, telemetryItem.datetime.year, att|LEADING0,4);
-}
-
 void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags att)
 {
   if (att & DBLSIZE) {

@@ -193,8 +193,6 @@
 #define TR_STICK_NAMES2                "Thr"
 #define TR_STICK_NAMES3                "Ail"
 
-#define TR_ON_ONE_SWITCHES_1           "ON"
-#define TR_ON_ONE_SWITCHES_2           "One"
 
 #define TR_HATSMODE                    "Hats mode"
 #define TR_HATSOPT_1                   "Buttons only"

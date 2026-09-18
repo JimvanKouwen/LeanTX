@@ -221,19 +221,6 @@ USBJoystickChData *usbJChAddress(uint8_t idx)
   return &g_model.usbJoystickCh[idx];
 }
 
-void memswap(void * a, void * b, uint8_t size)
-{
-  uint8_t * x = (uint8_t *)a;
-  uint8_t * y = (uint8_t *)b;
-  uint8_t temp ;
-
-  while (size--) {
-    temp = *x;
-    *x++ = *y;
-    *y++ = temp;
-  }
-}
-
 static void generalDefaultSwitches(RadioData& settings)
 {
   for (uint8_t sw = 0; sw < switchGetMaxSwitches(); sw += 1) {
@@ -1414,40 +1401,4 @@ bool radioThemesEnabled() {
 
 bool modelTelemetryEnabled() {
   return FEATURE_ENABLED(modelTelemetryDisabled);
-}
-
-void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags)
-{
-  int asrc = abs(source);
-
-  if (asrc < MIXSRC_TX_VOLTAGE) {
-    valMax = 100;
-    valMin = -valMax;
-  }
-  else if (asrc == MIXSRC_TX_VOLTAGE) {
-    valMax =  255;
-    valMin = 0;
-    if (flags)
-      *flags |= PREC1;
-  }
-#if defined(LUMINOSITY_SENSOR)
-  else if (asrc == MIXSRC_LIGHT) {
-    valMax = 100;
-    valMin = -valMax;
-  }
-#endif
-  else if (asrc == MIXSRC_TX_TIME) {
-    valMax =  23 * 60 + 59;
-    valMin = 0;
-  }
-  else if (asrc >= MIXSRC_FIRST_TIMER && asrc <= MIXSRC_LAST_TIMER) {
-    valMax =  9 * 60 * 60 - 1;
-    valMin = -valMax;
-    if (flags)
-      *flags |= TIMEHOUR;
-  }
-  else {
-    valMax = MIXSRC_MAX_VALUE;
-    valMin = -valMax;
-  }
 }

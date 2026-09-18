@@ -70,7 +70,6 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 
   newval = checkBoolean(event, i_min, i_max, newval, val);
 
-  newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable);
 
   finishCheckIncDec(event, i_min, i_max, i_flags, newval, val, stops);
 

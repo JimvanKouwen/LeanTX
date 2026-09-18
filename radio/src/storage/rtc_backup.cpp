@@ -139,7 +139,8 @@ bool rambackupRestore()
   for (const auto &module : snapshot.model.modules) {
     if (module.type != MODULE_TYPE_NONE && module.type != MODULE_TYPE_CROSSFIRE)
       return false;
-    if (module.channelsCount < -8 || module.channelsCount > 24 ||
+    if (module.channelsStart > MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT ||
+        module.channelsCount < -8 || module.channelsCount > 24 ||
         unsigned(module.channelsStart) + module.channelsCount + 8 > MAX_OUTPUT_CHANNELS)
       return false;
   }

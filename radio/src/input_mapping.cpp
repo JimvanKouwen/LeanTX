@@ -112,12 +112,6 @@ uint8_t inputMappingChannelOrder(uint8_t ch)
   return inputMappingChannelOrder(g_eeGeneral.templateSetup, ch);
 }
 
-uint8_t inputMappingGetChannelOrder(uint8_t order)
-{
-  order = min(order, uint8_t(DIM(_channel_order_lut) - 1));
-  return _channel_order_lut[order];
-}
-
 uint8_t inputMappingGetMaxChannelOrder()
 {
   return DIM(_channel_order_lut);

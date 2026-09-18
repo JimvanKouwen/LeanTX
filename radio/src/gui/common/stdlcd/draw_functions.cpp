@@ -278,6 +278,7 @@ void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, 
 
 void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value, LcdFlags flags)
 {
+  if (source < -MIXSRC_LAST_TELEM || source > MIXSRC_LAST_TELEM) return;
   source = abs(source);
 
   if (source >= MIXSRC_FIRST_TELEM) {
@@ -313,12 +314,6 @@ void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value,
   else {
     lcdDrawNumber(x, y, value, flags);
   }
-}
-
-void drawSourceValue(coord_t x, coord_t y, source_t source, LcdFlags flags)
-{
-  getvalue_t value = getValue(source);
-  drawSourceCustomValue(x, y, source, value, flags);
 }
 
 void drawFatalErrorScreen(const char * message)

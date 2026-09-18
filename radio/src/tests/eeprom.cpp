@@ -150,6 +150,12 @@ TEST(EmergencySnapshot, InvalidRFChannelRange) {
   prepareBackup(); g_model.moduleData[0].channelsStart = MAX_OUTPUT_CHANNELS;
   rambackupWrite(); expectRejected();
 }
+TEST(EmergencySnapshot, FixedRFWindowCannotBeShortenedByStoredCount) {
+  prepareBackup();
+  g_model.moduleData[0].channelsStart = MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT + 1;
+  g_model.moduleData[0].channelsCount = -8;
+  rambackupWrite(); expectRejected();
+}
 TEST(EmergencySnapshot, SafeBootFallback) {
   prepareBackup(); ramBackup->header.magic = 0;
   ASSERT_FALSE(rambackupRestoreOrReset());

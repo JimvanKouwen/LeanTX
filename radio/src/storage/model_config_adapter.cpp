@@ -83,14 +83,6 @@ const Enum sources[] = {{"NONE", MIXSRC_NONE},
                         {"TX_TIME", MIXSRC_TX_TIME},
                         {"TX_GPS", MIXSRC_TX_GPS},
                         {nullptr, 0}};
-const Enum switches[] = {{"NONE", SWSRC_NONE},
-                         {"ON", SWSRC_ON},
-                         {"ONE", SWSRC_ONE},
-                         {"OFF", SWSRC_OFF},
-                         {"TELEMETRY_STREAMING", SWSRC_TELEMETRY_STREAMING},
-                         {"RADIO_ACTIVITY", SWSRC_RADIO_ACTIVITY},
-                         {nullptr, 0}};
-
 bool quoted(char* out, size_t capacity, const char* text, size_t length)
 {
   size_t pos = 0;
@@ -151,6 +143,7 @@ bool enumOutput(const Enum* table, int64_t n, Field& f)
 // Canonical names keep source IDs independent of target enum numbering.
 bool sourceOutput(int n, char* out, size_t cap)
 {
+  if (n < -MIXSRC_LAST_TELEM || n > MIXSRC_LAST_TELEM) return false;
   if (n < 0) {
     if (cap < 2) return false;
     *out++ = '!';
@@ -241,84 +234,9 @@ bool sourceInput(const char* text, int64_t& value)
     a = switchLookupIdx(p, strlen(p));
     if (a >= 0) n = MIXSRC_FIRST_SWITCH + a;
   }
-  if (n < 0) return integer(s, -32768, 65535, value);
+  if (n < 0) return integer(s, -MIXSRC_LAST_TELEM, MIXSRC_LAST_TELEM, value);
   value = sign * n;
   return true;
-}
-bool switchOutput(int n, Field& f)
-{
-  char s[48];
-  const char* sign = n < 0 ? "!" : "";
-  if (n < 0) n = -n;
-  for (auto e = switches; e->name; ++e)
-    if (e->value == n) {
-      snprintf(s, sizeof(s), "%s%s", sign, e->name);
-      return quoted(f.value, sizeof(f.value), s, strlen(s));
-    }
-  if (n >= SWSRC_FIRST_SWITCH && n <= SWSRC_LAST_SWITCH) {
-    int x = n - SWSRC_FIRST_SWITCH;
-    snprintf(s, sizeof(s), "%s%s%d", sign, switchGetDefaultName(x / 3), x % 3);
-  } else if (n >= SWSRC_FIRST_MULTIPOS_SWITCH &&
-             n <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    int x = n - SWSRC_FIRST_MULTIPOS_SWITCH;
-    snprintf(s, sizeof(s), "%s6P%d%d", sign, x / XPOTS_MULTIPOS_COUNT,
-             x % XPOTS_MULTIPOS_COUNT);
-  } else if (n >= SWSRC_FIRST_TRIM && n <= SWSRC_LAST_TRIM) {
-    int x = n - SWSRC_FIRST_TRIM;
-    snprintf(s, sizeof(s), "%sTrimT%d%s", sign, x / 2 + 1,
-             x % 2 ? "Up" : "Down");
-  } else if (n >= SWSRC_FIRST_SENSOR && n <= SWSRC_LAST_SENSOR)
-    snprintf(s, sizeof(s), "%sT%d", sign, n - SWSRC_FIRST_SENSOR + 1);
-  else
-    return formatInteger(f.value, sizeof(f.value), *sign ? -n : n);
-  return quoted(f.value, sizeof(f.value), s, strlen(s));
-}
-bool switchInput(const char* text, int64_t& value)
-{
-  auto& s = scalarBuffer;
-  size_t len;
-  if (!string(text, s, sizeof(s) - 1, len)) return false;
-  s[len] = 0;
-  char* p = s;
-  int sign = 1;
-  if (*p == '!') {
-    sign = -1;
-    ++p;
-  }
-  for (auto e = switches; e->name; ++e)
-    if (!strcmp(p, e->name)) {
-      value = sign * e->value;
-      return true;
-    }
-  size_t l = strlen(p);
-  if (l > 1 && p[l - 1] >= '0' && p[l - 1] <= '2') {
-    int idx = switchLookupIdx(p, l - 1);
-    if (idx >= 0) {
-      value = sign * (SWSRC_FIRST_SWITCH + idx * 3 + p[l - 1] - '0');
-      return true;
-    }
-  }
-  if (strlen(p) == 4 && p[0] == '6' && p[1] == 'P' && p[2] >= '0' &&
-      p[2] <= '9' && p[3] >= '0' && p[3] < '0' + XPOTS_MULTIPOS_COUNT) {
-    value = sign * (SWSRC_FIRST_MULTIPOS_SWITCH +
-                    (p[2] - '0') * XPOTS_MULTIPOS_COUNT + p[3] - '0');
-    return true;
-  }
-  int a, used = 0;
-  if (sscanf(p, "T%d%n", &a, &used) == 1 && !p[used] && a > 0 &&
-      a <= MAX_TELEMETRY_SENSORS) {
-    value = sign * (SWSRC_FIRST_SENSOR + a - 1);
-    return true;
-  }
-  for (int i = 0; i < MAX_TRIMS * 2; ++i) {
-    char name[24];
-    snprintf(name, sizeof(name), "TrimT%d%s", i / 2 + 1, i % 2 ? "Up" : "Down");
-    if (!strcmp(p, name)) {
-      value = sign * (SWSRC_FIRST_TRIM + i);
-      return true;
-    }
-  }
-  return integer(s, -512, 511, value);
 }
 struct Context {
   ModelData* model;
@@ -451,26 +369,6 @@ bool physicalInputValue(PhysicalInputId& source, Field& field, const char* text)
 }
 #define ACCESS_PhysicalInput(member, lo, hi) return physicalInputValue(m.member, f, t);
 
-#define ACCESS_Source(member, lo, hi)                         \
-  if (t) {                                                    \
-    int64_t v;                                                \
-    if (!sourceInput(t, v) || v < lo || v > hi) return false; \
-    m.member = v;                                             \
-    return true;                                              \
-  }                                                           \
-  {                                                           \
-    char s[64];                                               \
-    return sourceOutput(m.member, s, sizeof(s)) &&            \
-           quoted(f.value, sizeof(f.value), s, strlen(s));    \
-  }
-#define ACCESS_Switch(member, lo, hi)                         \
-  if (t) {                                                    \
-    int64_t v;                                                \
-    if (!switchInput(t, v) || v < lo || v > hi) return false; \
-    m.member = v;                                             \
-    return true;                                              \
-  }                                                           \
-  return switchOutput(m.member, f);
 #define ACCESS_Sensor(member, lo, hi)            \
   if (t) {                                       \
     int64_t v;                                   \
@@ -701,10 +599,10 @@ bool portableUnavailable(const char* codec, const char* text)
     name[length] = 0;
     return strcmp(name, "TYPE_NONE") && strcmp(name, "TYPE_CROSSFIRE");
   }
-  if (!strstr(codec, "Source") && strcmp(codec, "Switch"))
+  if (!strstr(codec, "Source"))
     return false;
   int64_t n;
-  if (!strcmp(codec, "Switch") ? switchInput(text, n) : sourceInput(text, n))
+  if (sourceInput(text, n))
     return false;
   auto& s = scalarBuffer;
   size_t len;
@@ -724,14 +622,6 @@ bool portableUnavailable(const char* codec, const char* text)
   used = 0;
   if (sscanf(p, "GR%d%n", &a, &used) == 1 && !p[used] && a > 0 && a <= 8)
     return true;
-  if (!strcmp(codec, "Switch")) {
-    used = 0;
-    if (sscanf(p, "T%d%n", &a, &used) == 1 && !p[used] && a > 0 && a <= 99)
-      return true;
-    if (!strncmp(p, "TrimT", 5) && p[5] >= '1' && p[5] <= '8' &&
-        (!strcmp(p + 6, "Up") || !strcmp(p + 6, "Down")))
-      return true;
-  }
   // Canonical hardware names are known even when the device has no instance.
   if ((*p == 'S' && p[1] >= 'A' && p[1] <= 'Z') || !strncmp(p, "SW", 2) ||
       !strncmp(p, "FL", 2))

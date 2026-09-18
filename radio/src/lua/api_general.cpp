@@ -662,7 +662,8 @@ static int luaGetValue(lua_State * L)
 {
   int src = MIXSRC_NONE;
   if (lua_isnumber(L, 1)) {
-    src = luaL_checkinteger(L, 1);
+    const lua_Integer id = luaL_checkinteger(L, 1);
+    if (id >= -MIXSRC_LAST_TELEM && id <= MIXSRC_LAST_TELEM) src = id;
   }
   else {
     // convert from field name to its id
@@ -724,7 +725,8 @@ static int luaGetSourceValue(lua_State * L)
   // Get source id
   int src = MIXSRC_NONE;
   if (lua_isnumber(L, 1)) {
-    src = luaL_checkinteger(L, 1);
+    const lua_Integer id = luaL_checkinteger(L, 1);
+    if (id >= -MIXSRC_LAST_TELEM && id <= MIXSRC_LAST_TELEM) src = id;
   }
   else {
     // convert from field name to its id
@@ -2056,10 +2058,13 @@ return true if switch is a customisable switch
 
 static int luaGetSwitchInfo(lua_State * L)
 {
-  swsrc_t idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
-  if (idx < SWSRC_COUNT && isSwitchAvailable(idx, AllSwitchesContext)) {
+  int source = luaL_checkinteger(L, 1);
+  int idx = source - MIXSRC_FIRST_SWITCH;
+  if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH &&
+      isSourceAvailable(source)) {
     lua_newtable(L);
-    char* name = getSwitchPositionName(idx);
+    char name[32];
+    getSwitchName(name, idx);
     lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
     lua_pushtableboolean(L, "isCustomisableSwitch", switchIsCustomSwitch(idx));
     lua_pushtablestring(L, "name", name);
@@ -2107,7 +2112,7 @@ static int luaGetSwitchIndex(lua_State * L)
 static int luaGetSwitchName(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, AllSwitchesContext)) {
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx)) {
     char* name = getSwitchPositionName(idx);
     lua_pushstring(L, name);
   }
@@ -2129,7 +2134,7 @@ static int luaGetSwitchName(lua_State * L)
 static int luaGetSwitchValue(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, AllSwitchesContext))
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx))
     lua_pushboolean(L, getSwitch(idx));
   else
     lua_pushnil(L);
@@ -2154,7 +2159,7 @@ static int luaNextSwitch(lua_State * L)
   swsrc_t idx = luaL_checkinteger(L, 2);
 
   while (++idx <= last) {
-    if (isSwitchAvailable(idx, AllSwitchesContext)) {
+    if (isSwitchAvailable(idx)) {
       char* name = getSwitchPositionName(idx);
       lua_pushinteger(L, idx);
       lua_pushstring(L, name);
@@ -2307,8 +2312,8 @@ static int luaSources(lua_State * L)
 */
 static int luaGetOutputValue(lua_State * L)
 {
-  mixsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_OUTPUT_CHANNELS) {           // mixsrc_t is unsigned, no need to check for <0
+  lua_Integer idx = luaL_checkinteger(L, 1);
+  if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
     lua_pushinteger(L, channelOutputs[idx]);
   } else {
     lua_pushinteger(L, 0);

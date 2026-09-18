@@ -76,8 +76,6 @@ enum RotaryEncoderMode {
 
 #include "myeeprom.h"
 
-void memswap(void * a, void * b, uint8_t size);
-
 // TODO: move these config check macros somewhere else
 #define POT_CONFIG(x) (getPotType(x))
 
@@ -95,9 +93,6 @@ void memswap(void * a, void * b, uint8_t size);
 #define IS_MULTIPOS_CALIBRATED(cal)			\
   (cal->count > 0 && cal->count < XPOTS_MULTIPOS_COUNT)
 
-#define IS_SWITCH_MULTIPOS(x) \
-  (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
-
 int16_t getPotWarningPosition(uint8_t index);
 
 #define SAVE_POT_POSITION(i) \
@@ -107,7 +102,6 @@ int16_t getPotWarningPosition(uint8_t index);
   (g_model.beepANACenter & ((BeepANACenter)1 << (x)))
 
 #define PPM_CENTER                     1500
-
 
 #include "fifo.h"
 
@@ -156,8 +150,6 @@ extern uint8_t heartbeat;
 #include "keys.h"
 #include "pwr.h"
 
-bool trimDown(uint8_t idx);
-
 uint16_t evalChkSum();
 
 void alert(const char * title, const char * msg, uint8_t sound);
@@ -203,7 +195,6 @@ inline void ALERT(const char *title, const char *msg, uint8_t sound)
 
 #endif // !COLORLCD && GUI
 
-
 extern uint32_t availableMemory();
 
 void updateChannelOutputs();
@@ -215,12 +206,10 @@ void perMain();
 
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
-
 void flightReset(uint8_t check=true);
 
 #define DURATION_MS_PREC2(x) ((x)/10)
 
-void checkLowEEPROM();
 void checkThrottleStick();
 void checkSwitches();
 void checkAlarm();
@@ -233,34 +222,12 @@ void checkBacklight();
 
 uint16_t isqrt32(uint32_t n);
 
-void setDefaultOwnerId();
 void generalDefault();
 void generalDefault(RadioData& settings);
 void generalDefaultSwitches();
 void generalDefaultUILanguage();
 
 uint32_t hash(const void * ptr, uint32_t size);
-
-#define calc100to256_16Bits(x) calc100to256(x)
-#define calc100toRESX_16Bits(x) calc100toRESX(x)
-
-#define calc100to256_16Bits(x) calc100to256(x)
-#define calc100toRESX_16Bits(x) calc100toRESX(x)
-
-inline int calc100to256(int x)
-{
-  return divRoundClosest(x*256, 100);
-}
-
-inline int calc100toRESX(int x)
-{
-  return divRoundClosest(x*RESX, 100);
-}
-
-inline int calc1000toRESX(int x)
-{
-  return divRoundClosest(x*RESX, 1000);
-}
 
 inline int calcRESXto1000(int x)
 {
@@ -273,9 +240,6 @@ inline int calcRESXto100(int x)
 }
 
 #define g_blinkTmr10ms    (*(uint8_t*)&g_tmr10ms)
-
-extern void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFlags * flags = nullptr);
-
 
 void evalAnalogControls(bool beep = true);
 uint16_t anaIn(uint8_t chan);

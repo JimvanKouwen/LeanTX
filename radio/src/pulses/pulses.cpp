@@ -316,9 +316,10 @@ void pulsesSendNextFrame(uint8_t module)
     // if previous frame not completed, skip this one
     if (drv->txCompleted && !drv->txCompleted(ctx)) return;
 
-    uint8_t channelStart = g_model.moduleData[module].channelsStart;
+    uint8_t channelStart = min<unsigned>(g_model.moduleData[module].channelsStart,
+        MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT);
     int16_t* channels = &channelOutputs[channelStart];
-    uint8_t nChannels = 16;  // TODO: MAX_CHANNELS - channelsStart
+    uint8_t nChannels = CROSSFIRE_CHANNELS_COUNT;
 
     auto buffer = _module_buffers[module]._buffer;
     drv->sendPulses(ctx, buffer, channels, nChannels);

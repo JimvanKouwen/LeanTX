@@ -40,6 +40,19 @@ struct ModelConfig : testing::Test {
                                   model_config::document(m), workspace, false);
   }
 };
+TEST_F(ModelConfig, RfChannelWindowBounds)
+{
+  for (int start : {-1, 0, MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT,
+                    MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT + 1, 255, 256}) {
+    input = "moduleData:\n  0:\n    channelsStart: " + std::to_string(start) + "\n";
+    ModelData loaded{};
+    auto result = load(loaded);
+    bool safe = start >= 0 && start <= MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT;
+    EXPECT_EQ(safe, bool(result)) << start;
+    if (result) EXPECT_EQ(start, loaded.moduleData[0].channelsStart);
+  }
+}
+
 TEST_F(ModelConfig, Roundtrip)
 {
   ModelData a{};
@@ -304,20 +317,15 @@ TEST_F(ModelConfig, NestedListsAndDefaults)
   ASSERT_TRUE(r) << r.error;
   EXPECT_FALSE(r.missing);
 }
-TEST_F(ModelConfig, UnavailableIsKnown)
-{
 #if !defined(COLORLCD)
+TEST_F(ModelConfig, UnavailableWidgetIsKnown)
+{
   input =
       "screenData:\n  0:\n    LayoutId: Layout1x1\n    layoutData:\n      "
       "zones:\n        0:\n          widgetName: LuaWidget\n          "
       "widgetData:\n            options:\n              0:\n                "
       "type: String\n                value:\n                  stringValue: "
       "preserved\n";
-#else
-  input =
-      "screens:\n  0:\n    type: SCRIPT\n    u:\n      script:\n        file: "
-      "mono\n";
-#endif
   auto original = input;
   ModelData m{};
   auto r = load(m);
@@ -326,6 +334,7 @@ TEST_F(ModelConfig, UnavailableIsKnown)
   ASSERT_TRUE(save(m));
   EXPECT_EQ(std::string::npos, output.find(original));
 }
+#endif
 TEST_F(ModelConfig, OrderIndependentTelemetry)
 {
   input =
@@ -810,7 +819,7 @@ TEST_F(ModelConfig, WidgetSourceNamesRoundtrip)
 
 TEST_F(ModelConfig, WidgetConstantSourcesRejected)
 {
-  for (const char* source : {"TX_TIME", "MIN", "MAX", "!MIN", "!MAX"}) {
+  for (const char* source : {"TX_TIME", "MIN", "MAX", "!MIN", "!MAX", "32767", "65535", "65536", "-32768", "4294967295"}) {
     input = std::string("screenData:\n  0:\n    LayoutId: Layout1x1\n"
         "    layoutData:\n      zones:\n        0:\n          widgetName: Value\n"
         "          widgetData:\n            options:\n              0:\n"

@@ -49,7 +49,6 @@ uint8_t inputMappingChannelOrder(uint8_t ch);
 uint8_t inputMappingChannelOrder(uint8_t order, uint8_t ch);
 
 // Return channel order from an index (0..23)
-uint8_t inputMappingGetChannelOrder(uint8_t order);
 
 // Return the maximum number of order permutations
 uint8_t inputMappingGetMaxChannelOrder();

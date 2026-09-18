@@ -113,10 +113,6 @@ TEST_F(PhysicalControlTest, SharedSystemAndTimerAPIsRemainReadable)
 
 TEST_F(PhysicalControlTest, PhysicalTrimButtonsDoNotOffsetSticks)
 {
-  // Even nonzero bytes left at old trim storage positions must have no effect.
-  g_model.reservedThrTrim = 1;
-  g_model.reservedExtendedTrims = 1;
-  g_model.reservedTrimInc = 2;
 
   for (int mode = 0; mode < 4; ++mode) {
     g_eeGeneral.stickMode = mode;
@@ -169,29 +165,82 @@ TEST_F(PhysicalControlTest, DefaultQuadUsesPhysicalAETRControls)
 }
 
 
-#if !defined(COLORLCD)
-TEST_F(PhysicalControlTest, ManualSelectionIgnoresHardwareMovement)
+
+TEST_F(PhysicalControlTest, TxGpsDoesNotReadClock)
 {
+#if defined(RTCLOCK)
+  auto saved = g_rtcTime;
+  g_rtcTime = 123 * 60;
+  EXPECT_EQ(123, getValue(MIXSRC_TX_TIME));
+#endif
+  for (int source : {int(MIXSRC_TX_GPS), -int(MIXSRC_TX_GPS)}) {
+    bool valid = true;
+    EXPECT_EQ(0, getValue(source, &valid));
+    EXPECT_FALSE(valid);
+#if defined(INTERNAL_GPS)
+    EXPECT_TRUE(isSourceAvailable(source));
+#else
+    EXPECT_FALSE(isSourceAvailable(source));
+#endif
+  }
+#if defined(RTCLOCK)
+  g_rtcTime = saved;
+#endif
+}
+
+TEST_F(PhysicalControlTest, SwitchCompatibilityIsPhysicalOnly)
+{
+  EXPECT_TRUE(getSwitch(SWSRC_NONE));
+  for (int value : {int(SWSRC_COUNT), -int(SWSRC_COUNT), 511, -511}) {
+    EXPECT_FALSE(isSwitchAvailable(value));
+    EXPECT_FALSE(getSwitch(value));
+  }
   int sw = findHwSwitch(SWITCH_3POS);
   ASSERT_GE(sw, 0);
-  s_editMode = EDIT_MODIFY_FIELD;
-  int selected = SWSRC_FIRST_SWITCH + sw * 3;
-  for (int position : {-1, 1, 0}) {
+  for (int position : {-1, 0, 1}) {
     simuSetSwitch(sw, position);
-    EXPECT_EQ(selected, checkIncDec(0, selected, SWSRC_NONE, SWSRC_LAST_SWITCH,
-                                   INCDEC_SWITCH, nullptr));
-    EXPECT_EQ(MIXSRC_FIRST_STICK,
-              checkIncDec(0, MIXSRC_FIRST_STICK, MIXSRC_FIRST_STICK,
-                          MIXSRC_LAST_SWITCH, INCDEC_SOURCE, isSourceAvailable));
+    for (int condition = 0; condition < 3; ++condition) {
+      int id = SWSRC_FIRST_SWITCH + sw * 3 + condition;
+      EXPECT_EQ(condition == position + 1, getSwitch(id));
+      EXPECT_EQ(condition != position + 1, getSwitch(-id));
+    }
   }
-  // The manual category menu still selects sources and switches.
-  onSwitchLongEnterPress(STR_MENU_TRIMS);
-  EXPECT_EQ(SWSRC_FIRST_TRIM,
-            checkIncDec(0, selected, SWSRC_NONE, SWSRC_LAST_TRIM,
-                        INCDEC_SWITCH, nullptr));
-  onSourceLongEnterPress(STR_MENU_SWITCHES);
-  EXPECT_EQ(MIXSRC_FIRST_SWITCH,
-            checkIncDec(0, MIXSRC_FIRST_STICK, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
-                        INCDEC_SOURCE, isSourceAvailable));
+}
+
+TEST_F(PhysicalControlTest, InvalidSourceIdsAreSafe)
+{
+  for (int id : {INT32_MIN, -32768, -MIXSRC_LAST_TELEM - 1, MIXSRC_LAST_TELEM + 1, 32767, INT32_MAX}) {
+    bool valid = true;
+    EXPECT_EQ(0, getValue(id, &valid));
+    EXPECT_FALSE(valid);
+    const std::string emptyLabel = getSourceString(MIXSRC_NONE);
+    EXPECT_EQ(emptyLabel, getSourceString(id));
+#if defined(COLORLCD)
+    EXPECT_STREQ("", getSourceCustomValueString(id, 123, 0));
+#endif
+  }
+}
+
+#if defined(FUNCTION_SWITCHES)
+TEST_F(PhysicalControlTest, FunctionGroupDegenerateScalarValues)
+{
+  for (unsigned i = 0; i < switchGetMaxSwitches(); ++i)
+    if (switchIsCustomSwitch(i)) g_model.cfsSetGroup(i, 0);
+  g_model.cfsSetGroupAlwaysOn(1, true);
+  EXPECT_EQ(0, getValue(MIXSRC_FIRST_CUSTOMSWITCH_GROUP));
+  for (unsigned i = 0; i < switchGetMaxSwitches(); ++i) {
+    if (!switchIsCustomSwitch(i)) continue;
+    g_model.cfsSetGroup(i, 1);
+    for (bool on : {false, true}) {
+      g_model.cfsSetState(i, on);
+      EXPECT_EQ(0, getValue(MIXSRC_FIRST_CUSTOMSWITCH_GROUP));
+    }
+    g_model.cfsSetGroupAlwaysOn(1, false);
+    g_model.cfsSetState(i, false);
+    EXPECT_EQ(-RESX, getValue(MIXSRC_FIRST_CUSTOMSWITCH_GROUP));
+    g_model.cfsSetState(i, true);
+    EXPECT_EQ(RESX, getValue(MIXSRC_FIRST_CUSTOMSWITCH_GROUP));
+    break;
+  }
 }
 #endif

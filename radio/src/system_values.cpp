@@ -32,7 +32,7 @@
 // *valid added to return status to Lua for invalid sources
 static getvalue_t _getValue(mixsrc_t i, bool* valid)
 {
-  if (i == MIXSRC_NONE) {
+  if (i <= MIXSRC_NONE || i > MIXSRC_LAST_TELEM) {
     if (valid != nullptr) *valid = false;
     return 0;
   }
@@ -92,6 +92,9 @@ static getvalue_t _getValue(mixsrc_t i, bool* valid)
       if (g_model.cfsGroupAlwaysOn(group_idx))
         stepcount--;
 
+      // An always-on singleton has only one possible position.
+      if (stepcount == 0) return 0;
+
       int stepsize = (2 * RESX) / stepcount;
       int value = -RESX;
 
@@ -111,8 +114,11 @@ static getvalue_t _getValue(mixsrc_t i, bool* valid)
 
   else if (i == MIXSRC_TX_VOLTAGE) {
     return g_vbat100mV;
-  } else if (i < MIXSRC_FIRST_TIMER) {
-    // TX_TIME + SPARES
+  } else if (i == MIXSRC_TX_GPS) {
+    // GPS is structured data, exposed through the dedicated GPS API.
+    if (valid != nullptr) *valid = false;
+    return 0;
+  } else if (i == MIXSRC_TX_TIME) {
 #if defined(RTCLOCK)
     return (g_rtcTime % SECS_PER_DAY) / 60; // number of minutes from midnight
 #else
@@ -148,6 +154,10 @@ static getvalue_t _getValue(mixsrc_t i, bool* valid)
 
 getvalue_t getValue(mixsrc_t i, bool* valid)
 {
+  if (i < -MIXSRC_LAST_TELEM || i > MIXSRC_LAST_TELEM) {
+    if (valid) *valid = false;
+    return 0;
+  }
   bool invert = false;
   if (i < 0) {
     invert = true;

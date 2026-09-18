@@ -36,16 +36,8 @@ int8_t  checkIncDec_Ret;
 
 tmr10ms_t menuEntryTime;
 
-extern int checkIncDecSelection;
-
 INIT_STOPS(stops100, 3, -100, 0, 100)
 INIT_STOPS(stops1000, 3, -1000, 0, 1000)
-INIT_STOPS(stopsSwitch, 11, SWSRC_FIRST,
-           CATEGORY_END(-SWSRC_FIRST_TRIM),
-           CATEGORY_END(-SWSRC_LAST_SWITCH + 1), 0,
-           CATEGORY_END(SWSRC_LAST_SWITCH), CATEGORY_END(SWSRC_FIRST_TRIM - 1),
-           SWSRC_LAST)
-
 #define INC(val, min, max)  if (val<max) {val++;} else {val=min;}
 #define DEC(val, min, max)  if (val>min) {val--;} else {val=max;}
 
@@ -83,76 +75,6 @@ uint8_t menuSize(const MenuHandler * menuTab, uint8_t menuTabSize)
 uint8_t menuIdx(const MenuHandler * menuTab, uint8_t curr)
 {
   return menuSize(menuTab, curr + 1) - 1;
-}
-
-void addPopupItem(int i_min, int i_max, int rangeMin, int rangeMax, IsValueAvailable isValueAvailable, const char* menuItem)
-{
-  if (i_min <= rangeMin && i_max >= rangeMin && getFirstAvailable(rangeMin, rangeMax, isValueAvailable) != MIXSRC_NONE) {
-    POPUP_MENU_ADD_ITEM(menuItem);
-  }
-}
-
-struct popupCheckDef {
-  MixSources first;
-  MixSources last;
-  const char* title;
-};
-
-static const popupCheckDef popupChecks[] = {
-  { MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, STR_MENU_STICKS },
-  { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, STR_MENU_POTS },
-  { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, STR_MENU_SWITCHES },
-};
-
-inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
-                          unsigned int i_flags, IsValueAvailable isValueAvailable)
-{
-  if (i_flags & INCDEC_SOURCE) {
-    if (event == EVT_KEY_LONG(KEY_ENTER)) {
-      checkIncDecSelection = MIXSRC_NONE;
-
-      for (size_t i = 0; i < DIM(popupChecks); i += 1) {
-        addPopupItem(i_min, i_max, popupChecks[i].first, popupChecks[i].last, isValueAvailable, popupChecks[i].title);
-      }
-
-      if (modelTelemetryEnabled() && i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
-        for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-          TelemetrySensor * sensor = & g_model.telemetrySensors[i];
-          if (sensor->isAvailable()) {
-            POPUP_MENU_ADD_ITEM(STR_MENU_TELEMETRY);
-            break;
-          }
-        }
-      }
-      POPUP_MENU_START(onSourceLongEnterPress);
-    }
-    if (checkIncDecSelection != 0) {
-
-      newval = checkIncDecSelection;
-
-      s_editMode = EDIT_MODIFY_FIELD;
-      checkIncDecSelection = 0;
-    }
-  }
-  else if (i_flags & INCDEC_SWITCH) {
-    if (event == EVT_KEY_LONG(KEY_ENTER)) {
-      checkIncDecSelection = SWSRC_NONE;
-      if (i_min <= SWSRC_FIRST_SWITCH && i_max >= SWSRC_LAST_SWITCH)       POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
-      if (i_min <= SWSRC_FIRST_TRIM && i_max >= SWSRC_LAST_TRIM)           POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
-
-      if (isValueAvailable && isValueAvailable(SWSRC_ON))                  POPUP_MENU_ADD_ITEM(STR_MENU_OTHER);
-      if (isValueAvailable && isValueAvailable(-newval))                   POPUP_MENU_ADD_ITEM(STR_MENU_INVERT);
-      POPUP_MENU_START(onSwitchLongEnterPress);
-      s_editMode = EDIT_MODIFY_FIELD;
-    }
-    if (checkIncDecSelection != 0) {
-      newval = (checkIncDecSelection == SWSRC_INVERT ? -newval : checkIncDecSelection);
-      s_editMode = EDIT_MODIFY_FIELD;
-      checkIncDecSelection = 0;
-    }
-  }
-
-  return newval;
 }
 
 int checkBoolean(event_t event, int i_min, int i_max, int newval, int val)

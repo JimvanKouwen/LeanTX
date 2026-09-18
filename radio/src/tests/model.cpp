@@ -220,8 +220,6 @@ TEST(Model, RemovedTrimSettingsAreIgnored)
       "        value: 512\n        mode: 3\n    fadeIn: 7\n"
       "header:\n  name: Buttons\n");
   EXPECT_STREQ(modelName(), "Buttons");
-  EXPECT_EQ(0, g_model.reservedThrTrim);
-  EXPECT_EQ(0, g_model.reservedExtendedTrims);
 
   std::string yaml = saveModelYamlStr(g_model);
   for (const char* field : {"thrTrim:", "displayTrims:", "trimInc:",

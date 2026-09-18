@@ -25,9 +25,6 @@
 #include "hal/switch_driver.h"
 #include "switches.h"
 
-
-int checkIncDecSelection = 0;
-
 void repeatLastCursorMove(event_t event)
 {
   if (IS_PREVIOUS_MOVE_EVENT(event) || IS_NEXT_MOVE_EVENT(event)) {
@@ -35,39 +32,6 @@ void repeatLastCursorMove(event_t event)
   }
   else {
     menuHorizontalPosition = 0;
-  }
-}
-
-void onSwitchLongEnterPress(const char * result)
-{
-  if (result == STR_MENU_SWITCHES) {
-    checkIncDecSelection = SWSRC_FIRST_SWITCH;
-  } else if (result == STR_MENU_TRIMS) {
-    checkIncDecSelection = SWSRC_FIRST_TRIM;
-  }  else if (result == STR_MENU_OTHER) {
-    checkIncDecSelection = SWSRC_ON;
-  } else if (result == STR_MENU_INVERT) {
-    checkIncDecSelection = SWSRC_INVERT;
-  }
-}
-
-void onSourceLongEnterPress(const char * result)
-{
-
-  if (result == STR_MENU_STICKS)
-    checkIncDecSelection = MIXSRC_FIRST_STICK;
-  else if (result == STR_MENU_POTS)
-    checkIncDecSelection = MIXSRC_FIRST_POT;
-  else if (result == STR_MENU_SWITCHES)
-    checkIncDecSelection = MIXSRC_FIRST_SWITCH;
-  else if (result == STR_MENU_TELEMETRY) {
-    for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-      TelemetrySensor * sensor = & g_model.telemetrySensors[i];
-      if (sensor->isAvailable()) {
-        checkIncDecSelection = MIXSRC_FIRST_TELEM + 3*i;
-        break;
-      }
-    }
   }
 }
 

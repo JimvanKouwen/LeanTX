@@ -54,7 +54,6 @@ int switchLookupIdx(const char* name, size_t len);
 char switchGetLetter(uint8_t idx);
 
 // customizable switches supported
-const char* fsSwitchGroupGetCanonicalName(uint8_t idx);
 uint8_t getSwitchCountInFSGroup(uint8_t index);
 
 SwitchConfig switchGetMaxType(uint8_t idx);

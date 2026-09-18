@@ -142,7 +142,8 @@ void restoreEmergencySnapshot(const EmergencySnapshot &s)
 
   for (unsigned i = 0; i < NUM_MODULES; ++i) {
     g_model.moduleData[i].type = s.model.modules[i].type;
-    g_model.moduleData[i].channelsStart = s.model.modules[i].channelsStart;
+    g_model.moduleData[i].channelsStart = min<unsigned>(s.model.modules[i].channelsStart,
+        MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT);
     g_model.moduleData[i].channelsCount = s.model.modules[i].channelsCount;
     g_model.moduleData[i].antennaMode = s.model.modules[i].antennaMode;
     g_model.moduleData[i].crsf.telemetryBaudrate = s.model.modules[i].telemetryBaudrate;

@@ -35,10 +35,6 @@ void setDefaultChannelMappings()
   storageDirty(EE_MODEL);
 }
 
-void setDefaultModelRegistrationID()
-{
-}
-
 void setDefaultRSSIValues()
 {
   // Set to legacy FrSky values until
@@ -83,7 +79,6 @@ void applyDefaultTemplate()
   setDefaultChannelMappings();
   setDefaultRSSIValues();
 
-  setDefaultModelRegistrationID();
 
 #if defined(FUNCTION_SWITCHES)
   initCustomSwitches();

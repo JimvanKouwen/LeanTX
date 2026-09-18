@@ -224,7 +224,24 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
-  luaExecStr("if getSwitchIndex('T1-') == nil then error('failed') end");
+  luaExecStr("assert(getSwitchIndex('T1-') == nil)");
+}
+
+TEST(Lua, PhysicalSwitchCompatibility)
+{
+  luaExecStr("for _, name in ipairs({'ON', 'OFF', 'One', 'Tele', 'Act', 'Ltc', 'T1-', 'T1+'}) do assert(getSwitchIndex(name) == nil, name) end");
+  luaExecStr("assert(getSwitchInfo(0) == nil and getSwitchInfo(-1) == nil and getSwitchInfo(32767) == nil)");
+  for (int sw = 0; sw < switchGetMaxAllSwitches(); ++sw) {
+    if (!isSourceAvailable(MIXSRC_FIRST_SWITCH + sw)) continue;
+    char code[256];
+    char name[32];
+    getSwitchName(name, sw);
+    snprintf(code, sizeof(code),
+             "local s = getSwitchInfo(%d); assert(s and s.type == %d and s.name == '%s' and s.isCustomisableSwitch == %s)",
+             MIXSRC_FIRST_SWITCH + sw, g_model.getSwitchType(sw), name,
+             switchIsCustomSwitch(sw) ? "true" : "false");
+    luaExecStr(code);
+  }
 }
 
 TEST(Lua, testFloatIntegerEquality)
@@ -325,4 +342,25 @@ TEST(Lua, ActionConfigurationApisRemoved)
 TEST(Lua, MixerConfigurationApisRemoved)
 {
   luaExecStr("assert(model.deleteMixes == nil and model.insertMix == nil and model.getMix == nil and model.getMixesCount == nil and model.deleteMix == nil)");
+}
+
+TEST(Lua, OutputValueBounds)
+{
+  channelOutputs[0] = 321;
+  channelOutputs[MAX_OUTPUT_CHANNELS - 1] = -456;
+  luaExecStr("assert(getOutputValue(0) == 321)");
+  luaExecStr(("assert(getOutputValue(" + std::to_string(MAX_OUTPUT_CHANNELS - 1) + ") == -456)").c_str());
+  for (int id : {-65536, -32768, -1, MAX_OUTPUT_CHANNELS, 32767, 65536})
+    luaExecStr(("assert(getOutputValue(" + std::to_string(id) + ") == 0)").c_str());
+}
+
+TEST(Lua, NumericSourceBounds)
+{
+  // Lua itself rejects values outside its 32-bit integer representation.
+  luaExecStr("assert(not pcall(getValue, 4294967297))");
+  luaExecStr("assert(not pcall(getSourceValue, -4294967297))");
+  for (const char* id : {"-2147483648", "2147483647"}) {
+    luaExecStr((std::string("assert(getValue(") + id + ") == 0)").c_str());
+    luaExecStr((std::string("assert(getSourceValue(") + id + ") == nil)").c_str());
+  }
 }

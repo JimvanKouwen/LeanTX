@@ -296,13 +296,6 @@ char switchGetLetter(uint8_t idx)
   return name[strlen(name) - 1];
 }
 
-const char* fsSwitchGroupGetCanonicalName(uint8_t idx)
-{
-  static const char fsgroupname[3][4] = {"GR1", "GR2", "GR3"};
-
-  return &fsgroupname[idx][0];
-}
-
 SwitchConfig switchGetMaxType(uint8_t idx)
 {
   auto hw_type = switchGetHwType(idx);
@@ -439,18 +432,7 @@ bool getSwitch(swsrc_t swtch)
 
   uint16_t cs_idx = abs(swtch);
 
-  if (cs_idx == SWSRC_ONE) {
-    result = !controlsInitialized;
-  }
-  else if (cs_idx == SWSRC_ON) {
-    result = true;
-  }
-#if defined(DEBUG_LATENCY)
-  else if (cs_idx == SWSRC_LATENCY_TOGGLE) {
-    result = latencyToggleSwitch;
-  }
-#endif
-  else if (cs_idx <= SWSRC_LAST_SWITCH) {
+  if (cs_idx <= SWSRC_LAST_SWITCH) {
     cs_idx -= SWSRC_FIRST_SWITCH;
 #if defined(FUNCTION_SWITCHES)
     div_t qr = div(cs_idx, 3);
@@ -476,21 +458,6 @@ bool getSwitch(swsrc_t swtch)
   else if (cs_idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
     result = POT_POSITION(cs_idx - SWSRC_FIRST_MULTIPOS_SWITCH);
   }
-  else if (cs_idx <= SWSRC_LAST_TRIM) {
-    uint8_t idx = cs_idx - SWSRC_FIRST_TRIM;
-    result = trimDown(idx);
-  }
-  else if (cs_idx == SWSRC_RADIO_ACTIVITY) {
-    result = (inactivity.counter < 2);
-  }
-
-  else if (cs_idx >= SWSRC_FIRST_SENSOR && cs_idx <= SWSRC_LAST_SENSOR) {
-    result = !telemetryItems[cs_idx-SWSRC_FIRST_SENSOR].isOld();
-  }
-  else if (cs_idx == SWSRC_TELEMETRY_STREAMING) {
-    result = TELEMETRY_STREAMING();
-  }
-
   else {
     return false;
   }

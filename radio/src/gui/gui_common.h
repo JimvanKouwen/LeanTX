@@ -43,14 +43,6 @@ typedef std::function<bool(int)> IsValueAvailable;
 typedef bool (*IsValueAvailable)(int);
 #endif
 
-enum SwitchContext
-{
-  AllSwitchesContext,
-  ControlSwitchContext
-};
-
-int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
-
 bool isChannelUsed(int channel);
 int getChannelsUsed();
 bool checkSourceAvailable(int source, uint32_t sourceTypes);
@@ -59,9 +51,7 @@ bool isSourceAvailable(int source);
 enum class PhysicalInputId : uint8_t;
 bool isChannelMappingInputAvailable(int value);
 void getPhysicalInputLabel(char (&dest)[32], PhysicalInputId source);
-int timersSetupCount();
-bool isTimerSourceAvailable(int source);
-bool isSwitchAvailable(int swtch, SwitchContext context);
+bool isSwitchAvailable(int swtch);
 bool isSerialModeAvailable(uint8_t port_nr, int mode);
 bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings);
 void getPhysicalSwitchConditionLabel(char (&dest)[32], int condition);
@@ -82,7 +72,6 @@ bool isSensorUnit(int sensor, uint8_t unit);
 bool isCellsSensor(int sensor);
 bool isGPSSensor(int sensor);
 bool isAltSensor(int sensor);
-bool isVoltsSensor(int sensor);
 bool isCurrentSensor(int sensor);
 bool isTelemetryFieldAvailable(int index);
 uint8_t getTelemetrySensorsCount();
@@ -94,20 +83,12 @@ bool modelHasNotes();
 
 bool confirmModelChange();
 
-#if defined(COLORLCD)
-bool isSwitch2POSWarningStateAvailable(int state);
-#endif
-
-swsrc_t checkIncDecMovedSwitch(swsrc_t val);
-
 // TODO move this to stdlcd/draw_functions.h ?
 void drawDate(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
-void drawTelemScreenDate(coord_t x, coord_t y, source_t sensor, LcdFlags flags=0);
 void drawGPSPosition(coord_t x, coord_t y, int32_t longitude, int32_t latitude, LcdFlags flags=0);
 void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, LcdFlags flags=0);
 void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, LcdFlags flags=0);
 void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t channel, int32_t val, LcdFlags flags=0);
-void drawSourceValue(coord_t x, coord_t y, source_t channel, LcdFlags flags=0);
 
 // model_setup Defines that are used in all uis in the same way
 #define IF_INTERNAL_MODULE_ON(x)                  (IS_INTERNAL_MODULE_ENABLED() ? (uint8_t)(x) : HIDDEN_ROW)
@@ -126,9 +107,6 @@ void setAntennaModeWithConfirm(int8_t newMode, uint8_t storageId,
 
 void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
                                LcdFlags flags, uint8_t old_editMode);
-
-const char * getMultiOptionTitleStatic(uint8_t moduleIdx);
-const char *getMultiOptionTitle(uint8_t moduleIdx);
 
 void writeScreenshot();
 

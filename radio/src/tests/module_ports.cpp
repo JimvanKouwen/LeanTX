@@ -79,3 +79,36 @@ TEST(ports, isPortUsed)
   EXPECT_FALSE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
 }
 #endif
+
+TEST(ports, RfChannelWindowStaysInsideOutputs)
+{
+  MODEL_RESET();
+  auto driver = pulsesGetModuleDriver(EXTERNAL_MODULE);
+  auto savedDriver = *driver;
+  auto savedState = moduleState[EXTERNAL_MODULE];
+  int calls = 0;
+  etx_proto_driver_t probe{};
+  probe.sendPulses = [](void* context, uint8_t*, int16_t* channels, uint8_t count) {
+    ++*static_cast<int*>(context);
+    EXPECT_EQ(CROSSFIRE_CHANNELS_COUNT, count);
+    ASSERT_GE(channels, channelOutputs);
+    ASSERT_LE(channels + count, channelOutputs + MAX_OUTPUT_CHANNELS);
+    // Read the entire window as an encoder does (also checked by ASan).
+    for (unsigned i = 0; i < count; ++i)
+      EXPECT_EQ(channels - channelOutputs + i, channels[i]);
+  };
+  driver->drv = &probe;
+  driver->ctx = &calls;
+  moduleState[EXTERNAL_MODULE] = {};
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  for (int i = 0; i < MAX_OUTPUT_CHANNELS; ++i) channelOutputs[i] = i;
+  for (unsigned start = 0; start <= 255; ++start) {
+    g_model.moduleData[EXTERNAL_MODULE].channelsStart = start;
+    // A small stored count must not weaken the fixed encoder window bound.
+    g_model.moduleData[EXTERNAL_MODULE].channelsCount = -8;
+    pulsesSendNextFrame(EXTERNAL_MODULE);
+  }
+  EXPECT_EQ(256, calls);
+  *driver = savedDriver;
+  moduleState[EXTERNAL_MODULE] = savedState;
+}

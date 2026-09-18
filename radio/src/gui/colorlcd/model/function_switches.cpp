@@ -57,7 +57,7 @@ FunctionSwitchBase::FunctionSwitchBase(Window* parent, uint8_t sw) :
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 #if NARROW_LAYOUT
   offLabel = new StaticText(this, {C1_X - C1_W - PAD_TINY, C1_Y + COLLBL_YO, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
-  onLabel = new StaticText(this, {C2_X - C2_W - PAD_TINY, C2_Y + COLLBL_YO, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+  onLabel = new StaticText(this, {C2_X - C2_W - PAD_TINY, C2_Y + COLLBL_YO, C2_W, 0}, STR_OFFON[1], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
 #endif
 
   overrideLabel = new StaticText(this, {OVRLBL_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, OVRLBL_W, 0},
@@ -336,7 +336,7 @@ FunctionSwitchesBase::FunctionSwitchesBase(EdgeTxIcon icon, const char* title) :
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #if defined(FUNCTION_SWITCHES_RGB_LEDS) && !NARROW_LAYOUT
   new StaticText(box, {FunctionSwitch::C1_X + PAD_OUTLINE, 0, FunctionSwitch::C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(box, {FunctionSwitch::C2_X + PAD_OUTLINE, 0, FunctionSwitch::C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, {FunctionSwitch::C2_X + PAD_OUTLINE, 0, FunctionSwitch::C2_W, 0}, STR_OFFON[1], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #endif
 }
 

@@ -338,15 +338,11 @@ PACK(struct ModelData {
 
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
-  uint8_t   reservedThrTrim:1;
   // Retained runtime padding; it is no longer part of a storage layout contract.
   uint8_t   spareModelFlags:1;
-  uint8_t   reservedDisplayTrims:2;
   uint8_t   ignoreSensorIds:1;
-  int8_t    reservedTrimInc:3;
   uint8_t   disableThrottleWarning:1;
   uint8_t   displayChecklist:1;
-  uint8_t   reservedExtendedTrims:1;
   uint8_t   enableCustomThrottleWarning:1;
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
@@ -370,7 +366,6 @@ PACK(struct ModelData {
 
   RFAlarmData rfAlarms;
 
-  uint8_t reservedThrTrimSw:3;
   uint8_t potsWarnMode:2;
   uint8_t jitterFilter:2;
   uint8_t spare1:1;
@@ -411,9 +406,6 @@ PACK(struct ModelData {
 #endif
   uint8_t spareViewOption:2;
   // Model level tabs control (model setting)
-  uint8_t reservedModelFeature:2;
-  uint8_t reservedVariableFeature:2;
-  uint8_t reservedConditionFeature:2;
   uint8_t modelTelemetryDisabled:2;
 
   SwitchConfig getSwitchType(uint8_t n);
@@ -636,10 +628,7 @@ PACK(struct RadioData {
 #endif
 
   int16_t spareRadioViewOption:1;
-  int16_t reservedModelFeature:1;
-  int16_t reservedVariableFeature:1;
 
-  int16_t reservedConditionFeature:1;
   int16_t modelTelemetryDisabled:1;
   int16_t sparePoweroffAlarm:1;
   int16_t disablePwrOnOffHaptic:1;

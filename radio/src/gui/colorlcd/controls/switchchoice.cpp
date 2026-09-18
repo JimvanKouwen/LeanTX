@@ -32,25 +32,6 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   {
     addButton(CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH,
               nullptr, STR_MENU_SWITCHES);
-    addButton(CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, nullptr,
-              STR_MENU_TRIMS);
-    addButton(CHAR_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR,
-              nullptr, STR_MENU_TELEMETRY);
-#if defined(DEBUG_LATENCY)
-    auto lastSource = SWSRC_LATENCY_TOGGLE;
-#else
-    auto lastSource = SWSRC_RADIO_ACTIVITY;
-#endif
-    addButton(
-        CHAR_FUNCTION, SWSRC_ON, lastSource,
-        [=](int16_t index) {
-          index = abs(index);
-          return index == 0 || index == SWSRC_ON || index == SWSRC_ONE ||
-                 (index >= SWSRC_TELEMETRY_STREAMING && index <= lastSource &&
-                  !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
-        },
-        STR_MENU_OTHER);
-
     if ((nxtBtnPos > filterColumns) && choice->isValueAvailable &&
         choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);

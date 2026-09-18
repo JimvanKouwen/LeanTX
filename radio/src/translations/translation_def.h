@@ -145,7 +145,6 @@
 #define TR_VVARIOCENTER             SA2(TR_VVARIOCENTER)
 #define TR_VUNITSSYSTEM             SA2(TR_VUNITSSYSTEM)
 #define TR_GPSFORMAT                SA2(TR_GPSFORMAT)
-#define TR_ON_ONE_SWITCHES          SA2(TR_ON_ONE_SWITCHES)
 #define TR_VSENSORTYPES             SA2(TR_VSENSORTYPES)
 #define TR_TIMER_DIR                SA2(TR_TIMER_DIR)
 #define TR_SAMPLE_MODES             SA2(TR_SAMPLE_MODES)

@@ -106,14 +106,10 @@ struct CheckIncDecStops
 
 extern const CheckIncDecStops &stops100;
 extern const CheckIncDecStops &stops1000;
-extern const CheckIncDecStops &stopsSwitch;
 
 #define INIT_STOPS(var, ...)                                        \
   const int _ ## var[] = { __VA_ARGS__ };                           \
   const CheckIncDecStops &var  = (const CheckIncDecStops&)_ ## var;
-
-#define CATEGORY_END(val)                       \
-  (val), (val+1)
 
 extern int8_t checkIncDec_Ret;  // global helper vars
 
@@ -127,8 +123,6 @@ extern int8_t s_editMode; // global editmode
 // checkIncDec flags
 // we leave room for EE_MODEL and EE_GENERAL
 #define NO_INCDEC_MARKS                0x04
-#define INCDEC_SWITCH                  0x08
-#define INCDEC_SOURCE                  0x10
 #define INCDEC_REP10                   0x40
 #define NO_DBLKEYS                     0x80
 
@@ -153,46 +147,17 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
            uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax,
            vertpos_t rowcount, uint8_t flags = 0);
 
-#define INCDEC_DECLARE_VARS(f) \
-  uint16_t incdecFlag = (f);    \
-  IsValueAvailable isValueAvailable = nullptr
-
-#define INCDEC_SET_FLAG(f) incdecFlag = (f)
-
-#define INCDEC_ENABLE_CHECK(fn) isValueAvailable = fn
-
-#define CHECK_INCDEC_PARAM(event, var, min, max) \
-  checkIncDec(event, var, min, max, incdecFlag, isValueAvailable)
-
 #define CHECK_INCDEC_MODELVAR(event, var, min, max) \
   var = checkIncDecModel(event, var, min, max)
 
 #define CHECK_INCDEC_MODELVAR_ZERO(event, var, max) \
   var = checkIncDecModelZero(event, var, max)
 
-#define CHECK_INCDEC_MODELVAR_CHECK(event, var, min, max, check) \
-  var = checkIncDec(event, var, min, max, EE_MODEL, check)
-
-#define CHECK_INCDEC_MODELVAR_ZERO_CHECK(event, var, max, check) \
-  var = checkIncDec(event, var, 0, max, EE_MODEL, check)
-
-#define CHECK_INCDEC_SWITCH(event, var, min, max, flags, available) \
-  var = checkIncDec(event, var, min, max, (flags)|INCDEC_SWITCH, available)
-#define CHECK_INCDEC_MODELSWITCH(event, var, min, max, available) \
-  CHECK_INCDEC_SWITCH(event, var, min, max, EE_MODEL, available)
-
-#define CHECK_INCDEC_MODELSOURCE(event, var, min, max) \
-  var = checkIncDec(event, var, min, max, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailable)
-
 #define CHECK_INCDEC_GENVAR(event, var, min, max) \
   var = checkIncDecGen(event, var, min, max)
 
-
 void repeatLastCursorMove(event_t event);
 #define repeatLastCursorHorMove(event) repeatLastCursorMove(event)
-
-void onSwitchLongEnterPress(const char * result);
-void onSourceLongEnterPress(const char * result);
 
 void check_submenu_simple(event_t event, uint8_t rowcount);
 
