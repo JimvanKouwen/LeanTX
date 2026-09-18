@@ -236,6 +236,11 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
     zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
     errorMessage(nullptr)
 {
+  LuaRuntime::createWidget(*this, createFunctionRef, path.c_str());
+}
+
+void LuaWidget::createCallback(int createFunctionRef, const char* path)
+{
   // Push create function
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunctionRef);
   // Push stored zone for 'create' call
@@ -243,7 +248,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
   // Push stored options for 'create' call
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
   // Push widget folder path
-  lua_pushstring(lsWidgets, path.c_str());
+  lua_pushstring(lsWidgets, path);
 
   auto save = luaScriptManager;
   luaScriptManager = this;
@@ -329,6 +334,9 @@ void LuaWidget::foreground()
 }
 
 void LuaWidget::updateWithoutRefresh()
+{ LuaRuntime::updateWidget(*this); }
+
+void LuaWidget::updateCallback()
 {
   if (lsWidgets == 0 || errorMessage || luaFactory()->updateFunction == LUA_REFNIL) return;
 
@@ -479,6 +487,9 @@ void LuaWidget::luaShowError()
 const char* LuaWidget::getErrorMessage() const { return errorMessage; }
 
 void LuaWidget::refresh(BitmapBuffer* dc)
+{ LuaRuntime::refreshWidget(*this, dc); }
+
+void LuaWidget::refreshCallback(BitmapBuffer* dc)
 {
   if (lsWidgets == 0 || luaFactory()->refreshFunction == LUA_REFNIL) return;
 
@@ -539,6 +550,9 @@ void LuaWidget::refresh(BitmapBuffer* dc)
 }
 
 void LuaWidget::background()
+{ LuaRuntime::backgroundWidget(*this); }
+
+void LuaWidget::backgroundCallback()
 {
   if (lsWidgets == 0 || errorMessage) return;
 

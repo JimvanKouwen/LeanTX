@@ -24,6 +24,7 @@
 #include <cctype>
 #include <cstdio>
 #include "edgetx.h"
+#include "lua_host_api.h"
 #include "lua_api.h"
 #include "lua_states.h"
 
@@ -38,7 +39,7 @@ Refresh the LCD screen
 */
 static int luaLcdRefresh(lua_State *L)
 {
-  if (luaLcdAllowed) lcdRefresh();
+  if (luaLcdAllowed) LuaHostApi::refreshDisplay();
   return 0;
 }
 
@@ -72,7 +73,7 @@ static int luaLcdResetBacklightTimeout(lua_State * L)
 {
   if (!luaLcdAllowed)
     return 0;
-  resetBacklightTimeout();
+  LuaHostApi::resetBacklight();
   return 0;
 }
 
@@ -329,7 +330,7 @@ static int luaLcdDrawChannel(lua_State *L)
     }
   }
   unsigned int att = luaL_optunsigned(L, 4, 0);
-  getvalue_t value = getValue(channel);
+  getvalue_t value = LuaHostApi::value(channel);
   drawSensorCustomValue(x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, att);
   return 0;
 }

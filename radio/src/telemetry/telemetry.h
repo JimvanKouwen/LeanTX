@@ -196,7 +196,6 @@ typedef Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> TelemetryQueue;
 extern TelemetryQueue* luaInputTelemetryFifo;
 void registerTelemetryQueue(TelemetryQueue*);
 void deregisterTelemetryQueue(TelemetryQueue*);
-void pushTelemetryDataToQueues(uint8_t* data, int length);
 #endif
 
 // Module pulse synchronization

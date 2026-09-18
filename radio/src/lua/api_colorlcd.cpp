@@ -26,6 +26,7 @@
 #include <cmath>
 
 #include "edgetx.h"
+#include "lua_host_api.h"
 #include "widget.h"
 
 #include "lua_api.h"
@@ -85,7 +86,7 @@ static int luaLcdResetBacklightTimeout(lua_State * L)
   if (!luaLcdAllowed)
     return 0;
 
-  resetBacklightTimeout();
+  LuaHostApi::resetBacklight();
   return 0;
 }
 
@@ -422,7 +423,7 @@ static int luaLcdDrawChannel(lua_State *L)
   }
   LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
-  getvalue_t value = getValue(channel);
+  getvalue_t value = LuaHostApi::value(channel);
   luaLcdBuffer->drawSensorCustomValue(x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, flags);
 
   return 0;

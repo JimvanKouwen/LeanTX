@@ -725,12 +725,12 @@ void edgeTxClose(uint8_t shutdown)
 #if defined(LUA)
   extern void unloadLuaTools();
   unloadLuaTools();
-  luaUnregisterWidgets();
+  LuaRuntime::unregisterWidgets();
 #endif
 #endif
 
 #if defined(LUA)
-  luaClose();
+  LuaRuntime::shutdown();
 #endif
 
   sdDone();
@@ -747,10 +747,10 @@ void edgeTxResume()
   suspendI2CTasks = false;
   if (!sdMounted()) sdInit();
 
-  luaInitMainState();
+  LuaRuntime::initialize();
 #if defined(COLORLCD) && defined(LUA)
   // reload widgets
-  luaInitThemesAndWidgets();
+  LuaRuntime::initializeWidgets();
 #endif
 
   storageReadAll();
@@ -924,11 +924,11 @@ void edgeTxInit()
     logsInit();
   }
 
-  luaInitMainState();
+  LuaRuntime::initialize();
 #if defined(COLORLCD) && defined(LUA)
   if (!UNEXPECTED_SHUTDOWN()) {
     // lua widget state must be prepared before the call to storageReadAll()
-    luaInitThemesAndWidgets();
+    LuaRuntime::initializeWidgets();
   }
 #endif
 

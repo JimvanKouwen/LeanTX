@@ -496,6 +496,7 @@ void varioWakeup();
 #endif
 
 #include "lua/lua_api.h"
+#include "lua/lua_runtime.h"
 
 enum ClipboardType {
   CLIPBOARD_TYPE_NONE,

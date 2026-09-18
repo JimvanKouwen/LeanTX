@@ -139,11 +139,14 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   return buf - frame;
 }
 
-static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
-                                 uint8_t endpoint, int16_t* channels,
-                                 uint8_t nChannels)
+size_t setupPulsesCrossfire(uint8_t module, uint8_t* buffer, int16_t* channels)
 {
+  auto p_buf = buffer;
 #if defined(LUA)
+  uint8_t endpoint = 0;
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (module == EXTERNAL_MODULE) endpoint = TELEMETRY_ENDPOINT_SPORT;
+#endif
   if (outputTelemetryBuffer.destination == endpoint) {
     auto len = outputTelemetryBuffer.size;
     memcpy(p_buf, outputTelemetryBuffer.data, len);
@@ -193,6 +196,7 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
     }
   }
+  return p_buf - buffer;
 }
 
 static void crossfireSetupMixerScheduler(uint8_t module)
@@ -219,16 +223,11 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
   auto module = modulePortGetModule(mod_st);
   crossfireSetupMixerScheduler(module);
 
-  uint8_t endpoint = 0;  
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE) endpoint = TELEMETRY_ENDPOINT_SPORT;
-#endif
-  auto p_buf = buffer;
-  setupPulsesCrossfire(module, p_buf, endpoint, channels, nChannels);
+  auto size = setupPulsesCrossfire(module, buffer, channels);
 
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
-  drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
+  drv->sendBuffer(drv_ctx, buffer, size);
 }
 
 static bool _lenIsSane(uint32_t len)

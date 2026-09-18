@@ -128,7 +128,7 @@ void setModelDefaults(uint8_t id)
 #if defined(LUA) && defined(PCBTARANIS)
   if (isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {
     f_chdir(WIZARD_PATH);
-    luaExec(WIZARD_NAME);
+    LuaRuntime::execute(WIZARD_NAME);
   }
 #endif
 }

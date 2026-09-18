@@ -31,6 +31,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <vector>
 
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 
@@ -64,6 +65,42 @@ TEST(Lua, TelemetrySourceCompatibility)
   }
   telemetryStreaming = 0;
   telemetryItems[0].clear();
+}
+
+TEST(Lua, TelemetryPublicationAndReset)
+{
+  MODEL_RESET();
+  for (auto& item : telemetryItems) item.clear();
+  const bool previousAllowNewSensors = allowNewSensors;
+  allowNewSensors = true;
+  luaExecStr("assert(setTelemetryValue(0,0,0,42) == false); "
+             "assert(setTelemetryValue(0x1234,9,2,123,1,1,'Test') == true); "
+             "local s=model.getSensor(0); "
+             "assert(s.id==0x1234 and s.instance==2 and s.name=='Test' and s.prec==1); "
+             "assert(setTelemetryValue(0x1234,1,2,456,1,1,'Next') == false)");
+  EXPECT_EQ(1, g_model.telemetrySensors[0].subId);
+  EXPECT_EQ(456, telemetryItems[0].value);
+  luaExecStr("assert(model.resetSensor(0)==nil); "
+             "assert(model.getSensor(0).name=='Test'); "
+             "assert(model.getSensor(-1)==nil and model.getSensor(65535)==nil); "
+             "assert(model.resetSensor(-1)==nil)");
+  EXPECT_FALSE(telemetryItems[0].isAvailable());
+  allowNewSensors = previousAllowNewSensors;
+}
+
+TEST(Lua, SwitchWarningHostOperations)
+{
+  MODEL_RESET();
+  for (unsigned sw = 0; sw < switchGetMaxAllSwitches(); ++sw) {
+    if (!SWITCH_WARNING_ALLOWED(sw)) continue;
+    auto script = std::string("model.setSwitchWarning(") + std::to_string(sw) +
+        ",3); assert(model.getSwitchWarning(" + std::to_string(sw) + ")==3); " +
+        "assert(model.setSwitchWarning(" + std::to_string(sw) + ",4)==nil)";
+    luaExecStr(script.c_str());
+    EXPECT_EQ(3, g_model.getSwitchWarning(sw));
+  }
+  luaExecStr("assert(model.getSwitchWarning(-1)==nil); "
+             "assert(model.setSwitchWarning(-1,1)==nil)");
 }
 
 TEST(Lua, ConstantSourcesRemoved)
@@ -364,3 +401,134 @@ TEST(Lua, NumericSourceBounds)
     luaExecStr((std::string("assert(getSourceValue(") + id + ") == nil)").c_str());
   }
 }
+
+#if defined(CROSSFIRE)
+#include "pulses/crossfire.h"
+#include "telemetry/crossfire.h"
+#include "crc.h"
+
+class RawCrsfLuaTest : public ::testing::Test {
+ protected:
+  decltype(moduleState[0].protocol) oldInternal, oldExternal;
+  void SetUp() override {
+    oldInternal = moduleState[INTERNAL_MODULE].protocol;
+    oldExternal = moduleState[EXTERNAL_MODULE].protocol;
+    moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+    moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+    outputTelemetryBuffer.reset();
+  }
+  void TearDown() override {
+    outputTelemetryBuffer.reset();
+    moduleState[INTERNAL_MODULE].protocol = oldInternal;
+    moduleState[EXTERNAL_MODULE].protocol = oldExternal;
+  }
+  void checkFrame(uint8_t type, const std::vector<uint8_t>& payload,
+                  uint8_t module = INTERNAL_MODULE) {
+    std::string call = "assert(crossfireTelemetryPush(" + std::to_string(type) + ",{";
+    for (auto byte : payload) call += std::to_string(byte) + ",";
+    luaExecStr((call + "}))").c_str());
+    luaExecStr("assert(crossfireTelemetryPush() == false); "
+               "assert(crossfireTelemetryPush(0x28,{0,0xEA}) == false)");
+    uint8_t frame[TELEMETRY_OUTPUT_BUFFER_SIZE + 2];
+    memset(frame, 0xA5, sizeof(frame));
+    size_t expected = payload.size() + (type == COMMAND_ID ? 5 : 4);
+    EXPECT_EQ(module == INTERNAL_MODULE ? 0 : TELEMETRY_ENDPOINT_SPORT,
+              outputTelemetryBuffer.destination);
+    EXPECT_EQ(expected, setupPulsesCrossfire(module, frame + 1, channelOutputs));
+    EXPECT_EQ(0xA5, frame[0]);
+    EXPECT_EQ(0xA5, frame[expected + 1]);
+    auto tx = frame + 1;
+    EXPECT_EQ(MODULE_ADDRESS, tx[0]);
+    EXPECT_EQ(expected - 2, tx[1]);
+    EXPECT_EQ(type, tx[2]);
+    if (!payload.empty())
+      EXPECT_EQ(0, memcmp(tx + 3, payload.data(), payload.size()));
+    if (type == COMMAND_ID)
+      EXPECT_EQ(crc8_BA(tx + 2, payload.size() + 1), tx[expected - 2]);
+    EXPECT_EQ(crc8(tx + 2, expected - 3), tx[expected - 1]);
+    luaExecStr("assert(crossfireTelemetryPush() == true)");
+  }
+};
+
+TEST_F(RawCrsfLuaTest, AllTypesAndPayloadContentsReachTransmitter)
+{
+  for (unsigned type = 0; type <= 255; ++type)
+    checkFrame(type, {0xEA, 0, 255, 0xEF, 42});
+  checkFrame(0x16, {});
+  checkFrame(COMMAND_ID, {});
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  checkFrame(0x17, {0, 255, 123}, EXTERNAL_MODULE);
+}
+
+TEST_F(RawCrsfLuaTest, ElrsDiscoveryReadWrite)
+{
+  checkFrame(0x28, {0, 0xEA});
+  for (uint8_t origin : {0xEA, 0xEF}) {
+    checkFrame(0x2C, {0xEE, origin, 1, 0});
+    checkFrame(0x2D, {0xEE, origin, 1, 6});
+  }
+}
+
+TEST_F(RawCrsfLuaTest, FullFramesAndOversizedPayloads)
+{
+  checkFrame(0x16, std::vector<uint8_t>(TELEMETRY_OUTPUT_BUFFER_SIZE - 4, 255));
+  checkFrame(COMMAND_ID, std::vector<uint8_t>(TELEMETRY_OUTPUT_BUFFER_SIZE - 5, 255));
+  luaExecStr("for _, t in ipairs({0x16,0x32}) do "
+             "for _, n in ipairs({t == 0x32 and 60 or 61,256,4096}) do "
+             "local p={}; for i=1,n do p[i]=1 end; "
+             "assert(crossfireTelemetryPush(t,p) == false); "
+             "assert(crossfireTelemetryPush() == true) end end");
+  EXPECT_EQ(0, outputTelemetryBuffer.size);
+  // A __len metamethod cannot conceal an oversized raw table.
+  luaExecStr("local p={}; for i=1,61 do p[i]=1 end; "
+             "setmetatable(p,{__len=function() return 1 end}); "
+             "assert(crossfireTelemetryPush(0x16,p) == false)");
+}
+
+TEST_F(RawCrsfLuaTest, InvalidBytesAndCommandsNeverPublish)
+{
+  luaExecStr("for _, v in ipairs({-1,256,4294967297,1.5,'1','bad',true,{},math.huge,0/0}) do "
+             "assert(crossfireTelemetryPush(v,{}) == false); "
+             "assert(crossfireTelemetryPush(0x16,{0,255,v}) == false); "
+             "assert(crossfireTelemetryPush() == true) end; "
+             "assert(not pcall(crossfireTelemetryPush,0x16,'bad')); "
+             "assert(not pcall(crossfireTelemetryPush,0x16))");
+  EXPECT_EQ(0, outputTelemetryBuffer.size);
+}
+
+TEST_F(RawCrsfLuaTest, InactiveModuleReturnsNil)
+{
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  luaExecStr("assert(crossfireTelemetryPush() == nil); "
+             "assert(crossfireTelemetryPush(0x16,{1}) == nil)");
+}
+
+TEST(Lua, ControlConfigurationIsReadOnly)
+{
+  auto oldFilter = g_model.jitterFilter;
+  auto oldModule = g_model.moduleData[0];
+  luaExecStr("assert(model.setModule == nil and type(model.getModule) == 'function')");
+  luaExecStr("model.setInfo({jitterFilter=2})");
+  EXPECT_EQ(oldFilter, g_model.jitterFilter);
+  EXPECT_EQ(0, memcmp(&oldModule, &g_model.moduleData[0], sizeof(oldModule)));
+}
+#endif
+
+#if defined(CROSSFIRE)
+TEST(Lua, DeviceResponsesReachTheToolThroughRuntime)
+{
+  // Pop allocates the existing per-tool queue. This path is shared by the
+  // decoder and covers discovery, parameter chunks and command responses.
+  luaExecStr("while crossfireTelemetryPop() do end");
+  uint8_t discovery[] = {7, 0x29, 0xEA, 0xEE, 'T', 'X', 0};
+  LuaRuntime::receiveTelemetry(discovery, sizeof(discovery));
+  luaExecStr("local t,p=crossfireTelemetryPop(); assert(t==0x29 and #p==5 "
+             "and p[1]==0xEA and p[2]==0xEE and p[3]==84)");
+  uint8_t parameter[] = {7, 0x2B, 0xEF, 0xEE, 1, 0, 6};
+  LuaRuntime::receiveTelemetry(parameter, sizeof(parameter));
+  luaExecStr("local t,p=crossfireTelemetryPop(); assert(t==0x2B and #p==5 "
+             "and p[1]==0xEF and p[2]==0xEE and p[3]==1 and p[5]==6); "
+             "assert(crossfireTelemetryPop()==nil)");
+}
+#endif
