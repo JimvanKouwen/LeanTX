@@ -27,6 +27,7 @@
 #include "stamp.h"
 #include "lua_api.h"
 #include "lua_host_api.h"
+#include "tasks/mixer_task.h"
 #include "api_filesystem.h"
 #include "hal/module_port.h"
 #include "hal/adc_driver.h"
@@ -846,13 +847,21 @@ static TelemetryQueue* getTelemetryQueue()
     luaScriptManager->createTelemetryQueue();
     return luaScriptManager->telemetryQueue();
   } else {
-    if (!luaInputTelemetryFifo)
-      luaInputTelemetryFifo = new TelemetryQueue();
+    if (!luaInputTelemetryFifo) {
+      auto queue = new TelemetryQueue();
+      mixerTaskLock();
+      luaInputTelemetryFifo = queue;
+      mixerTaskUnlock();
+    }
     return luaInputTelemetryFifo;
   }
 #else
-  if (!luaInputTelemetryFifo)
-    luaInputTelemetryFifo = new TelemetryQueue();
+  if (!luaInputTelemetryFifo) {
+    auto queue = new TelemetryQueue();
+    mixerTaskLock();
+    luaInputTelemetryFifo = queue;
+    mixerTaskUnlock();
+  }
   return luaInputTelemetryFifo;
 #endif
 }
@@ -874,26 +883,27 @@ Pops a received Crossfire Telemetry packet from the queue.
 static int luaCrossfireTelemetryPop(lua_State * L)
 {
   auto queue = getTelemetryQueue();
-
-  if (queue) {
-    uint8_t length = 0, data = 0;
-    if (queue->probe(length) && queue->size() >= uint32_t(length)) {
-      // length value includes the length field
-      queue->pop(length);
-      queue->pop(data); // command
-      lua_pushinteger(L, data);
-      lua_newtable(L);
-      for (uint8_t i=1; i<length-1; i++) {
-        queue->pop(data);
-        lua_pushinteger(L, i);
-        lua_pushinteger(L, data);
-        lua_settable(L, -3);
-      }
-      return 2;
-    }
+  uint8_t packet[62];
+  uint8_t length = 0;
+  if (!queue || !mixerTaskTryLock()) return 0;
+  if (queue->probe(length) && (length < 2 || length > sizeof(packet))) {
+    queue->clear();
+    length = 0;
+  } else if (length && queue->size() >= length) {
+    for (unsigned i = 0; i < length; ++i) queue->pop(packet[i]);
+  } else {
+    length = 0;
   }
-
-  return 0;
+  mixerTaskUnlock();
+  // Lua allocation can longjmp, so it must never run with the RF lock held.
+  if (!length) return 0;
+  lua_pushinteger(L, packet[1]);
+  lua_newtable(L);
+  for (unsigned i = 2; i < length; ++i) {
+    lua_pushinteger(L, packet[i]);
+    lua_rawseti(L, -2, i - 1);
+  }
+  return 2;
 }
 
 /*luadoc

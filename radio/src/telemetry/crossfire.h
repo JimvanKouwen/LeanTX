@@ -111,6 +111,7 @@ enum CrossfireFrames{
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
 void crossfireSetDefault(int index, uint16_t id, uint8_t subId);
+bool crossfireTelemetryStreaming(uint8_t module);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
   115200,
@@ -143,7 +144,7 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
 };
 #if SPORT_MAX_BAUDRATE < 400000
   // index 0 (115200) is the default 0 value
-  #define CROSSFIRE_STORE_TO_INDEX(v) v
+  #define CROSSFIRE_STORE_TO_INDEX(v) ((unsigned)(v) % DIM(CROSSFIRE_BAUDRATES))
   #define CROSSFIRE_INDEX_TO_STORE(i) i
 #else
   // index 1 (400000) is the default 0 value
@@ -161,14 +162,21 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
 #define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) false
 #endif
 
+inline uint8_t crossfireBaudrateIndex(uint8_t stored, uint8_t maximum)
+{
+  unsigned index = CROSSFIRE_STORE_TO_INDEX(stored);
+  return stored < DIM(CROSSFIRE_BAUDRATES) && index <= maximum
+             ? index : CROSSFIRE_STORE_TO_INDEX(0);
+}
+
 #if defined(HARDWARE_INTERNAL_MODULE)
-#define INT_CROSSFIRE_BR_IDX   CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)
+#define INT_CROSSFIRE_BR_IDX   crossfireBaudrateIndex(g_eeGeneral.internalModuleBaudrate, CROSSFIRE_MAX_INTERNAL_BAUDRATE)
 #define INT_CROSSFIRE_BAUDRATE CROSSFIRE_BAUDRATES[INT_CROSSFIRE_BR_IDX]
 #define INT_CROSSFIRE_PERIOD   (CROSSFIRE_FRAME_PERIODS[INT_CROSSFIRE_BR_IDX] * 1000)
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-#define EXT_CROSSFIRE_BR_IDX   CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate)
+#define EXT_CROSSFIRE_BR_IDX   crossfireBaudrateIndex(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate, CROSSFIRE_MAX_EXTERNAL_BAUDRATE)
 #define EXT_CROSSFIRE_BAUDRATE CROSSFIRE_BAUDRATES[EXT_CROSSFIRE_BR_IDX]
 #define EXT_CROSSFIRE_PERIOD   (CROSSFIRE_FRAME_PERIODS[EXT_CROSSFIRE_BR_IDX] * 1000)
 #endif

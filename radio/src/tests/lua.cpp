@@ -458,3 +458,25 @@ TEST(Lua, DeviceResponsesReachTheToolThroughRuntime)
              "assert(crossfireTelemetryPop()==nil)");
 }
 #endif
+
+#if defined(LUA) && defined(CROSSFIRE)
+TEST(Lua, ClosingRuntimeCancelsDeviceRequestAndOldReplies)
+{
+  auto oldInternal = moduleState[INTERNAL_MODULE].protocol;
+  auto oldExternal = moduleState[EXTERNAL_MODULE].protocol;
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  CrsfDevice::cancel();
+  luaExecStr("while crossfireTelemetryPop() do end; "
+             "assert(crossfireTelemetryPush(0x2C,{0xEE,0xEA,1,0}))");
+  uint8_t response[] = {7, 0x2B, 0xEA, 0xEE, 1, 0, 6};
+  LuaRuntime::receiveTelemetry(response, sizeof(response));
+  LuaRuntime::shutdown();
+  uint8_t frame[64];
+  EXPECT_EQ(0u, CrsfDevice::take(INTERNAL_MODULE, frame, sizeof(frame)));
+  EXPECT_TRUE(CrsfDevice::available());
+  luaExecStr("assert(crossfireTelemetryPop()==nil)");
+  moduleState[INTERNAL_MODULE].protocol = oldInternal;
+  moduleState[EXTERNAL_MODULE].protocol = oldExternal;
+}
+#endif

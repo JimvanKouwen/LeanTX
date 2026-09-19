@@ -1,4 +1,5 @@
 #include "edgetx.h"
+#include "tasks/mixer_task.h"
 #include "lua_runtime.h"
 #include "lua_event.h"
 #include "telemetry/crsf_device.h"
@@ -11,7 +12,13 @@ namespace LuaRuntime {
 void initialize() { luaInitMainState(); }
 void shutdown() { CrsfDevice::cancel(); luaClose(); }
 bool run(bool allowLcd) { return luaTask(allowLcd); }
-void execute(const char* filename) { luaExec(filename); }
+void execute(const char* filename) {
+#if defined(COLORLCD)
+  luaExecStandalone(filename);
+#else
+  luaExec(filename);
+#endif
+}
 void receiveEvent(event_t event) { luaPushEvent(event); }
 void receiveSerial(uint8_t* data, uint32_t length) { luaReceiveData(data, length); }
 void setSerialSend(void* context, void (*send)(void*, uint8_t)) { luaSetSendCb(context, send); }
@@ -38,12 +45,16 @@ std::list<TelemetryQueue*> telemetryQueues;
 
 void registerTelemetryQueue(TelemetryQueue* queue)
 {
+  mixerTaskLock();
   telemetryQueues.emplace_back(queue);
+  mixerTaskUnlock();
 }
 
 void deregisterTelemetryQueue(TelemetryQueue* queue)
 {
+  mixerTaskLock();
   telemetryQueues.remove(queue);
+  mixerTaskUnlock();
 }
 #endif
 

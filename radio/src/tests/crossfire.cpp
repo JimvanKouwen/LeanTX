@@ -184,7 +184,7 @@ TEST_F(PhysicalControlRfTest, ArmingUsesPhysicalPositionsImmediately)
 }
 
 #if defined(FUNCTION_SWITCHES)
-TEST_F(PhysicalControlRfTest, FunctionSwitchArmingUsesConfiguredState)
+TEST_F(PhysicalControlRfTest, FunctionSwitchCannotArm)
 {
   MODEL_RESET();
   setModelDefaults();
@@ -197,11 +197,11 @@ TEST_F(PhysicalControlRfTest, FunctionSwitchArmingUsesConfiguredState)
     g_model.cfsSetType(sw, SWITCH_TOGGLE);
     for (int active : {0, 2}) {
       md.crsf.crsfArmingCondition = physicalSwitchCondition(sw, active);
-      ASSERT_TRUE(isPhysicalSwitchConditionAvailable(md.crsf.crsfArmingCondition));
+      ASSERT_FALSE(isPhysicalSwitchConditionAvailable(md.crsf.crsfArmingCondition));
       for (bool state : {false, true}) {
         g_model.cfsSetState(sw, state);
         createCrossfireChannelsFrame(EXTERNAL_MODULE, frame, pulses);
-        EXPECT_EQ(state == (active == 2), frame[25]);
+        EXPECT_EQ(0, frame[25]);
       }
     }
     EXPECT_FALSE(isPhysicalSwitchConditionAvailable(physicalSwitchCondition(sw, 1)));
@@ -536,6 +536,7 @@ TEST_F(PhysicalControlRfTest, DeviceServiceEnforcesBoundsAndRouting)
   EXPECT_FALSE(CrsfDevice::send(0x2C, payload, 60));
   EXPECT_TRUE(CrsfDevice::available());
   ASSERT_TRUE(CrsfDevice::send(0x2D, payload, 60));
+  EXPECT_FALSE(CrsfDevice::send(0x2D, payload, 4));
   uint8_t frame[64] = {};
   EXPECT_EQ(0u, CrsfDevice::take(INTERNAL_MODULE, frame, sizeof(frame)));
   EXPECT_EQ(0u, CrsfDevice::take(EXTERNAL_MODULE, frame, sizeof(frame) - 1));
@@ -589,3 +590,280 @@ TEST_F(PhysicalControlRfTest, RfCapabilityDiscoveryRejectsMalformedFrames)
   EXPECT_FALSE(RfService::active(NUM_MODULES));
   EXPECT_FALSE(RfService::capabilities(NUM_MODULES).queryCompleted);
 }
+
+#if defined(CROSSFIRE)
+#include "mixer_scheduler.h"
+#include <thread>
+#include <atomic>
+
+TEST_F(PhysicalControlRfTest, SilentDiscoveryAndResetRequestsPreserveCadence)
+{
+  MODEL_RESET();
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
+  crossfireModuleStatus[EXTERNAL_MODULE] = {};
+  int16_t channels[16] = {};
+  uint8_t frame[64];
+  int gap = 0, channelsSent = 0, pings = 0;
+  for (int slot = 0; slot < 1000; ++slot) {
+    if (slot % 17 == 0) RfService::requestModelId(EXTERNAL_MODULE);
+    setupPulsesCrossfire(EXTERNAL_MODULE, frame, channels);
+    if (frame[2] == CHANNELS_ID) { gap = 0; ++channelsSent; }
+    else { EXPECT_LE(++gap, 1); if (frame[2] == PING_DEVICES_ID) ++pings; }
+  }
+  EXPECT_GE(channelsSent, 500);
+  EXPECT_GT(pings, 0);
+}
+
+TEST_F(PhysicalControlRfTest, SyncPeriodsAlwaysBounded)
+{
+  ModuleSyncStatus sync;
+  EXPECT_FALSE(sync.isValid());
+  for (unsigned rate = 1; rate <= 65535; ++rate) {
+    for (int lag : {-32768, 0, 32767}) {
+      sync.update(rate, lag);
+      for (int n = 0; n < 3; ++n) {
+        auto period = sync.getAdjustedRefreshRate();
+        EXPECT_GE(period, MIN_REFRESH_RATE);
+        EXPECT_LE(period, MAX_REFRESH_RATE);
+      }
+    }
+  }
+}
+
+TEST_F(PhysicalControlRfTest, ConcurrentDeviceMailboxIsNeverTorn)
+{
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  CrsfDevice::cancel();
+  std::atomic<bool> done{false};
+  std::thread producer([&] {
+    uint8_t payload[60] = {MODULE_ADDRESS, RADIO_ADDRESS};
+    for (unsigned n = 0; n < 20000; ++n) {
+      memset(payload + 2, n & 255, 58);
+      CrsfDevice::send(0x2D, payload, sizeof(payload));
+      if (n % 3 == 0) CrsfDevice::cancel();
+    }
+    done.store(true);
+  });
+  std::thread canceller([&] {
+    while (!done.load()) { CrsfDevice::cancel(); std::this_thread::yield(); }
+  });
+  do {
+    uint8_t frame[64];
+    auto size = CrsfDevice::take(EXTERNAL_MODULE, frame, sizeof(frame));
+    if (size) {
+      EXPECT_EQ(64u, size);
+      EXPECT_EQ(crc8(frame + 2, 61), frame[63]);
+      for (int i = 6; i < 63; ++i) EXPECT_EQ(frame[5], frame[i]);
+    }
+  } while (!done.load());
+  producer.join();
+  canceller.join();
+  CrsfDevice::cancel();
+  EXPECT_TRUE(CrsfDevice::available());
+}
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+TEST(Crossfire, MalformedPayloadsAndEveryPartialSplit)
+{
+  crsf_frame_test ft;
+  ASSERT_NE(nullptr, ft.ctx);
+  // Every type at every legal length must be safe, including short GPS/time,
+  // sync, device-info and array frames. Check with ASan/UBSan.
+  for (unsigned type = 0; type < 256; ++type) {
+    for (unsigned length = 4; length <= 64; ++length) {
+      auto frame = new uint8_t[length]();
+      frame[0] = RADIO_ADDRESS;
+      frame[1] = length - 2;
+      frame[2] = type;
+      frame[length - 1] = crc8(frame + 2, length - 3);
+      CrossfireDriver.processFrame(ft.ctx, frame, length, ft.buffer, &ft.len);
+      EXPECT_EQ(0, ft.len);
+      delete[] frame;
+    }
+  }
+  for (unsigned split = 1; split < 64; ++split) {
+    uint8_t frame[64] = {RADIO_ADDRESS, 62, 0x7f};
+    frame[63] = crc8(frame + 2, 61);
+    CrossfireDriver.processFrame(ft.ctx, frame, split, ft.buffer, &ft.len);
+    EXPECT_EQ(split, ft.len);
+    CrossfireDriver.processFrame(ft.ctx, frame + split, 64 - split, ft.buffer, &ft.len);
+    EXPECT_EQ(0, ft.len);
+  }
+}
+#endif
+#endif
+
+#if defined(CROSSFIRE) && defined(HARDWARE_EXTERNAL_MODULE)
+TEST(Crossfire, ModuleResetResendsCurrentModelId)
+{
+  MODEL_RESET();
+  crsf_frame_test ft;
+  ASSERT_NE(nullptr, ft.ctx);
+  auto savedTime = g_tmr10ms;
+  auto savedTelemetryState = telemetryState;
+  telemetryState = TELEMETRY_OK;
+  moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
+  moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID_SENT;
+  crossfireModuleStatus[EXTERNAL_MODULE].queryCompleted = true;
+  g_model.header.modelId[EXTERNAL_MODULE] = 37;
+  int16_t channels[16] = {};
+  uint8_t tx[64];
+  uint8_t alive[] = {RADIO_ADDRESS, 2, 0x7f, 0};
+  alive[3] = crc8(alive + 2, 1);
+  for (int reset = 0; reset < 3; ++reset) {
+    g_tmr10ms += 60;
+    for (int i = 0; i < 2; ++i) setupPulsesCrossfire(EXTERNAL_MODULE, tx, channels);
+    ft.process(alive);
+    bool resent = false;
+    for (int i = 0; i < 2; ++i) {
+      auto length = setupPulsesCrossfire(EXTERNAL_MODULE, tx, channels);
+      if (tx[2] == COMMAND_ID) {
+        EXPECT_EQ(10u, length);
+        EXPECT_EQ(COMMAND_MODEL_SELECT_ID, tx[6]);
+        EXPECT_EQ(37, tx[7]);
+        EXPECT_EQ(crc8_BA(tx + 2, 6), tx[8]);
+        EXPECT_EQ(crc8(tx + 2, 7), tx[9]);
+        resent = true;
+      }
+    }
+    EXPECT_TRUE(resent);
+  }
+  g_tmr10ms = savedTime;
+  telemetryState = savedTelemetryState;
+}
+#endif
+
+#if defined(CROSSFIRE)
+TEST_F(PhysicalControlRfTest, BindWorksWithoutCapabilityResponse)
+{
+  MODEL_RESET();
+  moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID_SENT;
+  moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_BIND;
+  crossfireModuleStatus[EXTERNAL_MODULE] = {};
+  int16_t channels[16] = {};
+  uint8_t frame[64];
+  bool bound = false;
+  for (int slot = 0; slot < 4; ++slot) {
+    auto length = setupPulsesCrossfire(EXTERNAL_MODULE, frame, channels);
+    if (frame[2] == COMMAND_ID && frame[6] == SUBCOMMAND_CRSF_BIND) {
+      EXPECT_EQ(9u, length);
+      EXPECT_EQ(crc8_BA(frame + 2, 5), frame[7]);
+      EXPECT_EQ(crc8(frame + 2, 6), frame[8]);
+      bound = true;
+    }
+  }
+  EXPECT_TRUE(bound);
+  EXPECT_EQ(MODULE_MODE_NORMAL, moduleState[EXTERNAL_MODULE].mode);
+}
+#endif
+
+#if defined(CROSSFIRE)
+TEST_F(PhysicalControlRfTest, FloodWithChangingPeriodsAndBusyUartHasBoundedGap)
+{
+  MODEL_RESET();
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
+  moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID_SENT;
+  crossfireModuleStatus[EXTERNAL_MODULE].queryCompleted = true;
+  CrsfDevice::cancel();
+  uint8_t payload[60] = {MODULE_ADDRESS, RADIO_ADDRESS};
+  uint8_t frame[64];
+  int16_t channels[16] = {};
+  uint64_t now = 0, busyUntil = 0, lastChannel = 0;
+  bool sawChannel = false;
+  unsigned sent = 0;
+  // Worst wire speed, including a second module controlling the global tick.
+  for (unsigned slot = 0; slot < 20000; ++slot) {
+    now += slot % 3 == 0 ? MAX_REFRESH_RATE : MIN_REFRESH_RATE;
+    CrsfDevice::send(0x2D, payload, sizeof(payload));
+    if (now < busyUntil) continue; // same completion gate as RfService
+    auto size = setupPulsesCrossfire(EXTERNAL_MODULE, frame, channels);
+    busyUntil = now + (size * 10000000u + 115199) / 115200;
+    if (frame[2] == CHANNELS_ID) {
+      if (sawChannel) EXPECT_LE(now - lastChannel, 112000u);
+      lastChannel = now;
+      sawChannel = true;
+      ++sent;
+    }
+  }
+  EXPECT_GT(sent, 1000u);
+  CrsfDevice::cancel();
+}
+#endif
+
+#if defined(CROSSFIRE) && defined(HARDWARE_EXTERNAL_MODULE)
+TEST(Crossfire, ExpiredPartialFrameCannotConsumeNewReply)
+{
+  crsf_frame_test ft;
+  ASSERT_NE(nullptr, ft.ctx);
+  auto savedTime = g_tmr10ms;
+  uint8_t partial[] = {RADIO_ADDRESS, 62, 0x7f};
+  ft.process(partial);
+  ASSERT_EQ(3, ft.len);
+  g_tmr10ms += 11;
+  uint8_t reply[] = {RADIO_ADDRESS, 2, 0x7f, 0};
+  reply[3] = crc8(reply + 2, 1);
+  ft.process(reply);
+  EXPECT_EQ(0, ft.len);
+  EXPECT_EQ(2u, luaInputTelemetryFifo->size());
+  g_tmr10ms = savedTime;
+}
+#endif
+
+#if defined(CROSSFIRE)
+TEST(Crossfire, MalformedBaudrateUsesSupportedDefault)
+{
+  for (unsigned stored = 0; stored <= 255; ++stored) {
+    auto index = crossfireBaudrateIndex(stored, CROSSFIRE_MAX_EXTERNAL_BAUDRATE);
+    EXPECT_LT(index, DIM(CROSSFIRE_BAUDRATES));
+    EXPECT_LE(index, CROSSFIRE_MAX_EXTERNAL_BAUDRATE);
+    if (stored >= DIM(CROSSFIRE_BAUDRATES)) EXPECT_EQ(CROSSFIRE_STORE_TO_INDEX(0), index);
+  }
+}
+#endif
+
+#if defined(CROSSFIRE) && defined(HARDWARE_EXTERNAL_MODULE)
+TEST(Crossfire, EveryInitializationSelectsModelBeforeChannels)
+{
+  MODEL_RESET();
+  for (int id : {0, 37, 63}) {
+    moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID_SENT;
+    g_model.header.modelId[EXTERNAL_MODULE] = id;
+    crsf_frame_test ft;
+    ASSERT_NE(nullptr, ft.ctx);
+    int16_t channels[16] = {};
+    uint8_t tx[64];
+    EXPECT_EQ(10u, setupPulsesCrossfire(EXTERNAL_MODULE, tx, channels));
+    EXPECT_EQ(COMMAND_ID, tx[2]);
+    EXPECT_EQ(COMMAND_MODEL_SELECT_ID, tx[6]);
+    EXPECT_EQ(id, tx[7]);
+    EXPECT_EQ(27u, setupPulsesCrossfire(EXTERNAL_MODULE, tx, channels));
+    EXPECT_EQ(CHANNELS_ID, tx[2]);
+  }
+}
+#endif
+
+#if defined(CROSSFIRE)
+uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t* frame);
+TEST(Crossfire, BindDestinationUsesOnlyItsOwnLiveReceiver)
+{
+  auto savedTime = g_tmr10ms;
+  auto savedValid = telemetryData.telemetryValid;
+  telemetryData.telemetryValid = 0;
+  uint8_t link[14] = {RADIO_ADDRESS, 12, LINK_ID, 0, 0, 100};
+  processCrossfireTelemetryFrame(INTERNAL_MODULE, link, sizeof(link));
+  uint8_t frame[64];
+  createCrossfireBindFrame(EXTERNAL_MODULE, frame);
+  EXPECT_EQ(MODULE_ADDRESS, frame[3]);
+  createCrossfireBindFrame(INTERNAL_MODULE, frame);
+  EXPECT_EQ(RECEIVER_ADDRESS, frame[3]);
+  g_tmr10ms += TELEMETRY_TIMEOUT10ms;
+  createCrossfireBindFrame(INTERNAL_MODULE, frame);
+  EXPECT_EQ(MODULE_ADDRESS, frame[3]);
+  g_tmr10ms = savedTime;
+  telemetryData.telemetryValid = savedValid;
+}
+#endif

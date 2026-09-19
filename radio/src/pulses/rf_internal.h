@@ -18,6 +18,7 @@ extern ModuleState moduleState[NUM_MODULES];
 #define CROSSFIRE_FRAME_MAXLEN 64
 
 #define MODULE_BUFFER_SIZE 64
+static_assert(MODULE_BUFFER_SIZE >= CROSSFIRE_FRAME_MAXLEN, "RF TX buffer capacity");
 
 struct module_pulse_buffer {
   uint8_t _buffer[MODULE_BUFFER_SIZE];
@@ -45,7 +46,7 @@ struct ModuleSyncStatus
 
   inline bool isValid() const {
     // 2 seconds
-    return (get_tmr10ms() - lastUpdate < 200);
+    return refreshRate != 0 && (tmr10ms_t)(get_tmr10ms() - lastUpdate) < 200;
   }
 
   // Set feedback from RF module

@@ -113,3 +113,39 @@ TEST(ports, RfChannelWindowStaysInsideOutputs)
   *driver = savedDriver;
   moduleState[EXTERNAL_MODULE] = savedState;
 }
+
+TEST(ports, BusyAsyncTransmitterRetainsItsBuffer)
+{
+  MODEL_RESET();
+  auto driver = pulsesGetModuleDriver(EXTERNAL_MODULE);
+  auto savedDriver = *driver;
+  auto savedState = moduleState[EXTERNAL_MODULE];
+  struct Probe {
+    bool busy = false;
+    unsigned calls = 0;
+    uint8_t* buffer = nullptr;
+  } context;
+  etx_proto_driver_t probe{};
+  probe.txCompleted = [](void* ctx) { return !static_cast<Probe*>(ctx)->busy; };
+  probe.sendPulses = [](void* ctx, uint8_t* buffer, const int16_t*, uint8_t) {
+    auto& state = *static_cast<Probe*>(ctx);
+    ++state.calls;
+    state.buffer = buffer;
+    memset(buffer, state.calls, MODULE_BUFFER_SIZE);
+    state.busy = true;
+  };
+  driver->drv = &probe;
+  driver->ctx = &context;
+  moduleState[EXTERNAL_MODULE] = {};
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  pulsesSendNextFrame(EXTERNAL_MODULE);
+  EXPECT_EQ(1u, context.calls);
+  for (int i = 0; i < 100; ++i) pulsesSendNextFrame(EXTERNAL_MODULE);
+  EXPECT_EQ(1u, context.calls);
+  for (unsigned i = 0; i < MODULE_BUFFER_SIZE; ++i) EXPECT_EQ(1, context.buffer[i]);
+  context.busy = false;
+  pulsesSendNextFrame(EXTERNAL_MODULE);
+  EXPECT_EQ(2u, context.calls);
+  *driver = savedDriver;
+  moduleState[EXTERNAL_MODULE] = savedState;
+}

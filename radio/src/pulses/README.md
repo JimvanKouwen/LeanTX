@@ -40,3 +40,25 @@ stopping RF, and resume RF afterward. These maintenance paths are separate from
 runtime device requests; telemetry's unused legacy output buffer is not an RF
 transmit source. The serial configuration code queries port use through RF, and
 CLI power/boot-pin operations validate module indexes through RF.
+
+Safety scheduling contract: initialization sends the current model ID first.
+Thereafter every management frame (including discovery, model ID and bind)
+requires a preceding RC frame. Sync periods are clamped to
+850–50000 us; an uninitialized/expired sync uses the baud-rate default. Each
+transmit also budgets its actual UART wire time plus 100 us. The completion gate
+prevents reuse of the module buffer while DMA/IRQ TX owns it. With two modules,
+the global scheduler can tick before the other module finishes; the completion
+gate skips these ticks. At 115200 baud a maximum 64-byte frame occupies at most
+5556 us. With scheduler intervals at most 50000 us, two successful TX slots are
+bounded by 112 ms, excluding task/interrupt latency and hardware faults. A single
+module with completed TX sends RC at least every second scheduled slot (100 ms
+at the maximum configured period). These are software bounds, not measured RF
+on-air latency; verify actual UART timing and reconnect behavior on hardware.
+
+The one-frame device mailbox rejects new requests when occupied. Cancellation
+also invalidates an in-progress producer or consumer without releasing storage
+until that owner finishes. Script teardown cancels queued commands and clears
+old replies. Color queue registration/removal and Lua packet extraction share
+the RF receive lock. Extended responses follow the same internal-module-first
+selection as requests; CRSF parameter IDs/chunks remain the tool's correlation
+fields (the wire protocol has no transaction token).

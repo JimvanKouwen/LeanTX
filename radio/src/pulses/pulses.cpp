@@ -122,7 +122,10 @@ bool RfService::restartAsync(uint8_t module, uint8_t cnt_delay)
 
 void RfService::settingsChanged(uint8_t module)
 {
-  if (module < NUM_MODULES) moduleState[module].settings_updated = 1;
+  if (module >= NUM_MODULES) return;
+  mixerTaskLock();
+  moduleState[module].settings_updated = 1;
+  mixerTaskUnlock();
 }
 
 
@@ -138,8 +141,11 @@ ModuleSettingsMode RfService::mode(int moduleIndex)
 void RfService::setMode(int moduleIndex, ModuleSettingsMode mode)
 {
   if (moduleIndex >= 0 && moduleIndex < NUM_MODULES &&
-      (mode == MODULE_MODE_NORMAL || mode == MODULE_MODE_BIND))
+      (mode == MODULE_MODE_NORMAL || mode == MODULE_MODE_BIND)) {
+    mixerTaskLock();
     moduleState[moduleIndex].mode = mode;
+    mixerTaskUnlock();
+  }
 }
 
 uint8_t getModuleType(uint8_t module)
@@ -254,15 +260,12 @@ void RfService::stopModule(uint8_t module)
 {
   if (module >= MAX_MODULES) return;
 
-  while(_telemetryIsPolling) {
-    // In case the telemetry timer is currently polling the port,
-    // we give the timer task a chance to run and finish the polling.
-    sleep_ms(1);
-  }
+  mixerTaskLock();
   _deinit_module(module);
 
   auto& proto = moduleState[module].protocol;
   proto = PROTOCOL_CHANNELS_NONE;
+  mixerTaskUnlock();
 }
 
 static bool _handle_async_restart(uint8_t module)
@@ -300,7 +303,9 @@ void pulsesSendNextFrame(uint8_t module)
       return;
 
     pulsesEnableModule(module, protocol);
-    moduleState[module].protocol = protocol;
+    moduleState[module].protocol =
+        _module_drivers[module].drv || protocol == PROTOCOL_CHANNELS_NONE
+            ? protocol : PROTOCOL_CHANNELS_UNINITIALIZED;
     return;
   }
 
@@ -425,7 +430,7 @@ void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
     return;
 
   if (newRefreshRate < MIN_REFRESH_RATE)
-    newRefreshRate = newRefreshRate * (MIN_REFRESH_RATE / (newRefreshRate + 1));
+    newRefreshRate = MIN_REFRESH_RATE;
   else if (newRefreshRate > MAX_REFRESH_RATE)
     newRefreshRate = MAX_REFRESH_RATE;
 
@@ -498,13 +503,16 @@ bool RfService::active(uint8_t module)
 
 void RfService::requestModelId(uint8_t module)
 {
-  if (module < NUM_MODULES) moduleState[module].counter = CRSF_FRAME_MODELID;
+  if (module >= NUM_MODULES) return;
+  mixerTaskLock();
+  moduleState[module].counter = CRSF_FRAME_MODELID;
+  mixerTaskUnlock();
 }
 
 void RfService::beginDiscovery(uint8_t module)
 {
   if (module < NUM_MODULES && moduleState[module].counter != CRSF_FRAME_MODELID_SENT)
-    requestModelId(module);
+    moduleState[module].counter = CRSF_FRAME_MODELID;
 }
 
 CrossfireModuleStatus RfService::capabilities(uint8_t module)
@@ -528,7 +536,7 @@ void RfService::receiveDeviceInfo(uint8_t module, const uint8_t* frame, size_t l
 {
   // Extended device info: destination, origin, terminated name, 12 bytes of
   // serial/hardware/software version, parameter count and parameter version.
-  if (module >= NUM_MODULES || !frame || length < 21 ||
+  if (module >= NUM_MODULES || !frame || length < 21 || length > CROSSFIRE_FRAME_MAXLEN ||
       frame[1] + 2u != length || frame[2] != DEVICE_INFO_ID ||
       frame[4] != MODULE_ADDRESS) return;
   size_t nameEnd = 5;

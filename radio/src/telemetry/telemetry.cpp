@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "tasks/mixer_task.h"
 #include "os/async.h"
 #include "os/timer.h"
 #include "mixer_scheduler.h"
@@ -118,7 +119,7 @@ void telemetryStart()
 
 void telemetryStop()
 {
-  if (!timer_is_created(&telemetryTimer)) {
+  if (timer_is_created(&telemetryTimer)) {
     timer_stop(&telemetryTimer);
   }
 }
@@ -127,15 +128,16 @@ static volatile bool _poll_frame_queued[NUM_MODULES] = {false};
 
 static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 {
+  auto module = (uint8_t)ulParameter2;
+  _poll_frame_queued[module] = false;
+  if (!mixerTaskTryLock()) return;
   _telemetryIsPolling = true;
 
   auto drv = (const etx_proto_driver_t*)pvParameter1;
-  auto module = (uint8_t)ulParameter2;
-  _poll_frame_queued[module] = false;
-
   RfService::pollFrame(module, drv);
 
   _telemetryIsPolling = false;
+  mixerTaskUnlock();
 }
 
 void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)

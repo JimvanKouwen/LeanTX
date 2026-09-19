@@ -133,11 +133,12 @@ template <int N>
 bool getCrossfireTelemetryValue(uint8_t index, int32_t& value,
                                 uint8_t* rxBuffer)
 {
+  if (index + N > rxBuffer[1] + 1) { value = 0; return false; }
   bool result = false;
   uint8_t * byte = &rxBuffer[index];
   value = (*byte & 0x80) ? -1 : 0;
   for (uint8_t i=0; i<N; i++) {
-    value <<= 8;
+    value = (uint32_t)value << 8;
     if (*byte != 0xff) {
       result = true;
     }
@@ -146,9 +147,19 @@ bool getCrossfireTelemetryValue(uint8_t index, int32_t& value,
   return result;
 }
 
+static tmr10ms_t lastReceiverLink[NUM_MODULES];
+
+bool crossfireTelemetryStreaming(uint8_t module)
+{
+  return module < NUM_MODULES && (telemetryData.telemetryValid & (1u << module)) &&
+      (tmr10ms_t)(get_tmr10ms() - lastReceiverLink[module]) < TELEMETRY_TIMEOUT10ms;
+}
+
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount)
 {
+  if (!rxBuffer || module >= NUM_MODULES || rxBufferCount < 4 ||
+      rxBufferCount > 64 || rxBuffer[1] + 2u != rxBufferCount) return;
   if (telemetryState == TELEMETRY_INIT) RfService::beginDiscovery(module);
 
   uint8_t crsfPayloadLen = rxBuffer[1];
@@ -177,6 +188,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
     case GPS_TIME_ID:
     {
+      if (crsfPayloadLen < 12) break;
       // Payload: year (2B BE), month, day, hour, min, sec, millisecond (2B BE)
       const CrossfireSensor & sensor = crossfireSensors[GPS_TIME_INDEX];
       if (!getCrossfireTelemetryValue<2>(3, value, rxBuffer))
@@ -245,7 +257,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     {
       getCrossfireTelemetryValue<1>(3, value, rxBuffer);
       uint8_t sensorID = value;
-      for(uint8_t i = 0; i * 3 < (crsfPayloadLen - 4);  i++) {
+      for(uint8_t i = 0; (i + 1) * 3 <= (crsfPayloadLen - 3);  i++) {
         getCrossfireTelemetryValue<3>(4 + i * 3, value, rxBuffer);
         const CrossfireSensor & sensor = crossfireSensors[CF_RPM_INDEX];
         setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
@@ -258,7 +270,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     {
       getCrossfireTelemetryValue<1>(3, value, rxBuffer);
       uint8_t sensorID = value;
-      for(uint8_t i = 0; i * 2 < (crsfPayloadLen - 4);  i++) {
+      for(uint8_t i = 0; (i + 1) * 2 <= (crsfPayloadLen - 3);  i++) {
         getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
         const CrossfireSensor & sensor = crossfireSensors[TEMP_INDEX];
         setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
@@ -275,7 +287,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       if (sensorID < 128) {
         // Treating frame as Cells sensor
         // We can handle only up to 8 cells
-        for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 4);  i++) {
+        for(uint8_t i = 0; (i + 1) * 2 <= min(16, crsfPayloadLen - 3);  i++) {
           getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
           const CrossfireSensor & sensor = crossfireSensors[CELLS_INDEX];
           setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, 0,
@@ -283,7 +295,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         }
       } else {
         // Treating frame as Voltage sensor array
-        for(uint8_t i = 0; i * 2 < (crsfPayloadLen - 4);  i++) {
+        for(uint8_t i = 0; (i + 1) * 2 <= (crsfPayloadLen - 3);  i++) {
           value = (rxBuffer[4 + i * 2] << 8) + rxBuffer[4 + i * 2 + 1];
           const CrossfireSensor & sensor = crossfireSensors[VOLT_ARRAY_INDEX];
           setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
@@ -308,6 +320,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
           processCrossfireTelemetryValue(i, value);
           if (i == RX_QUALITY_INDEX) {
             if (value) {
+              lastReceiverLink[module] = get_tmr10ms();
               telemetryData.rssi.set(value);
               telemetryStreaming = TELEMETRY_TIMEOUT10ms;
               telemetryData.telemetryValid |= 1 << module;
@@ -363,15 +376,16 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     case FLIGHT_MODE_ID:
     {
       const CrossfireSensor & sensor = crossfireSensors[FLIGHT_MODE_INDEX];
-      auto textLength = min<int>(16, rxBuffer[1]);
-      rxBuffer[textLength] = '\0';
-      setTelemetryText(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensor.subId,
-                       (const char *)rxBuffer + 3);
+      char text[17];
+      auto textLength = min<int>(16, crsfPayloadLen - 2);
+      memcpy(text, rxBuffer + 3, textLength);
+      text[textLength] = '\0';
+      setTelemetryText(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensor.subId, text);
       break;
     }
 
     case RADIO_ID:
-      if (rxBuffer[3] == 0xEA     // radio address
+      if (crsfPayloadLen >= 13 && rxBuffer[3] == 0xEA     // radio address
           && rxBuffer[5] == 0x10  // timing correction frame
       ) {
         uint32_t update_interval;
@@ -384,7 +398,8 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
           offset /= 10;
 
           //TRACE("[XF] Rate: %d, Lag: %d", update_interval, offset);
-          RfService::updateSync(module, update_interval, offset);
+          RfService::updateSync(module, min<uint32_t>(update_interval, 50000),
+                                limit<int32_t>(-32768, offset, 32767));
         }
       }
       break;
@@ -392,6 +407,8 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     default:
       if (id == DEVICE_INFO_ID) RfService::receiveDeviceInfo(module, rxBuffer, rxBufferCount);
 #if defined(LUA)
+      // The device API selects internal CRSF first; never mix other-module replies.
+      if (RfService::active(INTERNAL_MODULE) && module != INTERNAL_MODULE) break;
       // destination address and CRC are skipped
       LuaRuntime::receiveTelemetry(rxBuffer + 1, rxBufferCount - 2);
 #endif

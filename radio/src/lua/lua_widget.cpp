@@ -20,6 +20,7 @@
  */
 
 #include "lua_widget.h"
+#include "telemetry/crsf_device.h"
 
 #include "lua_api.h"
 #include "lua_event.h"
@@ -630,6 +631,7 @@ void LuaScriptManager::createTelemetryQueue()
 
 LuaScriptManager::~LuaScriptManager()
 {
+  CrsfDevice::cancel();
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   if (luaInputTelemetryFifo != nullptr) {
     deregisterTelemetryQueue(luaInputTelemetryFifo);

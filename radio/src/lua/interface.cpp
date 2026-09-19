@@ -30,6 +30,8 @@
 
 #include "lua_api.h"
 #include "lua_event.h"
+#include "telemetry/crsf_device.h"
+#include "tasks/mixer_task.h"
 
 #include "sdcard.h"
 #include "api_filesystem.h"
@@ -172,8 +174,17 @@ void luaClose(lua_State ** L)
   }
 }
 
+static void cancelLuaDeviceTraffic()
+{
+  CrsfDevice::cancel();
+  mixerTaskLock();
+  if (luaInputTelemetryFifo) luaInputTelemetryFifo->clear();
+  mixerTaskUnlock();
+}
+
 void luaClose()
 {
+  cancelLuaDeviceTraffic();
 #if defined(COLORLCD)
   luaClose(&lsWidgets);
 #endif
@@ -234,6 +245,7 @@ void luaDoGc(lua_State * L, bool full)
 
 void luaFree(lua_State * L, ScriptInternalData & sid)
 {
+  cancelLuaDeviceTraffic();
   PROTECT_LUA() {
     luaL_unref(L, LUA_REGISTRYINDEX, sid.run);
     sid.run = LUA_REFNIL;

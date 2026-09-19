@@ -138,7 +138,7 @@ bool isPhysicalSwitchConditionAvailable(int condition)
   if (!isPhysicalInputAvailable(physicalSwitch(index))) return false;
   if (switchIsFlex(index) && !switchIsFlexValid(index)) return false;
 #if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(index)) return position != 1;
+  if (switchIsCustomSwitch(index)) return false;
 #endif
   return position != 1 || g_model.getSwitchType(index) == SWITCH_3POS;
 }
