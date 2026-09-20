@@ -846,11 +846,13 @@ static TelemetryQueue* getTelemetryQueue()
     luaScriptManager->createTelemetryQueue();
     return luaScriptManager->telemetryQueue();
   } else {
+    LuaTelemetryLock lock;
     if (!luaInputTelemetryFifo)
       luaInputTelemetryFifo = new TelemetryQueue();
     return luaInputTelemetryFifo;
   }
 #else
+  LuaTelemetryLock lock;
   if (!luaInputTelemetryFifo)
     luaInputTelemetryFifo = new TelemetryQueue();
   return luaInputTelemetryFifo;
@@ -875,23 +877,23 @@ static int luaCrossfireTelemetryPop(lua_State * L)
 {
   auto queue = getTelemetryQueue();
 
-  if (queue) {
-    uint8_t length = 0, data = 0;
-    if (queue->probe(length) && queue->size() >= uint32_t(length)) {
-      // length value includes the length field
-      queue->pop(length);
-      queue->pop(data); // command
-      lua_pushinteger(L, data);
-      lua_newtable(L);
-      for (uint8_t i=1; i<length-1; i++) {
-        queue->pop(data);
-        lua_pushinteger(L, i);
-        lua_pushinteger(L, data);
-        lua_settable(L, -3);
-      }
-      return 2;
-    }
+  uint8_t packet[64];
+  uint8_t length = 0;
+  {
+    LuaTelemetryLock lock;
+    if (!queue || !queue->probe(length)) return 0;
+    if (length < 2 || length > sizeof(packet)) { queue->clear(); return 0; }
+    if (queue->size() < length) return 0;
+    for (unsigned i = 0; i < length; ++i) queue->pop(packet[i]);
   }
+  lua_pushinteger(L, packet[1]);
+  lua_newtable(L);
+  for (unsigned i = 2; i < length; ++i) {
+    lua_pushinteger(L, i - 1);
+    lua_pushinteger(L, packet[i]);
+    lua_settable(L, -3);
+  }
+  return 2;
 
   return 0;
 }

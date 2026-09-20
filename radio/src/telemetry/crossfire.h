@@ -155,6 +155,14 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
         % DIM(CROSSFIRE_BAUDRATES)
 #endif
 
+inline unsigned crsfBaudIndex(unsigned stored, unsigned maximum)
+{
+  const unsigned fallback = CROSSFIRE_STORE_TO_INDEX(0);
+  if (stored >= sizeof(CROSSFIRE_BAUDRATES) / sizeof(CROSSFIRE_BAUDRATES[0])) return fallback;
+  unsigned index = CROSSFIRE_STORE_TO_INDEX(stored);
+  return index <= maximum ? index : fallback;
+}
+
 #if defined(CROSSFIRE)
 #define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) RfService::elrsVersionAtLeast(moduleIdx, maj, min)
 #else
@@ -162,13 +170,13 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-#define INT_CROSSFIRE_BR_IDX   CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)
+#define INT_CROSSFIRE_BR_IDX   crsfBaudIndex(g_eeGeneral.internalModuleBaudrate, CROSSFIRE_MAX_INTERNAL_BAUDRATE)
 #define INT_CROSSFIRE_BAUDRATE CROSSFIRE_BAUDRATES[INT_CROSSFIRE_BR_IDX]
 #define INT_CROSSFIRE_PERIOD   (CROSSFIRE_FRAME_PERIODS[INT_CROSSFIRE_BR_IDX] * 1000)
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-#define EXT_CROSSFIRE_BR_IDX   CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate)
+#define EXT_CROSSFIRE_BR_IDX   crsfBaudIndex(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate, CROSSFIRE_MAX_EXTERNAL_BAUDRATE)
 #define EXT_CROSSFIRE_BAUDRATE CROSSFIRE_BAUDRATES[EXT_CROSSFIRE_BR_IDX]
 #define EXT_CROSSFIRE_PERIOD   (CROSSFIRE_FRAME_PERIODS[EXT_CROSSFIRE_BR_IDX] * 1000)
 #endif

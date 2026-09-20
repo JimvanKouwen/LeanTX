@@ -89,6 +89,7 @@ TEST(ports, RfChannelWindowStaysInsideOutputs)
   auto savedState = moduleState[EXTERNAL_MODULE];
   int calls = 0;
   etx_proto_driver_t probe{};
+  probe.txCompleted = [](void*) { return true; };
   probe.sendPulses = [](void* context, uint8_t*, const int16_t* channels, uint8_t count) {
     ++*static_cast<int*>(context);
     EXPECT_EQ(CROSSFIRE_CHANNELS_COUNT, count);
@@ -110,6 +111,88 @@ TEST(ports, RfChannelWindowStaysInsideOutputs)
     pulsesSendNextFrame(EXTERNAL_MODULE);
   }
   EXPECT_EQ(256, calls);
+  *driver = savedDriver;
+  moduleState[EXTERNAL_MODULE] = savedState;
+}
+
+#include <atomic>
+#include <thread>
+#include <future>
+#include <chrono>
+
+TEST(ports, BusyTxPreservesOwnedBuffer)
+{
+  MODEL_RESET();
+  auto driver = pulsesGetModuleDriver(EXTERNAL_MODULE);
+  auto savedDriver = *driver;
+  auto savedState = moduleState[EXTERNAL_MODULE];
+  struct Probe { bool busy = false; uint8_t* owned = nullptr; unsigned calls = 0; } state;
+  etx_proto_driver_t probe{};
+  probe.txCompleted = [](void* ctx) { return !static_cast<Probe*>(ctx)->busy; };
+  probe.sendPulses = [](void* ctx, uint8_t* buffer, const int16_t*, uint8_t) {
+    auto& p = *static_cast<Probe*>(ctx);
+    ++p.calls;
+    memset(buffer, p.calls, 64);
+    p.owned = buffer;
+    p.busy = true;
+  };
+  *driver = {&probe, &state};
+  moduleState[EXTERNAL_MODULE] = {};
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  pulsesSendNextFrame(EXTERNAL_MODULE);
+  ASSERT_NE(nullptr, state.owned);
+  for (unsigned slot = 0; slot < 1000; ++slot) pulsesSendNextFrame(EXTERNAL_MODULE);
+  EXPECT_EQ(1u, state.calls);
+  for (unsigned i = 0; i < 64; ++i) EXPECT_EQ(1, state.owned[i]);
+  state.busy = false;
+  pulsesSendNextFrame(EXTERNAL_MODULE);
+  EXPECT_EQ(2u, state.calls);
+  *driver = savedDriver;
+  moduleState[EXTERNAL_MODULE] = savedState;
+}
+
+TEST(ports, TelemetrySnapshotAndLuaContentionDoNotBlockTx)
+{
+  MODEL_RESET();
+  auto driver = pulsesGetModuleDriver(EXTERNAL_MODULE);
+  auto savedDriver = *driver;
+  auto savedState = moduleState[EXTERNAL_MODULE];
+  auto port = modulePortGetState(EXTERNAL_MODULE);
+  auto savedPort = *port;
+  struct Probe { std::atomic<bool> entered{false}, release{false}; std::atomic<unsigned> sends{0}; } state;
+  etx_serial_driver_t serial{};
+  serial.copyRxBuffer = [](void* ctx, uint8_t*, uint32_t) {
+    auto& p = *static_cast<Probe*>(ctx);
+    p.entered = true;
+    while (!p.release) std::this_thread::yield();
+    return 0;
+  };
+  etx_module_port_t definition{};
+  definition.drv.serial = &serial;
+  port->rx = {&definition, &state};
+  port->user_data = &state;
+  etx_proto_driver_t probe{};
+  probe.txCompleted = [](void*) { return true; };
+  probe.sendPulses = [](void* ctx, uint8_t*, const int16_t*, uint8_t) {
+    ++static_cast<Probe*>(static_cast<etx_module_state_t*>(ctx)->user_data)->sends;
+  };
+  *driver = {&probe, port};
+  moduleState[EXTERNAL_MODULE] = {};
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  std::thread telemetry([&] {
+    LuaTelemetryLock luaLock;
+    RfService::pollFrame(EXTERNAL_MODULE, &probe);
+  });
+  while (!state.entered) std::this_thread::yield();
+  auto realtime = std::async(std::launch::async, [&] {
+    for (unsigned i = 0; i < 1000; ++i) pulsesSendNextFrame(EXTERNAL_MODULE);
+  });
+  EXPECT_EQ(std::future_status::ready, realtime.wait_for(std::chrono::seconds(1)));
+  state.release = true;
+  telemetry.join();
+  realtime.get();
+  EXPECT_EQ(1000u, state.sends.load());
+  *port = savedPort;
   *driver = savedDriver;
   moduleState[EXTERNAL_MODULE] = savedState;
 }

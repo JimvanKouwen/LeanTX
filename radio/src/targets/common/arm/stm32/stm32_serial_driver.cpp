@@ -368,7 +368,7 @@ extern uint32_t _e_dram;
 static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t size)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !data || !size) return;
 
   // try TX DMA first
   auto sp = st->sp;
@@ -380,6 +380,7 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
 
   // no internal buffer: send one buffer at a time
   if (!sp->tx_buffer.length) {
+    if (!stm32_usart_tx_completed(usart)) return;
     st->u.tx_buf.buf = data;
     st->u.tx_buf.len = size;
     st->callbacks.on_send = _on_send_single_buffer;

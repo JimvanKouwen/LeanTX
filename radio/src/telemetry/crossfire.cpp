@@ -133,22 +133,28 @@ template <int N>
 bool getCrossfireTelemetryValue(uint8_t index, int32_t& value,
                                 uint8_t* rxBuffer)
 {
+  value = 0;
+  if (unsigned(index) + N > unsigned(rxBuffer[1]) + 1) return false;
   bool result = false;
   uint8_t * byte = &rxBuffer[index];
-  value = (*byte & 0x80) ? -1 : 0;
+  uint32_t raw = (*byte & 0x80) ? UINT32_MAX : 0;
   for (uint8_t i=0; i<N; i++) {
-    value <<= 8;
+    raw <<= 8;
     if (*byte != 0xff) {
       result = true;
     }
-    value += *byte++;
+    raw += *byte++;
   }
+  value = int32_t(raw);
   return result;
 }
 
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount)
 {
+  if (module >= NUM_MODULES || !rxBuffer || rxBufferCount < 4 || rxBufferCount > 64 ||
+      rxBuffer[1] + 2u != rxBufferCount ||
+      (rxBuffer[0] != RADIO_ADDRESS && rxBuffer[0] != UART_SYNC)) return;
   if (telemetryState == TELEMETRY_INIT) RfService::beginDiscovery(module);
 
   uint8_t crsfPayloadLen = rxBuffer[1];
@@ -177,6 +183,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
     case GPS_TIME_ID:
     {
+      if (rxBufferCount < 13) break;
       // Payload: year (2B BE), month, day, hour, min, sec, millisecond (2B BE)
       const CrossfireSensor & sensor = crossfireSensors[GPS_TIME_INDEX];
       if (!getCrossfireTelemetryValue<2>(3, value, rxBuffer))
@@ -243,9 +250,10 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
     case CF_RPM_ID:
     {
+      if (rxBufferCount < 5) break;
       getCrossfireTelemetryValue<1>(3, value, rxBuffer);
       uint8_t sensorID = value;
-      for(uint8_t i = 0; i * 3 < (crsfPayloadLen - 4);  i++) {
+      for(uint8_t i = 0; (i + 1) * 3 <= (crsfPayloadLen - 3);  i++) {
         getCrossfireTelemetryValue<3>(4 + i * 3, value, rxBuffer);
         const CrossfireSensor & sensor = crossfireSensors[CF_RPM_INDEX];
         setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
@@ -256,9 +264,10 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
     case TEMP_ID:
     {
+      if (rxBufferCount < 5) break;
       getCrossfireTelemetryValue<1>(3, value, rxBuffer);
       uint8_t sensorID = value;
-      for(uint8_t i = 0; i * 2 < (crsfPayloadLen - 4);  i++) {
+      for(uint8_t i = 0; (i + 1) * 2 <= (crsfPayloadLen - 3);  i++) {
         getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
         const CrossfireSensor & sensor = crossfireSensors[TEMP_INDEX];
         setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
@@ -269,13 +278,14 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
     case CELLS_ID:
     {
+      if (rxBufferCount < 5) break;
       getCrossfireTelemetryValue<1>(3, value, rxBuffer);
       uint8_t sensorID = value;
 
       if (sensorID < 128) {
         // Treating frame as Cells sensor
         // We can handle only up to 8 cells
-        for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 4);  i++) {
+        for(uint8_t i = 0; (i + 1) * 2 <= min(16, crsfPayloadLen - 3);  i++) {
           getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
           const CrossfireSensor & sensor = crossfireSensors[CELLS_INDEX];
           setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, 0,
@@ -283,7 +293,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         }
       } else {
         // Treating frame as Voltage sensor array
-        for(uint8_t i = 0; i * 2 < (crsfPayloadLen - 4);  i++) {
+        for(uint8_t i = 0; (i + 1) * 2 <= (crsfPayloadLen - 3);  i++) {
           value = (rxBuffer[4 + i * 2] << 8) + rxBuffer[4 + i * 2 + 1];
           const CrossfireSensor & sensor = crossfireSensors[VOLT_ARRAY_INDEX];
           setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
@@ -363,15 +373,17 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     case FLIGHT_MODE_ID:
     {
       const CrossfireSensor & sensor = crossfireSensors[FLIGHT_MODE_INDEX];
-      auto textLength = min<int>(16, rxBuffer[1]);
-      rxBuffer[textLength] = '\0';
+      char text[17];
+      auto textLength = min<unsigned>(16, rxBufferCount - 4);
+      memcpy(text, rxBuffer + 3, textLength);
+      text[textLength] = '\0';
       setTelemetryText(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensor.subId,
-                       (const char *)rxBuffer + 3);
+                       text);
       break;
     }
 
     case RADIO_ID:
-      if (rxBuffer[3] == 0xEA     // radio address
+      if (rxBufferCount >= 16 && rxBuffer[3] == 0xEA     // radio address
           && rxBuffer[5] == 0x10  // timing correction frame
       ) {
         uint32_t update_interval;
@@ -384,7 +396,8 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
           offset /= 10;
 
           //TRACE("[XF] Rate: %d, Lag: %d", update_interval, offset);
-          RfService::updateSync(module, update_interval, offset);
+          RfService::updateSync(module, min<uint32_t>(update_interval, UINT16_MAX),
+                                limit<int32_t>(INT16_MIN, offset, INT16_MAX));
         }
       }
       break;

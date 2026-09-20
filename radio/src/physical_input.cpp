@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include <atomic>
 #include "physical_input.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
@@ -65,6 +66,15 @@ int16_t readPhysicalInput(PhysicalInputId source)
       return _switch_3pos_lookup[switchGetPosition(sw_idx)];
     }
   }
+}
+
+static std::atomic<uint16_t> pendingCenterSounds{0};
+
+void processPhysicalInputSounds()
+{
+  auto pending = pendingCenterSounds.exchange(0, std::memory_order_relaxed);
+  for (unsigned i = 0; i < 16; ++i)
+    if (pending & (1u << i)) AUDIO_POT_MIDDLE(i);
 }
 
 BeepANACenter bpanaCenter = 0;
@@ -115,7 +125,7 @@ void evalAnalogControls(bool beep)
         if ((g_model.beepANACenter & mask) && !(bpanaCenter & mask) &&
             controlsInitialized && !menuCalibrationState) {
           if (i < pots_offset || IS_POT_SLIDER_AVAILABLE(i - pots_offset)) {
-            AUDIO_POT_MIDDLE(i);
+            pendingCenterSounds.fetch_or(uint16_t(1u << i), std::memory_order_relaxed);
           }
         }
       }
@@ -138,7 +148,7 @@ bool isPhysicalSwitchConditionAvailable(int condition)
   if (!isPhysicalInputAvailable(physicalSwitch(index))) return false;
   if (switchIsFlex(index) && !switchIsFlexValid(index)) return false;
 #if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(index)) return position != 1;
+  if (switchIsCustomSwitch(index)) return false;
 #endif
   return position != 1 || g_model.getSwitchType(index) == SWITCH_3POS;
 }

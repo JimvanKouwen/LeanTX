@@ -20,6 +20,7 @@
  */
 
 #include "tasks.h"
+#include <atomic>
 #include "mixer_task.h"
 #include "mixer_scheduler.h"
 
@@ -52,7 +53,7 @@ static bool _mixer_initialized = false;
 // and start working properly once
 // mixerTaskStart() has been called.
 static bool _mixer_started = false;
-static bool _mixer_running = false;
+static std::atomic<bool> _mixer_running{false};
 
 void mixerTaskLock()
 {
@@ -132,27 +133,12 @@ bool isForcePowerOffRequested()
 constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;
 constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 
-void execMixerFrequentActions()
-{
-#if defined(IMU)
-  gyroWakeup();
-#endif
-
-#if defined(BLUETOOTH)
-  bluetooth.wakeup();
-#endif
-}
-
 void mixerTask()
 {
   while (task_running()) {
 
     int timeout = 0;
     for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
-
-      // run periodicals before waiting for the trigger
-      // to keep the delay short
-      execMixerFrequentActions();
 
       // mixer flag triggered?
       if (!mixerSchedulerWaitForTrigger(MIXER_FREQUENT_ACTIONS_PERIOD)) {
@@ -186,10 +172,11 @@ void mixerTask()
 
       DEBUG_TIMER_START(debugTimerMixer);
       mixerTaskLock();
+      if (!_mixer_running) { mixerTaskUnlock(); continue; }
 
       doMixerCalculations();
       RfService::sendChannels();
-      doMixerPeriodicUpdates();
+      controlsInitialized = true;
 
       // TODO: what are these for???
       DEBUG_TIMER_START(debugTimerMixerCalcToUsage);
@@ -233,10 +220,6 @@ void doMixerCalculations()
   DEBUG_TIMER_START(debugTimerGetAdc);
   getADC();
   DEBUG_TIMER_STOP(debugTimerGetAdc);
-
-  DEBUG_TIMER_START(debugTimerGetSwitches);
-  getSwitchesPosition(!controlsInitialized);
-  DEBUG_TIMER_STOP(debugTimerGetSwitches);
 
   DEBUG_TIMER_START(debugTimerEvalMixes);
   updateChannelOutputs();

@@ -74,5 +74,4 @@ void doMixerPeriodicUpdates()
 
   DEBUG_TIMER_STOP(debugTimerMixes10ms);
 
-  controlsInitialized = true;
 }

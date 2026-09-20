@@ -7,7 +7,7 @@ namespace CrsfDevice {
 static_assert(MaxPayload + 4 <= CROSSFIRE_FRAME_MAXLEN, "CRSF device frame capacity");
 static_assert(std::atomic<uint8_t>::is_always_lock_free, "RF queue must not block");
 namespace {
-enum : uint8_t { Empty, Writing, Ready, Reading };
+enum : uint8_t { Empty, Writing, Ready, Reading, Cancelled };
 std::atomic<uint8_t> state{Empty};
 uint8_t pending[CROSSFIRE_FRAME_MAXLEN];
 uint8_t pendingSize;
@@ -52,8 +52,11 @@ bool send(uint8_t type, const uint8_t* payload, size_t length)
   memcpy(pending + 5, payload + 2, length - 2);
   pending[3 + length] = crc8(pending + 2, length + 1);
   pendingSize = length + 4;
-  state.store(Ready, std::memory_order_release);
-  return true;
+  expected = Writing;
+  if (state.compare_exchange_strong(expected, Ready, std::memory_order_release))
+    return true;
+  state.store(Empty, std::memory_order_release);
+  return false;
 }
 
 size_t take(uint8_t module, uint8_t* frame, size_t capacity)
@@ -61,20 +64,28 @@ size_t take(uint8_t module, uint8_t* frame, size_t capacity)
   uint8_t expected = Ready;
   if (!state.compare_exchange_strong(expected, Reading, std::memory_order_acquire))
     return 0;
-  if (module != pendingModule || capacity < pendingSize) {
-    state.store(Ready, std::memory_order_release);
+  if (!frame || module != pendingModule || capacity < pendingSize) {
+    expected = Reading;
+    if (!state.compare_exchange_strong(expected, Ready, std::memory_order_release))
+      state.store(Empty, std::memory_order_release);
     return 0;
   }
   size_t size = pendingSize;
   memcpy(frame, pending, size);
+  expected = Reading;
+  if (state.compare_exchange_strong(expected, Empty, std::memory_order_release))
+    return size;
   state.store(Empty, std::memory_order_release);
-  return size;
+  return 0;
 }
 
 void cancel()
 {
-  uint8_t expected = Ready;
-  state.compare_exchange_strong(expected, Empty, std::memory_order_acq_rel);
+  // Atomically revoke publication/consumption. A current owner acknowledges
+  // cancellation before releasing storage; no retry loop can delay RF init.
+  auto previous = state.exchange(Cancelled, std::memory_order_acq_rel);
+  if (previous == Empty || previous == Ready)
+    state.store(Empty, std::memory_order_release);
 }
 }
 

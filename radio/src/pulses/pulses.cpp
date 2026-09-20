@@ -22,17 +22,21 @@
 // #include "hal.h"
 #include "edgetx.h"
 #include "rf_internal.h"
+#include <atomic>
 
 #include "mixer_scheduler.h"
 #include "hal/module_port.h"
 #include "os/sleep.h"
 #include "tasks/mixer_task.h"
-#include "os/async.h"
 
 #if defined(CROSSFIRE)
 #include "pulses/crossfire.h"
 #endif
 
+// RX holds this gate only while copying UART bytes. Steady-state TX never
+// touches it; lifecycle changes defer if a snapshot is in progress.
+static std::atomic_flag portGate[NUM_MODULES] = {};
+static std::atomic_flag parserGate[NUM_MODULES] = {};
 static module_pulse_driver _module_drivers[MAX_MODULES];
 static module_pulse_buffer _module_buffers[MAX_MODULES] __DMA_NO_CACHE;
 
@@ -75,49 +79,13 @@ void RfService::restart(uint8_t module)
   mixerTaskStart();
 }
 
-void pulsesRestartModuleUnsafe(uint8_t module)
-{
-  if (module >= MAX_MODULES)
-    return;
-
-  auto mod_drv = pulsesGetModuleDriver(module);
-  if (!mod_drv->drv) return;
-
-  auto drv = mod_drv->drv;
-  drv->deinit(mod_drv->ctx);
-  mod_drv->ctx = drv->init(module);
-}
-
-static volatile bool _module_restart_queued[NUM_MODULES] = {false};
-
-static void _setup_async_module_restart(void* p1, uint32_t p2)
-{
-  uint8_t module = (uint8_t)(uintptr_t)p1;
-  _module_restart_queued[module] = false;
-
-  if (!mixerTaskTryLock()) {
-    // In case the mixer cannot be locked, try again later
-    // and make the same function pending again.
-    async_call(_setup_async_module_restart, &_module_restart_queued[module], p1,
-               p2);
-    return;
-  }
-
-  moduleState[module].forced_off = 1;
-
-  uint32_t timeout = p2;
-  moduleState[module].counter = timeout;
-
-  mixerTaskUnlock();
-}
-
-// return true if the request could be posted to the timer queue
-bool RfService::restartAsync(uint8_t module, uint8_t cnt_delay)
+static std::atomic<uint16_t> restartRequest[NUM_MODULES];
+static std::atomic<bool> modelIdRequest[NUM_MODULES];
+bool RfService::restartAsync(uint8_t module, uint8_t delay)
 {
   if (module >= NUM_MODULES) return false;
-  void* param1 = (void*)(uintptr_t)module;
-  return async_call(_setup_async_module_restart,
-                    &_module_restart_queued[module], param1, cnt_delay);
+  uint16_t empty = 0;
+  return restartRequest[module].compare_exchange_strong(empty, uint16_t(delay) + 1);
 }
 
 void RfService::settingsChanged(uint8_t module)
@@ -125,14 +93,10 @@ void RfService::settingsChanged(uint8_t module)
   if (module < NUM_MODULES) moduleState[module].settings_updated = 1;
 }
 
-
-
-
-
 ModuleSettingsMode RfService::mode(int moduleIndex)
 {
   return moduleIndex >= 0 && moduleIndex < NUM_MODULES ?
-      (ModuleSettingsMode)moduleState[moduleIndex].mode : MODULE_MODE_NORMAL;
+      (ModuleSettingsMode)moduleState[moduleIndex].mode.load() : MODULE_MODE_NORMAL;
 }
 
 void RfService::setMode(int moduleIndex, ModuleSettingsMode mode)
@@ -144,6 +108,7 @@ void RfService::setMode(int moduleIndex, ModuleSettingsMode mode)
 
 uint8_t getModuleType(uint8_t module)
 {
+  if (module >= NUM_MODULES) return MODULE_TYPE_NONE;
   uint8_t type = g_model.moduleData[module].type;
 
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -189,7 +154,6 @@ static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
 
   // TODO: module init failed somehow, we should handle this better...
   if (!ctx) {
-    TRACE("Module #%d init failed", module);
     return;
   }
 
@@ -202,7 +166,6 @@ static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
 
   // power ON
   modulePortSetPower(module, true);
-  TRACE("Module #%d init succeeded", module);
 }
 
 static void _deinit_module(uint8_t module)
@@ -227,7 +190,6 @@ static void _deinit_module(uint8_t module)
 
   // clear
   memset(mod, 0, sizeof(module_pulse_driver));
-  TRACE("Module #%d de-init succeeded", module);
 }
 
 static void pulsesEnableModule(uint8_t module, uint8_t protocol)
@@ -247,22 +209,19 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
   }
 }
 
-// TODO: declare a function in telemetry
-extern volatile uint8_t _telemetryIsPolling;
-
 void RfService::stopModule(uint8_t module)
 {
-  if (module >= MAX_MODULES) return;
-
-  while(_telemetryIsPolling) {
-    // In case the telemetry timer is currently polling the port,
-    // we give the timer task a chance to run and finish the polling.
-    sleep_ms(1);
-  }
+  if (module >= NUM_MODULES) return;
+  // Explicit lifecycle operation: intentional interruption of RC.
+  const bool resume = mixerTaskRunning();
+  if (mixerTaskInitialized()) mixerTaskStop();
+  while (parserGate[module].test_and_set(std::memory_order_acquire)) sleep_ms(1);
+  while (portGate[module].test_and_set(std::memory_order_acquire)) sleep_ms(1);
   _deinit_module(module);
-
-  auto& proto = moduleState[module].protocol;
-  proto = PROTOCOL_CHANNELS_NONE;
+  moduleState[module].protocol = PROTOCOL_CHANNELS_NONE;
+  portGate[module].clear(std::memory_order_release);
+  parserGate[module].clear(std::memory_order_release);
+  if (resume) mixerTaskStart();
 }
 
 static bool _handle_async_restart(uint8_t module)
@@ -285,22 +244,28 @@ void pulsesSendNextFrame(uint8_t module)
 {
   if (module >= MAX_MODULES) return;
 
+  auto restart = restartRequest[module].exchange(0);
+  if (restart) {
+    moduleState[module].counter = restart - 1;
+    moduleState[module].forced_off = 1;
+  }
   uint8_t protocol = getRequiredProtocol(module);
 
   auto& state = moduleState[module];
   if (state.protocol != protocol || state.forced_off) {
 
-    if (_telemetryIsPolling) {
-      // In case the telemetry timer is currently polling the port,
-      // we just yield in the hope it will be different next time.
+    if (parserGate[module].test_and_set(std::memory_order_acquire)) return;
+    if (portGate[module].test_and_set(std::memory_order_acquire)) {
+      parserGate[module].clear(std::memory_order_release);
       return;
     }
-
-    if (_handle_async_restart(module))
-      return;
-
-    pulsesEnableModule(module, protocol);
-    moduleState[module].protocol = protocol;
+    if (!_handle_async_restart(module)) {
+      pulsesEnableModule(module, protocol);
+      // Failed initialization must be retried on the next slot.
+      state.protocol = _module_drivers[module].drv ? protocol : PROTOCOL_CHANNELS_NONE;
+    }
+    portGate[module].clear(std::memory_order_release);
+    parserGate[module].clear(std::memory_order_release);
     return;
   }
 
@@ -309,13 +274,12 @@ void pulsesSendNextFrame(uint8_t module)
     auto drv = mod->drv;
     auto ctx = mod->ctx;
 
-    if (state.settings_updated) {
+    if (state.settings_updated.exchange(0)) {
       if (drv->onConfigChange) drv->onConfigChange(ctx);
-      state.settings_updated = 0;
     }
 
     // if previous frame not completed, skip this one
-    if (drv->txCompleted && !drv->txCompleted(ctx)) return;
+    if (!ctx || !drv->sendPulses || !drv->txCompleted || !drv->txCompleted(ctx)) return;
 
     uint8_t channelStart = min<unsigned>(g_model.moduleData[module].channelsStart,
         MAX_OUTPUT_CHANNELS - CROSSFIRE_CHANNELS_COUNT);
@@ -335,67 +299,45 @@ void RfService::sendChannels()
 }
 
 
-void RfService::pollFrame(uint8_t module, const etx_proto_driver_t* drv)
+void RfService::pollFrame(uint8_t module, const etx_proto_driver_t* expected)
 {
-  auto mod = pulsesGetModuleDriver(module);
-  if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv))
-    return;
-
-  auto ctx = mod->ctx;
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
-  auto serial_ctx = modulePortGetCtx(mod_st->rx);
-
-  if (!serial_drv || !serial_ctx || !serial_drv->copyRxBuffer)
-    return;
-
+  if (module >= NUM_MODULES || parserGate[module].test_and_set(std::memory_order_acquire)) return;
   uint8_t frame[TELEMETRY_RX_PACKET_SIZE];
-
-  int frame_len = serial_drv->copyRxBuffer(serial_ctx, frame, TELEMETRY_RX_PACKET_SIZE);
-  if (frame_len > 0) {
-
+  int length = 0;
+  void* context = nullptr;
+  const etx_proto_driver_t* driver = nullptr;
+  if (!portGate[module].test_and_set(std::memory_order_acquire)) {
+    auto mod = pulsesGetModuleDriver(module);
+    if (mod && mod->drv && mod->ctx && mod->drv == expected) {
+      auto st = (etx_module_state_t*)mod->ctx;
+      auto serial = modulePortGetSerialDrv(st->rx);
+      if (serial && serial->copyRxBuffer) {
+        length = serial->copyRxBuffer(modulePortGetCtx(st->rx), frame, sizeof(frame));
+        driver = mod->drv;
+        context = mod->ctx;
+      }
+    }
+    portGate[module].clear(std::memory_order_release);
+  }
+  // CRSF's context is a stable module-array address used only to identify the
+  // module by the parser. No UART/context contents are accessed after release.
+  if (length > 0 && length <= int(sizeof(frame)) && driver->processFrame) {
     LOG_TELEMETRY_WRITE_START();
-    for (int i = 0; i < frame_len; i++) {
+    for (int i = 0; i < length; ++i) {
       telemetryMirrorSend(frame[i]);
       LOG_TELEMETRY_WRITE_BYTE(frame[i]);
     }
-
-    uint8_t* rxBuffer = getTelemetryRxBuffer(module);
-    uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
-    drv->processFrame(ctx, frame, frame_len, rxBuffer, &rxBufferCount);
+    auto& count = getTelemetryRxBufferCount(module);
+    driver->processFrame(context, frame, length, getTelemetryRxBuffer(module), &count);
   }
-
-}
-
-static inline void pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
-{
-  if (!drv || !drv->processData) return;
-
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
-  auto serial_ctx = modulePortGetCtx(mod_st->rx);
-
-  if (!serial_drv  || !serial_ctx || !serial_drv->getByte)
-    return;
-
-  uint8_t* rxBuffer = getTelemetryRxBuffer(module);
-  uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
-
-  uint8_t data;
-  if (serial_drv->getByte(serial_ctx, &data) > 0) {
-    LOG_TELEMETRY_WRITE_START();
-    do {
-      telemetryMirrorSend(data);
-      drv->processData(ctx, data, rxBuffer, &rxBufferCount);
-      LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (serial_drv->getByte(serial_ctx, &data) > 0);
-  }
+  parserGate[module].clear(std::memory_order_release);
 }
 
 void RfService::pollTelemetry(uint8_t module)
 {
-  auto mod = pulsesGetModuleDriver(module);
-  if (mod) ::pollTelemetry(module, mod->drv, mod->ctx);
+#if defined(CROSSFIRE)
+  pollFrame(module, &CrossfireDriver);
+#endif
 }
 
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -425,7 +367,7 @@ void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
     return;
 
   if (newRefreshRate < MIN_REFRESH_RATE)
-    newRefreshRate = newRefreshRate * (MIN_REFRESH_RATE / (newRefreshRate + 1));
+    newRefreshRate = MIN_REFRESH_RATE;
   else if (newRefreshRate > MAX_REFRESH_RATE)
     newRefreshRate = MAX_REFRESH_RATE;
 
@@ -435,7 +377,6 @@ void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
   lastUpdate  = get_tmr10ms();
 
 #if 0
-  TRACE("[SYNC] update rate = %dus; lag = %dus",refreshRate,currentLag);
 #endif
 }
 
@@ -464,7 +405,6 @@ uint16_t ModuleSyncStatus::getAdjustedRefreshRate()
 
   currentLag -= newRefreshRate - refreshRate;
 #if 0
-  TRACE("[SYNC] mod rate = %dus; lag = %dus",newRefreshRate,currentLag);
 #endif
 
   return (uint16_t)newRefreshRate;
@@ -490,6 +430,21 @@ void ModuleSyncStatus::getRefreshString(char * statusText)
 }
 
 CrossfireModuleStatus crossfireModuleStatus[NUM_MODULES] = {};
+static std::atomic_flag capabilityGate[NUM_MODULES] = {};
+static std::atomic<bool> capabilityInvalid[NUM_MODULES];
+static std::atomic<uint32_t> syncRequest[NUM_MODULES];
+
+void resetCrossfireCapabilities(uint8_t module)
+{
+  capabilityInvalid[module] = true;
+  syncRequest[module] = 0;
+}
+
+void consumeModuleSync(uint8_t module)
+{
+  auto packed = syncRequest[module].exchange(0);
+  if (packed) getModuleSyncStatus(module).update(packed & 0xffff, int16_t(packed >> 16));
+}
 
 bool RfService::active(uint8_t module)
 {
@@ -498,7 +453,12 @@ bool RfService::active(uint8_t module)
 
 void RfService::requestModelId(uint8_t module)
 {
-  if (module < NUM_MODULES) moduleState[module].counter = CRSF_FRAME_MODELID;
+  if (module < NUM_MODULES) modelIdRequest[module] = true;
+}
+
+void consumeModelIdRequest(uint8_t module)
+{
+  if (modelIdRequest[module].exchange(false)) moduleState[module].counter = CRSF_FRAME_MODELID;
 }
 
 void RfService::beginDiscovery(uint8_t module)
@@ -509,7 +469,11 @@ void RfService::beginDiscovery(uint8_t module)
 
 CrossfireModuleStatus RfService::capabilities(uint8_t module)
 {
-  return module < NUM_MODULES ? crossfireModuleStatus[module] : CrossfireModuleStatus{};
+  CrossfireModuleStatus result{};
+  if (module >= NUM_MODULES || capabilityGate[module].test_and_set(std::memory_order_acquire)) return result;
+  if (!capabilityInvalid[module]) result = crossfireModuleStatus[module];
+  capabilityGate[module].clear(std::memory_order_release);
+  return result;
 }
 
 bool RfService::elrsVersionAtLeast(uint8_t module, uint8_t major, uint8_t minor)
@@ -521,7 +485,7 @@ bool RfService::elrsVersionAtLeast(uint8_t module, uint8_t major, uint8_t minor)
 
 void RfService::updateSync(uint8_t module, uint16_t interval, int16_t offset)
 {
-  if (module < NUM_MODULES) getModuleSyncStatus(module).update(interval, offset);
+  if (module < NUM_MODULES && interval) syncRequest[module] = uint32_t(interval) | (uint32_t(uint16_t(offset)) << 16);
 }
 
 void RfService::receiveDeviceInfo(uint8_t module, const uint8_t* frame, size_t length)
@@ -543,9 +507,13 @@ void RfService::receiveDeviceInfo(uint8_t module, const uint8_t* frame, size_t l
   status.minor = frame[info + 10];
   status.revision = frame[info + 11];
   status.queryCompleted = true;
+  if (capabilityGate[module].test_and_set(std::memory_order_acquire)) return;
   crossfireModuleStatus[module] = status;
+  capabilityInvalid[module] = false;
+  capabilityGate[module].clear(std::memory_order_release);
+  requestModelId(module); // unsolicited device info also indicates module recovery
   auto& config = g_model.moduleData[module].crsf;
-  if (!elrsVersionAtLeast(module, 4, 0) &&
+  if (!(status.isELRS && status.major >= 4) &&
       (config.crsfArmingMode != ARMING_MODE_CH5 || config.crsfArmingCondition != 0)) {
     config.crsfArmingMode = ARMING_MODE_CH5;
     config.crsfArmingCondition = 0;
@@ -559,8 +527,13 @@ void setModuleMode(int module, ModuleSettingsMode mode) { RfService::setMode(mod
 bool RfService::usesTxHardware(uint8_t module, const void* hardware)
 {
   if (module >= NUM_MODULES || !hardware) return false;
+  // A contended lifecycle must be treated as potentially owning the port.
+  // Maintenance callers will then stop RF before reconfiguring shared hardware.
+  if (portGate[module].test_and_set(std::memory_order_acquire)) return true;
   auto state = modulePortGetState(module);
-  return state && state->tx.port && state->tx.port->hw_def == hardware;
+  bool used = state && state->tx.port && state->tx.port->hw_def == hardware;
+  portGate[module].clear(std::memory_order_release);
+  return used;
 }
 
 bool RfService::setModulePower(int module, bool enabled)

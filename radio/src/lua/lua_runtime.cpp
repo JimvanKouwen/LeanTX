@@ -1,5 +1,6 @@
 #include "edgetx.h"
 #include "lua_runtime.h"
+#include "os/task.h"
 #include "lua_event.h"
 #include "telemetry/crsf_device.h"
 #if defined(COLORLCD)
@@ -11,7 +12,14 @@ namespace LuaRuntime {
 void initialize() { luaInitMainState(); }
 void shutdown() { CrsfDevice::cancel(); luaClose(); }
 bool run(bool allowLcd) { return luaTask(allowLcd); }
-void execute(const char* filename) { luaExec(filename); }
+void execute(const char* filename)
+{
+#if defined(COLORLCD)
+  luaExecStandalone(filename);
+#else
+  luaExec(filename);
+#endif
+}
 void receiveEvent(event_t event) { luaPushEvent(event); }
 void receiveSerial(uint8_t* data, uint32_t length) { luaReceiveData(data, length); }
 void setSerialSend(void* context, void (*send)(void*, uint8_t)) { luaSetSendCb(context, send); }
@@ -32,17 +40,30 @@ void backgroundWidget(LuaWidget& widget) { widget.backgroundCallback(); }
 }
 
 #if defined(LUA)
+// This mutex belongs exclusively to telemetry/Lua. RF never acquires it.
+mutex_handle_t* luaTelemetryMutex()
+{
+  static struct QueueMutex {
+    mutex_handle_t handle;
+    QueueMutex() { mutex_create(&handle); }
+  } mutex;
+  return &mutex.handle;
+}
+LuaTelemetryLock::LuaTelemetryLock() { mutex_lock(luaTelemetryMutex()); }
+LuaTelemetryLock::~LuaTelemetryLock() { mutex_unlock(luaTelemetryMutex()); }
 TelemetryQueue* luaInputTelemetryFifo = nullptr;
 #if defined(COLORLCD)
 std::list<TelemetryQueue*> telemetryQueues;
 
 void registerTelemetryQueue(TelemetryQueue* queue)
 {
+  LuaTelemetryLock lock;
   telemetryQueues.emplace_back(queue);
 }
 
 void deregisterTelemetryQueue(TelemetryQueue* queue)
 {
+  LuaTelemetryLock lock;
   telemetryQueues.remove(queue);
 }
 #endif
@@ -58,6 +79,7 @@ static void pushDataToQueue(TelemetryQueue* queue, uint8_t* data, int length)
 
 void LuaRuntime::receiveTelemetry(uint8_t* data, int length)
 {
+  LuaTelemetryLock lock;
 #if defined(COLORLCD)
   for (auto it = telemetryQueues.cbegin(); it != telemetryQueues.cend(); ++it)
     pushDataToQueue(*it, data, length);

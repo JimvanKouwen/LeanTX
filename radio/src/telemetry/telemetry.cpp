@@ -50,11 +50,6 @@ static rxStatStruct rxStat;
 
 telemetry_buffer _telemetry_rx_buffer[NUM_MODULES];
 
-static void clearTelemetryRxBuffers()
-{
-  memset(_telemetry_rx_buffer, 0, sizeof(_telemetry_rx_buffer));
-}
-
 uint8_t* getTelemetryRxBuffer(uint8_t moduleIdx)
 {
   return _telemetry_rx_buffer[moduleIdx].buffer;
@@ -71,11 +66,6 @@ rxStatStruct *getRxStatLabels() {
   rxStat.max = 100;
   return &rxStat;
 }
-
-// This can only be changed when the mixer is not
-// running as the priority of the timer task is
-// lower.
-volatile uint8_t _telemetryIsPolling = false;
 
 static void (*telemetryMirrorSendByte)(void*, uint8_t) = nullptr;
 static void* telemetryMirrorSendByteCtx = nullptr;
@@ -112,13 +102,12 @@ void telemetryStart()
     timer_create(&telemetryTimer, telemetryTimerCb, "Telem", 2, true);
   }
 
-  clearTelemetryRxBuffers();
   timer_start(&telemetryTimer);
 }
 
 void telemetryStop()
 {
-  if (!timer_is_created(&telemetryTimer)) {
+  if (timer_is_created(&telemetryTimer)) {
     timer_stop(&telemetryTimer);
   }
 }
@@ -127,7 +116,6 @@ static volatile bool _poll_frame_queued[NUM_MODULES] = {false};
 
 static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 {
-  _telemetryIsPolling = true;
 
   auto drv = (const etx_proto_driver_t*)pvParameter1;
   auto module = (uint8_t)ulParameter2;
@@ -135,7 +123,6 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 
   RfService::pollFrame(module, drv);
 
-  _telemetryIsPolling = false;
 }
 
 void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
@@ -146,11 +133,20 @@ void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
 
 void telemetryWakeup()
 {
-  _telemetryIsPolling = true;
+  static bool firstSwitchPoll = true;
+  getSwitchesPosition(firstSwitchPoll);
+  firstSwitchPoll = false;
+  processPhysicalInputSounds();
+  doMixerPeriodicUpdates();
+#if defined(IMU)
+  gyroWakeup();
+#endif
+#if defined(BLUETOOTH)
+  bluetooth.wakeup();
+#endif
   for (uint8_t i = 0; i < MAX_MODULES; i++) {
     RfService::pollTelemetry(i);
   }
-  _telemetryIsPolling = false;
 
   for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
     const TelemetrySensor& sensor = g_model.telemetrySensors[i];

@@ -194,6 +194,13 @@ extern OutputTelemetryBuffer outputTelemetryBuffer __DMA_NO_CACHE;
 #define LUA_TELEMETRY_INPUT_FIFO_SIZE  256
 typedef Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> TelemetryQueue;
 extern TelemetryQueue* luaInputTelemetryFifo;
+class LuaTelemetryLock {
+ public:
+  LuaTelemetryLock();
+  ~LuaTelemetryLock();
+  LuaTelemetryLock(const LuaTelemetryLock&) = delete;
+  LuaTelemetryLock& operator=(const LuaTelemetryLock&) = delete;
+};
 void registerTelemetryQueue(TelemetryQueue*);
 void deregisterTelemetryQueue(TelemetryQueue*);
 #endif

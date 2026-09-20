@@ -40,6 +40,8 @@
   extern lua_State * lsScripts;
   if (!lsScripts) { luaInitMainState(); luaInit(); }
   if (!lsScripts) return ::testing::AssertionFailure() << "No Lua state!";
+  // Direct API assertions do not run through the scheduler that resets quotas.
+  lua_sethook(lsScripts, nullptr, 0, 0);
   if (luaL_dostring(lsScripts, str)) {
     return ::testing::AssertionFailure() << "lua error: " << lua_tostring(lsScripts, -1);
   }
@@ -373,8 +375,8 @@ TEST(Lua, NumericSourceBounds)
 
 TEST(Lua, DeviceRequestsAreValidatedAndAtomic)
 {
-  auto oldInternal = moduleState[INTERNAL_MODULE].protocol;
-  auto oldExternal = moduleState[EXTERNAL_MODULE].protocol;
+  auto oldInternal = moduleState[INTERNAL_MODULE].protocol.load();
+  auto oldExternal = moduleState[EXTERNAL_MODULE].protocol.load();
   moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
   moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
   CrsfDevice::cancel();
@@ -456,5 +458,50 @@ TEST(Lua, DeviceResponsesReachTheToolThroughRuntime)
   luaExecStr("local t,p=crossfireTelemetryPop(); assert(t==0x2B and #p==5 "
              "and p[1]==0xEF and p[2]==0xEE and p[3]==1 and p[5]==6); "
              "assert(crossfireTelemetryPop()==nil)");
+}
+#endif
+
+#if defined(LUA) && defined(CROSSFIRE)
+#include "lua/lua_runtime.h"
+#include "telemetry/crsf_device.h"
+TEST(Lua, ShutdownCancelsPendingDeviceRequest)
+{
+  moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+  moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_CROSSFIRE;
+  CrsfDevice::cancel();
+  const uint8_t request[] = {MODULE_ADDRESS, RADIO_ADDRESS, 1, 0};
+  ASSERT_TRUE(CrsfDevice::send(0x2C, request, sizeof(request)));
+  LuaRuntime::shutdown();
+  uint8_t frame[64];
+  EXPECT_EQ(0u, CrsfDevice::take(EXTERNAL_MODULE, frame, sizeof(frame)));
+  EXPECT_TRUE(CrsfDevice::available());
+}
+#endif
+
+#if defined(LUA) && defined(COLORLCD)
+#include <atomic>
+#include <thread>
+#include "lua/lua_runtime.h"
+TEST(Lua, TelemetryRegistrationAndDestructionAreSynchronized)
+{
+  std::atomic<bool> done{false};
+  std::thread delivery([&] {
+    uint8_t packet[] = {4, 0x2B, RADIO_ADDRESS, MODULE_ADDRESS};
+    while (!done) LuaRuntime::receiveTelemetry(packet, sizeof(packet));
+  });
+  for (unsigned i = 0; i < 1000; ++i) {
+    auto queue = new TelemetryQueue;
+    registerTelemetryQueue(queue);
+    {
+      LuaTelemetryLock lock;
+      queue->clear();
+    }
+    deregisterTelemetryQueue(queue);
+    delete queue;
+  }
+  done = true;
+  delivery.join();
+  LuaTelemetryLock lock;
+  if (luaInputTelemetryFifo) luaInputTelemetryFifo->clear();
 }
 #endif

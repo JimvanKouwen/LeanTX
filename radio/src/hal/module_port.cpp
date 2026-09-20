@@ -266,9 +266,10 @@ uint8_t modulePortGetModule(etx_module_state_t* st)
 bool modulePortSerialTxCompleted(void* ctx)
 {
   auto st = (etx_module_state_t*)ctx;
+  if (!st) return false;
   auto drv = modulePortGetSerialDrv(st->tx);
   auto drv_ctx = modulePortGetCtx(st->tx);
-  return drv->txCompleted(drv_ctx);
+  return drv && drv_ctx && drv->txCompleted && drv->txCompleted(drv_ctx);
 }
 
 bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port)

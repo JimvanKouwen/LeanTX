@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include "edgetx.h"
+#include "telemetry/crsf_device.h"
 #include "custom_allocator.h"
 
 #include "lua_api.h"
@@ -169,6 +170,7 @@ void luaClose(lua_State ** L)
     }
     UNPROTECT_LUA();
     *L = nullptr;
+    CrsfDevice::cancel();
   }
 }
 
@@ -180,6 +182,9 @@ void luaClose()
   // Close main state last
   luaClose(&mainState);
   lsScripts = nullptr;
+  CrsfDevice::cancel();
+  LuaTelemetryLock lock;
+  if (luaInputTelemetryFifo) luaInputTelemetryFifo->clear();
 }
 
 void luaRegisterLibraries(lua_State * L)

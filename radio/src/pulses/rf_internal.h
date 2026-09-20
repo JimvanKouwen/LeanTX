@@ -2,16 +2,26 @@
 
 // Private RF implementation state. Only pulses/ and white-box tests include this.
 #include "pulses.h"
+#include "mixer_scheduler.h"
 #include "telemetry/crossfire.h"
-PACK(struct ModuleState {
-  uint8_t protocol;
-  uint8_t mode:4;
-  uint8_t forced_off:1;
-  uint8_t settings_updated:1;
-  uint8_t spare:2;
-  uint16_t counter;
-
-});
+#include <atomic>
+static_assert(std::atomic<uint8_t>::is_always_lock_free &&
+              std::atomic<uint16_t>::is_always_lock_free &&
+              std::atomic<uint32_t>::is_always_lock_free, "RF atomics must not block");
+struct ModuleState {
+  std::atomic<uint8_t> protocol{0};
+  std::atomic<uint8_t> mode{0};
+  std::atomic<uint8_t> forced_off{0};
+  std::atomic<uint8_t> settings_updated{0};
+  std::atomic<uint16_t> counter{0};
+  ModuleState() = default;
+  ModuleState(const ModuleState& other) { *this = other; }
+  ModuleState& operator=(const ModuleState& other) {
+    protocol = other.protocol.load(); mode = other.mode.load();
+    forced_off = other.forced_off.load(); settings_updated = other.settings_updated.load();
+    counter = other.counter.load(); return *this;
+  }
+};
 
 extern ModuleState moduleState[NUM_MODULES];
 
@@ -45,7 +55,7 @@ struct ModuleSyncStatus
 
   inline bool isValid() const {
     // 2 seconds
-    return (get_tmr10ms() - lastUpdate < 200);
+    return (refreshRate >= MIN_REFRESH_RATE && tmr10ms_t(get_tmr10ms() - lastUpdate) < 200);
   }
 
   // Set feedback from RF module
@@ -73,9 +83,6 @@ typedef void (*module_deinit_cb_t)(uint8_t, const etx_proto_driver_t*);
 void pulsesSetModuleInitCb(module_init_cb_t cb);
 void pulsesSetModuleDeInitCb(module_deinit_cb_t cb);
 
-// Re-Init module
-// 
-// Note: this can only be used from within
-//       module init.
-void pulsesRestartModuleUnsafe(uint8_t module);
-
+void resetCrossfireCapabilities(uint8_t module);
+void consumeModuleSync(uint8_t module);
+void consumeModelIdRequest(uint8_t module);

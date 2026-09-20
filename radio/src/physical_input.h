@@ -15,6 +15,8 @@ struct ChannelMapping {
   PhysicalInputId source;
 };
 void updateChannelOutputs();
+// Non-critical consumer of coalesced analog-centre sound requests.
+void processPhysicalInputSounds();
 
 // Physical switch conditions have their own namespace, with no inversion or
 // generic value sources. Positions: 0 = up, 1 = middle, 2 = down.
