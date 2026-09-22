@@ -63,7 +63,7 @@ void setIMU_Y(int16_t offset, int16_t range)
   gyroSetIMU_Y(offset, range);
 #endif
 }
-void flushAudio() { audioQueue.flush(); }
+void flushAudio() { audioFlush(); }
 const ModelData& model() { return g_model; }
 const RadioData& radio() { return g_eeGeneral; }
 const TelemetryItem& telemetry(unsigned index) { return telemetryItems[index]; }
@@ -101,13 +101,13 @@ void resetGlobalTimer(const char* option)
   storageDirty(EE_GENERAL);
 }
 void playFile(const char* file, uint8_t flags, uint8_t id, int8_t volume)
-{ audioQueue.playFile(file, flags, id, volume); }
+{ audioPlayFile(file, flags, id, volume); }
 void playNumber(int32_t number, uint8_t unit, uint8_t flags, uint8_t id, int8_t volume)
 { ::playNumber(number, unit, flags, id, volume); }
 void playDuration(int32_t value, uint8_t flags, uint8_t id, int8_t volume)
 { ::playDuration(value, flags, id, volume); }
 void playTone(uint16_t frequency, uint16_t length, uint16_t pause, uint8_t flags, int8_t increment, int8_t volume)
-{ audioQueue.playTone(frequency, length, pause, flags, increment, volume); }
+{ audioPlayTone(frequency, length, pause, flags, increment, volume); }
 void playHaptic(uint8_t length, uint8_t pause, uint8_t flags, uint8_t intensity)
 {
 #if defined(HAPTIC)

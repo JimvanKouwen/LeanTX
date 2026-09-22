@@ -182,8 +182,8 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
   if (ext) {
     if (!strcasecmp(ext, SOUNDS_EXT)) {
       menu->addLine(STR_PLAY_FILE, [=]() {
-        audioQueue.stopAll();
-        audioQueue.playFile(fullpath, 0, ID_PLAY_FROM_SD_MANAGER);
+        audioStopAll();
+        audioPlayFile(fullpath, 0, ID_PLAY_FROM_SD_MANAGER);
       });
     }
 #if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)

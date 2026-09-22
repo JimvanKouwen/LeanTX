@@ -400,7 +400,7 @@ void RadioMicRecorder::deleteLater()
 {
   if (!deleted()) {
     if (recorder.isRecording()) recorder.stop();
-    if (isPlayingTake()) audioQueue.stopAll();
+    if (isPlayingTake()) audioStopAll();
     pdmStop();
 
     Page::deleteLater();
@@ -522,7 +522,7 @@ uint32_t RadioMicRecorder::trimSample() const
 
 void RadioMicRecorder::enterTrim(TrimMode mode)
 {
-  if (isPlayingTake()) audioQueue.stopAll();
+  if (isPlayingTake()) audioStopAll();
   if (takeSamples < 2) return;
 
   trimMode = mode;
@@ -566,7 +566,7 @@ void RadioMicRecorder::onApplyTrim()
 // refresh the trace. Playback stops because the length just changed.
 void RadioMicRecorder::applyTrim(uint32_t from, uint32_t to)
 {
-  if (isPlayingTake()) audioQueue.stopAll();
+  if (isPlayingTake()) audioStopAll();
   waveform->hideTrim();
   waveform->setCursor(-1);
 
@@ -613,16 +613,16 @@ void RadioMicRecorder::updateButtons()
 
 bool RadioMicRecorder::isPlayingTake() const
 {
-  return audioQueue.isPlaying(ID_PLAY_FROM_SD_MANAGER);
+  return audioIsPlaying(ID_PLAY_FROM_SD_MANAGER);
 }
 
 void RadioMicRecorder::onPlayPressed()
 {
   if (isPlayingTake()) {
-    audioQueue.stopAll();
+    audioStopAll();
   } else {
-    audioQueue.stopAll();
-    audioQueue.playFile(filename, 0, ID_PLAY_FROM_SD_MANAGER);
+    audioStopAll();
+    audioPlayFile(filename, 0, ID_PLAY_FROM_SD_MANAGER);
     playStart = get_tmr10ms();
   }
   playingShown = isPlayingTake();
@@ -661,7 +661,7 @@ void RadioMicRecorder::enterIdle()
 
 void RadioMicRecorder::enterCountdown()
 {
-  if (isPlayingTake()) audioQueue.stopAll();
+  if (isPlayingTake()) audioStopAll();
   state = State::COUNTDOWN;
   trimMode = TrimMode::NONE;
   waveform->hideTrim();
@@ -725,7 +725,7 @@ void RadioMicRecorder::enterReview()
 
 void RadioMicRecorder::askSaveAs()
 {
-  if (isPlayingTake()) audioQueue.stopAll();
+  if (isPlayingTake()) audioStopAll();
 
   const char* base = strrchr(filename, '/');
   base = base ? base + 1 : filename;

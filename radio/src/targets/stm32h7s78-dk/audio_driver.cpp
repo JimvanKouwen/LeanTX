@@ -1,4 +1,4 @@
-#include "audio.h"
+#include "audio_private.h"
 #include "delays_driver.h"
 #include "drivers/wm8904.h"
 

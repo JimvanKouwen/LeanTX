@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "audio.h"
+#include "audio_private.h"
 #include "simulib.h"
 
 #if defined(AUDIO_HP_DETECT_PIN)

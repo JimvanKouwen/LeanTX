@@ -104,7 +104,7 @@ static void menusTask()
 
 static void audioTask()
 {
-  while (!audioQueue.started()) {
+  while (!audioStarted()) {
     sleep_ms(1);
   }
 
@@ -117,7 +117,7 @@ static void audioTask()
   while (task_running()) {
     DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
     DEBUG_TIMER_START(debugTimerAudioDuration);
-    audioQueue.wakeup();
+    audioWakeup();
 #if defined(PDM_CLOCK)
     // Drive microphone recording (if any) at the audio-task cadence.
     // Much shorter than the UI tick interval, so the PDM ring buffer

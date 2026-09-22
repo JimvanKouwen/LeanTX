@@ -125,8 +125,8 @@ void onSdManagerMenu(const char * result)
   }
   else if (result == STR_PLAY_FILE) {
     getSelectionFullPath(lfn);
-    audioQueue.stopAll();
-    audioQueue.playFile(lfn, 0, ID_PLAY_FROM_SD_MANAGER);
+    audioStopAll();
+    audioPlayFile(lfn, 0, ID_PLAY_FROM_SD_MANAGER);
   }
 #if LCD_DEPTH > 1
   else if (result == STR_ASSIGN_BITMAP) {

@@ -31,6 +31,7 @@
 
 #include "board.h"
 #include "edgetx.h"
+#include "audio_private.h"
 #include "timers_driver.h"
 
 #define VS_WRITE_COMMAND           0x02

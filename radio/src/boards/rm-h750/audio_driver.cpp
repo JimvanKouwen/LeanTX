@@ -27,7 +27,7 @@
 
 #include "stm32_hal_ll.h"
 
-#include "audio.h"
+#include "audio_private.h"
 #include "debug.h"
 
 #define DEFAULT_DAC_VOL -15 // -7dB

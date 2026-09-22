@@ -32,6 +32,9 @@
 #include "hal/watchdog_driver.h"
 
 #include "edgetx.h"
+#if defined(DEBUG_AUDIO)
+#include "audio_private.h"  // Intentional access for engine diagnostics.
+#endif
 #include "os/sleep.h"
 #include "os/time.h"
 #include "os/task.h"
@@ -252,14 +255,14 @@ int cliBeep(const char ** argv)
   int freq = BEEP_DEFAULT_FREQ;
   int duration = 100;
   if (toInt(argv, 1, &freq) >= 0 && toInt(argv, 2, &duration) >= 0) {
-    audioQueue.playTone(freq, duration, 20, PLAY_NOW | PLAY_PURE);
+    audioPlayTone(freq, duration, 20, PLAY_NOW | PLAY_PURE);
   }
   return 0;
 }
 
 int cliPlay(const char ** argv)
 {
-  audioQueue.playFile(argv[1], PLAY_NOW);
+  audioPlayFile(argv[1], PLAY_NOW);
   return 0;
 }
 

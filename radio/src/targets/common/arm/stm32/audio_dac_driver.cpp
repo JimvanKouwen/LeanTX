@@ -28,6 +28,7 @@
 #include "stm32_dma.h"
 
 #include "edgetx.h"
+#include "audio_private.h"
 
 #if defined(AUDIO_MUTE_GPIO)
 

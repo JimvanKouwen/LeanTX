@@ -25,6 +25,7 @@
 #include "os/task.h"
 
 #include "edgetx.h"
+#include "audio_private.h"
 #include "strhelpers.h"
 #include "switches.h"
 
@@ -1068,3 +1069,25 @@ void onKeyError()
 {
   audioKeyError();
 }
+
+// Public requests keep all queue semantics in AudioQueue.
+void audioPlayTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t flags,
+                   int8_t freqIncr, int8_t fragmentVolume)
+{
+  audioQueue.playTone(freq, len, pause, flags, freqIncr, fragmentVolume);
+}
+
+void audioPlayFile(const char *filename, uint8_t flags, uint8_t id,
+                   int8_t fragmentVolume)
+{
+  audioQueue.playFile(filename, flags, id, fragmentVolume);
+}
+
+void audioStopPlay(uint8_t id) { audioQueue.stopPlay(id); }
+void audioStopAll() { audioQueue.stopAll(); }
+void audioFlush() { audioQueue.flush(); }
+void audioStopSD() { audioQueue.stopSD(); }
+bool audioIsPlaying(uint8_t id) { return audioQueue.isPlaying(id); }
+void audioStart() { audioQueue.start(); }
+bool audioStarted() { return audioQueue.started(); }
+void audioWakeup() { audioQueue.wakeup(); }

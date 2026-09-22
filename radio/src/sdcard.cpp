@@ -542,7 +542,7 @@ void sdDone()
   TRACE("sdDone");
 
   if (sdMounted()) {
-    audioQueue.stopSD();
+    audioStopSD();
 
 #if defined(LOG_TELEMETRY)
     f_close(&g_telemetryFile);

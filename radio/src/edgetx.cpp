@@ -951,7 +951,7 @@ void edgeTxInit()
 #endif
 
   referenceSystemAudioFiles();
-  audioQueue.start();
+  audioStart();
 
 #if defined(COLORLCD)
   ThemePersistance::instance()->loadDefaultTheme();
