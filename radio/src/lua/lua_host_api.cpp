@@ -85,10 +85,10 @@ void setTimer(unsigned index, const TimerData& timer, int32_t value, bool update
 {
   if (index >= MAX_TIMERS) return;
   g_model.timers[index] = timer;
-  if (updateValue) timersStates[index].val = value;
+  if (updateValue) timerSetValue(index, value);
   storageDirty(EE_MODEL);
 }
-int32_t timerValue(unsigned index) { return index < MAX_TIMERS ? timersStates[index].val : 0; }
+int32_t timerValue(unsigned index) { return index < MAX_TIMERS ? timerGetValue(index) : 0; }
 void resetTimer(unsigned index) { if (index < MAX_TIMERS) timerReset(index); }
 void resetGlobalTimer(const char* option)
 {

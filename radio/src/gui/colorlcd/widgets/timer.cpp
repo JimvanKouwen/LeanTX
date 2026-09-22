@@ -113,10 +113,10 @@ class TimerWidget : public Widget
 
     uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
-    TimerState& timerState = timersStates[index];
+    const tmrval_t timerValue = timerGetValue(index);
 
-    if (lastValue != timerState.val || lastStartValue != timerData.start) {
-      lastValue = timerState.val;
+    if (lastValue != timerValue || lastStartValue != timerData.start) {
+      lastValue = timerValue;
       lastStartValue = timerData.start;
 
       if (lastStartValue && lastValue > 0) {

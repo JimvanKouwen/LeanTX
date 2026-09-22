@@ -126,7 +126,7 @@ static getvalue_t _getValue(mixsrc_t i, bool* valid)
     return 0;
 #endif
   } else if (i <= MIXSRC_LAST_TIMER) {
-    return timersStates[i - MIXSRC_FIRST_TIMER].val;
+    return timerGetValue(i - MIXSRC_FIRST_TIMER);
   }
 
   // Telemetry remains available to UI/audio/Lua.

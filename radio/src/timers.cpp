@@ -30,7 +30,16 @@ volatile tmr10ms_t g_tmr10ms;
 #error "Timers cannot exceed " .. MAX_TIMERS
 #endif
 
+namespace {
+struct TimerState {
+  bool running; // Explicit start/stop, independent of the alert state.
+  uint8_t  state;
+  tmrval_t  val;
+  uint8_t  val_10ms;
+};
+
 TimerState timersStates[TIMERS] = { { 0 } };
+} // namespace
 
 void timerStart(uint8_t idx)
 {
@@ -66,6 +75,26 @@ void timerSet(int idx, int val)
   timerState.state = TMR_OFF;
   timerState.val = val;
   timerState.val_10ms = 0 ;
+}
+
+void timerSetValue(int idx, tmrval_t value)
+{
+  if (idx >= 0 && idx < TIMERS) timersStates[idx].val = value;
+}
+
+tmrval_t timerGetValue(int idx)
+{
+  return idx >= 0 && idx < TIMERS ? timersStates[idx].val : 0;
+}
+
+bool timerIsRunning(int idx)
+{
+  return idx >= 0 && idx < TIMERS && timersStates[idx].running;
+}
+
+uint8_t timerGetState(int idx)
+{
+  return idx >= 0 && idx < TIMERS ? timersStates[idx].state : TMR_OFF;
 }
 
 void restoreTimers()

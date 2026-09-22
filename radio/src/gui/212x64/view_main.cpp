@@ -241,8 +241,8 @@ void displayTimers()
 {
   // Main and Second timer
   for (unsigned int i=0; i<2; i++) {
-    if (timersStates[i].state != TMR_OFF) {
-      TimerState & timerState = timersStates[i];
+    if (timerGetState(i) != TMR_OFF) {
+      const tmrval_t timerValue = timerGetValue(i);
       TimerData & timerData = g_model.timers[i];
       uint8_t y = TIMERS_Y + i*TIMERS_H;
       if (ZLEN(timerData.name) > 0) {
@@ -251,15 +251,15 @@ void displayTimers()
       else {
         drawStringWithIndex(TIMERS_X, y-7, STR_TIMER, i + 1, SMLSIZE);
       }
-      int val = timerState.val;
+      int val = timerValue;
       if (timerData.start && timerData.showElapsed &&
-          timerData.start != timerState.val)
-        val = (int)timerData.start - (int)timerState.val;
+          timerData.start != timerValue)
+        val = (int)timerData.start - (int)timerValue;
       drawTimer(TIMERS_X, y, val, TIMEHOUR|MIDSIZE|LEFT, TIMEHOUR|MIDSIZE|LEFT);
       if (timerData.persistent) {
         lcdDrawChar(TIMERS_R, y-7, 'P', SMLSIZE);
       }
-      if (timerState.val < 0) {
+      if (timerValue < 0) {
         if (BLINK_ON_PHASE) {
           lcdDrawFilledRect(TIMERS_X-7, y-8, 60, 20);
         }

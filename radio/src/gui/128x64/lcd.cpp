@@ -179,14 +179,14 @@ void drawTimerWithName(coord_t x, coord_t y, uint8_t index, LcdFlags att)
 {
   const TimerData &timer = g_model.timers[index];
 
-  if (timersStates[index].state != TMR_OFF) {
+  if (timerGetState(index) != TMR_OFF) {
     const TimerData &timerData = g_model.timers[index];
-    const TimerState &timerState = timersStates[index];
-    const uint8_t negative = (timerState.val < 0 ? BLINK | INVERS : 0);
-    int val = timerState.val;
+    const tmrval_t timerValue = timerGetValue(index);
+    const uint8_t negative = (timerValue < 0 ? BLINK | INVERS : 0);
+    int val = timerValue;
     if (timerData.start && timerData.showElapsed &&
-        timerData.start != timerState.val)
-      val = (int)timerData.start - (int)timerState.val;
+        timerData.start != timerValue)
+      val = (int)timerData.start - (int)timerValue;
     if (val < 60 * 60) { // display MM:SS
       div_t qr = div((int) abs(val), 60);
       lcdDrawNumber(x - 5, y, qr.rem, att | LEADING0 | negative, 2);

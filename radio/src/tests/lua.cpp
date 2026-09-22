@@ -193,6 +193,28 @@ TEST(Lua, RemovedVariableApis)
   luaExecStr("assert(model.deleteFlightModes == nil)");
 }
 
+TEST(Lua, TimerValueUpdatePreservesRuntimeState)
+{
+  MODEL_RESET();
+  luaExecStr("model.setTimer(0, {start=10})");
+  timerReset(0);
+  timerStart(0);
+  evalTimers(75);
+  luaExecStr("model.setTimer(0, {value=5})");
+  luaExecStr("assert(model.getTimer(0).value == 5)");
+  EXPECT_TRUE(timerIsRunning(0));
+  EXPECT_EQ(TMR_RUNNING, timerGetState(0));
+  evalTimers(25);
+  EXPECT_EQ(4, timerGetValue(0));
+  luaExecStr("model.setTimer(0, {name='Test'})");
+  EXPECT_EQ(4, timerGetValue(0));
+  EXPECT_TRUE(timerIsRunning(0));
+  luaExecStr("model.resetTimer(0)");
+  EXPECT_EQ(10, timerGetValue(0));
+  EXPECT_FALSE(timerIsRunning(0));
+  EXPECT_EQ(TMR_OFF, timerGetState(0));
+}
+
 TEST(Lua, testSetModelInfo)
 {
   luaExecStr("info = model.getInfo()");

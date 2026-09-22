@@ -128,8 +128,8 @@ class ValueWidget : public Widget
 
       // Check for disabled or warning color states
       if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
-        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
-        if (timerState.val < 0) {
+        const tmrval_t timerValue = timerGetValue(field - MIXSRC_FIRST_TIMER);
+        if (timerValue < 0) {
           // Set warning color
           lv_obj_add_state(label, ETX_STATE_TIMER_ELAPSED);
           lv_obj_add_state(value, ETX_STATE_TIMER_ELAPSED);

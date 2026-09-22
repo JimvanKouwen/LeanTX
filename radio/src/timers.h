@@ -34,17 +34,6 @@ typedef uint32_t tmrstart_t;
 
 #define TIMER_MIN     (tmrval_t(-TIMER_MAX-1))
 
-struct TimerState {
-  bool running; // Explicit start/stop, independent of the alert state.
-  uint8_t  state;
-  tmrval_t  val;
-  uint8_t  val_10ms;
-};
-
-#if defined(TIMERS)
-extern TimerState timersStates[TIMERS];
-#endif
-
 // Start/resume and pause without changing the value or fractional second.
 void timerStart(uint8_t idx);
 void timerStop(uint8_t idx);
@@ -52,6 +41,13 @@ void timerStop(uint8_t idx);
 void timerReset(uint8_t idx);
 
 void timerSet(int idx, int val);
+
+// Value-only update for Lua: preserve running/alert state and fractional time.
+void timerSetValue(int idx, tmrval_t value);
+// Invalid indices return zero, false, or TMR_OFF respectively.
+tmrval_t timerGetValue(int idx);
+bool timerIsRunning(int idx);
+uint8_t timerGetState(int idx);
 
 void saveTimers();
 void restoreTimers();

@@ -72,10 +72,10 @@ void menuStatisticsView(event_t event)
   // Timers
   for (int i=0; i<TIMERS; i++) {
     drawStringWithIndex(STATS_3RD_COLUMN, FH*i+1, "TM", i+1, BOLD);
-    if (timersStates[i].val > 3600)
-      drawTimer(STATS_3RD_COLUMN + STATS_LABEL_WIDTH, FH*i+1, timersStates[i].val, TIMEHOUR, 0);
+    if (timerGetValue(i) > 3600)
+      drawTimer(STATS_3RD_COLUMN + STATS_LABEL_WIDTH, FH*i+1, timerGetValue(i), TIMEHOUR, 0);
     else
-      drawTimer(STATS_3RD_COLUMN + STATS_LABEL_WIDTH, FH*i+1, timersStates[i].val);
+      drawTimer(STATS_3RD_COLUMN + STATS_LABEL_WIDTH, FH*i+1, timerGetValue(i));
   }
 
 }

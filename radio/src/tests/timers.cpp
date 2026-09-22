@@ -38,18 +38,18 @@ TEST(Timers, ExplicitStartStopResume)
 {
   initTimer(0);
   advance(10);
-  EXPECT_EQ(0, timersStates[0].val);
+  EXPECT_EQ(0, timerGetValue(0));
   timerStart(0);
   evalTimers(75);
   timerStop(0);
   advance(10);
-  EXPECT_EQ(0, timersStates[0].val);
+  EXPECT_EQ(0, timerGetValue(0));
   timerStart(0);
   evalTimers(25);
-  EXPECT_EQ(1, timersStates[0].val);
+  EXPECT_EQ(1, timerGetValue(0));
   timerStart(0); // Starting an active timer is idempotent.
   advance(24 * 3600);
-  EXPECT_EQ(86401, timersStates[0].val);
+  EXPECT_EQ(86401, timerGetValue(0));
 }
 
 TEST(Timers, ResetAndSetStop)
@@ -59,14 +59,14 @@ TEST(Timers, ResetAndSetStop)
   advance(1);
   timerReset(0);
   advance(10);
-  EXPECT_EQ(200, timersStates[0].val);
-  EXPECT_EQ(TMR_OFF, timersStates[0].state);
-  EXPECT_FALSE(timersStates[0].running);
+  EXPECT_EQ(200, timerGetValue(0));
+  EXPECT_EQ(TMR_OFF, timerGetState(0));
+  EXPECT_FALSE(timerIsRunning(0));
   timerStart(0);
   timerSet(0, 500);
   advance(10);
-  EXPECT_EQ(500, timersStates[0].val);
-  EXPECT_FALSE(timersStates[0].running);
+  EXPECT_EQ(500, timerGetValue(0));
+  EXPECT_FALSE(timerIsRunning(0));
 }
 
 TEST(Timers, CountdownStates)
@@ -74,20 +74,20 @@ TEST(Timers, CountdownStates)
   initTimer(0, 2);
   timerStart(0);
   advance(1);
-  EXPECT_EQ(1, timersStates[0].val);
-  EXPECT_EQ(TMR_RUNNING, timersStates[0].state);
+  EXPECT_EQ(1, timerGetValue(0));
+  EXPECT_EQ(TMR_RUNNING, timerGetState(0));
   advance(1);
-  EXPECT_EQ(0, timersStates[0].val);
-  EXPECT_EQ(TMR_NEGATIVE, timersStates[0].state);
+  EXPECT_EQ(0, timerGetValue(0));
+  EXPECT_EQ(TMR_NEGATIVE, timerGetState(0));
   timerStop(0);
   advance(100);
-  EXPECT_EQ(0, timersStates[0].val);
+  EXPECT_EQ(0, timerGetValue(0));
   timerStart(0);
   advance(60);
-  EXPECT_EQ(-60, timersStates[0].val);
-  EXPECT_EQ(TMR_STOPPED, timersStates[0].state);
+  EXPECT_EQ(-60, timerGetValue(0));
+  EXPECT_EQ(TMR_STOPPED, timerGetState(0));
   advance(1); // Alert period ended, counting continues.
-  EXPECT_EQ(-61, timersStates[0].val);
+  EXPECT_EQ(-61, timerGetValue(0));
 }
 
 TEST(Timers, BatchedTicksAndIndependentLimits)
@@ -100,10 +100,13 @@ TEST(Timers, BatchedTicksAndIndependentLimits)
   for (int i = 0; i < TIMERS; ++i) timerStart(i);
   evalTimers(250);
   evalTimers(250);
-  EXPECT_EQ(TIMER_MAX, timersStates[0].val);
-  EXPECT_EQ(TIMER_MIN, timersStates[1].val);
-  EXPECT_EQ(5, timersStates[2].val);
-  EXPECT_EQ(0, timersStates[2].val_10ms);
+  EXPECT_EQ(TIMER_MAX, timerGetValue(0));
+  EXPECT_EQ(TIMER_MIN, timerGetValue(1));
+  EXPECT_EQ(5, timerGetValue(2));
+  evalTimers(99);
+  EXPECT_EQ(5, timerGetValue(2));
+  evalTimers(1);
+  EXPECT_EQ(6, timerGetValue(2));
 }
 
 TEST(Timers, SaveRestoreDoesNotStart)
@@ -121,11 +124,67 @@ TEST(Timers, SaveRestoreDoesNotStart)
   timerReset(1);
   restoreTimers();
   advance(10);
-  EXPECT_EQ(-25, timersStates[0].val);
-  EXPECT_EQ(100000, timersStates[1].val);
-  EXPECT_FALSE(timersStates[0].running);
+  EXPECT_EQ(-25, timerGetValue(0));
+  EXPECT_EQ(100000, timerGetValue(1));
+  EXPECT_FALSE(timerIsRunning(0));
   timerStart(0);
   advance(1);
-  EXPECT_EQ(-26, timersStates[0].val);
-  EXPECT_EQ(TMR_NEGATIVE, timersStates[0].state);
+  EXPECT_EQ(-26, timerGetValue(0));
+  EXPECT_EQ(TMR_NEGATIVE, timerGetState(0));
+}
+
+TEST(Timers, ValueOnlyUpdatePreservesRuntimeState)
+{
+  initTimer(0, 10);
+  timerStart(0);
+  evalTimers(75);
+  timerSetValue(0, 5);
+  EXPECT_EQ(5, timerGetValue(0));
+  EXPECT_TRUE(timerIsRunning(0));
+  EXPECT_EQ(TMR_RUNNING, timerGetState(0));
+  evalTimers(25);
+  EXPECT_EQ(4, timerGetValue(0));
+  advance(4);
+  timerStop(0);
+  timerSetValue(0, -20);
+  EXPECT_FALSE(timerIsRunning(0));
+  EXPECT_EQ(TMR_NEGATIVE, timerGetState(0));
+  advance(1);
+  EXPECT_EQ(-20, timerGetValue(0));
+}
+
+TEST(Timers, ResetAndSetClearFractionalTime)
+{
+  initTimer(0);
+  timerStart(0);
+  evalTimers(75);
+  timerReset(0);
+  timerStart(0);
+  evalTimers(25);
+  EXPECT_EQ(0, timerGetValue(0));
+  timerSet(0, 100);
+  EXPECT_EQ(TMR_OFF, timerGetState(0));
+  EXPECT_FALSE(timerIsRunning(0));
+  timerStart(0);
+  evalTimers(75);
+  EXPECT_EQ(100, timerGetValue(0));
+  evalTimers(25);
+  EXPECT_EQ(101, timerGetValue(0));
+}
+
+TEST(Timers, InvalidAccessDoesNotChangeTimers)
+{
+  initTimer(0);
+  timerSetValue(0, 123);
+  for (int idx : {-1, TIMERS}) {
+    timerSetValue(idx, 456);
+    timerSet(idx, 456);
+    timerStart(idx);
+    timerStop(idx);
+    timerReset(idx);
+    EXPECT_EQ(0, timerGetValue(idx));
+    EXPECT_FALSE(timerIsRunning(idx));
+    EXPECT_EQ(TMR_OFF, timerGetState(idx));
+  }
+  EXPECT_EQ(123, timerGetValue(0));
 }

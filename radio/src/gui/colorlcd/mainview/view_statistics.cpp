@@ -107,7 +107,7 @@ void StatisticsViewPage::build(Window* window)
   new StaticText(line, rect_t{}, STR_TIMER_LABEL);
   for (int i = 0; i < TIMERS; i += 1)
     new DynamicText(
-        line, rect_t{}, [=] { return getTimerString(timersStates[i].val); });
+        line, rect_t{}, [=] { return getTimerString(timerGetValue(i)); });
 
   line = window->newLine(grid);
   line->padAll(PAD_SMALL);

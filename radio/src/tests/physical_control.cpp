@@ -106,7 +106,7 @@ TEST_F(PhysicalControlTest, PhysicalInputLabelsPreserveControlNames)
 TEST_F(PhysicalControlTest, SharedSystemAndTimerAPIsRemainReadable)
 {
   g_vbat100mV = 83;
-  timersStates[0].val = 123;
+  timerSetValue(0, 123);
   EXPECT_EQ(83, getValue(MIXSRC_TX_VOLTAGE));
   EXPECT_EQ(-123, getValue(-MIXSRC_FIRST_TIMER));
 }
