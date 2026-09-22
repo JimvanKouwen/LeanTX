@@ -203,7 +203,6 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #endif
 
 #if !defined(BOOT)
-#if defined(LUA)
   case UART_MODE_LUA:
     LuaRuntime::setSerialSend(ctx, sendByte);
     if (getByte) {
@@ -215,7 +214,6 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
       LuaRuntime::freeSerialBuffer();
     }
     break;
-#endif
 
   case UART_MODE_TELEMETRY_MIRROR:
     telemetrySetMirrorCb(ctx, sendByte);
@@ -281,12 +279,10 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.baudrate = CROSSFIRE_TELEM_MIRROR_BAUDRATE;
     break;
 
-#if defined(LUA)
   case UART_MODE_LUA:
     params.baudrate = LUA_DEFAULT_BAUDRATE;
     params.direction = ETX_Dir_TX_RX;
     break;
-#endif
 
 #if defined(INTERNAL_GPS)
   case UART_MODE_GPS:

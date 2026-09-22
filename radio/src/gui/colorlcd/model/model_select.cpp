@@ -640,14 +640,12 @@ void ModelLabelsWindow::newModel()
       // Update the current cell's data
       modelslist.updateCurrentModelCell();
 
-#if defined(LUA)
       // If there is a wizard Lua script, fire it up
       int len = strlen(path);
       snprintf(path + len, LEN_BUFFER - len, "/%s%s", name.c_str(), SCRIPT_EXT);
       if (f_stat(path, 0) == FR_OK) {
         LuaRuntime::executeStandalone(path);
       }
-#endif
     } else {
       LayoutFactory::loadDefaultLayout();
     }

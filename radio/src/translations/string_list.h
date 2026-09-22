@@ -286,8 +286,6 @@ STR(PWR_ON_OFF_HAPTIC)
 STR(STRENGTH)
 #endif
 
-#if defined(LUA)
-#endif
 
 #if defined(BLUETOOTH)
 STR(BLUETOOTH_DIST_ADDR)

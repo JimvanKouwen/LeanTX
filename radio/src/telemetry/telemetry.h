@@ -189,14 +189,12 @@ class OutputTelemetryBuffer
 
 extern OutputTelemetryBuffer outputTelemetryBuffer __DMA_NO_CACHE;
 
-#if defined(LUA)
 #include "fifo.h"
 #define LUA_TELEMETRY_INPUT_FIFO_SIZE  256
 typedef Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> TelemetryQueue;
 extern TelemetryQueue* luaInputTelemetryFifo;
 void registerTelemetryQueue(TelemetryQueue*);
 void deregisterTelemetryQueue(TelemetryQueue*);
-#endif
 
 // Module pulse synchronization
 struct ModuleSyncStatus

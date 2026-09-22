@@ -152,12 +152,10 @@ void onSdManagerMenu(const char * result)
   }
 #endif
 #endif
-#if defined(LUA)
   else if (result == STR_EXECUTE_FILE) {
     getSelectionFullPath(lfn);
     LuaRuntime::execute(lfn);
   }
-#endif
 }
 
 void menuRadioSdManager(event_t _event)
@@ -243,11 +241,9 @@ void menuRadioSdManager(event_t _event)
             }
           }
 #endif
-#if defined(LUA)
           else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_EXECUTE_FILE);
           }
-#endif
 #if defined(PCBTARANIS)
           if (!strcasecmp(ext, FIRMWARE_EXT)) {
             if (isBootloader(lfn)) {

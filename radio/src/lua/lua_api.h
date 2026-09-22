@@ -21,7 +21,6 @@
 
 #pragma once
 
-#if defined(LUA)
 
 // prevent C++ code to be included from lua.h
 #include "rtos.h"
@@ -190,10 +189,3 @@ void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 
 void l_pushtableint(lua_State* ls, const char * key, int value);
 void l_pushtablebool(lua_State* ls, const char * key, bool value);
-
-#else  // defined(LUA)
-
-#define luaInit()
-#define LUA_LOAD_MODEL_SCRIPTS()
-
-#endif // defined(LUA)

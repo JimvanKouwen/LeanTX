@@ -201,26 +201,19 @@ SelectTemplateFolder::SelectTemplateFolder(
     directories.sort(compare_nocase);
 
     for (auto name : directories) {
-#if not defined(LUA)
-      // Don't show wizards dir if no lua
-      if (!strcasecmp(name.c_str(), "WIZARD") == 0) {
-#endif
-        auto tfb = new TextButton(
-            listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT * 2}, name,
-            [=]() -> uint8_t {
-              new SelectTemplate(this, name);
-              return 0;
-            });
-        tfb->setFocusHandler([=](bool active) {
-          if (active) {
-            snprintf(buffer, LEN_BUFFER, "%s/%s/about%s", TEMPLATES_PATH,
-                     name.c_str(), TEXT_EXT);
-            updateInfo();
-          }
-        });
-#if not defined(LUA)
-      }
-#endif
+      auto tfb = new TextButton(
+          listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT * 2}, name,
+          [=]() -> uint8_t {
+            new SelectTemplate(this, name);
+            return 0;
+          });
+      tfb->setFocusHandler([=](bool active) {
+        if (active) {
+          snprintf(buffer, LEN_BUFFER, "%s/%s/about%s", TEMPLATES_PATH,
+                   name.c_str(), TEXT_EXT);
+          updateInfo();
+        }
+      });
     }
   }
 

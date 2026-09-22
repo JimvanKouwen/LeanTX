@@ -86,7 +86,6 @@ void addRadioModuleToolHandler(uint8_t index, const char * label, void (* tool)(
   }
 }
 
-#if defined(LUA)
 static void addRadioScriptToolHandler(std::vector<LuaScript> luaScripts)
 {
   uint8_t index = 0;
@@ -99,7 +98,6 @@ static void addRadioScriptToolHandler(std::vector<LuaScript> luaScripts)
     index += 1;
   }
 }
-#endif
 
 void menuRadioTools(event_t event)
 {
@@ -121,7 +119,6 @@ void menuRadioTools(event_t event)
     return;
   }
 
-#if defined(LUA)
   FILINFO fno;
   DIR dir;
 
@@ -173,7 +170,6 @@ void menuRadioTools(event_t event)
     addRadioScriptToolHandler(luaScripts);
     index += luaScripts.size();
   }
-#endif
 
   if (index == 0) {
     lcdDrawCenteredText(LCD_H/2, STR_NO_TOOLS);

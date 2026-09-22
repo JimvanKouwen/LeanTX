@@ -75,10 +75,8 @@
 #include <malloc.h>
 #endif
 
-#if defined(LUA)
 #include "lua/lua_states.h"
 #include "lua/custom_allocator.h"
-#endif
 
 #if defined(LUMINOSITY_SENSOR)
 #include "luminosity_sensor.h"
@@ -722,16 +720,12 @@ void edgeTxClose(uint8_t shutdown)
 #if defined(COLORLCD)
   cancelShutdownAnimation();  // To prevent simulator crash
   MainWindow::instance()->shutdown();
-#if defined(LUA)
   extern void unloadLuaTools();
   unloadLuaTools();
   LuaRuntime::unregisterWidgets();
 #endif
-#endif
 
-#if defined(LUA)
   LuaRuntime::shutdown();
-#endif
 
   sdDone();
 
@@ -748,7 +742,7 @@ void edgeTxResume()
   if (!sdMounted()) sdInit();
 
   LuaRuntime::initialize();
-#if defined(COLORLCD) && defined(LUA)
+#if defined(COLORLCD)
   // reload widgets
   LuaRuntime::initializeWidgets();
 #endif
@@ -925,7 +919,7 @@ void edgeTxInit()
   }
 
   LuaRuntime::initialize();
-#if defined(COLORLCD) && defined(LUA)
+#if defined(COLORLCD)
   if (!UNEXPECTED_SHUTDOWN()) {
     // lua widget state must be prepared before the call to storageReadAll()
     LuaRuntime::initializeWidgets();

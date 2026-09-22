@@ -19,9 +19,7 @@ set(GUI_SRC
   ../common/stdlcd/lcd_common.cpp
   )
 
-if(LUA)
-  set(GUI_SRC ${GUI_SRC} ../common/stdlcd/radio_tools.cpp)
-endif()
+set(GUI_SRC ${GUI_SRC} ../common/stdlcd/radio_tools.cpp)
 
 if(USBJ_EX)
   set(GUI_SRC

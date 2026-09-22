@@ -196,11 +196,9 @@ void postModelLoad(bool alarms)
 
   // Reset debug stats for the newly loaded model (after checkAll() warnings)
   maxMixerDuration = 0;
-#if defined(LUA)
   maxLuaInterval = 0;
   maxLuaDuration = 0;
   lastLuaTime = 0;  // avoids counting the load time as one huge interval spike
-#endif
 }
 
 void storageFlushCurrentModel()

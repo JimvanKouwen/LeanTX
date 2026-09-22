@@ -39,7 +39,6 @@ inline bool tool_compare_nocase(const ToolEntry& first, const ToolEntry& second)
   return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
 }
 
-#if defined(LUA)
 std::vector<ToolEntry> luaTools;
 static bool luaToolsLoaded = false;
 
@@ -123,7 +122,6 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
   for (auto t : luaTools)
     scripts.emplace_back(t);
 }
-#endif
 
 const ToolEntry* getLuaTool(int n)
 {
@@ -241,9 +239,7 @@ void RadioToolsPage::rebuild(Window* window)
   tools.emplace_back(ToolEntry{STR_MIC_RECORDER, "", run_mic_recorder});
 #endif
 
-#if defined(LUA)
   scanLuaTools(tools);
-#endif
 
   tools.sort(tool_compare_nocase);
 

@@ -208,7 +208,6 @@ TEST_F(PhysicalControlRfTest, FunctionSwitchArmingUsesConfiguredState)
 }
 #endif
 
-#if defined(LUA)
 TEST_F(PhysicalControlRfTest, OlderElrsClearsConditionEvenInCH5Mode)
 {
   MODEL_RESET();
@@ -238,7 +237,6 @@ TEST_F(PhysicalControlRfTest, OlderElrsClearsConditionEvenInCH5Mode)
   EXPECT_EQ(ARMING_MODE_CH5, md.crsf.crsfArmingMode);
   EXPECT_EQ(0, md.crsf.crsfArmingCondition);
 }
-#endif
 
 TEST(Crossfire, crc8)
 {

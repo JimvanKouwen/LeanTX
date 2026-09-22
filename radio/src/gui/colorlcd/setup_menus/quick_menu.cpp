@@ -478,9 +478,7 @@ std::vector<std::string>& QuickMenu::menuPageNames(bool forFavorites)
     }
   }
 
-#if defined(LUA)
   getLuaToolNames(qmPages);
-#endif
 
   return qmPages;
 }

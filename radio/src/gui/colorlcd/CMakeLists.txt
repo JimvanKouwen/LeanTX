@@ -91,15 +91,13 @@ macro(add_gui_src src)
     )
 endmacro(add_gui_src)
 
-if(LUA)
-  add_gui_src(standalone_lua.cpp)
-  set(SRC ${SRC}
-    lua/lua_widget.cpp
-    lua/lua_widget_factory.cpp
-    lua/widgets.cpp
-    lua/lua_lvgl_widget.cpp
-    )
-endif()
+add_gui_src(standalone_lua.cpp)
+set(SRC ${SRC}
+  lua/lua_widget.cpp
+  lua/lua_widget_factory.cpp
+  lua/widgets.cpp
+  lua/lua_lvgl_widget.cpp
+  )
 
 
 if(FUNCTION_SWITCHES)

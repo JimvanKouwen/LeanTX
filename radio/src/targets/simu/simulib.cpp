@@ -35,9 +35,7 @@
 #include "input_mapping.h"
 #include "gui/gui_common.h"
 #include "telemetry/crossfire.h"
-#if defined(LUA)
 #include "lua/lua_api.h"
-#endif
 
 #include <assert.h>
 #include <clocale>
@@ -329,10 +327,7 @@ void setHatsAsKeys(bool val) { trimsAsButtons = val; }
 
 bool getHatsAsKeys()
 {
-  bool lua = false;
-#if defined(LUA)
-  lua = isLuaStandaloneRunning();
-#endif
+  bool lua = isLuaStandaloneRunning();
   return (trimsAsButtons || lua);
 }
 #endif
@@ -682,11 +677,7 @@ int32_t simuGetCapability(uint8_t cap)
 {
   switch (cap) {
     case 0:  // CAP_LUA
-#ifdef LUA
       return 1;
-#else
-      return 0;
-#endif
     case 1:  // CAP_ROTARY_ENC
       return 0;
     case 2:  // CAP_ROTARY_ENC_NAV
@@ -717,9 +708,7 @@ void simuSendTelemetry(uint8_t module, uint8_t protocol,
 
 void simuLuaReloadPermanentScripts()
 {
-#if defined(LUA)
   luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
-#endif
 }
 
 void simuLcdFlushed()

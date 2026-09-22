@@ -50,9 +50,7 @@
 
 #define IS_FAI_FORBIDDEN(idx) (IS_FAI_ENABLED() && isFaiForbidden(idx))
 
-#if defined(LUA)
-  #define RADIO_TOOLS
-#endif
+#define RADIO_TOOLS
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
 enum RotaryEncoderMode {

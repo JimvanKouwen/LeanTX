@@ -1,6 +1,4 @@
 
-add_definitions(-DLUA)
-
 if(LUA_COMPILER)
   add_definitions(-DLUA_COMPILER)
 endif()

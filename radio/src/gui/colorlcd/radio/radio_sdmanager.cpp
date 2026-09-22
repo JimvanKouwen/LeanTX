@@ -228,13 +228,11 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       }
 #endif
     }
-#if defined(LUA)
     else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
       menu->addLine(STR_EXECUTE_FILE, [=]() {
         LuaRuntime::executeStandalone(fullpath);
       });
     }
-#endif
   }
   menu->addLine(STR_COPY_FILE, [=]() {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;

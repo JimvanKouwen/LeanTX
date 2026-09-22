@@ -403,10 +403,6 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode, const RadioData& settings)
     return false;
 #endif
 
-#if !defined(LUA)
-  if (mode == UART_MODE_LUA)
-    return false;
-#endif
 
   for (unsigned p = 0; p < MAX_SERIAL_PORTS; ++p) {
     const int configured = (settings.serialPort >> (p * SERIAL_CONF_BITS_PER_PORT)) & SERIAL_CONF_MODE_MASK;

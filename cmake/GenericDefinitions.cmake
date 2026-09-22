@@ -58,7 +58,6 @@ if(Python3_Interpreter_FOUND)
   cmake_path(NATIVE_PATH Python3_EXECUTABLE PYTHON_EXECUTABLE)
 else()
   message(WARNING "Python not found! Most firmware and simu flavors not buildable.")
-  set(LUA NO)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")  # regular Clang or AppleClang

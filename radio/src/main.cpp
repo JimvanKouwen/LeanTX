@@ -42,9 +42,7 @@
 #include "cli.h"
 #endif
 
-#if defined(LUA)
 #include "lua/lua_event.h"
-#endif
 
 #if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
@@ -393,9 +391,7 @@ void periodicTick_1s() { checkBattery(); }
 void periodicTick_10s()
 {
   checkBatteryAlarms();
-#if defined(LUA)
   checkLuaMemoryUsage();
-#endif
 }
 
 void periodicTick()
@@ -416,7 +412,6 @@ void periodicTick()
 
 void guiMain(event_t evt)
 {
-#if defined(LUA)
   uint32_t t0 = get_tmr10ms();
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
   lastLuaTime = t0;
@@ -434,7 +429,6 @@ void guiMain(event_t evt)
   if (t0 > maxLuaDuration) {
     maxLuaDuration = t0;
   }
-#endif
 
   // For color screens show a popup deferred from another task
   show_ui_popup();
@@ -445,14 +439,12 @@ void guiMain(event_t evt)
 bool handleGui(event_t event)
 {
   bool refreshNeeded;
-#if defined(LUA)
   bool isStandalone = luaScriptsCount != 0;
   if (isStandalone && event) {
     LuaRuntime::receiveEvent(event);
   }
   refreshNeeded = LuaRuntime::run(true);
   if (luaScriptsCount == 0)
-#endif
   // No foreground Lua script is running - clear the screen show normal menu
   {
     lcdClear();
@@ -466,7 +458,6 @@ bool handleGui(event_t event)
 void guiMain(event_t evt)
 {
   bool refreshNeeded = menuEvent || warningText || (popupMenuItemsCount > 0);
-#if defined(LUA)
   // TODO better lua stopwatch
   uint32_t t0 = get_tmr10ms();
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
@@ -483,7 +474,6 @@ void guiMain(event_t evt)
   if (t0 > maxLuaDuration) {
     maxLuaDuration = t0;
   }
-#endif  // #if defined(LUA)
 
   // wait for LCD DMA to finish before continuing, because code from this point
   // is allowed to change the contents of LCD buffer

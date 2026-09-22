@@ -142,7 +142,6 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
 size_t setupPulsesCrossfire(uint8_t module, uint8_t* buffer, int16_t* channels)
 {
   auto p_buf = buffer;
-#if defined(LUA)
   uint8_t endpoint = 0;
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) endpoint = TELEMETRY_ENDPOINT_SPORT;
@@ -153,7 +152,6 @@ size_t setupPulsesCrossfire(uint8_t module, uint8_t* buffer, int16_t* channels)
     outputTelemetryBuffer.reset();
     p_buf += len;
   } else
-#endif
   {
     //
     // An ELRS module stores the RF parameters in a model specific way using the

@@ -34,7 +34,6 @@ endif()
 
 # TODO: this shouldn't be needed at all
 remove_definitions(-DDISK_CACHE)
-remove_definitions(-DLUA)
 remove_definitions(-DCLI)
 remove_definitions(-DSEMIHOSTING)
 remove_definitions(-DUSB_SERIAL)

@@ -21,7 +21,6 @@
 
 #pragma once
 
-#if defined(LUA)
 #include "mainwindow.h"
 #include "keyboard_base.h"
 #include "lua/lua_api.h"
@@ -92,4 +91,3 @@ protected:
   void onClicked() override;
   void onCancel() override;
 };
-#endif

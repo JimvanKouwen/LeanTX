@@ -98,9 +98,7 @@ class LuaScriptManager : public LuaEventHandler
   int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
   LvglWidgetObjectBase* tempParent = nullptr;
-#if defined(LUA)
   TelemetryQueue* luaInputTelemetryFifo = nullptr;
-#endif
 };
 
 class LuaWidget : public Widget, public LuaScriptManager

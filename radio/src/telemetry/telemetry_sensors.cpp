@@ -510,12 +510,10 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
         break;
 #endif
 
-#if defined(LUA)
      case PROTOCOL_TELEMETRY_LUA:
         // Sensor will be initialized by calling function
         // This drops the first value
         return index;
-#endif
 
       default:
         return index;

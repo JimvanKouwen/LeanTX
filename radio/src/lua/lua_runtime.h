@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include "edgetx_types.h"
 
-#if defined(LUA)
 class LuaWidget;
 class StandaloneLuaWindow;
 class BitmapBuffer;
@@ -33,6 +32,3 @@ void refreshWidget(LuaWidget& widget, BitmapBuffer* display);
 void backgroundWidget(LuaWidget& widget);
 #endif
 }
-#else
-namespace LuaRuntime { inline void initialize() {} }
-#endif

@@ -167,7 +167,6 @@ void DebugViewPage::build(Window* window)
       line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1_INDEX, 0,
       nullptr, pad_STR_BYTES.c_str());
 
-#if defined(LUA)
   line = window->newLine(grid);
   line->padAll(PAD_TINY);
 
@@ -210,7 +209,6 @@ void DebugViewPage::build(Window* window)
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return luaExtraMemoryUsage; }, STR_MEM_USED_EXTRA);
-#endif
 
   line = window->newLine(grid);
   line->padAll(PAD_TINY);
@@ -266,10 +264,8 @@ void DebugViewPage::build(Window* window)
   auto btn = new TextButton(line, rect_t{0, 0, 0, RST_BTN_H}, STR_MENUTORESET,
                             [=]() -> uint8_t {
                               maxMixerDuration = 0;
-#if defined(LUA)
                               maxLuaInterval = 0;
                               maxLuaDuration = 0;
-#endif
                               return 0;
                             });
 

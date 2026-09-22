@@ -23,7 +23,6 @@
 #include "gtests.h"
 #include "location.h"
 
-#if defined(LUA)
 
 #include "edgetx.h"
 #include "lua/lua_states.h"
@@ -358,7 +357,6 @@ TEST(Lua, ioSeek)
   std::filesystem::remove(simuFatfsGetRealPath("seek-test.txt"));
 }
 
-#endif   // #if defined(LUA)
 
 TEST(Lua, LogicalSwitchApisRemoved)
 {

@@ -100,10 +100,8 @@ void menuStatisticsDebug(event_t event)
       break;
 
     case EVT_KEY_BREAK(KEY_ENTER):
-#if defined(LUA)
       maxLuaInterval = 0;
       maxLuaDuration = 0;
-#endif
       maxMixerDuration  = 0;
       break;
 
@@ -132,14 +130,12 @@ void menuStatisticsDebug(event_t event)
   lcdDrawText(lcdLastRightPos+FW, y, STR_BYTES);
   y += FH;
 
-#if defined(LUA)
   lcdDrawTextAlignedLeft(y, STR_LUA_SCRIPTS_LABEL);
   lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, STR_DURATION_MS, SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, 10*maxLuaDuration, LEFT);
   lcdDrawText(lcdLastRightPos+2, y+1, STR_INTERVAL_MS, SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, 10*maxLuaInterval, LEFT);
   y += FH;
-#endif
 
   lcdDrawTextAlignedLeft(y, STR_TMIXMAXMS);
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, DURATION_MS_PREC2(maxMixerDuration), PREC2|LEFT);

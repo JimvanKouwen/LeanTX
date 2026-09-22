@@ -30,7 +30,6 @@ void backgroundWidget(LuaWidget& widget) { widget.backgroundCallback(); }
 #endif
 }
 
-#if defined(LUA)
 TelemetryQueue* luaInputTelemetryFifo = nullptr;
 #if defined(COLORLCD)
 std::list<TelemetryQueue*> telemetryQueues;
@@ -63,4 +62,3 @@ void LuaRuntime::receiveTelemetry(uint8_t* data, int length)
 #endif
   pushDataToQueue(luaInputTelemetryFifo, data, length);
 }
-#endif
