@@ -60,6 +60,22 @@ TEST_F(PhysicalControlTest, SwitchPositionsReachChannelsImmediately)
   }
 }
 
+TEST_F(PhysicalControlTest, TwoPositionSwitchReachesChannelImmediately)
+{
+  generalDefault();
+  MODEL_RESET();
+  int sw = findHwSwitch(SWITCH_2POS);
+  if (sw < 0) sw = findHwSwitch(SWITCH_TOGGLE);
+  ASSERT_GE(sw, 0);
+  g_model.setSwitchType(sw, SWITCH_2POS);
+  g_model.channelMappings[0].source = physicalSwitch(sw);
+  for (int position : {-1, 1, -1}) {
+    simuSetSwitch(sw, position);
+    updateChannelOutputs();
+    EXPECT_EQ(position * RESX, channelOutputs[0]);
+  }
+}
+
 TEST_F(PhysicalControlTest, FlexInputsKeepNativeResolution)
 {
 #if defined(STICK_DEAD_ZONE)
@@ -222,6 +238,78 @@ TEST_F(PhysicalControlTest, InvalidSourceIdsAreSafe)
 }
 
 #if defined(FUNCTION_SWITCHES)
+TEST_F(PhysicalControlTest, FunctionSwitchMappingIgnoresLogicalState)
+{
+  MODEL_RESET();
+  unsigned tested = 0;
+  for (unsigned sw = 0; sw < switchGetMaxSwitches(); ++sw) {
+    if (!switchIsCustomSwitch(sw)) continue;
+    ++tested;
+    g_model.cfsSetType(sw, SWITCH_TOGGLE);
+    auto source = physicalSwitch(sw);
+    g_model.channelMappings[0].source = source;
+    for (int position : {-1, 1, -1}) {
+      simuSetSwitch(sw, position);
+      updateChannelOutputs();
+      EXPECT_EQ(position * RESX, channelOutputs[0]);
+      const auto physicalValue = channelOutputs[0];
+      for (bool on : {false, true, false}) {
+        g_model.cfsSetState(sw, on);
+        updateChannelOutputs();
+        EXPECT_EQ(position * RESX, readPhysicalInput(source));
+        EXPECT_EQ(physicalValue, channelOutputs[0]);
+        EXPECT_EQ(position == -1,
+                  readPhysicalSwitchCondition(physicalSwitchCondition(sw, 0)));
+        EXPECT_EQ(position == 1,
+                  readPhysicalSwitchCondition(physicalSwitchCondition(sw, 2)));
+        EXPECT_EQ(on, g_model.cfsState(sw));
+        EXPECT_EQ(on ? RESX : -RESX, getValue(MIXSRC_FIRST_SWITCH + sw));
+      }
+    }
+  }
+  ASSERT_GT(tested, 0u);
+}
+
+TEST_F(PhysicalControlTest, FunctionSwitchLatchIsIndependentOfPhysicalInput)
+{
+  MODEL_RESET();
+  for (unsigned sw = 0; sw < switchGetMaxSwitches(); ++sw) {
+    if (!switchIsCustomSwitch(sw)) continue;
+    // The existing 2-position mode latches on press and retains state on release.
+    g_model.cfsSetType(sw, SWITCH_2POS);
+    g_model.cfsSetGroup(sw, 0);
+    simuSetSwitch(sw, -1);
+  }
+  setFSStartupPosition();
+  evalFunctionSwitches(); // Synchronize the previous hardware positions.
+
+  unsigned tested = 0;
+  for (unsigned sw = 0; sw < switchGetMaxSwitches(); ++sw) {
+    if (!switchIsCustomSwitch(sw)) continue;
+    ++tested;
+    g_model.cfsSetState(sw, false);
+    auto source = physicalSwitch(sw);
+    g_model.channelMappings[0].source = source;
+    for (bool latched : {true, false}) {
+      simuSetSwitch(sw, 1);
+      evalFunctionSwitches();
+      updateChannelOutputs();
+      EXPECT_EQ(latched, g_model.cfsState(sw));
+      EXPECT_EQ(RESX, readPhysicalInput(source));
+      EXPECT_EQ(RESX, channelOutputs[0]);
+
+      simuSetSwitch(sw, -1);
+      evalFunctionSwitches();
+      updateChannelOutputs();
+      EXPECT_EQ(latched, g_model.cfsState(sw));
+      EXPECT_EQ(-RESX, readPhysicalInput(source));
+      EXPECT_EQ(-RESX, channelOutputs[0]);
+      EXPECT_EQ(latched ? RESX : -RESX, getValue(MIXSRC_FIRST_SWITCH + sw));
+    }
+  }
+  ASSERT_GT(tested, 0u);
+}
+
 TEST_F(PhysicalControlTest, FunctionGroupDegenerateScalarValues)
 {
   for (unsigned i = 0; i < switchGetMaxSwitches(); ++i)

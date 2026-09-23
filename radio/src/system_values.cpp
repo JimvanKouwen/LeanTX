@@ -80,6 +80,12 @@ static getvalue_t _getValue(mixsrc_t i, bool* valid)
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
     auto source = physicalSwitch(i - MIXSRC_FIRST_SWITCH);
     if (valid && !isPhysicalInputAvailable(source)) *valid = false;
+#if defined(FUNCTION_SWITCHES)
+    auto sw_idx = i - MIXSRC_FIRST_SWITCH;
+    if (sw_idx < switchGetMaxSwitches() && switchIsCustomSwitch(sw_idx) &&
+        isPhysicalInputAvailable(source))
+      return g_model.cfsState(sw_idx) ? RESX : -RESX;
+#endif
     return readPhysicalInput(source);
   }
 #if defined(FUNCTION_SWITCHES)

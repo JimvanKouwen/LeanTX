@@ -48,12 +48,7 @@ int16_t readPhysicalInput(PhysicalInputId source)
   if (id < 65) return calibratedAnalogs[adcGetInputOffset(ADC_INPUT_FLEX) + id - 33];
   {
     auto sw_idx = uint8_t(id - 65);
-#if defined(FUNCTION_SWITCHES)
-    auto max_switches = switchGetMaxSwitches();
-    if (sw_idx < max_switches && switchIsCustomSwitch(sw_idx)) {
-      return _switch_2pos_lookup[g_model.cfsState(sw_idx)];
-    }
-#endif
+    // Physical inputs always read hardware, including function buttons.
     auto sw_cfg = g_model.getSwitchType(sw_idx);
     switch(sw_cfg) {
     default:
